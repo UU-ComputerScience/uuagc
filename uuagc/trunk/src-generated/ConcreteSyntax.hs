@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.42.3 (src-ag/ConcreteSyntax.ag)
+-- UUAGC 0.9.50 (src-ag/ConcreteSyntax.ag)
 module ConcreteSyntax where
 {-# LINE 2 "./src-ag/ConcreteSyntax.ag" #-}
 
@@ -69,6 +69,7 @@ data ConstructorSet = CName (ConstructorIdent)
    alternatives:
       alternative Data:
          child pos            : {Pos}
+         child contype        : {ConstructorType}
          child ctx            : {ClassContext}
          child names          : NontSet 
          child params         : {[Identifier]}
@@ -123,7 +124,7 @@ data ConstructorSet = CName (ConstructorIdent)
          child exports        : {String}
          child imports        : {String}
 -}
-data Elem = Data (Pos) (ClassContext) (NontSet) (([Identifier])) (Attrs) (Alts) (Bool)
+data Elem = Data (Pos) (ConstructorType) (ClassContext) (NontSet) (([Identifier])) (Attrs) (Alts) (Bool)
           | Type (Pos) (ClassContext) (NontermIdent) (([Identifier])) (ComplexType)
           | Attr (Pos) (ClassContext) (NontSet) (([String])) (Attrs)
           | Sem (Pos) (ClassContext) (NontSet) (Attrs) (([String])) (SemAlts)

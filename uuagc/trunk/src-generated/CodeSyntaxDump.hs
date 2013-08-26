@@ -2,19 +2,19 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module CodeSyntaxDump where
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 11 "dist/build/CodeSyntaxDump.hs" #-}
+
 {-# LINE 2 "./src-ag/CodeSyntax.ag" #-}
 
 import Patterns
 import CommonTypes
 import Data.Map(Map)
 import Data.Set(Set)
-{-# LINE 12 "dist/build/CodeSyntaxDump.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 19 "dist/build/CodeSyntaxDump.hs" #-}
 
 {-# LINE 5 "./src-ag/CodeSyntaxDump.ag" #-}

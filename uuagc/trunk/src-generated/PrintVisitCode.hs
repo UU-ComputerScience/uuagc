@@ -2,24 +2,24 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module PrintVisitCode where
-{-# LINE 2 "./src-ag/CodeSyntax.ag" #-}
+{-# LINE 2 "./src-ag/DeclBlocks.ag" #-}
 
-import Patterns
-import CommonTypes
-import Data.Map(Map)
-import Data.Set(Set)
-{-# LINE 12 "dist/build/PrintVisitCode.hs" #-}
+import Code (Decl,Expr)
+{-# LINE 9 "dist/build/PrintVisitCode.hs" #-}
 
 {-# LINE 2 "./src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 19 "dist/build/PrintVisitCode.hs" #-}
+{-# LINE 16 "dist/build/PrintVisitCode.hs" #-}
 
-{-# LINE 2 "./src-ag/DeclBlocks.ag" #-}
+{-# LINE 2 "./src-ag/CodeSyntax.ag" #-}
 
-import Code (Decl,Expr)
+import Patterns
+import CommonTypes
+import Data.Map(Map)
+import Data.Set(Set)
 {-# LINE 24 "dist/build/PrintVisitCode.hs" #-}
 
 {-# LINE 10 "./src-ag/PrintVisitCode.ag" #-}

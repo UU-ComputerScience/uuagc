@@ -3,6 +3,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module PrintCode where
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 12 "dist/build/PrintCode.hs" #-}
+
 {-# LINE 2 "./src-ag/Code.ag" #-}
 
 import Patterns
@@ -10,13 +17,6 @@ import Data.Set(Set)
 import qualified Data.Set as Set
 import Data.Map(Map)
 import qualified Data.Map as Map
-{-# LINE 14 "dist/build/PrintCode.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 21 "dist/build/PrintCode.hs" #-}
 
 {-# LINE 10 "./src-ag/PrintCode.ag" #-}
@@ -2998,14 +2998,14 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st41) wher
          _lhsOstrictVars :: [PP_Doc]
          _lhsOstrictVars = rule319 _strictPatVars _strictVar
          _addBang = rule320 _lhsIbelowIrrefutable _lhsIisDeclOfLet _lhsIoptions
-         _ppVar = rule321 arg_attr_ arg_field_
+         _ppVar = rule321 _lhsIoptions arg_attr_ arg_field_
          _ppVarBang = rule322 _addBang _ppVar
          _lhsOpp :: PP_Doc
          _lhsOpp = rule323 _patIisUnderscore _patIpp _ppVarBang
          _lhsOisUnderscore :: Bool
          _lhsOisUnderscore = rule324  ()
          _lhsOpp' :: PP_Doc
-         _lhsOpp' = rule325 _patIpp' arg_attr_ arg_field_
+         _lhsOpp' = rule325 _lhsIoptions _patIpp' arg_attr_ arg_field_
          _copy = rule326 _patIcopy arg_attr_ arg_field_
          _lhsOcopy :: Pattern
          _lhsOcopy = rule327 _copy
@@ -3047,9 +3047,9 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st41) wher
                       {-# LINE 3048 "dist/build/PrintCode.hs"#-}
    {-# INLINE rule321 #-}
    {-# LINE 360 "./src-ag/PrintCode.ag" #-}
-   rule321 = \ attr_ field_ ->
+   rule321 = \ ((_lhsIoptions) :: Options) attr_ field_ ->
                            {-# LINE 360 "./src-ag/PrintCode.ag" #-}
-                           pp (attrname False field_ attr_)
+                           pp (attrname _lhsIoptions False field_ attr_)
                            {-# LINE 3054 "dist/build/PrintCode.hs"#-}
    {-# INLINE rule322 #-}
    {-# LINE 361 "./src-ag/PrintCode.ag" #-}
@@ -3073,10 +3073,10 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st41) wher
                                     {-# LINE 3074 "dist/build/PrintCode.hs"#-}
    {-# INLINE rule325 #-}
    {-# LINE 394 "./src-ag/PrintCode.ag" #-}
-   rule325 = \ ((_patIpp') :: PP_Doc) attr_ field_ ->
+   rule325 = \ ((_lhsIoptions) :: Options) ((_patIpp') :: PP_Doc) attr_ field_ ->
                             {-# LINE 394 "./src-ag/PrintCode.ag" #-}
                             let attribute | field_ == _LOC || field_ == nullIdent = locname' attr_
-                                          | otherwise                             = attrname False field_ attr_
+                                          | otherwise                             = attrname _lhsIoptions False field_ attr_
                             in attribute >|< "@" >|< _patIpp'
                             {-# LINE 3082 "dist/build/PrintCode.hs"#-}
    {-# INLINE rule326 #-}

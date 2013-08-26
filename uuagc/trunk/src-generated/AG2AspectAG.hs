@@ -2,6 +2,25 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module AG2AspectAG where
+{-# LINE 2 "./src-ag/HsToken.ag" #-}
+
+import CommonTypes
+import UU.Scanner.Position(Pos)
+{-# LINE 10 "dist/build/AG2AspectAG.hs" #-}
+
+{-# LINE 2 "./src-ag/Expression.ag" #-}
+
+import UU.Scanner.Position(Pos)
+import HsToken
+{-# LINE 16 "dist/build/AG2AspectAG.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 23 "dist/build/AG2AspectAG.hs" #-}
+
 {-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
 
 -- AbstractSyntax.ag imports
@@ -12,25 +31,6 @@ import Expression  (Expression(..))
 import Macro --marcos
 import CommonTypes
 import ErrorMessages
-{-# LINE 16 "dist/build/AG2AspectAG.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 23 "dist/build/AG2AspectAG.hs" #-}
-
-{-# LINE 2 "./src-ag/Expression.ag" #-}
-
-import UU.Scanner.Position(Pos)
-import HsToken
-{-# LINE 29 "dist/build/AG2AspectAG.hs" #-}
-
-{-# LINE 2 "./src-ag/HsToken.ag" #-}
-
-import CommonTypes
-import UU.Scanner.Position(Pos)
 {-# LINE 35 "dist/build/AG2AspectAG.hs" #-}
 
 {-# LINE 8 "./src-ag/AG2AspectAG.ag" #-}

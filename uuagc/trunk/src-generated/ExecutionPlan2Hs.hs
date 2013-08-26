@@ -2,6 +2,25 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module ExecutionPlan2Hs where
+{-# LINE 2 "./src-ag/HsToken.ag" #-}
+
+import CommonTypes
+import UU.Scanner.Position(Pos)
+{-# LINE 10 "dist/build/ExecutionPlan2Hs.hs" #-}
+
+{-# LINE 2 "./src-ag/Expression.ag" #-}
+
+import UU.Scanner.Position(Pos)
+import HsToken
+{-# LINE 16 "dist/build/ExecutionPlan2Hs.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 23 "dist/build/ExecutionPlan2Hs.hs" #-}
+
 {-# LINE 2 "./src-ag/ExecutionPlan.ag" #-}
 
 -- VisitSyntax.ag imports
@@ -14,25 +33,6 @@ import qualified Data.Set as Set
 import Data.Set(Set)
 import qualified Data.Map as Map
 import Data.Map(Map)
-{-# LINE 18 "dist/build/ExecutionPlan2Hs.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 25 "dist/build/ExecutionPlan2Hs.hs" #-}
-
-{-# LINE 2 "./src-ag/Expression.ag" #-}
-
-import UU.Scanner.Position(Pos)
-import HsToken
-{-# LINE 31 "dist/build/ExecutionPlan2Hs.hs" #-}
-
-{-# LINE 2 "./src-ag/HsToken.ag" #-}
-
-import CommonTypes
-import UU.Scanner.Position(Pos)
 {-# LINE 37 "dist/build/ExecutionPlan2Hs.hs" #-}
 
 {-# LINE 7 "./src-ag/ExecutionPlan2Hs.ag" #-}
@@ -63,7 +63,7 @@ import Data.Foldable(toList)
 {-# LINE 64 "dist/build/ExecutionPlan2Hs.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
-{-# LINE 161 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 163 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 classCtxsToDocs :: ClassContext -> [PP_Doc]
 classCtxsToDocs = map toDoc where
@@ -81,25 +81,25 @@ ppQuants [] = empty
 ppQuants ps = "forall" >#< ppSpaced ps >#< "."
 {-# LINE 83 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 190 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 192 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 -- first parameter indicates: generate a record or not
 ppConFields :: Bool -> [PP_Doc] -> PP_Doc
-ppConFields True  flds = ppListSep "{" "}" ", " flds
+ppConFields True  flds = ppListSep "{" "}" ", " $ filter (not . isEmpty) flds
 ppConFields False flds = ppSpaced flds
 {-# LINE 91 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 216 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 218 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 ppTp :: Type -> PP_Doc
 ppTp = text . typeToHaskellString Nothing []
 {-# LINE 97 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 330 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 332 "./src-ag/ExecutionPlan2Hs.ag" #-}
 type VisitStateState = (VisitIdentifier,StateIdentifier, StateIdentifier)
 {-# LINE 101 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 426 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 428 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 conNmTVisit nt vId      = "T_" >|< nt >|< "_v"    >|< vId
 conNmTVisitIn nt vId    = "T_" >|< nt >|< "_vIn"  >|< vId
@@ -112,14 +112,14 @@ ppMonadType opts
   | otherwise           = text "Identity"
 {-# LINE 114 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 576 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 578 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 ppDefor :: Type -> PP_Doc
 ppDefor (NT nt args _) = "T_" >|< nt >#< ppSpaced (map pp_parens args)
 ppDefor (Haskell s)    = text s
 {-# LINE 121 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 700 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 702 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 mklet :: (PP a, PP b, PP c) => a -> b -> c -> PP_Doc
 mklet prefix defs body =
@@ -128,7 +128,7 @@ mklet prefix defs body =
   >-< indent 2 "in" >#< body
 {-# LINE 130 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 766 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 768 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 resultValName :: String
 resultValName = "__result_"
@@ -137,7 +137,7 @@ nextStName :: String
 nextStName = "__st_"
 {-# LINE 139 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 837 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 839 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 parResultName :: String
 parResultName = "__outcome_"
@@ -150,7 +150,7 @@ fmtDecl declPure fmt decl = case fmt of
            | otherwise -> pp decl
 {-# LINE 152 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 963 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 965 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 stname :: Identifier -> Int -> String
 stname child st = "_" ++ getName child ++ "X" ++ show st
@@ -165,7 +165,7 @@ unMon options
   | otherwise              = text "Control.Monad.Identity.runIdentity"  -- identity monad
 {-# LINE 167 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 1071 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 1073 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 dummyPat :: Options -> Bool -> PP_Doc
 dummyPat opts noArgs
@@ -192,7 +192,7 @@ dummyType opts noArgs
   | otherwise              = text "(GHC.Prim.State# GHC.Prim.RealWorld)"
 {-# LINE 194 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 1097 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 1099 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 -- rules are "deinlined" to prevent needless code duplication.
 -- if there is only a bit of duplication, we allow ghc to decide if it is worth it.
@@ -207,7 +207,7 @@ reallyOftenUsedThreshold :: Int
 reallyOftenUsedThreshold = 12
 {-# LINE 209 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 1163 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 1165 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 data NonLocalAttr
   = AttrInh Identifier Identifier
@@ -240,7 +240,7 @@ noParameters (Haskell _)   = True
 noParameters (NT _ args _) = null args
 {-# LINE 242 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 1249 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 1252 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 -- a `compatibleKind` b  means: can kind b be invoked from a
 compatibleKind :: VisitKind -> VisitKind -> Bool
@@ -251,12 +251,12 @@ compatibleRule (VisitPure _) False = False
 compatibleRule _             _     = True
 {-# LINE 253 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 1271 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 1274 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 unionWithSum = Map.unionWith (+)
 {-# LINE 258 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 1294 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 1297 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 uwSetUnion :: (Ord a, Ord b) => Map a (Set b) -> Map a (Set b) -> Map a (Set b)
 uwSetUnion = Map.unionWith Set.union
@@ -265,7 +265,7 @@ uwMapUnion :: (Ord a, Ord b) => Map a (Map b c) -> Map a (Map b c) -> Map a (Map
 uwMapUnion = Map.unionWith Map.union
 {-# LINE 267 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 1511 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 1514 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 renderDocs :: [PP_Doc] -> String
 renderDocs pps = foldr (.) id (map (\d -> (disp d 50000) . ( '\n':) ) pps) ""
@@ -285,7 +285,7 @@ writeModule path docs
     dumpIt = writeFile path output
 {-# LINE 287 "dist/build/ExecutionPlan2Hs.hs" #-}
 
-{-# LINE 1658 "./src-ag/ExecutionPlan2Hs.ag" #-}
+{-# LINE 1661 "./src-ag/ExecutionPlan2Hs.ag" #-}
 
 ppNoInline :: PP a => a -> PP_Doc
 ppNoInline = ppPragmaBinding "NOINLINE"
@@ -382,7 +382,7 @@ sem_EChild_EChild arg_name_ arg_tp_ arg_kind_ arg_hasAround_ _ _ = T_EChild (ret
          _lhsOchildintros = rule10 _introcode arg_name_
          _isDefor = rule11 arg_tp_
          _valcode = rule12 _isDefor _lhsIoptions _nt arg_kind_ arg_name_
-         _aroundcode = rule13 arg_hasAround_ arg_name_
+         _aroundcode = rule13 _lhsIoptions arg_hasAround_ arg_name_
          _introcode = rule14 _addbang _aroundcode _initSt _isDefor _lhsIoptions _nt _valcode arg_hasAround_ arg_kind_ arg_name_
          _nt = rule15 arg_tp_
          _addbang = rule16 _lhsIoptions
@@ -406,89 +406,89 @@ sem_EChild_EChild arg_name_ arg_tp_ arg_kind_ arg_hasAround_ _ _ = T_EChild (ret
                                ChildSyntax -> Set.insert ("arg_" ++ show name_ ++ "_") s
                                _           -> s
    {-# INLINE rule2 #-}
-   {-# LINE 204 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 206 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule2 = \ _addStrict tp_ ->
-                     {-# LINE 204 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     {-# LINE 206 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      _addStrict     $ pp_parens $ ppTp $ removeDeforested tp_
                      {-# LINE 414 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule3 #-}
-   {-# LINE 205 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 207 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule3 = \ ((_lhsIcon) :: ConstructorIdent) ((_lhsInt) :: NontermIdent) name_ ->
-                     {-# LINE 205 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     {-# LINE 207 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      recordFieldname _lhsInt _lhsIcon name_
                      {-# LINE 420 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule4 #-}
-   {-# LINE 206 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 208 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule4 = \ ((_lhsIoptions) :: Options) _strNm _tpDoc ->
-                     {-# LINE 206 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     {-# LINE 208 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      if dataRecords _lhsIoptions
                      then _strNm     >#< "::" >#< _tpDoc
                      else _tpDoc
                      {-# LINE 428 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule5 #-}
-   {-# LINE 209 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 211 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule5 = \ ((_lhsIoptions) :: Options) ->
-                        {-# LINE 209 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 211 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         \x -> if strictData _lhsIoptions then "!" >|< x else x
                         {-# LINE 434 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule6 #-}
-   {-# LINE 210 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 212 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule6 = \ _field kind_ ->
-                             {-# LINE 210 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                             {-# LINE 212 "./src-ag/ExecutionPlan2Hs.ag" #-}
                              case kind_ of
                                ChildAttr -> empty
                                _         -> _field
                              {-# LINE 442 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule7 #-}
-   {-# LINE 298 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 300 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule7 = \ _nt kind_ name_ ->
-                             {-# LINE 298 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                             {-# LINE 300 "./src-ag/ExecutionPlan2Hs.ag" #-}
                              case kind_ of
                                ChildSyntax     -> "(" >#< "sem_" >|< _nt     >#< name_ >|< "_" >#< ")"
                                ChildAttr       -> empty
                                ChildReplace tp -> "(" >#< "sem_" >|< extractNonterminal tp >#< name_ >|< "_" >#< ")"
                              {-# LINE 451 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule8 #-}
-   {-# LINE 565 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 567 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule8 = \ kind_ tp_ ->
-                            {-# LINE 565 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            {-# LINE 567 "./src-ag/ExecutionPlan2Hs.ag" #-}
                             case kind_ of
                               ChildSyntax     -> ppDefor tp_ >#< "->"
                               ChildReplace tp -> ppDefor tp >#< "->"
                               _               -> empty
                             {-# LINE 460 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule9 #-}
-   {-# LINE 569 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 571 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule9 = \ kind_ name_ ->
-                           {-# LINE 569 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 571 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            case kind_ of
                              ChildSyntax    -> name_ >|< "_"
                              ChildReplace _ -> name_ >|< "_"
                              _              -> empty
                            {-# LINE 469 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule10 #-}
-   {-# LINE 917 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 919 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule10 = \ _introcode name_ ->
-                               {-# LINE 917 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                               {-# LINE 919 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                Map.singleton name_ _introcode
                                {-# LINE 475 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule11 #-}
-   {-# LINE 918 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 920 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule11 = \ tp_ ->
-                               {-# LINE 918 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                               {-# LINE 920 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                case tp_ of
                                  NT _ _ defor -> defor
                                  _            -> False
                                {-# LINE 483 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule12 #-}
-   {-# LINE 921 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 923 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule12 = \ _isDefor ((_lhsIoptions) :: Options) _nt kind_ name_ ->
-                               {-# LINE 921 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                               {-# LINE 923 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                case kind_ of
                                  ChildSyntax -> "arg_" >|< name_ >|< "_"
                                  ChildAttr   ->
                                                 let prefix | not _isDefor     = if lateHigherOrderBinding _lhsIoptions
-                                                                                then lateSemNtLabel _nt     >#< lhsname True idLateBindingAttr
+                                                                                then lateSemNtLabel _nt     >#< lhsname _lhsIoptions True idLateBindingAttr
                                                                                 else "sem_" >|< _nt
                                                            | otherwise        = empty
                                                 in pp_parens (prefix >#< instname name_)
@@ -496,17 +496,17 @@ sem_EChild_EChild arg_name_ arg_tp_ arg_kind_ arg_hasAround_ _ _ = T_EChild (ret
                                                    pp_parens (instname name_ >#< name_ >|< "_")
                                {-# LINE 498 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule13 #-}
-   {-# LINE 932 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule13 = \ hasAround_ name_ ->
-                               {-# LINE 932 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 934 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule13 = \ ((_lhsIoptions) :: Options) hasAround_ name_ ->
+                               {-# LINE 934 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                if hasAround_
-                               then locname name_ >|< "_around"
+                               then locname _lhsIoptions name_ >|< "_around"
                                else empty
                                {-# LINE 506 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule14 #-}
-   {-# LINE 935 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 937 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule14 = \ _addbang _aroundcode _initSt _isDefor ((_lhsIoptions) :: Options) _nt _valcode hasAround_ kind_ name_ ->
-                               {-# LINE 935 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                               {-# LINE 937 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                \kind fmtMode ->
                                         let pat       = text $ stname name_ _initSt
                                             patStrict = _addbang     pat
@@ -523,10 +523,10 @@ sem_EChild_EChild arg_name_ arg_tp_ arg_kind_ arg_hasAround_ _ _ = T_EChild (ret
                                                           ChildAttr   -> Map.insert (instname name_) Nothing $
                                                                            ( if _isDefor     || not (lateHigherOrderBinding _lhsIoptions)
                                                                              then id
-                                                                             else Map.insert (lhsname True idLateBindingAttr) (Just $ AttrInh _LHS idLateBindingAttr)
+                                                                             else Map.insert (lhsname _lhsIoptions True idLateBindingAttr) (Just $ AttrInh _LHS idLateBindingAttr)
                                                                            ) $
                                                                            ( if hasAround_
-                                                                             then Map.insert (locname (name_) ++ "_around") Nothing
+                                                                             then Map.insert (locname _lhsIoptions (name_) ++ "_around") Nothing
                                                                              else id
                                                                            ) $ Map.empty
                                                           ChildReplace _ -> Map.singleton (instname name_) Nothing
@@ -535,27 +535,27 @@ sem_EChild_EChild arg_name_ arg_tp_ arg_kind_ arg_hasAround_ _ _ = T_EChild (ret
                                            else Left $ IncompatibleAttachKind name_ kind
                                {-# LINE 537 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule15 #-}
-   {-# LINE 961 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 963 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule15 = \ tp_ ->
-                            {-# LINE 961 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            {-# LINE 963 "./src-ag/ExecutionPlan2Hs.ag" #-}
                             extractNonterminal tp_
                             {-# LINE 543 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule16 #-}
-   {-# LINE 1539 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1542 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule16 = \ ((_lhsIoptions) :: Options) ->
-                                                    {-# LINE 1539 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                    {-# LINE 1542 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                                     \x -> if bangpats _lhsIoptions then "!" >|< x else x
                                                     {-# LINE 549 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule17 #-}
-   {-# LINE 1591 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1594 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule17 = \ name_ tp_ ->
-                     {-# LINE 1591 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     {-# LINE 1594 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      Map.singleton name_ tp_
                      {-# LINE 555 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule18 #-}
-   {-# LINE 1635 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1638 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule18 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) _nt ->
-                 {-# LINE 1635 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                 {-# LINE 1638 "./src-ag/ExecutionPlan2Hs.ag" #-}
                  Map.findWithDefault (error "nonterminal not in allInitStates map") _nt     _lhsIallInitStates
                  {-# LINE 561 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule19 #-}
@@ -600,77 +600,77 @@ sem_EChild_ETerm arg_name_ arg_tp_ = T_EChild (return st2) where
          in __result_ )
      in C_EChild_s2 v1
    {-# INLINE rule22 #-}
-   {-# LINE 204 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 206 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule22 = \ _addStrict tp_ ->
-                     {-# LINE 204 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     {-# LINE 206 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      _addStrict     $ pp_parens $ ppTp $ removeDeforested tp_
                      {-# LINE 608 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule23 #-}
-   {-# LINE 205 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 207 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule23 = \ ((_lhsIcon) :: ConstructorIdent) ((_lhsInt) :: NontermIdent) name_ ->
-                     {-# LINE 205 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     {-# LINE 207 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      recordFieldname _lhsInt _lhsIcon name_
                      {-# LINE 614 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule24 #-}
-   {-# LINE 206 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 208 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule24 = \ ((_lhsIoptions) :: Options) _strNm _tpDoc ->
-                     {-# LINE 206 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     {-# LINE 208 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      if dataRecords _lhsIoptions
                      then _strNm     >#< "::" >#< _tpDoc
                      else _tpDoc
                      {-# LINE 622 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule25 #-}
-   {-# LINE 209 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 211 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule25 = \ ((_lhsIoptions) :: Options) ->
-                        {-# LINE 209 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 211 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         \x -> if strictData _lhsIoptions then "!" >|< x else x
                         {-# LINE 628 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule26 #-}
-   {-# LINE 214 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 216 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule26 = \ _field ->
-                             {-# LINE 214 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                             {-# LINE 216 "./src-ag/ExecutionPlan2Hs.ag" #-}
                              _field
                              {-# LINE 634 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule27 #-}
-   {-# LINE 302 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 304 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule27 = \ name_ ->
-                             {-# LINE 302 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                             {-# LINE 304 "./src-ag/ExecutionPlan2Hs.ag" #-}
                              text $ fieldname name_
                              {-# LINE 640 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule28 #-}
-   {-# LINE 573 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 575 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule28 = \ tp_ ->
-                           {-# LINE 573 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 575 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            (pp_parens $ show tp_) >#< "->"
                            {-# LINE 646 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule29 #-}
-   {-# LINE 574 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 576 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule29 = \ _addbang name_ ->
-                           {-# LINE 574 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 576 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            _addbang     $ text $ fieldname name_
                            {-# LINE 652 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule30 #-}
-   {-# LINE 916 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 918 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule30 = \ name_ ->
-                               {-# LINE 916 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                               {-# LINE 918 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                Map.singleton name_ (\_ _ -> Right (empty, Set.empty, Map.empty))
                                {-# LINE 658 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule31 #-}
-   {-# LINE 1308 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1311 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule31 = \ name_ ->
-                       {-# LINE 1308 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                       {-# LINE 1311 "./src-ag/ExecutionPlan2Hs.ag" #-}
                        Set.singleton $ fieldname name_
                        {-# LINE 664 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule32 #-}
-   {-# LINE 1540 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1543 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule32 = \ ((_lhsIoptions) :: Options) ->
-                                                    {-# LINE 1540 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                    {-# LINE 1543 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                                     \x -> if bangpats _lhsIoptions then "!" >|< x else x
                                                     {-# LINE 670 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule33 #-}
-   {-# LINE 1591 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1594 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule33 = \ name_ tp_ ->
-                     {-# LINE 1591 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     {-# LINE 1594 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      Map.singleton name_ tp_
                      {-# LINE 676 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule34 #-}
@@ -975,9 +975,9 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
          _wr_inhs1 = rule109 _synAttrs
          _wr_filter = rule110 _lhsIoptions
          _wr_syns = rule111 _lhsIsynmap arg_nt_
-         _inhlist = rule112 _wr_inhs
-         _inhlist1 = rule113 _wr_inhs1
-         _synlist = rule114 _wr_syns
+         _inhlist = rule112 _lhsIoptions _wr_inhs
+         _inhlist1 = rule113 _lhsIoptions _wr_inhs1
+         _synlist = rule114 _lhsIoptions _wr_syns
          _wrapname = rule115 arg_nt_
          _inhname = rule116 arg_nt_
          _synname = rule117 arg_nt_
@@ -1039,33 +1039,33 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
          in __result_ )
      in C_ENonterminal_s8 v7
    {-# INLINE rule72 #-}
-   {-# LINE 55 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 57 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule72 = \ ((_lhsIoptions) :: Options) ->
-                                  {-# LINE 55 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 57 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   rename _lhsIoptions
                                   {-# LINE 1047 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule73 #-}
-   {-# LINE 63 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 65 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule73 = \ nt_ ->
-                              {-# LINE 63 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                              {-# LINE 65 "./src-ag/ExecutionPlan2Hs.ag" #-}
                               nt_
                               {-# LINE 1053 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule74 #-}
-   {-# LINE 75 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 77 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule74 = \ params_ ->
-                   {-# LINE 75 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                   {-# LINE 77 "./src-ag/ExecutionPlan2Hs.ag" #-}
                    params_
                    {-# LINE 1059 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule75 #-}
-   {-# LINE 79 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 81 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule75 = \ classCtxs_ ->
-                      {-# LINE 79 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                      {-# LINE 81 "./src-ag/ExecutionPlan2Hs.ag" #-}
                       classCtxs_
                       {-# LINE 1065 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule76 #-}
-   {-# LINE 96 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 98 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule76 = \ _datatype _hasWrapper _k_states ((_lhsIoptions) :: Options) ((_prodsIsem_prod) :: PP_Doc) ((_prodsIt_visits) :: PP_Doc) _sem_nt _t_init _t_states _wr_inh _wr_syn _wrapper nt_ ->
-                                {-# LINE 96 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                {-# LINE 98 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                 ("-- " ++ getName nt_ ++ " " ++ replicate (60 - length (getName nt_)) '-')
                                 >-< (if dataTypes _lhsIoptions
                                      then "-- data"
@@ -1095,27 +1095,27 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
                                      else empty)
                                 {-# LINE 1097 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule77 #-}
-   {-# LINE 123 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 125 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule77 = \ ((_lhsIwrappers) :: Set NontermIdent) nt_ ->
-                                    {-# LINE 123 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                    {-# LINE 125 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                     nt_ `Set.member` _lhsIwrappers
                                     {-# LINE 1103 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule78 #-}
-   {-# LINE 136 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 138 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule78 = \ classCtxs_ ->
-                                  {-# LINE 136 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 138 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   ppClasses $ classCtxsToDocs classCtxs_
                                   {-# LINE 1109 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule79 #-}
-   {-# LINE 137 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 139 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule79 = \ _classPP _t_params nt_ ->
-                                  {-# LINE 137 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 139 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   "type" >#< _classPP     >#< nt_ >#< _t_params     >#< "="
                                   {-# LINE 1115 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule80 #-}
-   {-# LINE 138 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 140 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule80 = \ _aliasPre _classPP _derivings ((_lhsItypeSyns) :: TypeSyns) ((_prodsIdatatype) :: [PP_Doc]) _t_params nt_ ->
-                                  {-# LINE 138 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 140 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   case lookup nt_ _lhsItypeSyns of
                                      Nothing -> "data" >#< _classPP     >#< nt_ >#< _t_params
                                                 >-< ( if null _prodsIdatatype
@@ -1134,9 +1134,9 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
                                      Just IntSet       -> _aliasPre     >#< "Data.IntSet.IntSet"
                                   {-# LINE 1136 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule81 #-}
-   {-# LINE 155 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 157 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule81 = \ ((_lhsIderivings) :: Derivings) nt_ ->
-                                   {-# LINE 155 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 157 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    case Map.lookup nt_ _lhsIderivings of
                                       Nothing -> empty
                                       Just s  -> if   Set.null s
@@ -1144,41 +1144,41 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
                                                  else "deriving" >#< (pp_parens $ ppCommas $ map pp $ Set.toList s)
                                    {-# LINE 1146 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule82 #-}
-   {-# LINE 225 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 227 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule82 = \  (_ :: ()) ->
-                                  {-# LINE 225 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 227 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   \x -> "sem_" ++ show x
                                   {-# LINE 1152 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule83 #-}
-   {-# LINE 226 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 228 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule83 = \ _fsemname nt_ ->
-                                 {-# LINE 226 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 228 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  _fsemname     nt_
                                  {-# LINE 1158 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule84 #-}
-   {-# LINE 227 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 229 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule84 = \ _fsemname ->
-                                 {-# LINE 227 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 229 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  \t x -> case t of
                                             NT nt _ _ -> pp_parens (_fsemname nt >#< x)
                                             _         -> pp x
                                  {-# LINE 1166 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule85 #-}
-   {-# LINE 233 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 235 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule85 = \ _classPP _quantPP _t_params _t_type nt_ ->
-                                 {-# LINE 233 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 235 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  _quantPP     >#< _classPP     >#< nt_ >#< _t_params     >#< "->" >#< _t_type     >#< _t_params
                                  {-# LINE 1172 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule86 #-}
-   {-# LINE 234 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 236 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule86 = \ params_ ->
-                                 {-# LINE 234 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 236 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  ppQuants params_
                                  {-# LINE 1178 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule87 #-}
-   {-# LINE 235 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 237 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule87 = \ _frecarg _fsemname ((_lhsItypeSyns) :: TypeSyns) ((_prodsIsem_nt) :: PP_Doc) _semPragma _sem_tp _semname nt_ ->
-                                 {-# LINE 235 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 237 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  _semPragma
                                  >-< _semname     >#< "::" >#< _sem_tp
                                  >-< case lookup nt_ _lhsItypeSyns of
@@ -1218,15 +1218,15 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
                                                            >#< pp_parens ("Data.IntSet.elems" >#< "s")
                                  {-# LINE 1220 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule88 #-}
-   {-# LINE 275 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 277 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule88 = \ _hasWrapper ((_lhsIoptions) :: Options) ((_prodsIcount) :: Int) recursive_ ->
-                                  {-# LINE 275 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 277 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   not (lateHigherOrderBinding _lhsIoptions) && not recursive_ && (_prodsIcount == 1 || (aggressiveInlinePragmas _lhsIoptions && not _hasWrapper    ))
                                   {-# LINE 1226 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule89 #-}
-   {-# LINE 276 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 278 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule89 = \ _inlineNt ((_lhsIoptions) :: Options) _semname ->
-                                  {-# LINE 276 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 278 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   if noInlinePragmas _lhsIoptions
                                   then empty
                                   else if _inlineNt
@@ -1236,78 +1236,78 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
                                             else ppNoInline _semname
                                   {-# LINE 1238 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule90 #-}
-   {-# LINE 322 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 324 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule90 = \ ((_lhsIinhmap) :: Map NontermIdent Attributes) nt_ ->
-                                         {-# LINE 322 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                         {-# LINE 324 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                          Map.lookup nt_ _lhsIinhmap
                                          {-# LINE 1244 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule91 #-}
-   {-# LINE 323 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 325 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule91 = \ ((_lhsIsynmap) :: Map NontermIdent Attributes) nt_ ->
-                                         {-# LINE 323 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                         {-# LINE 325 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                          Map.lookup nt_ _lhsIsynmap
                                          {-# LINE 1250 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule92 #-}
-   {-# LINE 324 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 326 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule92 = \ ((_lhsIinhmap) :: Map NontermIdent Attributes) ->
-                                     {-# LINE 324 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                     {-# LINE 326 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                      _lhsIinhmap
                                      {-# LINE 1256 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule93 #-}
-   {-# LINE 325 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 327 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule93 = \ ((_lhsIsynmap) :: Map NontermIdent Attributes) ->
-                                     {-# LINE 325 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                     {-# LINE 327 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                      _lhsIsynmap
                                      {-# LINE 1262 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule94 #-}
-   {-# LINE 346 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 348 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule94 = \ ((_prodsIallvisits) :: [VisitStateState]) ->
-                                   {-# LINE 346 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 348 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    Set.fromList $ map (\(_,f,_) -> f) _prodsIallvisits
                                    {-# LINE 1268 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule95 #-}
-   {-# LINE 347 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 349 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule95 = \ ((_prodsIallvisits) :: [VisitStateState]) ->
-                                   {-# LINE 347 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 349 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    Set.fromList $ map (\(_,_,t) -> t) _prodsIallvisits
                                    {-# LINE 1274 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule96 #-}
-   {-# LINE 348 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 350 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule96 = \ _inedges _outedges initial_ ->
-                                   {-# LINE 348 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 350 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    Set.insert initial_ $ _inedges     `Set.union` _outedges
                                    {-# LINE 1280 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule97 #-}
-   {-# LINE 349 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 351 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule97 = \ ((_prodsIallvisits) :: [VisitStateState]) ->
-                                   {-# LINE 349 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 351 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    \st -> filter (\(v,f,t) -> f == st) _prodsIallvisits
                                    {-# LINE 1286 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule98 #-}
-   {-# LINE 350 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 352 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule98 = \ nt_ ->
-                                   {-# LINE 350 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 352 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    "T_" >|< nt_
                                    {-# LINE 1292 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule99 #-}
-   {-# LINE 351 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 353 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule99 = \ params_ ->
-                                   {-# LINE 351 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 353 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    ppSpaced params_
                                    {-# LINE 1298 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule100 #-}
-   {-# LINE 352 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 354 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule100 = \ ((_lhsIoptions) :: Options) _t_params _t_type initial_ ->
-                                   {-# LINE 352 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 354 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    "newtype" >#< _t_type     >#< _t_params     >#< "=" >#< _t_type     >#<
                                      pp_braces (
                                        "attach_">|< _t_type     >#< "::"
                                          >#< ppMonadType _lhsIoptions >#< pp_parens (_t_type     >|< "_s" >|< initial_ >#< _t_params    ))
                                    {-# LINE 1307 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule101 #-}
-   {-# LINE 356 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 358 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule101 = \ _allstates _t_params nextVisits_ nt_ ->
-                                   {-# LINE 356 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 358 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    vlist $ map (\st ->
                                       let nt_st = nt_ >|< "_s" >|< st
                                           t_st  = "T_" >|< nt_st
@@ -1325,15 +1325,15 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
                                           ) $ Set.toList _allstates
                                    {-# LINE 1327 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule102 #-}
-   {-# LINE 374 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 376 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule102 = \ nt_ ->
-                                  {-# LINE 374 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 376 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   "K_" ++ show nt_
                                   {-# LINE 1333 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule103 #-}
-   {-# LINE 375 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 377 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule103 = \ _allstates _k_type ((_prodsIallvisits) :: [VisitStateState]) _t_params _t_type nextVisits_ nt_ ->
-                                  {-# LINE 375 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 377 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   vlist $ map (\st ->
                                      let nt_st = nt_ >|< "_s" >|< st
                                          k_st  = "K_" >|< nt_st
@@ -1350,103 +1350,103 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
                                      ) $ Set.toList _allstates
                                   {-# LINE 1352 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule104 #-}
-   {-# LINE 442 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 444 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule104 = \ _genwrap _wr_inhs ->
-                                  {-# LINE 442 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 444 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   _genwrap     "Inh" _wr_inhs
                                   {-# LINE 1358 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule105 #-}
-   {-# LINE 443 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 445 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule105 = \ _genwrap _wr_syns ->
-                                  {-# LINE 443 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 445 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   _genwrap     "Syn" _wr_syns
                                   {-# LINE 1364 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule106 #-}
-   {-# LINE 444 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 446 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule106 = \ _addbang _t_params nt_ ->
-                                  {-# LINE 444 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 446 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   \nm attr -> "data" >#< nm >|< "_" >|< nt_ >#< _t_params     >#< "=" >#< nm >|< "_" >|< nt_ >#< "{"
                                               >#< (ppCommas $ map (\(i,t) -> i >|< "_" >|< nm >|< "_" >|< nt_ >#< "::"
                                               >#< (_addbang     $ pp_parens $ typeToHaskellString (Just nt_) [] t)) attr) >#< "}"
                                   {-# LINE 1372 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule107 #-}
-   {-# LINE 447 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 449 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule107 = \ ((_lhsIinhmap) :: Map NontermIdent Attributes) nt_ ->
-                                  {-# LINE 447 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 449 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   fromJust $ Map.lookup nt_ _lhsIinhmap
                                   {-# LINE 1378 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule108 #-}
-   {-# LINE 448 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 450 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule108 = \ _synAttrs _wr_filter ->
-                                  {-# LINE 448 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 450 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   Map.toList $ _wr_filter     $ _synAttrs
                                   {-# LINE 1384 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule109 #-}
-   {-# LINE 449 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 451 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule109 = \ _synAttrs ->
-                                  {-# LINE 449 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 451 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   Map.toList _synAttrs
                                   {-# LINE 1390 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule110 #-}
-   {-# LINE 450 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 452 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule110 = \ ((_lhsIoptions) :: Options) ->
-                                   {-# LINE 450 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 452 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    if lateHigherOrderBinding _lhsIoptions
                                    then Map.delete idLateBindingAttr
                                    else id
                                    {-# LINE 1398 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule111 #-}
-   {-# LINE 453 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 455 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule111 = \ ((_lhsIsynmap) :: Map NontermIdent Attributes) nt_ ->
-                                  {-# LINE 453 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 455 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   Map.toList $ fromJust $ Map.lookup nt_ _lhsIsynmap
                                   {-# LINE 1404 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule112 #-}
-   {-# LINE 454 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule112 = \ _wr_inhs ->
-                                  {-# LINE 454 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  map (lhsname True . fst) _wr_inhs
+   {-# LINE 456 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule112 = \ ((_lhsIoptions) :: Options) _wr_inhs ->
+                                  {-# LINE 456 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  map (lhsname _lhsIoptions True . fst) _wr_inhs
                                   {-# LINE 1410 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule113 #-}
-   {-# LINE 455 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule113 = \ _wr_inhs1 ->
-                                  {-# LINE 455 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  map (lhsname True . fst) _wr_inhs1
+   {-# LINE 457 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule113 = \ ((_lhsIoptions) :: Options) _wr_inhs1 ->
+                                  {-# LINE 457 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  map (lhsname _lhsIoptions True . fst) _wr_inhs1
                                   {-# LINE 1416 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule114 #-}
-   {-# LINE 456 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule114 = \ _wr_syns ->
-                                  {-# LINE 456 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  map (lhsname False . fst) _wr_syns
+   {-# LINE 458 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule114 = \ ((_lhsIoptions) :: Options) _wr_syns ->
+                                  {-# LINE 458 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  map (lhsname _lhsIoptions False . fst) _wr_syns
                                   {-# LINE 1422 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule115 #-}
-   {-# LINE 457 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 459 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule115 = \ nt_ ->
-                                  {-# LINE 457 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 459 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   "wrap_" ++ show nt_
                                   {-# LINE 1428 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule116 #-}
-   {-# LINE 458 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 460 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule116 = \ nt_ ->
-                                  {-# LINE 458 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 460 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   "Inh_" ++ show nt_
                                   {-# LINE 1434 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule117 #-}
-   {-# LINE 459 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 461 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule117 = \ nt_ ->
-                                  {-# LINE 459 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 461 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   "Syn_" ++ show nt_
                                   {-# LINE 1440 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule118 #-}
-   {-# LINE 460 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 462 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule118 = \ initial_ nextVisits_ ->
-                                        {-# LINE 460 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                        {-# LINE 462 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                         Map.findWithDefault ManyVis initial_ nextVisits_
                                         {-# LINE 1446 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule119 #-}
-   {-# LINE 461 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 463 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule119 = \ _addbang _addbangWrap _classPP _firstVisitInfo _inhlist _inhlist1 _inhname _k_type ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ((_lhsImainName) :: String) ((_lhsIoptions) :: Options) _quantPP _synlist _synname _t_params _t_type _wrapPragma _wrapname initial_ initialv_ nt_ ->
-                                  {-# LINE 461 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 463 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   _wrapPragma
                                   >-< (_wrapname     >#< "::" >#< _quantPP     >#< _classPP     >#< _t_type     >#< _t_params     >#< "->"
                                         >#< _inhname     >#< _t_params     >#< "->" >#< ( if monadicWrappers _lhsIoptions then ppMonadType _lhsIoptions else empty) >#< pp_parens (_synname     >#< _t_params    ))
@@ -1485,13 +1485,13 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
                                               )
                                          >-< ")" )
                                   >-< if lateHigherOrderBinding _lhsIoptions
-                                      then indent 2 ("where" >#< lhsname True idLateBindingAttr >#< "=" >#< lateBindingFieldNm _lhsImainName)
+                                      then indent 2 ("where" >#< lhsname _lhsIoptions True idLateBindingAttr >#< "=" >#< lateBindingFieldNm _lhsImainName)
                                       else empty
                                   {-# LINE 1491 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule120 #-}
-   {-# LINE 502 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 504 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule120 = \ ((_lhsIoptions) :: Options) _wrapname ->
-                                    {-# LINE 502 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                    {-# LINE 504 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                     if parallelInvoke _lhsIoptions && not (monadicWrappers _lhsIoptions)
                                     then ppNoInline _wrapname
                                     else if noInlinePragmas _lhsIoptions
@@ -1499,51 +1499,51 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
                                          else ppInlinable _wrapname
                                     {-# LINE 1501 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule121 #-}
-   {-# LINE 514 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 516 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule121 = \ ((_prodsIsemFunBndDefs) :: Seq PP_Doc) _semFunBndDef ->
-                        {-# LINE 514 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 516 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         _semFunBndDef     Seq.<| _prodsIsemFunBndDefs
                         {-# LINE 1507 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule122 #-}
-   {-# LINE 515 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 517 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule122 = \ ((_prodsIsemFunBndTps) :: Seq PP_Doc) _semFunBndTp ->
-                        {-# LINE 515 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 517 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         _semFunBndTp     Seq.<| _prodsIsemFunBndTps
                         {-# LINE 1513 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule123 #-}
-   {-# LINE 516 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 518 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule123 = \ _semFunBndNm _semname ->
-                        {-# LINE 516 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 518 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         _semFunBndNm     >#< "=" >#< _semname
                         {-# LINE 1519 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule124 #-}
-   {-# LINE 517 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 519 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule124 = \ _semFunBndNm _sem_tp ->
-                        {-# LINE 517 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 519 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         _semFunBndNm     >#< "::" >#< _sem_tp
                         {-# LINE 1525 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule125 #-}
-   {-# LINE 518 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 520 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule125 = \ nt_ ->
-                        {-# LINE 518 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 520 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         lateSemNtLabel nt_
                         {-# LINE 1531 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule126 #-}
-   {-# LINE 556 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 558 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule126 = \ initial_ ->
-                                     {-# LINE 556 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                     {-# LINE 558 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                      initial_
                                      {-# LINE 1537 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule127 #-}
-   {-# LINE 557 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 559 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule127 = \ _allstates ->
-                                     {-# LINE 557 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                     {-# LINE 559 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                      _allstates
                                      {-# LINE 1543 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule128 #-}
-   {-# LINE 1471 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1474 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule128 = \ ((_lhsIwrappers) :: Set NontermIdent) _sem_nt _wr_inh _wr_syn _wrapper nt_ ->
-                                      {-# LINE 1471 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                      {-# LINE 1474 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                       (if nt_ `Set.member` _lhsIwrappers
                                        then     _wr_inh
                                             >-< _wr_syn
@@ -1552,9 +1552,9 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
                                       >-< _sem_nt
                                       {-# LINE 1554 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule129 #-}
-   {-# LINE 1477 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1480 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule129 = \ _datatype _k_states ((_lhsIoptions) :: Options) ((_prodsIt_visits) :: PP_Doc) _t_init _t_states ->
-                                      {-# LINE 1477 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                      {-# LINE 1480 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                       (if dataTypes _lhsIoptions then _datatype     else empty)
                                       >-< _t_init
                                       >-< _t_states
@@ -1562,45 +1562,45 @@ sem_ENonterminal_ENonterminal arg_nt_ arg_params_ arg_classCtxs_ arg_initial_ ar
                                       >-< _prodsIt_visits
                                       {-# LINE 1564 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule130 #-}
-   {-# LINE 1537 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1540 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule130 = \ ((_lhsIoptions) :: Options) ->
-                                                    {-# LINE 1537 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                    {-# LINE 1540 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                                     \x -> if bangpats _lhsIoptions then "!" >|< x else x
                                                     {-# LINE 1570 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule131 #-}
-   {-# LINE 1545 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1548 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule131 = \  (_ :: ()) ->
-                                                        {-# LINE 1545 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                        {-# LINE 1548 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                                         id
                                                         {-# LINE 1576 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule132 #-}
-   {-# LINE 1557 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1560 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule132 = \ nextVisits_ ->
-                       {-# LINE 1557 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                       {-# LINE 1560 "./src-ag/ExecutionPlan2Hs.ag" #-}
                        nextVisits_
                        {-# LINE 1582 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule133 #-}
-   {-# LINE 1558 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1561 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule133 = \ prevVisits_ ->
-                       {-# LINE 1558 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                       {-# LINE 1561 "./src-ag/ExecutionPlan2Hs.ag" #-}
                        prevVisits_
                        {-# LINE 1588 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule134 #-}
-   {-# LINE 1602 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1605 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule134 = \ ((_lhsIlocalAttrTypes) :: Map NontermIdent (Map ConstructorIdent (Map Identifier Type))) nt_ ->
-                           {-# LINE 1602 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 1605 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            Map.findWithDefault Map.empty nt_ _lhsIlocalAttrTypes
                            {-# LINE 1594 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule135 #-}
-   {-# LINE 1629 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1632 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule135 = \ initial_ nt_ ->
-                     {-# LINE 1629 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     {-# LINE 1632 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      Map.singleton nt_ initial_
                      {-# LINE 1600 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule136 #-}
-   {-# LINE 1643 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1646 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule136 = \ nt_ params_ ->
-                 {-# LINE 1643 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                 {-# LINE 1646 "./src-ag/ExecutionPlan2Hs.ag" #-}
                  NT nt_ (map show params_) False
                  {-# LINE 1606 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule137 #-}
@@ -2180,108 +2180,108 @@ sem_EProduction_EProduction arg_con_ arg_params_ arg_constraints_ arg_rules_ arg
          in __result_ )
      in C_EProduction_s14 v13
    {-# INLINE rule225 #-}
-   {-# LINE 69 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 71 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule225 = \ con_ ->
-                                 {-# LINE 69 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 71 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  con_
                                  {-# LINE 2188 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule226 #-}
-   {-# LINE 70 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 72 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule226 = \ con_ ->
-                                 {-# LINE 70 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 72 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  con_
                                  {-# LINE 2194 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule227 #-}
-   {-# LINE 71 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 73 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule227 = \ con_ ->
-                                 {-# LINE 71 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 73 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  con_
                                  {-# LINE 2200 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule228 #-}
-   {-# LINE 184 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 186 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule228 = \ ((_childrenIdatatype) :: [PP_Doc]) _classPP1 ((_lhsInt) :: NontermIdent) ((_lhsIoptions) :: Options) ((_lhsIrename) :: Bool) _quantPP1 con_ ->
-                                 {-# LINE 184 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 186 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  _quantPP1     >#< _classPP1
                                  >#< conname _lhsIrename _lhsInt con_
                                  >#< ppConFields (dataRecords _lhsIoptions) _childrenIdatatype
                                  {-# LINE 2208 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule229 #-}
-   {-# LINE 187 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 189 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule229 = \ constraints_ ->
-                                 {-# LINE 187 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 189 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  ppClasses (classConstrsToDocs constraints_)
                                  {-# LINE 2214 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule230 #-}
-   {-# LINE 188 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 190 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule230 = \ params_ ->
-                                 {-# LINE 188 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 190 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  ppQuants params_
                                  {-# LINE 2220 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule231 #-}
-   {-# LINE 286 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 288 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule231 = \  (_ :: ()) ->
-                                              {-# LINE 286 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                              {-# LINE 288 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                               1
                                               {-# LINE 2226 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule232 #-}
-   {-# LINE 291 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 293 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule232 = \ ((_childrenIargnamesw) :: [PP_Doc]) ((_childrenIargpats) ::  [PP_Doc] ) ((_lhsInt) :: NontermIdent) ((_lhsIrename) :: Bool) con_ ->
-                               {-# LINE 291 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                               {-# LINE 293 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                "sem_" >|< _lhsInt >#< "(" >#< conname _lhsIrename _lhsInt con_ >#< ppSpaced _childrenIargpats >#< ")"
                                >#< "=" >#< "sem_" >|< _lhsInt >|< "_" >|< con_ >#< ppSpaced _childrenIargnamesw
                                {-# LINE 2233 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule233 #-}
-   {-# LINE 521 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 523 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule233 = \ _semFunBndDef ->
-                        {-# LINE 521 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 523 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         Seq.singleton _semFunBndDef
                         {-# LINE 2239 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule234 #-}
-   {-# LINE 522 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 524 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule234 = \ _semFunBndTp ->
-                        {-# LINE 522 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 524 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         Seq.singleton _semFunBndTp
                         {-# LINE 2245 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule235 #-}
-   {-# LINE 523 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 525 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule235 = \ _semFunBndNm _semname ->
-                        {-# LINE 523 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 525 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         _semFunBndNm     >#< "=" >#< _semname
                         {-# LINE 2251 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule236 #-}
-   {-# LINE 524 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 526 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule236 = \ _semFunBndNm _sem_tp ->
-                        {-# LINE 524 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 526 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         _semFunBndNm     >#< "::" >#< _sem_tp
                         {-# LINE 2257 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule237 #-}
-   {-# LINE 525 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 527 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule237 = \ ((_lhsInt) :: NontermIdent) con_ ->
-                        {-# LINE 525 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 527 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         lateSemConLabel _lhsInt con_
                         {-# LINE 2263 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule238 #-}
-   {-# LINE 583 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 585 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule238 = \ ((_lhsInt) :: NontermIdent) ->
-                                 {-# LINE 583 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 585 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  "T_" >|< _lhsInt
                                  {-# LINE 2269 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule239 #-}
-   {-# LINE 584 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 586 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule239 = \ ((_lhsIparams) :: [Identifier]) ->
-                                 {-# LINE 584 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 586 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  ppSpaced _lhsIparams
                                  {-# LINE 2275 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule240 #-}
-   {-# LINE 585 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 587 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule240 = \ ((_childrenIusedArgs) :: Set String) ((_rulesIusedArgs) :: Set String) ((_visitsIusedArgs) :: Set String) ->
-                                 {-# LINE 585 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 587 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  _childrenIusedArgs `Set.union` _visitsIusedArgs `Set.union` _rulesIusedArgs
                                  {-# LINE 2281 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule241 #-}
-   {-# LINE 588 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 590 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule241 = \ ((_childrenIargpats) ::  [PP_Doc] ) _usedArgs ->
-                                 {-# LINE 588 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 590 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  map (\x -> let (name,arg) = case show x of
                                                          ""       -> ("", empty)
                                                          '!':name -> ("arg_" ++ name, "!arg_" >|< name)
@@ -2291,42 +2291,42 @@ sem_EProduction_EProduction arg_con_ arg_params_ arg_constraints_ arg_rules_ arg
                                                 else text "_") _childrenIargpats
                                  {-# LINE 2293 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule242 #-}
-   {-# LINE 595 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 597 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule242 = \ ((_lhsInt) :: NontermIdent) con_ ->
-                                 {-# LINE 595 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 597 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  "sem_" ++ show _lhsInt ++ "_" ++ show con_
                                  {-# LINE 2299 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule243 #-}
-   {-# LINE 596 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 598 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule243 = \ ((_childrenIargtps) ::  [PP_Doc] ) _classPP2 _quantPP2 _t_params _t_type ->
-                                 {-# LINE 596 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 598 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  _quantPP2     >#< _classPP2     >#< ppSpaced _childrenIargtps >#< _t_type     >#< _t_params
                                  {-# LINE 2305 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule244 #-}
-   {-# LINE 597 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 599 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule244 = \ ((_lhsIclassCtxs) :: ClassContext) constraints_ ->
-                                 {-# LINE 597 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 599 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  ppClasses (classCtxsToDocs _lhsIclassCtxs ++ classConstrsToDocs constraints_)
                                  {-# LINE 2311 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule245 #-}
-   {-# LINE 598 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 600 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule245 = \ ((_lhsIparams) :: [Identifier]) params_ ->
-                                 {-# LINE 598 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 600 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  ppQuants (_lhsIparams ++ params_)
                                  {-# LINE 2317 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule246 #-}
-   {-# LINE 599 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 601 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule246 = \ _args ((_lhsIinitial) :: StateIdentifier) _mbInitializer _mkSemBody _outerlet _scc _semInlinePragma _sem_tp _semname _t_type ->
-                                 {-# LINE 599 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 601 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  _semInlinePragma
                                  >-< _semname     >#< "::" >#< _sem_tp
                                  >-< _mkSemBody     (_semname     >#< ppSpaced _args     >#< "=" >#< _scc     >#< _t_type    )
                                                     _mbInitializer     _outerlet     ("return" >#< "st" >|< _lhsIinitial)
                                  {-# LINE 2326 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule247 #-}
-   {-# LINE 603 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 605 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule247 = \  (_ :: ()) ->
-                                  {-# LINE 603 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 605 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   \prefix mbInit outerlet ret ->
                                     case mbInit of
                                       Nothing -> prefix >#< pp_parens ret >#< "where"
@@ -2340,45 +2340,45 @@ sem_EProduction_EProduction arg_con_ arg_params_ arg_constraints_ arg_rules_ arg
                                                  >-< indent 1 ")"
                                   {-# LINE 2342 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule248 #-}
-   {-# LINE 615 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 617 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule248 = \ ((_lhsIoptions) :: Options) ->
-                                        {-# LINE 615 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                        {-# LINE 617 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                         if parallelInvoke _lhsIoptions
                                         then (Nothing :: Maybe PP_Doc)
                                         else Nothing
                                         {-# LINE 2350 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule249 #-}
-   {-# LINE 621 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 623 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule249 = \ ((_lhsIoptions) :: Options) _semname ->
-                                        {-# LINE 621 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                        {-# LINE 623 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                         if genCostCentres _lhsIoptions
                                         then ppCostCentre _semname
                                         else empty
                                         {-# LINE 2358 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule250 #-}
-   {-# LINE 624 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 626 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule250 = \ ((_lhsIoptions) :: Options) _semname ->
-                                        {-# LINE 624 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                        {-# LINE 626 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                         if noInlinePragmas _lhsIoptions
                                         then empty
                                         else ppNoInline _semname
                                         {-# LINE 2366 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule251 #-}
-   {-# LINE 627 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 629 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule251 = \ ((_rulesIsem_rules) :: PP_Doc) _statefns ->
-                                 {-# LINE 627 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 629 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  vlist _statefns     >-< _rulesIsem_rules
                                  {-# LINE 2372 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule252 #-}
-   {-# LINE 628 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 630 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule252 = \ _genstfn ((_lhsIallstates) :: Set StateIdentifier) ->
-                                 {-# LINE 628 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 630 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  map _genstfn     $ Set.toList _lhsIallstates
                                  {-# LINE 2378 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule253 #-}
-   {-# LINE 629 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 631 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule253 = \ _addbang ((_lhsIinitial) :: StateIdentifier) ((_lhsInextVisits) :: Map StateIdentifier StateCtx) ((_lhsInt) :: NontermIdent) ((_lhsIoptions) :: Options) ((_lhsIprevVisits) :: Map StateIdentifier StateCtx) _stargs _stks _stvs ->
-                                 {-# LINE 629 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 631 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  \st -> let nextVisitInfo = Map.findWithDefault ManyVis st _lhsInextVisits
                                             prevVisitInfo = Map.findWithDefault ManyVis st _lhsIprevVisits
                                             stNm = "st" >|< st
@@ -2414,9 +2414,9 @@ sem_EProduction_EProduction arg_con_ arg_params_ arg_constraints_ arg_rules_ arg
                                              ManyVis    -> mklet lhs (_stks     st >-< _stvs     st True) (cCon >#< "k" >|< st)
                                  {-# LINE 2416 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule254 #-}
-   {-# LINE 671 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 673 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule254 = \ _addbang _childTypes _lazyIntras ((_lhsIallInhmap) :: Map NontermIdent Attributes) ((_lhsIallSynmap) :: Map NontermIdent Attributes) ((_lhsIoptions) :: Options) _localAttrTypes ((_visitsIintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) ->
-                                 {-# LINE 671 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 673 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  \st -> let attrs = maybe Map.empty id $ Map.lookup st _visitsIintramap
                                         in ppSpaced [ let match | str `Set.member` _lazyIntras     = pp str
                                                                 | otherwise                        = _addbang     (pp str)
@@ -2434,9 +2434,9 @@ sem_EProduction_EProduction arg_con_ arg_params_ arg_constraints_ arg_rules_ arg
                                                    ] >#< dummyPat _lhsIoptions (Map.null attrs)
                                  {-# LINE 2436 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule255 #-}
-   {-# LINE 687 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 689 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule255 = \ ((_lhsInt) :: NontermIdent) ((_lhsIoptions) :: Options) _stvisits _t_params ->
-                                 {-# LINE 687 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 689 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  \st -> if null (_stvisits     st)
                                         then empty
                                         else ( if not (noInlinePragmas _lhsIoptions) && helpInlining _lhsIoptions
@@ -2448,99 +2448,99 @@ sem_EProduction_EProduction arg_con_ arg_params_ arg_constraints_ arg_rules_ arg
                                                                     >#< "v" >|< v) $ _stvisits     st)
                                  {-# LINE 2450 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule256 #-}
-   {-# LINE 696 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 698 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule256 = \ ((_visitsIallvisits) :: [VisitStateState]) ->
-                                 {-# LINE 696 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 698 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  \st -> filter (\(v,f,t) -> f == st) _visitsIallvisits
                                  {-# LINE 2456 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule257 #-}
-   {-# LINE 697 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 699 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule257 = \ ((_visitsIsem_visit) ::  [(StateIdentifier,Bool -> PP_Doc)] ) ->
-                                 {-# LINE 697 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 699 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  \st inlinePragma -> vlist [ppf inlinePragma | (f,ppf) <- _visitsIsem_visit, f == st]
                                  {-# LINE 2462 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule258 #-}
-   {-# LINE 698 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 700 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule258 = \ ((_rulesImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
-                                  {-# LINE 698 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 700 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   _rulesImrules
                                   {-# LINE 2468 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule259 #-}
-   {-# LINE 913 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 915 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule259 = \ ((_childrenIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
-                                       {-# LINE 913 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                       {-# LINE 915 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                        _childrenIchildintros
                                        {-# LINE 2474 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule260 #-}
-   {-# LINE 1267 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1270 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule260 = \ ((_visitsIruleUsage) :: Map Identifier Int) ->
-                                                   {-# LINE 1267 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                   {-# LINE 1270 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                                    _visitsIruleUsage
                                                    {-# LINE 2480 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule261 #-}
-   {-# LINE 1282 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1285 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule261 = \ ((_visitsIruleKinds) :: Map Identifier (Set VisitKind)) ->
-                      {-# LINE 1282 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                      {-# LINE 1285 "./src-ag/ExecutionPlan2Hs.ag" #-}
                       _visitsIruleKinds
                       {-# LINE 2486 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule262 #-}
-   {-# LINE 1311 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1314 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule262 = \ ((_visitsIintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) ->
-                          {-# LINE 1311 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                          {-# LINE 1314 "./src-ag/ExecutionPlan2Hs.ag" #-}
                           _visitsIintramap
                           {-# LINE 2492 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule263 #-}
-   {-# LINE 1312 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1315 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule263 = \ ((_childrenIterminaldefs) :: Set String) ->
-                          {-# LINE 1312 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                          {-# LINE 1315 "./src-ag/ExecutionPlan2Hs.ag" #-}
                           _childrenIterminaldefs
                           {-# LINE 2498 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule264 #-}
-   {-# LINE 1336 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1339 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule264 = \ ((_rulesIruledefs) :: Map Identifier (Set String)) ->
-                                    {-# LINE 1336 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                    {-# LINE 1339 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                     _rulesIruledefs
                                     {-# LINE 2504 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule265 #-}
-   {-# LINE 1337 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1340 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule265 = \ ((_rulesIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
-                                    {-# LINE 1337 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                    {-# LINE 1340 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                     _rulesIruleuses
                                     {-# LINE 2510 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule266 #-}
-   {-# LINE 1391 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1394 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule266 = \ ((_visitsIlazyIntras) :: Set String) ->
-                     {-# LINE 1391 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     {-# LINE 1394 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      _visitsIlazyIntras
                      {-# LINE 2516 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule267 #-}
-   {-# LINE 1488 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1491 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule267 = \ _moduleName ->
-                                   {-# LINE 1488 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 1491 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    [pp $ "import " ++ _moduleName    ]
                                    {-# LINE 2522 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule268 #-}
-   {-# LINE 1489 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1492 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule268 = \ ((_lhsImainName) :: String) _suffix ->
-                                   {-# LINE 1489 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 1492 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsImainName ++ _suffix
                                    {-# LINE 2528 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule269 #-}
-   {-# LINE 1490 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1493 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule269 = \ ((_lhsInt) :: NontermIdent) con_ ->
-                                   {-# LINE 1490 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 1493 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    "_" ++ show _lhsInt ++ "_" ++ show con_
                                    {-# LINE 2534 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule270 #-}
-   {-# LINE 1491 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1494 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule270 = \ ((_lhsImainFile) :: String) _suffix ->
-                                   {-# LINE 1491 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 1494 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    replaceBaseName _lhsImainFile (takeBaseName _lhsImainFile ++ _suffix    )
                                    {-# LINE 2540 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule271 #-}
-   {-# LINE 1492 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1495 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule271 = \ ((_lhsIoptions) :: Options) ->
-                                        {-# LINE 1492 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                        {-# LINE 1495 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                         if parallelInvoke _lhsIoptions
                                         then pp "import qualified System.IO.Unsafe(unsafePerformIO)"
                                              >-< pp "import System.IO(IO)"
@@ -2548,9 +2548,9 @@ sem_EProduction_EProduction arg_con_ arg_params_ arg_constraints_ arg_rules_ arg
                                         else pp "import Control.Monad.Identity"
                                         {-# LINE 2550 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule272 #-}
-   {-# LINE 1497 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1500 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule272 = \ ((_lhsIimportBlocks) :: PP_Doc) ((_lhsImainName) :: String) ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ((_lhsIoptions) :: Options) ((_lhsIpragmaBlocks) :: String) _outputfile _ppMonadImports _sem_prod _semname _suffix ->
-                                   {-# LINE 1497 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 1500 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    writeModule _outputfile
                                        [ warrenFlagsPP _lhsIoptions
                                        , pp $ _lhsIpragmaBlocks
@@ -2566,21 +2566,21 @@ sem_EProduction_EProduction arg_con_ arg_params_ arg_constraints_ arg_rules_ arg
                                        ]
                                    {-# LINE 2568 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule273 #-}
-   {-# LINE 1538 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1541 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule273 = \ ((_lhsIoptions) :: Options) ->
-                                                    {-# LINE 1538 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                    {-# LINE 1541 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                                     \x -> if bangpats _lhsIoptions then "!" >|< x else x
                                                     {-# LINE 2574 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule274 #-}
-   {-# LINE 1588 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1591 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule274 = \ ((_childrenIchildTypes) :: Map Identifier Type) ((_lhsIntType) :: Type) ->
-                     {-# LINE 1588 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     {-# LINE 1591 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      Map.singleton _LHS _lhsIntType `Map.union` _childrenIchildTypes
                      {-# LINE 2580 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule275 #-}
-   {-# LINE 1605 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1608 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule275 = \ ((_lhsIlocalAttrTypes) :: Map ConstructorIdent (Map Identifier Type)) con_ ->
-                           {-# LINE 1605 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 1608 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            Map.findWithDefault Map.empty con_ _lhsIlocalAttrTypes
                            {-# LINE 2586 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule276 #-}
@@ -2862,15 +2862,15 @@ sem_EProductions_Cons arg_hd_ arg_tl_ = T_EProductions (return st17) where
          in __result_ )
      in C_EProductions_s17 v16
    {-# INLINE rule325 #-}
-   {-# LINE 341 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 343 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule325 = \ ((_hdIallvisits) :: [VisitStateState]) ->
-                           {-# LINE 341 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 343 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            _hdIallvisits
                            {-# LINE 2870 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule326 #-}
-   {-# LINE 394 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 396 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule326 = \ ((_hdIt_visits) :: PP_Doc) ->
-                          {-# LINE 394 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                          {-# LINE 396 "./src-ag/ExecutionPlan2Hs.ag" #-}
                           _hdIt_visits
                           {-# LINE 2876 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule327 #-}
@@ -3120,9 +3120,9 @@ sem_EProductions_Nil  = T_EProductions (return st17) where
          in __result_ )
      in C_EProductions_s17 v16
    {-# INLINE rule395 #-}
-   {-# LINE 342 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 344 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule395 = \  (_ :: ()) ->
-                           {-# LINE 342 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 344 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            error "Every nonterminal should have at least 1 production"
                            {-# LINE 3128 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule396 #-}
@@ -3211,7 +3211,7 @@ sem_ERule_ERule arg_name_ arg_pattern_ arg_rhs_ _ _ arg_explicit_ arg_pure_ arg_
          _patternX41 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pattern_))
          _rhsX29 = Control.Monad.Identity.runIdentity (attach_T_Expression (arg_rhs_))
          (T_Pattern_vOut40 _patternIattrTypes _patternIattrs _patternIcopy _patternIisUnderscore _patternIsem_lhs) = inv_Pattern_s41 _patternX41 (T_Pattern_vIn40 _patternOallInhmap _patternOallSynmap _patternOanyLazyKind _patternOinhmap _patternOlocalAttrTypes _patternOoptions _patternOsynmap)
-         (T_Expression_vOut28 _rhsIattrs _rhsIpos _rhsIsemfunc _rhsItks) = inv_Expression_s29 _rhsX29 (T_Expression_vIn28 )
+         (T_Expression_vOut28 _rhsIattrs _rhsIpos _rhsIsemfunc _rhsItks) = inv_Expression_s29 _rhsX29 (T_Expression_vIn28 _rhsOoptions)
          _lhsOusedArgs :: Set String
          _lhsOusedArgs = rule411 _usedArgs_augmented_f1 _usedArgs_augmented_syn
          _usedArgs_augmented_f1 = rule412 _rhsIattrs
@@ -3249,6 +3249,7 @@ sem_ERule_ERule arg_name_ arg_pattern_ arg_rhs_ _ _ arg_explicit_ arg_pure_ arg_
          _patternOlocalAttrTypes = rule439 _lhsIlocalAttrTypes
          _patternOoptions = rule440 _lhsIoptions
          _patternOsynmap = rule441 _lhsIsynmap
+         _rhsOoptions = rule442 _lhsIoptions
          __result_ = T_ERule_vOut19 _lhsOerrors _lhsOmrules _lhsOruledefs _lhsOruleuses _lhsOsem_rules _lhsOusedArgs
          in __result_ )
      in C_ERule_s20 v19
@@ -3259,17 +3260,17 @@ sem_ERule_ERule arg_name_ arg_pattern_ arg_rhs_ _ _ arg_explicit_ arg_pure_ arg_
    rule412 = \ ((_rhsIattrs) :: Map String (Maybe NonLocalAttr)) ->
                         Set.union $ Map.keysSet $ Map.mapKeys (\a -> "arg_" ++ a) $ Map.filter isNothing _rhsIattrs
    {-# INLINE rule413 #-}
-   {-# LINE 982 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 984 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule413 = \ _rulePragma _rulecode _used ->
-                          {-# LINE 982 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                          {-# LINE 984 "./src-ag/ExecutionPlan2Hs.ag" #-}
                           if _used     == 0
                           then empty
                           else _rulePragma     >-< _rulecode
-                          {-# LINE 3269 "dist/build/ExecutionPlan2Hs.hs"#-}
+                          {-# LINE 3270 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule414 #-}
-   {-# LINE 985 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 987 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule414 = \ _endpragma _genpragma _lambda _pragma ((_rhsIpos) :: Pos) ((_rhsIsemfunc) :: PP_Doc) _scc ->
-                          {-# LINE 985 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                          {-# LINE 987 "./src-ag/ExecutionPlan2Hs.ag" #-}
                           ( if _genpragma
                             then _pragma
                             else empty
@@ -3280,11 +3281,11 @@ sem_ERule_ERule arg_name_ arg_pattern_ arg_rhs_ _ _ arg_explicit_ arg_pure_ arg_
                                   then _pragma     >-< _rhsIsemfunc >-< _endpragma
                                   else _rhsIsemfunc
                                 )
-                          {-# LINE 3284 "dist/build/ExecutionPlan2Hs.hs"#-}
+                          {-# LINE 3285 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule415 #-}
-   {-# LINE 997 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 999 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule415 = \ ((_lhsIoptions) :: Options) _used explicit_ name_ ->
-                           {-# LINE 997 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 999 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            ( let reallyInlineStr   = "INLINE"
                                  reallyNoInlineStr = "NOINLINE"
                              in  if noInlinePragmas _lhsIoptions
@@ -3307,49 +3308,49 @@ sem_ERule_ERule arg_name_ arg_pattern_ arg_rhs_ _ _ arg_explicit_ arg_pure_ arg_
                                                 then ppPragmaBinding "NOINLINE[1]" name_
                                                 else ppNoInline name_
                                )
-                           {-# LINE 3311 "dist/build/ExecutionPlan2Hs.hs"#-}
+                           {-# LINE 3312 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule416 #-}
-   {-# LINE 1019 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1021 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule416 = \ ((_lhsIcon) :: ConstructorIdent) ((_lhsInt) :: NontermIdent) ((_lhsIoptions) :: Options) ((_rhsIpos) :: Pos) explicit_ name_ pure_ ->
-                           {-# LINE 1019 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 1021 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            if genCostCentres _lhsIoptions && explicit_ && pure_ && not (noPerRuleCostCentres _lhsIoptions)
                            then ppCostCentre (name_ >|< "_" >|< line _rhsIpos >|< "_" >|< _lhsInt >|< "_" >|< _lhsIcon)
                            else empty
-                           {-# LINE 3319 "dist/build/ExecutionPlan2Hs.hs"#-}
+                           {-# LINE 3320 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule417 #-}
-   {-# LINE 1022 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule417 = \ ((_rhsIpos) :: Pos) ->
-                           {-# LINE 1022 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                           "{-# LINE" >#< show (line _rhsIpos) >#< show (file _rhsIpos) >#< "#-}"
-                           {-# LINE 3325 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule418 #-}
-   {-# LINE 1023 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule418 = \ ((_lhsImainFile) :: String) ->
-                           {-# LINE 1023 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                           ppWithLineNr (\ln -> "{-# LINE " ++ show (ln+1) ++ " " ++ show _lhsImainFile ++ "#-}")
-                           {-# LINE 3331 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule419 #-}
    {-# LINE 1024 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule419 = \ _haspos ((_lhsIoptions) :: Options) explicit_ ->
+   rule417 = \ ((_rhsIpos) :: Pos) ->
                            {-# LINE 1024 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                           genLinePragmas _lhsIoptions && explicit_ && _haspos
-                           {-# LINE 3337 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule420 #-}
+                           "{-# LINE" >#< show (line _rhsIpos) >#< show (file _rhsIpos) >#< "#-}"
+                           {-# LINE 3326 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule418 #-}
    {-# LINE 1025 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule420 = \ ((_rhsIpos) :: Pos) ->
+   rule418 = \ ((_lhsImainFile) :: String) ->
                            {-# LINE 1025 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           ppWithLineNr (\ln -> "{-# LINE " ++ show (ln+1) ++ " " ++ show _lhsImainFile ++ "#-}")
+                           {-# LINE 3332 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule419 #-}
+   {-# LINE 1026 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule419 = \ _haspos ((_lhsIoptions) :: Options) explicit_ ->
+                           {-# LINE 1026 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           genLinePragmas _lhsIoptions && explicit_ && _haspos
+                           {-# LINE 3338 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule420 #-}
+   {-# LINE 1027 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule420 = \ ((_rhsIpos) :: Pos) ->
+                           {-# LINE 1027 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            line _rhsIpos > 0 && column _rhsIpos >= 0 && not (null (file _rhsIpos))
-                           {-# LINE 3343 "dist/build/ExecutionPlan2Hs.hs"#-}
+                           {-# LINE 3344 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule421 #-}
-   {-# LINE 1034 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule421 = \ _argPats ((_lhsIoptions) :: Options) ((_rhsIattrs) :: Map String (Maybe NonLocalAttr)) name_ ->
-                           {-# LINE 1034 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                           name_ >#< "=" >#< "\\" >#< _argPats     >#< dummyPat _lhsIoptions (Map.null _rhsIattrs) >#< "->"
-                           {-# LINE 3349 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule422 #-}
    {-# LINE 1036 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule422 = \ _addbang1 ((_lhsIallInhmap) :: Map NontermIdent Attributes) ((_lhsIallSynmap) :: Map NontermIdent Attributes) ((_lhsIchildTypes) :: Map Identifier Type) ((_lhsIlazyIntras) :: Set String) ((_lhsIlocalAttrTypes) :: Map Identifier Type) ((_lhsIoptions) :: Options) ((_rhsIattrs) :: Map String (Maybe NonLocalAttr)) ->
+   rule421 = \ _argPats ((_lhsIoptions) :: Options) ((_rhsIattrs) :: Map String (Maybe NonLocalAttr)) name_ ->
                            {-# LINE 1036 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           name_ >#< "=" >#< "\\" >#< _argPats     >#< dummyPat _lhsIoptions (Map.null _rhsIattrs) >#< "->"
+                           {-# LINE 3350 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule422 #-}
+   {-# LINE 1038 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule422 = \ _addbang1 ((_lhsIallInhmap) :: Map NontermIdent Attributes) ((_lhsIallSynmap) :: Map NontermIdent Attributes) ((_lhsIchildTypes) :: Map Identifier Type) ((_lhsIlazyIntras) :: Set String) ((_lhsIlocalAttrTypes) :: Map Identifier Type) ((_lhsIoptions) :: Options) ((_rhsIattrs) :: Map String (Maybe NonLocalAttr)) ->
+                           {-# LINE 1038 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            ppSpaced [ let match | str `Set.member` _lhsIlazyIntras = pp str
                                                 | otherwise                        = _addbang1     (pp str)
                                       in case mbAttr of
@@ -3364,21 +3365,21 @@ sem_ERule_ERule arg_name_ arg_pattern_ arg_rhs_ _ _ arg_explicit_ arg_pure_ arg_
                                            _ -> match
                                     | (str,mbAttr) <- Map.assocs _rhsIattrs
                                     ]
-                           {-# LINE 3368 "dist/build/ExecutionPlan2Hs.hs"#-}
+                           {-# LINE 3369 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule423 #-}
-   {-# LINE 1050 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1052 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule423 = \ ((_rhsIattrs) :: Map String (Maybe NonLocalAttr)) ->
-                           {-# LINE 1050 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 1052 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            ppSpaced [ case mbAttr of
                                          Nothing -> "arg_" >|< str
                                          _       -> text str
                                     | (str,mbAttr) <- Map.assocs _rhsIattrs
                                     ]
-                           {-# LINE 3378 "dist/build/ExecutionPlan2Hs.hs"#-}
+                           {-# LINE 3379 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule424 #-}
-   {-# LINE 1055 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1057 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule424 = \ _argExprs ((_lhsIoptions) :: Options) ((_patternIattrTypes) :: PP_Doc) ((_patternIsem_lhs) ::  PP_Doc ) ((_rhsIattrs) :: Map String (Maybe NonLocalAttr)) name_ pure_ ->
-                           {-# LINE 1055 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 1057 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            \kind fmtMode -> if kind `compatibleRule` pure_
                                             then Right $ let oper | pure_     = "="
                                                                   | otherwise = "<-"
@@ -3388,63 +3389,63 @@ sem_ERule_ERule arg_name_ arg_pattern_ arg_rhs_ _ _ arg_explicit_ arg_pure_ arg_
                                                                     else empty
                                                          in fmtDecl pure_ fmtMode (tp >-< decl)
                                             else Left $ IncompatibleRuleKind name_ kind
-                           {-# LINE 3392 "dist/build/ExecutionPlan2Hs.hs"#-}
+                           {-# LINE 3393 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule425 #-}
-   {-# LINE 1065 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1067 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule425 = \ _stepcode name_ ->
-                           {-# LINE 1065 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 1067 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            Map.singleton name_ _stepcode
-                           {-# LINE 3398 "dist/build/ExecutionPlan2Hs.hs"#-}
+                           {-# LINE 3399 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule426 #-}
-   {-# LINE 1269 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1272 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule426 = \ ((_lhsIusageInfo) :: Map Identifier Int) name_ ->
-                                                 {-# LINE 1269 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                 {-# LINE 1272 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                                  Map.findWithDefault 0 name_ _lhsIusageInfo
-                                                 {-# LINE 3404 "dist/build/ExecutionPlan2Hs.hs"#-}
+                                                 {-# LINE 3405 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule427 #-}
-   {-# LINE 1285 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1288 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule427 = \ ((_lhsIruleKinds) :: Map Identifier (Set VisitKind)) name_ ->
-                {-# LINE 1285 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                {-# LINE 1288 "./src-ag/ExecutionPlan2Hs.ag" #-}
                 Map.findWithDefault Set.empty name_ _lhsIruleKinds
-                {-# LINE 3410 "dist/build/ExecutionPlan2Hs.hs"#-}
+                {-# LINE 3411 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule428 #-}
-   {-# LINE 1286 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1289 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule428 = \ _kinds ->
-                      {-# LINE 1286 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                      {-# LINE 1289 "./src-ag/ExecutionPlan2Hs.ag" #-}
                       Set.fold (\k r -> isLazyKind k || r) False _kinds
-                      {-# LINE 3416 "dist/build/ExecutionPlan2Hs.hs"#-}
+                      {-# LINE 3417 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule429 #-}
-   {-# LINE 1332 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1335 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule429 = \ ((_patternIattrs) :: Set String) name_ ->
-                           {-# LINE 1332 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 1335 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            Map.singleton name_ _patternIattrs
-                           {-# LINE 3422 "dist/build/ExecutionPlan2Hs.hs"#-}
+                           {-# LINE 3423 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule430 #-}
-   {-# LINE 1333 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1336 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule430 = \ ((_rhsIattrs) :: Map String (Maybe NonLocalAttr)) name_ ->
-                           {-# LINE 1333 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           {-# LINE 1336 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            Map.singleton name_ _rhsIattrs
-                           {-# LINE 3428 "dist/build/ExecutionPlan2Hs.hs"#-}
+                           {-# LINE 3429 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule431 #-}
-   {-# LINE 1535 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1538 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule431 = \ ((_lhsIoptions) :: Options) ->
-                                                    {-# LINE 1535 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                    {-# LINE 1538 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                                     \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                                                    {-# LINE 3434 "dist/build/ExecutionPlan2Hs.hs"#-}
+                                                    {-# LINE 3435 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule432 #-}
-   {-# LINE 1546 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1549 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule432 = \ _addbang _anyLazyKind ->
-                                                     {-# LINE 1546 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                     {-# LINE 1549 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                                      if _anyLazyKind     then id else _addbang
-                                                     {-# LINE 3440 "dist/build/ExecutionPlan2Hs.hs"#-}
+                                                     {-# LINE 3441 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule433 #-}
-   {-# LINE 1652 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1655 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule433 = \ _used mbError_ ->
-                 {-# LINE 1652 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                 {-# LINE 1655 "./src-ag/ExecutionPlan2Hs.ag" #-}
                  case mbError_ of
                    Just e | _used     > 0 -> Seq.singleton e
                    _                      -> Seq.empty
-                 {-# LINE 3448 "dist/build/ExecutionPlan2Hs.hs"#-}
+                 {-# LINE 3449 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule434 #-}
    rule434 = \  (_ :: ()) ->
      Set.empty
@@ -3469,6 +3470,9 @@ sem_ERule_ERule arg_name_ arg_pattern_ arg_rhs_ _ _ arg_explicit_ arg_pure_ arg_
    {-# INLINE rule441 #-}
    rule441 = \ ((_lhsIsynmap) :: Attributes) ->
      _lhsIsynmap
+   {-# INLINE rule442 #-}
+   rule442 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
 
 -- ERules ------------------------------------------------------
 -- wrapper
@@ -3512,181 +3516,181 @@ sem_ERules_Cons arg_hd_ arg_tl_ = T_ERules (return st23) where
          (T_ERule_vOut19 _hdIerrors _hdImrules _hdIruledefs _hdIruleuses _hdIsem_rules _hdIusedArgs) = inv_ERule_s20 _hdX20 (T_ERule_vIn19 _hdOallInhmap _hdOallSynmap _hdOchildTypes _hdOcon _hdOimportBlocks _hdOinhmap _hdOlazyIntras _hdOlocalAttrTypes _hdOmainFile _hdOmainName _hdOmoduleHeader _hdOnt _hdOoptions _hdOpragmaBlocks _hdOruleKinds _hdOsynmap _hdOtextBlocks _hdOusageInfo)
          (T_ERules_vOut22 _tlIerrors _tlImrules _tlIruledefs _tlIruleuses _tlIsem_rules _tlIusedArgs) = inv_ERules_s23 _tlX23 (T_ERules_vIn22 _tlOallInhmap _tlOallSynmap _tlOchildTypes _tlOcon _tlOimportBlocks _tlOinhmap _tlOlazyIntras _tlOlocalAttrTypes _tlOmainFile _tlOmainName _tlOmoduleHeader _tlOnt _tlOoptions _tlOpragmaBlocks _tlOruleKinds _tlOsynmap _tlOtextBlocks _tlOusageInfo)
          _lhsOerrors :: Seq Error
-         _lhsOerrors = rule442 _hdIerrors _tlIerrors
+         _lhsOerrors = rule443 _hdIerrors _tlIerrors
          _lhsOmrules :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)
-         _lhsOmrules = rule443 _hdImrules _tlImrules
+         _lhsOmrules = rule444 _hdImrules _tlImrules
          _lhsOruledefs :: Map Identifier (Set String)
-         _lhsOruledefs = rule444 _hdIruledefs _tlIruledefs
+         _lhsOruledefs = rule445 _hdIruledefs _tlIruledefs
          _lhsOruleuses :: Map Identifier (Map String (Maybe NonLocalAttr))
-         _lhsOruleuses = rule445 _hdIruleuses _tlIruleuses
+         _lhsOruleuses = rule446 _hdIruleuses _tlIruleuses
          _lhsOsem_rules :: PP_Doc
-         _lhsOsem_rules = rule446 _hdIsem_rules _tlIsem_rules
+         _lhsOsem_rules = rule447 _hdIsem_rules _tlIsem_rules
          _lhsOusedArgs :: Set String
-         _lhsOusedArgs = rule447 _hdIusedArgs _tlIusedArgs
-         _hdOallInhmap = rule448 _lhsIallInhmap
-         _hdOallSynmap = rule449 _lhsIallSynmap
-         _hdOchildTypes = rule450 _lhsIchildTypes
-         _hdOcon = rule451 _lhsIcon
-         _hdOimportBlocks = rule452 _lhsIimportBlocks
-         _hdOinhmap = rule453 _lhsIinhmap
-         _hdOlazyIntras = rule454 _lhsIlazyIntras
-         _hdOlocalAttrTypes = rule455 _lhsIlocalAttrTypes
-         _hdOmainFile = rule456 _lhsImainFile
-         _hdOmainName = rule457 _lhsImainName
-         _hdOmoduleHeader = rule458 _lhsImoduleHeader
-         _hdOnt = rule459 _lhsInt
-         _hdOoptions = rule460 _lhsIoptions
-         _hdOpragmaBlocks = rule461 _lhsIpragmaBlocks
-         _hdOruleKinds = rule462 _lhsIruleKinds
-         _hdOsynmap = rule463 _lhsIsynmap
-         _hdOtextBlocks = rule464 _lhsItextBlocks
-         _hdOusageInfo = rule465 _lhsIusageInfo
-         _tlOallInhmap = rule466 _lhsIallInhmap
-         _tlOallSynmap = rule467 _lhsIallSynmap
-         _tlOchildTypes = rule468 _lhsIchildTypes
-         _tlOcon = rule469 _lhsIcon
-         _tlOimportBlocks = rule470 _lhsIimportBlocks
-         _tlOinhmap = rule471 _lhsIinhmap
-         _tlOlazyIntras = rule472 _lhsIlazyIntras
-         _tlOlocalAttrTypes = rule473 _lhsIlocalAttrTypes
-         _tlOmainFile = rule474 _lhsImainFile
-         _tlOmainName = rule475 _lhsImainName
-         _tlOmoduleHeader = rule476 _lhsImoduleHeader
-         _tlOnt = rule477 _lhsInt
-         _tlOoptions = rule478 _lhsIoptions
-         _tlOpragmaBlocks = rule479 _lhsIpragmaBlocks
-         _tlOruleKinds = rule480 _lhsIruleKinds
-         _tlOsynmap = rule481 _lhsIsynmap
-         _tlOtextBlocks = rule482 _lhsItextBlocks
-         _tlOusageInfo = rule483 _lhsIusageInfo
+         _lhsOusedArgs = rule448 _hdIusedArgs _tlIusedArgs
+         _hdOallInhmap = rule449 _lhsIallInhmap
+         _hdOallSynmap = rule450 _lhsIallSynmap
+         _hdOchildTypes = rule451 _lhsIchildTypes
+         _hdOcon = rule452 _lhsIcon
+         _hdOimportBlocks = rule453 _lhsIimportBlocks
+         _hdOinhmap = rule454 _lhsIinhmap
+         _hdOlazyIntras = rule455 _lhsIlazyIntras
+         _hdOlocalAttrTypes = rule456 _lhsIlocalAttrTypes
+         _hdOmainFile = rule457 _lhsImainFile
+         _hdOmainName = rule458 _lhsImainName
+         _hdOmoduleHeader = rule459 _lhsImoduleHeader
+         _hdOnt = rule460 _lhsInt
+         _hdOoptions = rule461 _lhsIoptions
+         _hdOpragmaBlocks = rule462 _lhsIpragmaBlocks
+         _hdOruleKinds = rule463 _lhsIruleKinds
+         _hdOsynmap = rule464 _lhsIsynmap
+         _hdOtextBlocks = rule465 _lhsItextBlocks
+         _hdOusageInfo = rule466 _lhsIusageInfo
+         _tlOallInhmap = rule467 _lhsIallInhmap
+         _tlOallSynmap = rule468 _lhsIallSynmap
+         _tlOchildTypes = rule469 _lhsIchildTypes
+         _tlOcon = rule470 _lhsIcon
+         _tlOimportBlocks = rule471 _lhsIimportBlocks
+         _tlOinhmap = rule472 _lhsIinhmap
+         _tlOlazyIntras = rule473 _lhsIlazyIntras
+         _tlOlocalAttrTypes = rule474 _lhsIlocalAttrTypes
+         _tlOmainFile = rule475 _lhsImainFile
+         _tlOmainName = rule476 _lhsImainName
+         _tlOmoduleHeader = rule477 _lhsImoduleHeader
+         _tlOnt = rule478 _lhsInt
+         _tlOoptions = rule479 _lhsIoptions
+         _tlOpragmaBlocks = rule480 _lhsIpragmaBlocks
+         _tlOruleKinds = rule481 _lhsIruleKinds
+         _tlOsynmap = rule482 _lhsIsynmap
+         _tlOtextBlocks = rule483 _lhsItextBlocks
+         _tlOusageInfo = rule484 _lhsIusageInfo
          __result_ = T_ERules_vOut22 _lhsOerrors _lhsOmrules _lhsOruledefs _lhsOruleuses _lhsOsem_rules _lhsOusedArgs
          in __result_ )
      in C_ERules_s23 v22
-   {-# INLINE rule442 #-}
-   rule442 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
-     _hdIerrors Seq.>< _tlIerrors
    {-# INLINE rule443 #-}
-   rule443 = \ ((_hdImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ((_tlImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
-     _hdImrules `Map.union` _tlImrules
+   rule443 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
+     _hdIerrors Seq.>< _tlIerrors
    {-# INLINE rule444 #-}
-   rule444 = \ ((_hdIruledefs) :: Map Identifier (Set String)) ((_tlIruledefs) :: Map Identifier (Set String)) ->
-     _hdIruledefs `uwSetUnion` _tlIruledefs
+   rule444 = \ ((_hdImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ((_tlImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
+     _hdImrules `Map.union` _tlImrules
    {-# INLINE rule445 #-}
-   rule445 = \ ((_hdIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ((_tlIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
-     _hdIruleuses `uwMapUnion` _tlIruleuses
+   rule445 = \ ((_hdIruledefs) :: Map Identifier (Set String)) ((_tlIruledefs) :: Map Identifier (Set String)) ->
+     _hdIruledefs `uwSetUnion` _tlIruledefs
    {-# INLINE rule446 #-}
-   rule446 = \ ((_hdIsem_rules) :: PP_Doc) ((_tlIsem_rules) :: PP_Doc) ->
-     _hdIsem_rules >-< _tlIsem_rules
+   rule446 = \ ((_hdIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ((_tlIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
+     _hdIruleuses `uwMapUnion` _tlIruleuses
    {-# INLINE rule447 #-}
-   rule447 = \ ((_hdIusedArgs) :: Set String) ((_tlIusedArgs) :: Set String) ->
-     _hdIusedArgs `Set.union` _tlIusedArgs
+   rule447 = \ ((_hdIsem_rules) :: PP_Doc) ((_tlIsem_rules) :: PP_Doc) ->
+     _hdIsem_rules >-< _tlIsem_rules
    {-# INLINE rule448 #-}
-   rule448 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
-     _lhsIallInhmap
+   rule448 = \ ((_hdIusedArgs) :: Set String) ((_tlIusedArgs) :: Set String) ->
+     _hdIusedArgs `Set.union` _tlIusedArgs
    {-# INLINE rule449 #-}
-   rule449 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
-     _lhsIallSynmap
-   {-# INLINE rule450 #-}
-   rule450 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
-     _lhsIchildTypes
-   {-# INLINE rule451 #-}
-   rule451 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule452 #-}
-   rule452 = \ ((_lhsIimportBlocks) :: PP_Doc) ->
-     _lhsIimportBlocks
-   {-# INLINE rule453 #-}
-   rule453 = \ ((_lhsIinhmap) :: Attributes) ->
-     _lhsIinhmap
-   {-# INLINE rule454 #-}
-   rule454 = \ ((_lhsIlazyIntras) :: Set String) ->
-     _lhsIlazyIntras
-   {-# INLINE rule455 #-}
-   rule455 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
-     _lhsIlocalAttrTypes
-   {-# INLINE rule456 #-}
-   rule456 = \ ((_lhsImainFile) :: String) ->
-     _lhsImainFile
-   {-# INLINE rule457 #-}
-   rule457 = \ ((_lhsImainName) :: String) ->
-     _lhsImainName
-   {-# INLINE rule458 #-}
-   rule458 = \ ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ->
-     _lhsImoduleHeader
-   {-# INLINE rule459 #-}
-   rule459 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
-   {-# INLINE rule460 #-}
-   rule460 = \ ((_lhsIoptions) :: Options) ->
-     _lhsIoptions
-   {-# INLINE rule461 #-}
-   rule461 = \ ((_lhsIpragmaBlocks) :: String) ->
-     _lhsIpragmaBlocks
-   {-# INLINE rule462 #-}
-   rule462 = \ ((_lhsIruleKinds) :: Map Identifier (Set VisitKind)) ->
-     _lhsIruleKinds
-   {-# INLINE rule463 #-}
-   rule463 = \ ((_lhsIsynmap) :: Attributes) ->
-     _lhsIsynmap
-   {-# INLINE rule464 #-}
-   rule464 = \ ((_lhsItextBlocks) :: PP_Doc) ->
-     _lhsItextBlocks
-   {-# INLINE rule465 #-}
-   rule465 = \ ((_lhsIusageInfo) :: Map Identifier Int) ->
-     _lhsIusageInfo
-   {-# INLINE rule466 #-}
-   rule466 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
+   rule449 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
      _lhsIallInhmap
-   {-# INLINE rule467 #-}
-   rule467 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
+   {-# INLINE rule450 #-}
+   rule450 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
      _lhsIallSynmap
-   {-# INLINE rule468 #-}
-   rule468 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
+   {-# INLINE rule451 #-}
+   rule451 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
      _lhsIchildTypes
-   {-# INLINE rule469 #-}
-   rule469 = \ ((_lhsIcon) :: ConstructorIdent) ->
+   {-# INLINE rule452 #-}
+   rule452 = \ ((_lhsIcon) :: ConstructorIdent) ->
      _lhsIcon
-   {-# INLINE rule470 #-}
-   rule470 = \ ((_lhsIimportBlocks) :: PP_Doc) ->
+   {-# INLINE rule453 #-}
+   rule453 = \ ((_lhsIimportBlocks) :: PP_Doc) ->
      _lhsIimportBlocks
-   {-# INLINE rule471 #-}
-   rule471 = \ ((_lhsIinhmap) :: Attributes) ->
+   {-# INLINE rule454 #-}
+   rule454 = \ ((_lhsIinhmap) :: Attributes) ->
      _lhsIinhmap
-   {-# INLINE rule472 #-}
-   rule472 = \ ((_lhsIlazyIntras) :: Set String) ->
+   {-# INLINE rule455 #-}
+   rule455 = \ ((_lhsIlazyIntras) :: Set String) ->
      _lhsIlazyIntras
-   {-# INLINE rule473 #-}
-   rule473 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
+   {-# INLINE rule456 #-}
+   rule456 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
      _lhsIlocalAttrTypes
-   {-# INLINE rule474 #-}
-   rule474 = \ ((_lhsImainFile) :: String) ->
+   {-# INLINE rule457 #-}
+   rule457 = \ ((_lhsImainFile) :: String) ->
      _lhsImainFile
-   {-# INLINE rule475 #-}
-   rule475 = \ ((_lhsImainName) :: String) ->
+   {-# INLINE rule458 #-}
+   rule458 = \ ((_lhsImainName) :: String) ->
      _lhsImainName
-   {-# INLINE rule476 #-}
-   rule476 = \ ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ->
+   {-# INLINE rule459 #-}
+   rule459 = \ ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ->
      _lhsImoduleHeader
-   {-# INLINE rule477 #-}
-   rule477 = \ ((_lhsInt) :: NontermIdent) ->
+   {-# INLINE rule460 #-}
+   rule460 = \ ((_lhsInt) :: NontermIdent) ->
      _lhsInt
-   {-# INLINE rule478 #-}
-   rule478 = \ ((_lhsIoptions) :: Options) ->
+   {-# INLINE rule461 #-}
+   rule461 = \ ((_lhsIoptions) :: Options) ->
      _lhsIoptions
-   {-# INLINE rule479 #-}
-   rule479 = \ ((_lhsIpragmaBlocks) :: String) ->
+   {-# INLINE rule462 #-}
+   rule462 = \ ((_lhsIpragmaBlocks) :: String) ->
      _lhsIpragmaBlocks
-   {-# INLINE rule480 #-}
-   rule480 = \ ((_lhsIruleKinds) :: Map Identifier (Set VisitKind)) ->
+   {-# INLINE rule463 #-}
+   rule463 = \ ((_lhsIruleKinds) :: Map Identifier (Set VisitKind)) ->
      _lhsIruleKinds
-   {-# INLINE rule481 #-}
-   rule481 = \ ((_lhsIsynmap) :: Attributes) ->
+   {-# INLINE rule464 #-}
+   rule464 = \ ((_lhsIsynmap) :: Attributes) ->
      _lhsIsynmap
-   {-# INLINE rule482 #-}
-   rule482 = \ ((_lhsItextBlocks) :: PP_Doc) ->
+   {-# INLINE rule465 #-}
+   rule465 = \ ((_lhsItextBlocks) :: PP_Doc) ->
      _lhsItextBlocks
+   {-# INLINE rule466 #-}
+   rule466 = \ ((_lhsIusageInfo) :: Map Identifier Int) ->
+     _lhsIusageInfo
+   {-# INLINE rule467 #-}
+   rule467 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
+     _lhsIallInhmap
+   {-# INLINE rule468 #-}
+   rule468 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
+     _lhsIallSynmap
+   {-# INLINE rule469 #-}
+   rule469 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
+     _lhsIchildTypes
+   {-# INLINE rule470 #-}
+   rule470 = \ ((_lhsIcon) :: ConstructorIdent) ->
+     _lhsIcon
+   {-# INLINE rule471 #-}
+   rule471 = \ ((_lhsIimportBlocks) :: PP_Doc) ->
+     _lhsIimportBlocks
+   {-# INLINE rule472 #-}
+   rule472 = \ ((_lhsIinhmap) :: Attributes) ->
+     _lhsIinhmap
+   {-# INLINE rule473 #-}
+   rule473 = \ ((_lhsIlazyIntras) :: Set String) ->
+     _lhsIlazyIntras
+   {-# INLINE rule474 #-}
+   rule474 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
+     _lhsIlocalAttrTypes
+   {-# INLINE rule475 #-}
+   rule475 = \ ((_lhsImainFile) :: String) ->
+     _lhsImainFile
+   {-# INLINE rule476 #-}
+   rule476 = \ ((_lhsImainName) :: String) ->
+     _lhsImainName
+   {-# INLINE rule477 #-}
+   rule477 = \ ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ->
+     _lhsImoduleHeader
+   {-# INLINE rule478 #-}
+   rule478 = \ ((_lhsInt) :: NontermIdent) ->
+     _lhsInt
+   {-# INLINE rule479 #-}
+   rule479 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule480 #-}
+   rule480 = \ ((_lhsIpragmaBlocks) :: String) ->
+     _lhsIpragmaBlocks
+   {-# INLINE rule481 #-}
+   rule481 = \ ((_lhsIruleKinds) :: Map Identifier (Set VisitKind)) ->
+     _lhsIruleKinds
+   {-# INLINE rule482 #-}
+   rule482 = \ ((_lhsIsynmap) :: Attributes) ->
+     _lhsIsynmap
    {-# INLINE rule483 #-}
-   rule483 = \ ((_lhsIusageInfo) :: Map Identifier Int) ->
+   rule483 = \ ((_lhsItextBlocks) :: PP_Doc) ->
+     _lhsItextBlocks
+   {-# INLINE rule484 #-}
+   rule484 = \ ((_lhsIusageInfo) :: Map Identifier Int) ->
      _lhsIusageInfo
 {-# NOINLINE sem_ERules_Nil #-}
 sem_ERules_Nil ::  T_ERules 
@@ -3696,26 +3700,23 @@ sem_ERules_Nil  = T_ERules (return st23) where
       v22 :: T_ERules_v22 
       v22 = \ (T_ERules_vIn22 _lhsIallInhmap _lhsIallSynmap _lhsIchildTypes _lhsIcon _lhsIimportBlocks _lhsIinhmap _lhsIlazyIntras _lhsIlocalAttrTypes _lhsImainFile _lhsImainName _lhsImoduleHeader _lhsInt _lhsIoptions _lhsIpragmaBlocks _lhsIruleKinds _lhsIsynmap _lhsItextBlocks _lhsIusageInfo) -> ( let
          _lhsOerrors :: Seq Error
-         _lhsOerrors = rule484  ()
+         _lhsOerrors = rule485  ()
          _lhsOmrules :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)
-         _lhsOmrules = rule485  ()
+         _lhsOmrules = rule486  ()
          _lhsOruledefs :: Map Identifier (Set String)
-         _lhsOruledefs = rule486  ()
+         _lhsOruledefs = rule487  ()
          _lhsOruleuses :: Map Identifier (Map String (Maybe NonLocalAttr))
-         _lhsOruleuses = rule487  ()
+         _lhsOruleuses = rule488  ()
          _lhsOsem_rules :: PP_Doc
-         _lhsOsem_rules = rule488  ()
+         _lhsOsem_rules = rule489  ()
          _lhsOusedArgs :: Set String
-         _lhsOusedArgs = rule489  ()
+         _lhsOusedArgs = rule490  ()
          __result_ = T_ERules_vOut22 _lhsOerrors _lhsOmrules _lhsOruledefs _lhsOruleuses _lhsOsem_rules _lhsOusedArgs
          in __result_ )
      in C_ERules_s23 v22
-   {-# INLINE rule484 #-}
-   rule484 = \  (_ :: ()) ->
-     Seq.empty
    {-# INLINE rule485 #-}
    rule485 = \  (_ :: ()) ->
-     Map.empty
+     Seq.empty
    {-# INLINE rule486 #-}
    rule486 = \  (_ :: ()) ->
      Map.empty
@@ -3724,9 +3725,12 @@ sem_ERules_Nil  = T_ERules (return st23) where
      Map.empty
    {-# INLINE rule488 #-}
    rule488 = \  (_ :: ()) ->
-     empty
+     Map.empty
    {-# INLINE rule489 #-}
    rule489 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule490 #-}
+   rule490 = \  (_ :: ()) ->
      Set.empty
 
 -- ExecutionPlan -----------------------------------------------
@@ -3769,93 +3773,93 @@ sem_ExecutionPlan_ExecutionPlan arg_nonts_ arg_typeSyns_ arg_wrappers_ arg_deriv
          _nontsX11 = Control.Monad.Identity.runIdentity (attach_T_ENonterminals (arg_nonts_))
          (T_ENonterminals_vOut10 _nontsIappendCommon _nontsIappendMain _nontsIchildvisit _nontsIerrors _nontsIfromToStates _nontsIgenProdIO _nontsIimports _nontsIinitStates _nontsIoutput _nontsIsemFunBndDefs _nontsIsemFunBndTps _nontsIvisitKinds _nontsIvisitdefs _nontsIvisituses) = inv_ENonterminals_s11 _nontsX11 (T_ENonterminals_vIn10 _nontsOallFromToStates _nontsOallInitStates _nontsOallVisitKinds _nontsOallchildvisit _nontsOavisitdefs _nontsOavisituses _nontsOderivings _nontsOimportBlocks _nontsOinhmap _nontsOlocalAttrTypes _nontsOmainFile _nontsOmainName _nontsOmoduleHeader _nontsOoptions _nontsOpragmaBlocks _nontsOsynmap _nontsOtextBlocks _nontsOtypeSyns _nontsOwrappers)
          _lhsOoutput :: PP_Doc
-         _lhsOoutput = rule490 _commonExtra _nontsIoutput _wrappersExtra
-         _nontsOwrappers = rule491 arg_wrappers_
-         _nontsOtypeSyns = rule492 arg_typeSyns_
-         _nontsOderivings = rule493 arg_derivings_
-         _wrappersExtra = rule494 _lateSemBndDef _lhsIoptions
-         _commonExtra = rule495 _lateSemBndTp _lhsIoptions
-         _lateSemBndTp = rule496 _lhsImainName _nontsIsemFunBndTps
-         _lateSemBndDef = rule497 _lhsImainName _lhsIoptions _nontsIsemFunBndDefs arg_wrappers_
-         _nontsOallchildvisit = rule498 _nontsIchildvisit
-         _nontsOavisitdefs = rule499 _nontsIvisitdefs
-         _nontsOavisituses = rule500 _nontsIvisituses
+         _lhsOoutput = rule491 _commonExtra _nontsIoutput _wrappersExtra
+         _nontsOwrappers = rule492 arg_wrappers_
+         _nontsOtypeSyns = rule493 arg_typeSyns_
+         _nontsOderivings = rule494 arg_derivings_
+         _wrappersExtra = rule495 _lateSemBndDef _lhsIoptions
+         _commonExtra = rule496 _lateSemBndTp _lhsIoptions
+         _lateSemBndTp = rule497 _lhsImainName _nontsIsemFunBndTps
+         _lateSemBndDef = rule498 _lhsImainName _lhsIoptions _nontsIsemFunBndDefs arg_wrappers_
+         _nontsOallchildvisit = rule499 _nontsIchildvisit
+         _nontsOavisitdefs = rule500 _nontsIvisitdefs
+         _nontsOavisituses = rule501 _nontsIvisituses
          _lhsOgenIO :: IO ()
-         _lhsOgenIO = rule501 _genCommonModule _genMainModule _nontsIgenProdIO
-         _mainModuleFile = rule502 _lhsImainFile
-         _ppMonadImports = rule503 _lhsIoptions
-         _genMainModule = rule504 _lhsImainBlocksDoc _lhsImainName _lhsImoduleHeader _lhsIoptions _lhsIpragmaBlocks _mainModuleFile _nontsIappendMain _nontsIimports _ppMonadImports _wrappersExtra
-         _commonFile = rule505 _lhsImainFile
-         _genCommonModule = rule506 _commonExtra _commonFile _lhsIimportBlocks _lhsImainName _lhsImoduleHeader _lhsIpragmaBlocks _lhsItextBlocks _nontsIappendCommon _ppMonadImports
-         _nontsOallFromToStates = rule507 _nontsIfromToStates
-         _nontsOallVisitKinds = rule508 _nontsIvisitKinds
-         _nontsOallInitStates = rule509 _nontsIinitStates
+         _lhsOgenIO = rule502 _genCommonModule _genMainModule _nontsIgenProdIO
+         _mainModuleFile = rule503 _lhsImainFile
+         _ppMonadImports = rule504 _lhsIoptions
+         _genMainModule = rule505 _lhsImainBlocksDoc _lhsImainName _lhsImoduleHeader _lhsIoptions _lhsIpragmaBlocks _mainModuleFile _nontsIappendMain _nontsIimports _ppMonadImports _wrappersExtra
+         _commonFile = rule506 _lhsImainFile
+         _genCommonModule = rule507 _commonExtra _commonFile _lhsIimportBlocks _lhsImainName _lhsImoduleHeader _lhsIpragmaBlocks _lhsItextBlocks _nontsIappendCommon _ppMonadImports
+         _nontsOallFromToStates = rule508 _nontsIfromToStates
+         _nontsOallVisitKinds = rule509 _nontsIvisitKinds
+         _nontsOallInitStates = rule510 _nontsIinitStates
          _lhsOerrors :: Seq Error
-         _lhsOerrors = rule510 _nontsIerrors
-         _nontsOimportBlocks = rule511 _lhsIimportBlocks
-         _nontsOinhmap = rule512 _lhsIinhmap
-         _nontsOlocalAttrTypes = rule513 _lhsIlocalAttrTypes
-         _nontsOmainFile = rule514 _lhsImainFile
-         _nontsOmainName = rule515 _lhsImainName
-         _nontsOmoduleHeader = rule516 _lhsImoduleHeader
-         _nontsOoptions = rule517 _lhsIoptions
-         _nontsOpragmaBlocks = rule518 _lhsIpragmaBlocks
-         _nontsOsynmap = rule519 _lhsIsynmap
-         _nontsOtextBlocks = rule520 _lhsItextBlocks
+         _lhsOerrors = rule511 _nontsIerrors
+         _nontsOimportBlocks = rule512 _lhsIimportBlocks
+         _nontsOinhmap = rule513 _lhsIinhmap
+         _nontsOlocalAttrTypes = rule514 _lhsIlocalAttrTypes
+         _nontsOmainFile = rule515 _lhsImainFile
+         _nontsOmainName = rule516 _lhsImainName
+         _nontsOmoduleHeader = rule517 _lhsImoduleHeader
+         _nontsOoptions = rule518 _lhsIoptions
+         _nontsOpragmaBlocks = rule519 _lhsIpragmaBlocks
+         _nontsOsynmap = rule520 _lhsIsynmap
+         _nontsOtextBlocks = rule521 _lhsItextBlocks
          __result_ = T_ExecutionPlan_vOut25 _lhsOerrors _lhsOgenIO _lhsOoutput
          in __result_ )
      in C_ExecutionPlan_s26 v25
-   {-# INLINE rule490 #-}
-   {-# LINE 87 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule490 = \ _commonExtra ((_nontsIoutput) :: PP_Doc) _wrappersExtra ->
-                                 {-# LINE 87 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                 _nontsIoutput >-< _commonExtra     >-< _wrappersExtra
-                                 {-# LINE 3814 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule491 #-}
-   {-# LINE 93 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule491 = \ wrappers_ ->
-                                     {-# LINE 93 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                     wrappers_
-                                     {-# LINE 3820 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 89 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule491 = \ _commonExtra ((_nontsIoutput) :: PP_Doc) _wrappersExtra ->
+                                 {-# LINE 89 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 _nontsIoutput >-< _commonExtra     >-< _wrappersExtra
+                                 {-# LINE 3818 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule492 #-}
-   {-# LINE 132 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule492 = \ typeSyns_ ->
-                                     {-# LINE 132 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                     typeSyns_
-                                     {-# LINE 3826 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 95 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule492 = \ wrappers_ ->
+                                     {-# LINE 95 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                     wrappers_
+                                     {-# LINE 3824 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule493 #-}
-   {-# LINE 133 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule493 = \ derivings_ ->
-                                      {-# LINE 133 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                      derivings_
-                                      {-# LINE 3832 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 134 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule493 = \ typeSyns_ ->
+                                     {-# LINE 134 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                     typeSyns_
+                                     {-# LINE 3830 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule494 #-}
-   {-# LINE 529 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule494 = \ _lateSemBndDef ((_lhsIoptions) :: Options) ->
-                        {-# LINE 529 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 135 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule494 = \ derivings_ ->
+                                      {-# LINE 135 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                      derivings_
+                                      {-# LINE 3836 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule495 #-}
+   {-# LINE 531 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule495 = \ _lateSemBndDef ((_lhsIoptions) :: Options) ->
+                        {-# LINE 531 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         if lateHigherOrderBinding _lhsIoptions
                         then _lateSemBndDef
                         else empty
-                        {-# LINE 3840 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule495 #-}
-   {-# LINE 532 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule495 = \ _lateSemBndTp ((_lhsIoptions) :: Options) ->
-                        {-# LINE 532 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        {-# LINE 3844 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule496 #-}
+   {-# LINE 534 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule496 = \ _lateSemBndTp ((_lhsIoptions) :: Options) ->
+                        {-# LINE 534 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         if lateHigherOrderBinding _lhsIoptions
                         then _lateSemBndTp
                         else empty
-                        {-# LINE 3848 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule496 #-}
-   {-# LINE 535 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule496 = \ ((_lhsImainName) :: String) ((_nontsIsemFunBndTps) :: Seq PP_Doc) ->
-                       {-# LINE 535 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                       "data" >#< lateBindingTypeNm _lhsImainName >#< "=" >#< lateBindingTypeNm _lhsImainName
-                        >-< (indent 2 $ pp_block "{" "}" "," $ toList _nontsIsemFunBndTps)
-                       {-# LINE 3855 "dist/build/ExecutionPlan2Hs.hs"#-}
+                        {-# LINE 3852 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule497 #-}
    {-# LINE 537 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule497 = \ ((_lhsImainName) :: String) ((_lhsIoptions) :: Options) ((_nontsIsemFunBndDefs) :: Seq PP_Doc) wrappers_ ->
-                        {-# LINE 537 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule497 = \ ((_lhsImainName) :: String) ((_nontsIsemFunBndTps) :: Seq PP_Doc) ->
+                       {-# LINE 537 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                       "data" >#< lateBindingTypeNm _lhsImainName >#< "=" >#< lateBindingTypeNm _lhsImainName
+                        >-< (indent 2 $ pp_block "{" "}" "," $ toList _nontsIsemFunBndTps)
+                       {-# LINE 3859 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule498 #-}
+   {-# LINE 539 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule498 = \ ((_lhsImainName) :: String) ((_lhsIoptions) :: Options) ((_nontsIsemFunBndDefs) :: Seq PP_Doc) wrappers_ ->
+                        {-# LINE 539 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         ( if noInlinePragmas _lhsIoptions
                           then empty
                           else if helpInlining _lhsIoptions && Set.size wrappers_ == 1
@@ -3865,43 +3869,43 @@ sem_ExecutionPlan_ExecutionPlan arg_nonts_ arg_typeSyns_ arg_wrappers_ arg_deriv
                         >-< lateBindingFieldNm _lhsImainName >#< "::" >#< lateBindingTypeNm _lhsImainName
                         >-< lateBindingFieldNm _lhsImainName >#< "=" >#< lateBindingTypeNm _lhsImainName
                         >-< (indent 2 $ pp_block "{" "}" "," $ toList _nontsIsemFunBndDefs )
-                        {-# LINE 3869 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule498 #-}
-   {-# LINE 1213 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule498 = \ ((_nontsIchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
-                                          {-# LINE 1213 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                          _nontsIchildvisit
-                                          {-# LINE 3875 "dist/build/ExecutionPlan2Hs.hs"#-}
+                        {-# LINE 3873 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule499 #-}
-   {-# LINE 1357 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule499 = \ ((_nontsIvisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
-                                       {-# LINE 1357 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                       _nontsIvisitdefs
-                                       {-# LINE 3881 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 1216 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule499 = \ ((_nontsIchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
+                                          {-# LINE 1216 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                          _nontsIchildvisit
+                                          {-# LINE 3879 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule500 #-}
-   {-# LINE 1358 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule500 = \ ((_nontsIvisituses) :: Map VisitIdentifier (Set Identifier)) ->
-                                       {-# LINE 1358 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                       _nontsIvisituses
-                                       {-# LINE 3887 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 1360 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule500 = \ ((_nontsIvisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
+                                       {-# LINE 1360 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                       _nontsIvisitdefs
+                                       {-# LINE 3885 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule501 #-}
-   {-# LINE 1429 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule501 = \ _genCommonModule _genMainModule ((_nontsIgenProdIO) :: IO ()) ->
-                                          {-# LINE 1429 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1361 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule501 = \ ((_nontsIvisituses) :: Map VisitIdentifier (Set Identifier)) ->
+                                       {-# LINE 1361 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                       _nontsIvisituses
+                                       {-# LINE 3891 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule502 #-}
+   {-# LINE 1432 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule502 = \ _genCommonModule _genMainModule ((_nontsIgenProdIO) :: IO ()) ->
+                                          {-# LINE 1432 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                           do _genMainModule
                                              _genCommonModule
                                              _nontsIgenProdIO
-                                          {-# LINE 3895 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule502 #-}
-   {-# LINE 1432 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule502 = \ ((_lhsImainFile) :: String) ->
-                                          {-# LINE 1432 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                          _lhsImainFile
-                                          {-# LINE 3901 "dist/build/ExecutionPlan2Hs.hs"#-}
+                                          {-# LINE 3899 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule503 #-}
-   {-# LINE 1433 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule503 = \ ((_lhsIoptions) :: Options) ->
-                                          {-# LINE 1433 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1435 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule503 = \ ((_lhsImainFile) :: String) ->
+                                          {-# LINE 1435 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                          _lhsImainFile
+                                          {-# LINE 3905 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule504 #-}
+   {-# LINE 1436 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule504 = \ ((_lhsIoptions) :: Options) ->
+                                          {-# LINE 1436 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                           ( if tupleAsDummyToken _lhsIoptions
                                             then empty
                                             else pp "import GHC.Prim"
@@ -3911,11 +3915,11 @@ sem_ExecutionPlan_ExecutionPlan arg_nonts_ arg_typeSyns_ arg_wrappers_ arg_deriv
                                                    >-< pp "import System.IO(IO)"
                                                    >-< pp "import Control.Concurrent(newEmptyMVar,forkIO,putMVar,takeMVar)"
                                               else pp "import Control.Monad.Identity"
-                                          {-# LINE 3915 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule504 #-}
-   {-# LINE 1442 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule504 = \ ((_lhsImainBlocksDoc) :: PP_Doc) ((_lhsImainName) :: String) ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ((_lhsIoptions) :: Options) ((_lhsIpragmaBlocks) :: String) _mainModuleFile ((_nontsIappendMain) :: [PP_Doc]) ((_nontsIimports) :: [PP_Doc]) _ppMonadImports _wrappersExtra ->
-                                          {-# LINE 1442 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                          {-# LINE 3919 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule505 #-}
+   {-# LINE 1445 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule505 = \ ((_lhsImainBlocksDoc) :: PP_Doc) ((_lhsImainName) :: String) ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ((_lhsIoptions) :: Options) ((_lhsIpragmaBlocks) :: String) _mainModuleFile ((_nontsIappendMain) :: [PP_Doc]) ((_nontsIimports) :: [PP_Doc]) _ppMonadImports _wrappersExtra ->
+                                          {-# LINE 1445 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                           writeModule _mainModuleFile
                                             ( [ warrenFlagsPP _lhsIoptions
                                               , pp $ _lhsIpragmaBlocks
@@ -3928,17 +3932,17 @@ sem_ExecutionPlan_ExecutionPlan arg_nonts_ arg_typeSyns_ arg_wrappers_ arg_deriv
                                               ++ [_wrappersExtra    ]
                                               ++ _nontsIappendMain
                                             )
-                                          {-# LINE 3932 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule505 #-}
-   {-# LINE 1454 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule505 = \ ((_lhsImainFile) :: String) ->
-                                          {-# LINE 1454 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                          replaceBaseName _lhsImainFile (takeBaseName _lhsImainFile ++ "_common")
-                                          {-# LINE 3938 "dist/build/ExecutionPlan2Hs.hs"#-}
+                                          {-# LINE 3936 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule506 #-}
-   {-# LINE 1455 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule506 = \ _commonExtra _commonFile ((_lhsIimportBlocks) :: PP_Doc) ((_lhsImainName) :: String) ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ((_lhsIpragmaBlocks) :: String) ((_lhsItextBlocks) :: PP_Doc) ((_nontsIappendCommon) :: [PP_Doc]) _ppMonadImports ->
-                                          {-# LINE 1455 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1457 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule506 = \ ((_lhsImainFile) :: String) ->
+                                          {-# LINE 1457 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                          replaceBaseName _lhsImainFile (takeBaseName _lhsImainFile ++ "_common")
+                                          {-# LINE 3942 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule507 #-}
+   {-# LINE 1458 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule507 = \ _commonExtra _commonFile ((_lhsIimportBlocks) :: PP_Doc) ((_lhsImainName) :: String) ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ((_lhsIpragmaBlocks) :: String) ((_lhsItextBlocks) :: PP_Doc) ((_nontsIappendCommon) :: [PP_Doc]) _ppMonadImports ->
+                                          {-# LINE 1458 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                           writeModule _commonFile
                                             ( [ pp $ "{-# LANGUAGE Rank2Types, GADTs #-}"
                                               , pp $ _lhsIpragmaBlocks
@@ -3950,69 +3954,69 @@ sem_ExecutionPlan_ExecutionPlan arg_nonts_ arg_typeSyns_ arg_wrappers_ arg_deriv
                                               ]
                                               ++ _nontsIappendCommon
                                             )
-                                          {-# LINE 3954 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule507 #-}
-   {-# LINE 1574 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule507 = \ ((_nontsIfromToStates) :: Map VisitIdentifier (Int,Int)) ->
-                            {-# LINE 1574 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            _nontsIfromToStates
-                            {-# LINE 3960 "dist/build/ExecutionPlan2Hs.hs"#-}
+                                          {-# LINE 3958 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule508 #-}
-   {-# LINE 1618 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule508 = \ ((_nontsIvisitKinds) :: Map VisitIdentifier VisitKind) ->
-                          {-# LINE 1618 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                          _nontsIvisitKinds
-                          {-# LINE 3966 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 1577 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule508 = \ ((_nontsIfromToStates) :: Map VisitIdentifier (Int,Int)) ->
+                            {-# LINE 1577 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            _nontsIfromToStates
+                            {-# LINE 3964 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule509 #-}
-   {-# LINE 1632 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule509 = \ ((_nontsIinitStates) :: Map NontermIdent Int) ->
-                          {-# LINE 1632 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                          _nontsIinitStates
-                          {-# LINE 3972 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 1621 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule509 = \ ((_nontsIvisitKinds) :: Map VisitIdentifier VisitKind) ->
+                          {-# LINE 1621 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                          _nontsIvisitKinds
+                          {-# LINE 3970 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule510 #-}
-   rule510 = \ ((_nontsIerrors) :: Seq Error) ->
-     _nontsIerrors
+   {-# LINE 1635 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule510 = \ ((_nontsIinitStates) :: Map NontermIdent Int) ->
+                          {-# LINE 1635 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                          _nontsIinitStates
+                          {-# LINE 3976 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule511 #-}
-   rule511 = \ ((_lhsIimportBlocks) :: PP_Doc) ->
-     _lhsIimportBlocks
+   rule511 = \ ((_nontsIerrors) :: Seq Error) ->
+     _nontsIerrors
    {-# INLINE rule512 #-}
-   rule512 = \ ((_lhsIinhmap) :: Map NontermIdent Attributes) ->
-     _lhsIinhmap
+   rule512 = \ ((_lhsIimportBlocks) :: PP_Doc) ->
+     _lhsIimportBlocks
    {-# INLINE rule513 #-}
-   rule513 = \ ((_lhsIlocalAttrTypes) :: Map NontermIdent (Map ConstructorIdent (Map Identifier Type))) ->
-     _lhsIlocalAttrTypes
+   rule513 = \ ((_lhsIinhmap) :: Map NontermIdent Attributes) ->
+     _lhsIinhmap
    {-# INLINE rule514 #-}
-   rule514 = \ ((_lhsImainFile) :: String) ->
-     _lhsImainFile
+   rule514 = \ ((_lhsIlocalAttrTypes) :: Map NontermIdent (Map ConstructorIdent (Map Identifier Type))) ->
+     _lhsIlocalAttrTypes
    {-# INLINE rule515 #-}
-   rule515 = \ ((_lhsImainName) :: String) ->
-     _lhsImainName
+   rule515 = \ ((_lhsImainFile) :: String) ->
+     _lhsImainFile
    {-# INLINE rule516 #-}
-   rule516 = \ ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ->
-     _lhsImoduleHeader
+   rule516 = \ ((_lhsImainName) :: String) ->
+     _lhsImainName
    {-# INLINE rule517 #-}
-   rule517 = \ ((_lhsIoptions) :: Options) ->
-     _lhsIoptions
+   rule517 = \ ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ->
+     _lhsImoduleHeader
    {-# INLINE rule518 #-}
-   rule518 = \ ((_lhsIpragmaBlocks) :: String) ->
-     _lhsIpragmaBlocks
+   rule518 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
    {-# INLINE rule519 #-}
-   rule519 = \ ((_lhsIsynmap) :: Map NontermIdent Attributes) ->
-     _lhsIsynmap
+   rule519 = \ ((_lhsIpragmaBlocks) :: String) ->
+     _lhsIpragmaBlocks
    {-# INLINE rule520 #-}
-   rule520 = \ ((_lhsItextBlocks) :: PP_Doc) ->
+   rule520 = \ ((_lhsIsynmap) :: Map NontermIdent Attributes) ->
+     _lhsIsynmap
+   {-# INLINE rule521 #-}
+   rule521 = \ ((_lhsItextBlocks) :: PP_Doc) ->
      _lhsItextBlocks
 
 -- Expression --------------------------------------------------
 -- wrapper
-data Inh_Expression  = Inh_Expression {  }
+data Inh_Expression  = Inh_Expression { options_Inh_Expression :: (Options) }
 data Syn_Expression  = Syn_Expression { attrs_Syn_Expression :: (Map String (Maybe NonLocalAttr)), pos_Syn_Expression :: (Pos), semfunc_Syn_Expression :: (PP_Doc), tks_Syn_Expression :: ([HsToken]) }
 {-# INLINABLE wrap_Expression #-}
 wrap_Expression :: T_Expression  -> Inh_Expression  -> (Syn_Expression )
-wrap_Expression (T_Expression act) (Inh_Expression ) =
+wrap_Expression (T_Expression act) (Inh_Expression _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Expression_vIn28 
+        let arg = T_Expression_vIn28 _lhsIoptions
         (T_Expression_vOut28 _lhsOattrs _lhsOpos _lhsOsemfunc _lhsOtks) <- return (inv_Expression_s29 sem arg)
         return (Syn_Expression _lhsOattrs _lhsOpos _lhsOsemfunc _lhsOtks)
    )
@@ -4031,7 +4035,7 @@ newtype T_Expression_s29  = C_Expression_s29 {
                                              }
 data T_Expression_s30  = C_Expression_s30
 type T_Expression_v28  = (T_Expression_vIn28 ) -> (T_Expression_vOut28 )
-data T_Expression_vIn28  = T_Expression_vIn28 
+data T_Expression_vIn28  = T_Expression_vIn28 (Options)
 data T_Expression_vOut28  = T_Expression_vOut28 (Map String (Maybe NonLocalAttr)) (Pos) (PP_Doc) ([HsToken])
 {-# NOINLINE sem_Expression_Expression #-}
 sem_Expression_Expression :: (Pos) -> ([HsToken]) -> T_Expression 
@@ -4039,53 +4043,60 @@ sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st29) where
    {-# NOINLINE st29 #-}
    st29 = let
       v28 :: T_Expression_v28 
-      v28 = \ (T_Expression_vIn28 ) -> ( let
+      v28 = \ (T_Expression_vIn28 _lhsIoptions) -> ( let
          _lhsOtks :: [HsToken]
-         _lhsOtks = rule521 arg_tks_
+         _lhsOtks = rule522 arg_tks_
          _lhsOpos :: Pos
-         _lhsOpos = rule522 arg_pos_
+         _lhsOpos = rule523 arg_pos_
          _lhsOattrs :: Map String (Maybe NonLocalAttr)
-         _lhsOattrs = rule523 arg_tks_
+         _lhsOattrs = rule524 _inhhstoken arg_tks_
          _lhsOsemfunc :: PP_Doc
-         _lhsOsemfunc = rule524 arg_tks_
+         _lhsOsemfunc = rule525 _inhhstoken arg_tks_
+         _inhhstoken = rule526 _lhsIoptions
          __result_ = T_Expression_vOut28 _lhsOattrs _lhsOpos _lhsOsemfunc _lhsOtks
          in __result_ )
      in C_Expression_s29 v28
-   {-# INLINE rule521 #-}
-   {-# LINE 1069 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule521 = \ tks_ ->
-                           {-# LINE 1069 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                           tks_
-                           {-# LINE 4060 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule522 #-}
-   {-# LINE 1112 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule522 = \ pos_ ->
-                                        {-# LINE 1112 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                        pos_
-                                        {-# LINE 4066 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 1071 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule522 = \ tks_ ->
+                           {-# LINE 1071 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           tks_
+                           {-# LINE 4065 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule523 #-}
-   {-# LINE 1198 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule523 = \ tks_ ->
-                               {-# LINE 1198 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                               Map.unions $ map (\tok -> attrs_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) tks_
-                               {-# LINE 4072 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 1114 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule523 = \ pos_ ->
+                                        {-# LINE 1114 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                        pos_
+                                        {-# LINE 4071 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule524 #-}
-   {-# LINE 1199 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule524 = \ tks_ ->
-                               {-# LINE 1199 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                               vlist $ showTokens $ map (\tok -> tok_Syn_HsToken (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) tks_
-                               {-# LINE 4078 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 1200 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule524 = \ _inhhstoken tks_ ->
+                               {-# LINE 1200 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                               Map.unions $ map (\tok -> attrs_Syn_HsToken (wrap_HsToken (sem_HsToken tok) _inhhstoken    )) tks_
+                               {-# LINE 4077 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule525 #-}
+   {-# LINE 1201 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule525 = \ _inhhstoken tks_ ->
+                               {-# LINE 1201 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                               vlist $ showTokens $ map (\tok -> tok_Syn_HsToken (wrap_HsToken (sem_HsToken tok) _inhhstoken    )) tks_
+                               {-# LINE 4083 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule526 #-}
+   {-# LINE 1202 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule526 = \ ((_lhsIoptions) :: Options) ->
+                                  {-# LINE 1202 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  Inh_HsToken _lhsIoptions
+                                  {-# LINE 4089 "dist/build/ExecutionPlan2Hs.hs"#-}
 
 -- HsToken -----------------------------------------------------
 -- wrapper
-data Inh_HsToken  = Inh_HsToken {  }
+data Inh_HsToken  = Inh_HsToken { options_Inh_HsToken :: (Options) }
 data Syn_HsToken  = Syn_HsToken { attrs_Syn_HsToken :: (Map String (Maybe NonLocalAttr)), tok_Syn_HsToken :: ((Pos,String)) }
 {-# INLINABLE wrap_HsToken #-}
 wrap_HsToken :: T_HsToken  -> Inh_HsToken  -> (Syn_HsToken )
-wrap_HsToken (T_HsToken act) (Inh_HsToken ) =
+wrap_HsToken (T_HsToken act) (Inh_HsToken _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_HsToken_vIn31 
+        let arg = T_HsToken_vIn31 _lhsIoptions
         (T_HsToken_vOut31 _lhsOattrs _lhsOtok) <- return (inv_HsToken_s32 sem arg)
         return (Syn_HsToken _lhsOattrs _lhsOtok)
    )
@@ -4109,7 +4120,7 @@ newtype T_HsToken_s32  = C_HsToken_s32 {
                                        }
 data T_HsToken_s33  = C_HsToken_s33
 type T_HsToken_v31  = (T_HsToken_vIn31 ) -> (T_HsToken_vOut31 )
-data T_HsToken_vIn31  = T_HsToken_vIn31 
+data T_HsToken_vIn31  = T_HsToken_vIn31 (Options)
 data T_HsToken_vOut31  = T_HsToken_vOut31 (Map String (Maybe NonLocalAttr)) ((Pos,String))
 {-# NOINLINE sem_HsToken_AGLocal #-}
 sem_HsToken_AGLocal :: (Identifier) -> (Pos) -> (Maybe String) -> T_HsToken 
@@ -4117,29 +4128,29 @@ sem_HsToken_AGLocal arg_var_ arg_pos_ _ = T_HsToken (return st32) where
    {-# NOINLINE st32 #-}
    st32 = let
       v31 :: T_HsToken_v31 
-      v31 = \ (T_HsToken_vIn31 ) -> ( let
+      v31 = \ (T_HsToken_vIn31 _lhsIoptions) -> ( let
          _lhsOattrs :: Map String (Maybe NonLocalAttr)
-         _lhsOattrs = rule525 arg_var_
-         _tok = rule526 arg_pos_ arg_var_
+         _lhsOattrs = rule527 arg_var_
+         _tok = rule528 arg_pos_ arg_var_
          _lhsOtok :: (Pos,String)
-         _lhsOtok = rule527 _tok
+         _lhsOtok = rule529 _tok
          __result_ = T_HsToken_vOut31 _lhsOattrs _lhsOtok
          in __result_ )
      in C_HsToken_s32 v31
-   {-# INLINE rule525 #-}
-   {-# LINE 1157 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule525 = \ var_ ->
-                              {-# LINE 1157 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                              Map.singleton (fieldname var_) Nothing
-                              {-# LINE 4135 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule526 #-}
-   {-# LINE 1402 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule526 = \ pos_ var_ ->
-                          {-# LINE 1402 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                          (pos_,fieldname var_)
-                          {-# LINE 4141 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule527 #-}
-   rule527 = \ _tok ->
+   {-# LINE 1159 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule527 = \ var_ ->
+                              {-# LINE 1159 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                              Map.singleton (fieldname var_) Nothing
+                              {-# LINE 4146 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule528 #-}
+   {-# LINE 1405 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule528 = \ pos_ var_ ->
+                          {-# LINE 1405 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                          (pos_,fieldname var_)
+                          {-# LINE 4152 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule529 #-}
+   rule529 = \ _tok ->
      _tok
 {-# NOINLINE sem_HsToken_AGField #-}
 sem_HsToken_AGField :: (Identifier) -> (Identifier) -> (Pos) -> (Maybe String) -> T_HsToken 
@@ -4147,74 +4158,51 @@ sem_HsToken_AGField arg_field_ arg_attr_ arg_pos_ arg_rdesc_ = T_HsToken (return
    {-# NOINLINE st32 #-}
    st32 = let
       v31 :: T_HsToken_v31 
-      v31 = \ (T_HsToken_vIn31 ) -> ( let
-         _mbAttr = rule528 arg_attr_ arg_field_
+      v31 = \ (T_HsToken_vIn31 _lhsIoptions) -> ( let
+         _mbAttr = rule530 arg_attr_ arg_field_
          _lhsOattrs :: Map String (Maybe NonLocalAttr)
-         _lhsOattrs = rule529 _mbAttr arg_attr_ arg_field_
-         _addTrace = rule530 arg_attr_ arg_field_ arg_rdesc_
+         _lhsOattrs = rule531 _lhsIoptions _mbAttr arg_attr_ arg_field_
+         _addTrace = rule532 arg_attr_ arg_field_ arg_rdesc_
          _lhsOtok :: (Pos,String)
-         _lhsOtok = rule531 _addTrace arg_attr_ arg_field_ arg_pos_
+         _lhsOtok = rule533 _addTrace _lhsIoptions arg_attr_ arg_field_ arg_pos_
          __result_ = T_HsToken_vOut31 _lhsOattrs _lhsOtok
          in __result_ )
      in C_HsToken_s32 v31
-   {-# INLINE rule528 #-}
-   {-# LINE 1158 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule528 = \ attr_ field_ ->
-                              {-# LINE 1158 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# INLINE rule530 #-}
+   {-# LINE 1160 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule530 = \ attr_ field_ ->
+                              {-# LINE 1160 "./src-ag/ExecutionPlan2Hs.ag" #-}
                               if field_ == _INST || field_ == _FIELD || field_ == _INST'
                               then Nothing
                               else Just $ mkNonLocalAttr (field_ == _LHS) field_ attr_
-                              {-# LINE 4168 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule529 #-}
-   {-# LINE 1161 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule529 = \ _mbAttr attr_ field_ ->
-                              {-# LINE 1161 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                              Map.singleton (attrname True field_ attr_) _mbAttr
-                              {-# LINE 4174 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule530 #-}
-   {-# LINE 1406 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule530 = \ attr_ field_ rdesc_ ->
-                        {-# LINE 1406 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                              {-# LINE 4179 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule531 #-}
+   {-# LINE 1163 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule531 = \ ((_lhsIoptions) :: Options) _mbAttr attr_ field_ ->
+                              {-# LINE 1163 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                              Map.singleton (attrname _lhsIoptions True field_ attr_) _mbAttr
+                              {-# LINE 4185 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule532 #-}
+   {-# LINE 1409 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule532 = \ attr_ field_ rdesc_ ->
+                        {-# LINE 1409 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         case rdesc_ of
                           Just d  -> \x -> "(trace " ++ show (d ++ " -> " ++ show field_ ++ "." ++ show attr_) ++ " (" ++ x ++ "))"
                           Nothing -> id
-                        {-# LINE 4182 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule531 #-}
-   {-# LINE 1409 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule531 = \ _addTrace attr_ field_ pos_ ->
-                   {-# LINE 1409 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                   (pos_, _addTrace     $ attrname True field_ attr_)
-                   {-# LINE 4188 "dist/build/ExecutionPlan2Hs.hs"#-}
+                        {-# LINE 4193 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule533 #-}
+   {-# LINE 1412 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule533 = \ _addTrace ((_lhsIoptions) :: Options) attr_ field_ pos_ ->
+                   {-# LINE 1412 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                   (pos_, _addTrace     $ attrname _lhsIoptions True field_ attr_)
+                   {-# LINE 4199 "dist/build/ExecutionPlan2Hs.hs"#-}
 {-# NOINLINE sem_HsToken_HsToken #-}
 sem_HsToken_HsToken :: (String) -> (Pos) -> T_HsToken 
 sem_HsToken_HsToken arg_value_ arg_pos_ = T_HsToken (return st32) where
    {-# NOINLINE st32 #-}
    st32 = let
       v31 :: T_HsToken_v31 
-      v31 = \ (T_HsToken_vIn31 ) -> ( let
-         _lhsOtok :: (Pos,String)
-         _lhsOtok = rule532 arg_pos_ arg_value_
-         _lhsOattrs :: Map String (Maybe NonLocalAttr)
-         _lhsOattrs = rule533  ()
-         __result_ = T_HsToken_vOut31 _lhsOattrs _lhsOtok
-         in __result_ )
-     in C_HsToken_s32 v31
-   {-# INLINE rule532 #-}
-   {-# LINE 1411 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule532 = \ pos_ value_ ->
-                         {-# LINE 1411 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                         (pos_, value_)
-                         {-# LINE 4208 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule533 #-}
-   rule533 = \  (_ :: ()) ->
-     Map.empty
-{-# NOINLINE sem_HsToken_CharToken #-}
-sem_HsToken_CharToken :: (String) -> (Pos) -> T_HsToken 
-sem_HsToken_CharToken arg_value_ arg_pos_ = T_HsToken (return st32) where
-   {-# NOINLINE st32 #-}
-   st32 = let
-      v31 :: T_HsToken_v31 
-      v31 = \ (T_HsToken_vIn31 ) -> ( let
+      v31 = \ (T_HsToken_vIn31 _lhsIoptions) -> ( let
          _lhsOtok :: (Pos,String)
          _lhsOtok = rule534 arg_pos_ arg_value_
          _lhsOattrs :: Map String (Maybe NonLocalAttr)
@@ -4223,24 +4211,21 @@ sem_HsToken_CharToken arg_value_ arg_pos_ = T_HsToken (return st32) where
          in __result_ )
      in C_HsToken_s32 v31
    {-# INLINE rule534 #-}
-   {-# LINE 1413 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1414 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule534 = \ pos_ value_ ->
-                           {-# LINE 1413 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                           (pos_, if null value_
-                                     then ""
-                                     else showCharShort (head value_)
-                           )
-                           {-# LINE 4234 "dist/build/ExecutionPlan2Hs.hs"#-}
+                         {-# LINE 1414 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                         (pos_, value_)
+                         {-# LINE 4219 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule535 #-}
    rule535 = \  (_ :: ()) ->
      Map.empty
-{-# NOINLINE sem_HsToken_StrToken #-}
-sem_HsToken_StrToken :: (String) -> (Pos) -> T_HsToken 
-sem_HsToken_StrToken arg_value_ arg_pos_ = T_HsToken (return st32) where
+{-# NOINLINE sem_HsToken_CharToken #-}
+sem_HsToken_CharToken :: (String) -> (Pos) -> T_HsToken 
+sem_HsToken_CharToken arg_value_ arg_pos_ = T_HsToken (return st32) where
    {-# NOINLINE st32 #-}
    st32 = let
       v31 :: T_HsToken_v31 
-      v31 = \ (T_HsToken_vIn31 ) -> ( let
+      v31 = \ (T_HsToken_vIn31 _lhsIoptions) -> ( let
          _lhsOtok :: (Pos,String)
          _lhsOtok = rule536 arg_pos_ arg_value_
          _lhsOattrs :: Map String (Maybe NonLocalAttr)
@@ -4249,13 +4234,39 @@ sem_HsToken_StrToken arg_value_ arg_pos_ = T_HsToken (return st32) where
          in __result_ )
      in C_HsToken_s32 v31
    {-# INLINE rule536 #-}
-   {-# LINE 1418 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1416 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule536 = \ pos_ value_ ->
-                           {-# LINE 1418 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                           (pos_, showStrShort value_)
-                           {-# LINE 4257 "dist/build/ExecutionPlan2Hs.hs"#-}
+                           {-# LINE 1416 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           (pos_, if null value_
+                                     then ""
+                                     else showCharShort (head value_)
+                           )
+                           {-# LINE 4245 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule537 #-}
    rule537 = \  (_ :: ()) ->
+     Map.empty
+{-# NOINLINE sem_HsToken_StrToken #-}
+sem_HsToken_StrToken :: (String) -> (Pos) -> T_HsToken 
+sem_HsToken_StrToken arg_value_ arg_pos_ = T_HsToken (return st32) where
+   {-# NOINLINE st32 #-}
+   st32 = let
+      v31 :: T_HsToken_v31 
+      v31 = \ (T_HsToken_vIn31 _lhsIoptions) -> ( let
+         _lhsOtok :: (Pos,String)
+         _lhsOtok = rule538 arg_pos_ arg_value_
+         _lhsOattrs :: Map String (Maybe NonLocalAttr)
+         _lhsOattrs = rule539  ()
+         __result_ = T_HsToken_vOut31 _lhsOattrs _lhsOtok
+         in __result_ )
+     in C_HsToken_s32 v31
+   {-# INLINE rule538 #-}
+   {-# LINE 1421 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule538 = \ pos_ value_ ->
+                           {-# LINE 1421 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           (pos_, showStrShort value_)
+                           {-# LINE 4268 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule539 #-}
+   rule539 = \  (_ :: ()) ->
      Map.empty
 {-# NOINLINE sem_HsToken_Err #-}
 sem_HsToken_Err :: (String) -> (Pos) -> T_HsToken 
@@ -4263,34 +4274,34 @@ sem_HsToken_Err _ arg_pos_ = T_HsToken (return st32) where
    {-# NOINLINE st32 #-}
    st32 = let
       v31 :: T_HsToken_v31 
-      v31 = \ (T_HsToken_vIn31 ) -> ( let
+      v31 = \ (T_HsToken_vIn31 _lhsIoptions) -> ( let
          _lhsOtok :: (Pos,String)
-         _lhsOtok = rule538 arg_pos_
+         _lhsOtok = rule540 arg_pos_
          _lhsOattrs :: Map String (Maybe NonLocalAttr)
-         _lhsOattrs = rule539  ()
+         _lhsOattrs = rule541  ()
          __result_ = T_HsToken_vOut31 _lhsOattrs _lhsOtok
          in __result_ )
      in C_HsToken_s32 v31
-   {-# INLINE rule538 #-}
-   {-# LINE 1419 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule538 = \ pos_ ->
-                           {-# LINE 1419 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# INLINE rule540 #-}
+   {-# LINE 1422 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule540 = \ pos_ ->
+                           {-# LINE 1422 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            (pos_, "")
-                           {-# LINE 4280 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule539 #-}
-   rule539 = \  (_ :: ()) ->
+                           {-# LINE 4291 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule541 #-}
+   rule541 = \  (_ :: ()) ->
      Map.empty
 
 -- HsTokens ----------------------------------------------------
 -- wrapper
-data Inh_HsTokens  = Inh_HsTokens {  }
+data Inh_HsTokens  = Inh_HsTokens { options_Inh_HsTokens :: (Options) }
 data Syn_HsTokens  = Syn_HsTokens { tks_Syn_HsTokens :: ([(Pos,String)]) }
 {-# INLINABLE wrap_HsTokens #-}
 wrap_HsTokens :: T_HsTokens  -> Inh_HsTokens  -> (Syn_HsTokens )
-wrap_HsTokens (T_HsTokens act) (Inh_HsTokens ) =
+wrap_HsTokens (T_HsTokens act) (Inh_HsTokens _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_HsTokens_vIn34 
+        let arg = T_HsTokens_vIn34 _lhsIoptions
         (T_HsTokens_vOut34 _lhsOtks) <- return (inv_HsTokens_s35 sem arg)
         return (Syn_HsTokens _lhsOtks)
    )
@@ -4309,7 +4320,7 @@ newtype T_HsTokens_s35  = C_HsTokens_s35 {
                                          }
 data T_HsTokens_s36  = C_HsTokens_s36
 type T_HsTokens_v34  = (T_HsTokens_vIn34 ) -> (T_HsTokens_vOut34 )
-data T_HsTokens_vIn34  = T_HsTokens_vIn34 
+data T_HsTokens_vIn34  = T_HsTokens_vIn34 (Options)
 data T_HsTokens_vOut34  = T_HsTokens_vOut34 ([(Pos,String)])
 {-# NOINLINE sem_HsTokens_Cons #-}
 sem_HsTokens_Cons :: T_HsToken  -> T_HsTokens  -> T_HsTokens 
@@ -4317,51 +4328,59 @@ sem_HsTokens_Cons arg_hd_ arg_tl_ = T_HsTokens (return st35) where
    {-# NOINLINE st35 #-}
    st35 = let
       v34 :: T_HsTokens_v34 
-      v34 = \ (T_HsTokens_vIn34 ) -> ( let
+      v34 = \ (T_HsTokens_vIn34 _lhsIoptions) -> ( let
          _hdX32 = Control.Monad.Identity.runIdentity (attach_T_HsToken (arg_hd_))
          _tlX35 = Control.Monad.Identity.runIdentity (attach_T_HsTokens (arg_tl_))
-         (T_HsToken_vOut31 _hdIattrs _hdItok) = inv_HsToken_s32 _hdX32 (T_HsToken_vIn31 )
-         (T_HsTokens_vOut34 _tlItks) = inv_HsTokens_s35 _tlX35 (T_HsTokens_vIn34 )
+         (T_HsToken_vOut31 _hdIattrs _hdItok) = inv_HsToken_s32 _hdX32 (T_HsToken_vIn31 _hdOoptions)
+         (T_HsTokens_vOut34 _tlItks) = inv_HsTokens_s35 _tlX35 (T_HsTokens_vIn34 _tlOoptions)
          _lhsOtks :: [(Pos,String)]
-         _lhsOtks = rule540 _hdItok _tlItks
+         _lhsOtks = rule542 _hdItok _tlItks
+         _hdOoptions = rule543 _lhsIoptions
+         _tlOoptions = rule544 _lhsIoptions
          __result_ = T_HsTokens_vOut34 _lhsOtks
          in __result_ )
      in C_HsTokens_s35 v34
-   {-# INLINE rule540 #-}
-   {-# LINE 1398 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule540 = \ ((_hdItok) :: (Pos,String)) ((_tlItks) :: [(Pos,String)]) ->
-                     {-# LINE 1398 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# INLINE rule542 #-}
+   {-# LINE 1401 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule542 = \ ((_hdItok) :: (Pos,String)) ((_tlItks) :: [(Pos,String)]) ->
+                     {-# LINE 1401 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      _hdItok : _tlItks
-                     {-# LINE 4336 "dist/build/ExecutionPlan2Hs.hs"#-}
+                     {-# LINE 4349 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule543 #-}
+   rule543 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule544 #-}
+   rule544 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
 {-# NOINLINE sem_HsTokens_Nil #-}
 sem_HsTokens_Nil ::  T_HsTokens 
 sem_HsTokens_Nil  = T_HsTokens (return st35) where
    {-# NOINLINE st35 #-}
    st35 = let
       v34 :: T_HsTokens_v34 
-      v34 = \ (T_HsTokens_vIn34 ) -> ( let
+      v34 = \ (T_HsTokens_vIn34 _lhsIoptions) -> ( let
          _lhsOtks :: [(Pos,String)]
-         _lhsOtks = rule541  ()
+         _lhsOtks = rule545  ()
          __result_ = T_HsTokens_vOut34 _lhsOtks
          in __result_ )
      in C_HsTokens_s35 v34
-   {-# INLINE rule541 #-}
-   {-# LINE 1399 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule541 = \  (_ :: ()) ->
-                     {-# LINE 1399 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# INLINE rule545 #-}
+   {-# LINE 1402 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule545 = \  (_ :: ()) ->
+                     {-# LINE 1402 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      []
-                     {-# LINE 4354 "dist/build/ExecutionPlan2Hs.hs"#-}
+                     {-# LINE 4373 "dist/build/ExecutionPlan2Hs.hs"#-}
 
 -- HsTokensRoot ------------------------------------------------
 -- wrapper
-data Inh_HsTokensRoot  = Inh_HsTokensRoot {  }
+data Inh_HsTokensRoot  = Inh_HsTokensRoot { options_Inh_HsTokensRoot :: (Options) }
 data Syn_HsTokensRoot  = Syn_HsTokensRoot {  }
 {-# INLINABLE wrap_HsTokensRoot #-}
 wrap_HsTokensRoot :: T_HsTokensRoot  -> Inh_HsTokensRoot  -> (Syn_HsTokensRoot )
-wrap_HsTokensRoot (T_HsTokensRoot act) (Inh_HsTokensRoot ) =
+wrap_HsTokensRoot (T_HsTokensRoot act) (Inh_HsTokensRoot _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_HsTokensRoot_vIn37 
+        let arg = T_HsTokensRoot_vIn37 _lhsIoptions
         (T_HsTokensRoot_vOut37 ) <- return (inv_HsTokensRoot_s38 sem arg)
         return (Syn_HsTokensRoot )
    )
@@ -4380,7 +4399,7 @@ newtype T_HsTokensRoot_s38  = C_HsTokensRoot_s38 {
                                                  }
 data T_HsTokensRoot_s39  = C_HsTokensRoot_s39
 type T_HsTokensRoot_v37  = (T_HsTokensRoot_vIn37 ) -> (T_HsTokensRoot_vOut37 )
-data T_HsTokensRoot_vIn37  = T_HsTokensRoot_vIn37 
+data T_HsTokensRoot_vIn37  = T_HsTokensRoot_vIn37 (Options)
 data T_HsTokensRoot_vOut37  = T_HsTokensRoot_vOut37 
 {-# NOINLINE sem_HsTokensRoot_HsTokensRoot #-}
 sem_HsTokensRoot_HsTokensRoot :: T_HsTokens  -> T_HsTokensRoot 
@@ -4388,12 +4407,16 @@ sem_HsTokensRoot_HsTokensRoot arg_tokens_ = T_HsTokensRoot (return st38) where
    {-# NOINLINE st38 #-}
    st38 = let
       v37 :: T_HsTokensRoot_v37 
-      v37 = \ (T_HsTokensRoot_vIn37 ) -> ( let
+      v37 = \ (T_HsTokensRoot_vIn37 _lhsIoptions) -> ( let
          _tokensX35 = Control.Monad.Identity.runIdentity (attach_T_HsTokens (arg_tokens_))
-         (T_HsTokens_vOut34 _tokensItks) = inv_HsTokens_s35 _tokensX35 (T_HsTokens_vIn34 )
+         (T_HsTokens_vOut34 _tokensItks) = inv_HsTokens_s35 _tokensX35 (T_HsTokens_vIn34 _tokensOoptions)
+         _tokensOoptions = rule546 _lhsIoptions
          __result_ = T_HsTokensRoot_vOut37 
          in __result_ )
      in C_HsTokensRoot_s38 v37
+   {-# INLINE rule546 #-}
+   rule546 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
 
 -- Pattern -----------------------------------------------------
 -- wrapper
@@ -4439,84 +4462,84 @@ sem_Pattern_Constr arg_name_ arg_pats_ = T_Pattern (return st41) where
          _patsX44 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_))
          (T_Patterns_vOut43 _patsIattrTypes _patsIattrs _patsIcopy _patsIsem_lhs) = inv_Patterns_s44 _patsX44 (T_Patterns_vIn43 _patsOallInhmap _patsOallSynmap _patsOanyLazyKind _patsOinhmap _patsOlocalAttrTypes _patsOoptions _patsOsynmap)
          _lhsOsem_lhs ::  PP_Doc 
-         _lhsOsem_lhs = rule542 _addbang1 _patsIsem_lhs arg_name_
+         _lhsOsem_lhs = rule547 _addbang1 _patsIsem_lhs arg_name_
          _lhsOisUnderscore :: Bool
-         _lhsOisUnderscore = rule543  ()
-         _addbang = rule544 _lhsIoptions
-         _addbang1 = rule545 _addbang _lhsIanyLazyKind
+         _lhsOisUnderscore = rule548  ()
+         _addbang = rule549 _lhsIoptions
+         _addbang1 = rule550 _addbang _lhsIanyLazyKind
          _lhsOattrTypes :: PP_Doc
-         _lhsOattrTypes = rule546 _patsIattrTypes
+         _lhsOattrTypes = rule551 _patsIattrTypes
          _lhsOattrs :: Set String
-         _lhsOattrs = rule547 _patsIattrs
-         _copy = rule548 _patsIcopy arg_name_
+         _lhsOattrs = rule552 _patsIattrs
+         _copy = rule553 _patsIcopy arg_name_
          _lhsOcopy :: Pattern
-         _lhsOcopy = rule549 _copy
-         _patsOallInhmap = rule550 _lhsIallInhmap
-         _patsOallSynmap = rule551 _lhsIallSynmap
-         _patsOanyLazyKind = rule552 _lhsIanyLazyKind
-         _patsOinhmap = rule553 _lhsIinhmap
-         _patsOlocalAttrTypes = rule554 _lhsIlocalAttrTypes
-         _patsOoptions = rule555 _lhsIoptions
-         _patsOsynmap = rule556 _lhsIsynmap
+         _lhsOcopy = rule554 _copy
+         _patsOallInhmap = rule555 _lhsIallInhmap
+         _patsOallSynmap = rule556 _lhsIallSynmap
+         _patsOanyLazyKind = rule557 _lhsIanyLazyKind
+         _patsOinhmap = rule558 _lhsIinhmap
+         _patsOlocalAttrTypes = rule559 _lhsIlocalAttrTypes
+         _patsOoptions = rule560 _lhsIoptions
+         _patsOsynmap = rule561 _lhsIsynmap
          __result_ = T_Pattern_vOut40 _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOisUnderscore _lhsOsem_lhs
          in __result_ )
      in C_Pattern_s41 v40
-   {-# INLINE rule542 #-}
-   {-# LINE 1126 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule542 = \ _addbang1 ((_patsIsem_lhs) :: [PP_Doc]) name_ ->
-                                  {-# LINE 1126 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  _addbang1     $ pp_parens $ name_ >#< hv_sp _patsIsem_lhs
-                                  {-# LINE 4470 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule543 #-}
-   {-# LINE 1133 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule543 = \  (_ :: ()) ->
-                                    {-# LINE 1133 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                    False
-                                    {-# LINE 4476 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule544 #-}
-   {-# LINE 1542 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule544 = \ ((_lhsIoptions) :: Options) ->
-                                                     {-# LINE 1542 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                                     \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                                                     {-# LINE 4482 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule545 #-}
-   {-# LINE 1547 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule545 = \ _addbang ((_lhsIanyLazyKind) :: Bool) ->
-                                                     {-# LINE 1547 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                                     if _lhsIanyLazyKind then id else _addbang
-                                                     {-# LINE 4488 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule546 #-}
-   rule546 = \ ((_patsIattrTypes) :: PP_Doc) ->
-     _patsIattrTypes
    {-# INLINE rule547 #-}
-   rule547 = \ ((_patsIattrs) :: Set String) ->
-     _patsIattrs
+   {-# LINE 1128 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule547 = \ _addbang1 ((_patsIsem_lhs) :: [PP_Doc]) name_ ->
+                                  {-# LINE 1128 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  _addbang1     $ pp_parens $ name_ >#< hv_sp _patsIsem_lhs
+                                  {-# LINE 4493 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule548 #-}
-   rule548 = \ ((_patsIcopy) :: Patterns) name_ ->
-     Constr name_ _patsIcopy
+   {-# LINE 1135 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule548 = \  (_ :: ()) ->
+                                    {-# LINE 1135 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                    False
+                                    {-# LINE 4499 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule549 #-}
-   rule549 = \ _copy ->
-     _copy
+   {-# LINE 1545 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule549 = \ ((_lhsIoptions) :: Options) ->
+                                                     {-# LINE 1545 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                     \x -> if bangpats _lhsIoptions then "!" >|< x else x
+                                                     {-# LINE 4505 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule550 #-}
-   rule550 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
-     _lhsIallInhmap
+   {-# LINE 1550 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule550 = \ _addbang ((_lhsIanyLazyKind) :: Bool) ->
+                                                     {-# LINE 1550 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                     if _lhsIanyLazyKind then id else _addbang
+                                                     {-# LINE 4511 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule551 #-}
-   rule551 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
-     _lhsIallSynmap
+   rule551 = \ ((_patsIattrTypes) :: PP_Doc) ->
+     _patsIattrTypes
    {-# INLINE rule552 #-}
-   rule552 = \ ((_lhsIanyLazyKind) :: Bool) ->
-     _lhsIanyLazyKind
+   rule552 = \ ((_patsIattrs) :: Set String) ->
+     _patsIattrs
    {-# INLINE rule553 #-}
-   rule553 = \ ((_lhsIinhmap) :: Attributes) ->
-     _lhsIinhmap
+   rule553 = \ ((_patsIcopy) :: Patterns) name_ ->
+     Constr name_ _patsIcopy
    {-# INLINE rule554 #-}
-   rule554 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
-     _lhsIlocalAttrTypes
+   rule554 = \ _copy ->
+     _copy
    {-# INLINE rule555 #-}
-   rule555 = \ ((_lhsIoptions) :: Options) ->
-     _lhsIoptions
+   rule555 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
+     _lhsIallInhmap
    {-# INLINE rule556 #-}
-   rule556 = \ ((_lhsIsynmap) :: Attributes) ->
+   rule556 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
+     _lhsIallSynmap
+   {-# INLINE rule557 #-}
+   rule557 = \ ((_lhsIanyLazyKind) :: Bool) ->
+     _lhsIanyLazyKind
+   {-# INLINE rule558 #-}
+   rule558 = \ ((_lhsIinhmap) :: Attributes) ->
+     _lhsIinhmap
+   {-# INLINE rule559 #-}
+   rule559 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
+     _lhsIlocalAttrTypes
+   {-# INLINE rule560 #-}
+   rule560 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule561 #-}
+   rule561 = \ ((_lhsIsynmap) :: Attributes) ->
      _lhsIsynmap
 {-# NOINLINE sem_Pattern_Product #-}
 sem_Pattern_Product :: (Pos) -> T_Patterns  -> T_Pattern 
@@ -4528,84 +4551,84 @@ sem_Pattern_Product arg_pos_ arg_pats_ = T_Pattern (return st41) where
          _patsX44 = Control.Monad.Identity.runIdentity (attach_T_Patterns (arg_pats_))
          (T_Patterns_vOut43 _patsIattrTypes _patsIattrs _patsIcopy _patsIsem_lhs) = inv_Patterns_s44 _patsX44 (T_Patterns_vIn43 _patsOallInhmap _patsOallSynmap _patsOanyLazyKind _patsOinhmap _patsOlocalAttrTypes _patsOoptions _patsOsynmap)
          _lhsOsem_lhs ::  PP_Doc 
-         _lhsOsem_lhs = rule557 _addbang1 _patsIsem_lhs
+         _lhsOsem_lhs = rule562 _addbang1 _patsIsem_lhs
          _lhsOisUnderscore :: Bool
-         _lhsOisUnderscore = rule558  ()
-         _addbang = rule559 _lhsIoptions
-         _addbang1 = rule560 _addbang _lhsIanyLazyKind
+         _lhsOisUnderscore = rule563  ()
+         _addbang = rule564 _lhsIoptions
+         _addbang1 = rule565 _addbang _lhsIanyLazyKind
          _lhsOattrTypes :: PP_Doc
-         _lhsOattrTypes = rule561 _patsIattrTypes
+         _lhsOattrTypes = rule566 _patsIattrTypes
          _lhsOattrs :: Set String
-         _lhsOattrs = rule562 _patsIattrs
-         _copy = rule563 _patsIcopy arg_pos_
+         _lhsOattrs = rule567 _patsIattrs
+         _copy = rule568 _patsIcopy arg_pos_
          _lhsOcopy :: Pattern
-         _lhsOcopy = rule564 _copy
-         _patsOallInhmap = rule565 _lhsIallInhmap
-         _patsOallSynmap = rule566 _lhsIallSynmap
-         _patsOanyLazyKind = rule567 _lhsIanyLazyKind
-         _patsOinhmap = rule568 _lhsIinhmap
-         _patsOlocalAttrTypes = rule569 _lhsIlocalAttrTypes
-         _patsOoptions = rule570 _lhsIoptions
-         _patsOsynmap = rule571 _lhsIsynmap
+         _lhsOcopy = rule569 _copy
+         _patsOallInhmap = rule570 _lhsIallInhmap
+         _patsOallSynmap = rule571 _lhsIallSynmap
+         _patsOanyLazyKind = rule572 _lhsIanyLazyKind
+         _patsOinhmap = rule573 _lhsIinhmap
+         _patsOlocalAttrTypes = rule574 _lhsIlocalAttrTypes
+         _patsOoptions = rule575 _lhsIoptions
+         _patsOsynmap = rule576 _lhsIsynmap
          __result_ = T_Pattern_vOut40 _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOisUnderscore _lhsOsem_lhs
          in __result_ )
      in C_Pattern_s41 v40
-   {-# INLINE rule557 #-}
-   {-# LINE 1125 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule557 = \ _addbang1 ((_patsIsem_lhs) :: [PP_Doc]) ->
-                                  {-# LINE 1125 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  _addbang1     $ pp_block "(" ")" "," _patsIsem_lhs
-                                  {-# LINE 4559 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule558 #-}
-   {-# LINE 1134 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule558 = \  (_ :: ()) ->
-                                    {-# LINE 1134 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                    False
-                                    {-# LINE 4565 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule559 #-}
-   {-# LINE 1542 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule559 = \ ((_lhsIoptions) :: Options) ->
-                                                     {-# LINE 1542 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                                     \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                                                     {-# LINE 4571 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule560 #-}
-   {-# LINE 1547 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule560 = \ _addbang ((_lhsIanyLazyKind) :: Bool) ->
-                                                     {-# LINE 1547 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                                     if _lhsIanyLazyKind then id else _addbang
-                                                     {-# LINE 4577 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule561 #-}
-   rule561 = \ ((_patsIattrTypes) :: PP_Doc) ->
-     _patsIattrTypes
    {-# INLINE rule562 #-}
-   rule562 = \ ((_patsIattrs) :: Set String) ->
-     _patsIattrs
+   {-# LINE 1127 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule562 = \ _addbang1 ((_patsIsem_lhs) :: [PP_Doc]) ->
+                                  {-# LINE 1127 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  _addbang1     $ pp_block "(" ")" "," _patsIsem_lhs
+                                  {-# LINE 4582 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule563 #-}
-   rule563 = \ ((_patsIcopy) :: Patterns) pos_ ->
-     Product pos_ _patsIcopy
+   {-# LINE 1136 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule563 = \  (_ :: ()) ->
+                                    {-# LINE 1136 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                    False
+                                    {-# LINE 4588 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule564 #-}
-   rule564 = \ _copy ->
-     _copy
+   {-# LINE 1545 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule564 = \ ((_lhsIoptions) :: Options) ->
+                                                     {-# LINE 1545 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                     \x -> if bangpats _lhsIoptions then "!" >|< x else x
+                                                     {-# LINE 4594 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule565 #-}
-   rule565 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
-     _lhsIallInhmap
+   {-# LINE 1550 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule565 = \ _addbang ((_lhsIanyLazyKind) :: Bool) ->
+                                                     {-# LINE 1550 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                     if _lhsIanyLazyKind then id else _addbang
+                                                     {-# LINE 4600 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule566 #-}
-   rule566 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
-     _lhsIallSynmap
+   rule566 = \ ((_patsIattrTypes) :: PP_Doc) ->
+     _patsIattrTypes
    {-# INLINE rule567 #-}
-   rule567 = \ ((_lhsIanyLazyKind) :: Bool) ->
-     _lhsIanyLazyKind
+   rule567 = \ ((_patsIattrs) :: Set String) ->
+     _patsIattrs
    {-# INLINE rule568 #-}
-   rule568 = \ ((_lhsIinhmap) :: Attributes) ->
-     _lhsIinhmap
+   rule568 = \ ((_patsIcopy) :: Patterns) pos_ ->
+     Product pos_ _patsIcopy
    {-# INLINE rule569 #-}
-   rule569 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
-     _lhsIlocalAttrTypes
+   rule569 = \ _copy ->
+     _copy
    {-# INLINE rule570 #-}
-   rule570 = \ ((_lhsIoptions) :: Options) ->
-     _lhsIoptions
+   rule570 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
+     _lhsIallInhmap
    {-# INLINE rule571 #-}
-   rule571 = \ ((_lhsIsynmap) :: Attributes) ->
+   rule571 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
+     _lhsIallSynmap
+   {-# INLINE rule572 #-}
+   rule572 = \ ((_lhsIanyLazyKind) :: Bool) ->
+     _lhsIanyLazyKind
+   {-# INLINE rule573 #-}
+   rule573 = \ ((_lhsIinhmap) :: Attributes) ->
+     _lhsIinhmap
+   {-# INLINE rule574 #-}
+   rule574 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
+     _lhsIlocalAttrTypes
+   {-# INLINE rule575 #-}
+   rule575 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule576 #-}
+   rule576 = \ ((_lhsIsynmap) :: Attributes) ->
      _lhsIsynmap
 {-# NOINLINE sem_Pattern_Alias #-}
 sem_Pattern_Alias :: (Identifier) -> (Identifier) -> T_Pattern  -> T_Pattern 
@@ -4616,119 +4639,119 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st41) where
       v40 = \ (T_Pattern_vIn40 _lhsIallInhmap _lhsIallSynmap _lhsIanyLazyKind _lhsIinhmap _lhsIlocalAttrTypes _lhsIoptions _lhsIsynmap) -> ( let
          _patX41 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_))
          (T_Pattern_vOut40 _patIattrTypes _patIattrs _patIcopy _patIisUnderscore _patIsem_lhs) = inv_Pattern_s41 _patX41 (T_Pattern_vIn40 _patOallInhmap _patOallSynmap _patOanyLazyKind _patOinhmap _patOlocalAttrTypes _patOoptions _patOsynmap)
-         _varPat = rule572 arg_attr_ arg_field_
-         _patExpr = rule573 _patIisUnderscore _patIsem_lhs _varPat
+         _varPat = rule577 _lhsIoptions arg_attr_ arg_field_
+         _patExpr = rule578 _patIisUnderscore _patIsem_lhs _varPat
          _lhsOsem_lhs ::  PP_Doc 
-         _lhsOsem_lhs = rule574 _addbang1 _patExpr
+         _lhsOsem_lhs = rule579 _addbang1 _patExpr
          _lhsOisUnderscore :: Bool
-         _lhsOisUnderscore = rule575  ()
+         _lhsOisUnderscore = rule580  ()
          _lhsOattrs :: Set String
-         _lhsOattrs = rule576 _patIattrs arg_attr_ arg_field_
-         _mbTp = rule577 _lhsIlocalAttrTypes _lhsIsynmap arg_attr_ arg_field_
+         _lhsOattrs = rule581 _lhsIoptions _patIattrs arg_attr_ arg_field_
+         _mbTp = rule582 _lhsIlocalAttrTypes _lhsIsynmap arg_attr_ arg_field_
          _lhsOattrTypes :: PP_Doc
-         _lhsOattrTypes = rule578 _mbTp _patIattrTypes arg_attr_ arg_field_
-         _addbang = rule579 _lhsIoptions
-         _addbang1 = rule580 _addbang _lhsIanyLazyKind
-         _copy = rule581 _patIcopy arg_attr_ arg_field_
+         _lhsOattrTypes = rule583 _lhsIoptions _mbTp _patIattrTypes arg_attr_ arg_field_
+         _addbang = rule584 _lhsIoptions
+         _addbang1 = rule585 _addbang _lhsIanyLazyKind
+         _copy = rule586 _patIcopy arg_attr_ arg_field_
          _lhsOcopy :: Pattern
-         _lhsOcopy = rule582 _copy
-         _patOallInhmap = rule583 _lhsIallInhmap
-         _patOallSynmap = rule584 _lhsIallSynmap
-         _patOanyLazyKind = rule585 _lhsIanyLazyKind
-         _patOinhmap = rule586 _lhsIinhmap
-         _patOlocalAttrTypes = rule587 _lhsIlocalAttrTypes
-         _patOoptions = rule588 _lhsIoptions
-         _patOsynmap = rule589 _lhsIsynmap
+         _lhsOcopy = rule587 _copy
+         _patOallInhmap = rule588 _lhsIallInhmap
+         _patOallSynmap = rule589 _lhsIallSynmap
+         _patOanyLazyKind = rule590 _lhsIanyLazyKind
+         _patOinhmap = rule591 _lhsIinhmap
+         _patOlocalAttrTypes = rule592 _lhsIlocalAttrTypes
+         _patOoptions = rule593 _lhsIoptions
+         _patOsynmap = rule594 _lhsIsynmap
          __result_ = T_Pattern_vOut40 _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOisUnderscore _lhsOsem_lhs
          in __result_ )
      in C_Pattern_s41 v40
-   {-# INLINE rule572 #-}
-   {-# LINE 1120 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule572 = \ attr_ field_ ->
-                                  {-# LINE 1120 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  text $ attrname False field_ attr_
-                                  {-# LINE 4651 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule573 #-}
-   {-# LINE 1121 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule573 = \ ((_patIisUnderscore) :: Bool) ((_patIsem_lhs) ::  PP_Doc ) _varPat ->
-                                  {-# LINE 1121 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# INLINE rule577 #-}
+   {-# LINE 1122 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule577 = \ ((_lhsIoptions) :: Options) attr_ field_ ->
+                                  {-# LINE 1122 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  text $ attrname _lhsIoptions False field_ attr_
+                                  {-# LINE 4674 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule578 #-}
+   {-# LINE 1123 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule578 = \ ((_patIisUnderscore) :: Bool) ((_patIsem_lhs) ::  PP_Doc ) _varPat ->
+                                  {-# LINE 1123 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   if _patIisUnderscore
                                   then _varPat
                                   else _varPat     >|< "@" >|< _patIsem_lhs
-                                  {-# LINE 4659 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule574 #-}
-   {-# LINE 1124 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule574 = \ _addbang1 _patExpr ->
-                                  {-# LINE 1124 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 4682 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule579 #-}
+   {-# LINE 1126 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule579 = \ _addbang1 _patExpr ->
+                                  {-# LINE 1126 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   _addbang1     _patExpr
-                                  {-# LINE 4665 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule575 #-}
-   {-# LINE 1135 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule575 = \  (_ :: ()) ->
-                                    {-# LINE 1135 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 4688 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule580 #-}
+   {-# LINE 1137 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule580 = \  (_ :: ()) ->
+                                    {-# LINE 1137 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                     False
-                                    {-# LINE 4671 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule576 #-}
-   {-# LINE 1141 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule576 = \ ((_patIattrs) :: Set String) attr_ field_ ->
-                    {-# LINE 1141 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                    Set.insert (attrname False field_ attr_) _patIattrs
-                    {-# LINE 4677 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule577 #-}
-   {-# LINE 1146 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule577 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ((_lhsIsynmap) :: Attributes) attr_ field_ ->
-                    {-# LINE 1146 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                    {-# LINE 4694 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule581 #-}
+   {-# LINE 1143 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule581 = \ ((_lhsIoptions) :: Options) ((_patIattrs) :: Set String) attr_ field_ ->
+                    {-# LINE 1143 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                    Set.insert (attrname _lhsIoptions False field_ attr_) _patIattrs
+                    {-# LINE 4700 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule582 #-}
+   {-# LINE 1148 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule582 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ((_lhsIsynmap) :: Attributes) attr_ field_ ->
+                    {-# LINE 1148 "./src-ag/ExecutionPlan2Hs.ag" #-}
                     if field_ == _LHS
                     then Map.lookup attr_ _lhsIsynmap
                     else if field_ == _LOC
                          then Map.lookup attr_ _lhsIlocalAttrTypes
                          else Nothing
-                    {-# LINE 4687 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule578 #-}
-   {-# LINE 1151 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule578 = \ _mbTp ((_patIattrTypes) :: PP_Doc) attr_ field_ ->
-                    {-# LINE 1151 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                    maybe empty (\tp -> (attrname False field_ attr_) >#< "::" >#< ppTp tp) _mbTp
-                    >-< _patIattrTypes
-                    {-# LINE 4694 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule579 #-}
-   {-# LINE 1542 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule579 = \ ((_lhsIoptions) :: Options) ->
-                                                     {-# LINE 1542 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                                     \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                                                     {-# LINE 4700 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule580 #-}
-   {-# LINE 1547 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule580 = \ _addbang ((_lhsIanyLazyKind) :: Bool) ->
-                                                     {-# LINE 1547 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                                     if _lhsIanyLazyKind then id else _addbang
-                                                     {-# LINE 4706 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule581 #-}
-   rule581 = \ ((_patIcopy) :: Pattern) attr_ field_ ->
-     Alias field_ attr_ _patIcopy
-   {-# INLINE rule582 #-}
-   rule582 = \ _copy ->
-     _copy
+                    {-# LINE 4710 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule583 #-}
-   rule583 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
-     _lhsIallInhmap
+   {-# LINE 1153 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule583 = \ ((_lhsIoptions) :: Options) _mbTp ((_patIattrTypes) :: PP_Doc) attr_ field_ ->
+                    {-# LINE 1153 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                    maybe empty (\tp -> (attrname _lhsIoptions False field_ attr_) >#< "::" >#< ppTp tp) _mbTp
+                    >-< _patIattrTypes
+                    {-# LINE 4717 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule584 #-}
-   rule584 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
-     _lhsIallSynmap
+   {-# LINE 1545 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule584 = \ ((_lhsIoptions) :: Options) ->
+                                                     {-# LINE 1545 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                     \x -> if bangpats _lhsIoptions then "!" >|< x else x
+                                                     {-# LINE 4723 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule585 #-}
-   rule585 = \ ((_lhsIanyLazyKind) :: Bool) ->
-     _lhsIanyLazyKind
+   {-# LINE 1550 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule585 = \ _addbang ((_lhsIanyLazyKind) :: Bool) ->
+                                                     {-# LINE 1550 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                     if _lhsIanyLazyKind then id else _addbang
+                                                     {-# LINE 4729 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule586 #-}
-   rule586 = \ ((_lhsIinhmap) :: Attributes) ->
-     _lhsIinhmap
+   rule586 = \ ((_patIcopy) :: Pattern) attr_ field_ ->
+     Alias field_ attr_ _patIcopy
    {-# INLINE rule587 #-}
-   rule587 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
-     _lhsIlocalAttrTypes
+   rule587 = \ _copy ->
+     _copy
    {-# INLINE rule588 #-}
-   rule588 = \ ((_lhsIoptions) :: Options) ->
-     _lhsIoptions
+   rule588 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
+     _lhsIallInhmap
    {-# INLINE rule589 #-}
-   rule589 = \ ((_lhsIsynmap) :: Attributes) ->
+   rule589 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
+     _lhsIallSynmap
+   {-# INLINE rule590 #-}
+   rule590 = \ ((_lhsIanyLazyKind) :: Bool) ->
+     _lhsIanyLazyKind
+   {-# INLINE rule591 #-}
+   rule591 = \ ((_lhsIinhmap) :: Attributes) ->
+     _lhsIinhmap
+   {-# INLINE rule592 #-}
+   rule592 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
+     _lhsIlocalAttrTypes
+   {-# INLINE rule593 #-}
+   rule593 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule594 #-}
+   rule594 = \ ((_lhsIsynmap) :: Attributes) ->
      _lhsIsynmap
 {-# NOINLINE sem_Pattern_Irrefutable #-}
 sem_Pattern_Irrefutable :: T_Pattern  -> T_Pattern 
@@ -4740,67 +4763,67 @@ sem_Pattern_Irrefutable arg_pat_ = T_Pattern (return st41) where
          _patX41 = Control.Monad.Identity.runIdentity (attach_T_Pattern (arg_pat_))
          (T_Pattern_vOut40 _patIattrTypes _patIattrs _patIcopy _patIisUnderscore _patIsem_lhs) = inv_Pattern_s41 _patX41 (T_Pattern_vIn40 _patOallInhmap _patOallSynmap _patOanyLazyKind _patOinhmap _patOlocalAttrTypes _patOoptions _patOsynmap)
          _lhsOsem_lhs ::  PP_Doc 
-         _lhsOsem_lhs = rule590 _patIsem_lhs
+         _lhsOsem_lhs = rule595 _patIsem_lhs
          _lhsOattrTypes :: PP_Doc
-         _lhsOattrTypes = rule591 _patIattrTypes
+         _lhsOattrTypes = rule596 _patIattrTypes
          _lhsOattrs :: Set String
-         _lhsOattrs = rule592 _patIattrs
-         _copy = rule593 _patIcopy
+         _lhsOattrs = rule597 _patIattrs
+         _copy = rule598 _patIcopy
          _lhsOcopy :: Pattern
-         _lhsOcopy = rule594 _copy
+         _lhsOcopy = rule599 _copy
          _lhsOisUnderscore :: Bool
-         _lhsOisUnderscore = rule595 _patIisUnderscore
-         _patOallInhmap = rule596 _lhsIallInhmap
-         _patOallSynmap = rule597 _lhsIallSynmap
-         _patOanyLazyKind = rule598 _lhsIanyLazyKind
-         _patOinhmap = rule599 _lhsIinhmap
-         _patOlocalAttrTypes = rule600 _lhsIlocalAttrTypes
-         _patOoptions = rule601 _lhsIoptions
-         _patOsynmap = rule602 _lhsIsynmap
+         _lhsOisUnderscore = rule600 _patIisUnderscore
+         _patOallInhmap = rule601 _lhsIallInhmap
+         _patOallSynmap = rule602 _lhsIallSynmap
+         _patOanyLazyKind = rule603 _lhsIanyLazyKind
+         _patOinhmap = rule604 _lhsIinhmap
+         _patOlocalAttrTypes = rule605 _lhsIlocalAttrTypes
+         _patOoptions = rule606 _lhsIoptions
+         _patOsynmap = rule607 _lhsIsynmap
          __result_ = T_Pattern_vOut40 _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOisUnderscore _lhsOsem_lhs
          in __result_ )
      in C_Pattern_s41 v40
-   {-# INLINE rule590 #-}
-   {-# LINE 1128 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule590 = \ ((_patIsem_lhs) ::  PP_Doc ) ->
-                                  {-# LINE 1128 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  text "~" >|< pp_parens _patIsem_lhs
-                                  {-# LINE 4769 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule591 #-}
-   rule591 = \ ((_patIattrTypes) :: PP_Doc) ->
-     _patIattrTypes
-   {-# INLINE rule592 #-}
-   rule592 = \ ((_patIattrs) :: Set String) ->
-     _patIattrs
-   {-# INLINE rule593 #-}
-   rule593 = \ ((_patIcopy) :: Pattern) ->
-     Irrefutable _patIcopy
-   {-# INLINE rule594 #-}
-   rule594 = \ _copy ->
-     _copy
    {-# INLINE rule595 #-}
-   rule595 = \ ((_patIisUnderscore) :: Bool) ->
-     _patIisUnderscore
+   {-# LINE 1130 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule595 = \ ((_patIsem_lhs) ::  PP_Doc ) ->
+                                  {-# LINE 1130 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  text "~" >|< pp_parens _patIsem_lhs
+                                  {-# LINE 4792 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule596 #-}
-   rule596 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
-     _lhsIallInhmap
+   rule596 = \ ((_patIattrTypes) :: PP_Doc) ->
+     _patIattrTypes
    {-# INLINE rule597 #-}
-   rule597 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
-     _lhsIallSynmap
+   rule597 = \ ((_patIattrs) :: Set String) ->
+     _patIattrs
    {-# INLINE rule598 #-}
-   rule598 = \ ((_lhsIanyLazyKind) :: Bool) ->
-     _lhsIanyLazyKind
+   rule598 = \ ((_patIcopy) :: Pattern) ->
+     Irrefutable _patIcopy
    {-# INLINE rule599 #-}
-   rule599 = \ ((_lhsIinhmap) :: Attributes) ->
-     _lhsIinhmap
+   rule599 = \ _copy ->
+     _copy
    {-# INLINE rule600 #-}
-   rule600 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
-     _lhsIlocalAttrTypes
+   rule600 = \ ((_patIisUnderscore) :: Bool) ->
+     _patIisUnderscore
    {-# INLINE rule601 #-}
-   rule601 = \ ((_lhsIoptions) :: Options) ->
-     _lhsIoptions
+   rule601 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
+     _lhsIallInhmap
    {-# INLINE rule602 #-}
-   rule602 = \ ((_lhsIsynmap) :: Attributes) ->
+   rule602 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
+     _lhsIallSynmap
+   {-# INLINE rule603 #-}
+   rule603 = \ ((_lhsIanyLazyKind) :: Bool) ->
+     _lhsIanyLazyKind
+   {-# INLINE rule604 #-}
+   rule604 = \ ((_lhsIinhmap) :: Attributes) ->
+     _lhsIinhmap
+   {-# INLINE rule605 #-}
+   rule605 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
+     _lhsIlocalAttrTypes
+   {-# INLINE rule606 #-}
+   rule606 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule607 #-}
+   rule607 = \ ((_lhsIsynmap) :: Attributes) ->
      _lhsIsynmap
 {-# NOINLINE sem_Pattern_Underscore #-}
 sem_Pattern_Underscore :: (Pos) -> T_Pattern 
@@ -4810,42 +4833,42 @@ sem_Pattern_Underscore arg_pos_ = T_Pattern (return st41) where
       v40 :: T_Pattern_v40 
       v40 = \ (T_Pattern_vIn40 _lhsIallInhmap _lhsIallSynmap _lhsIanyLazyKind _lhsIinhmap _lhsIlocalAttrTypes _lhsIoptions _lhsIsynmap) -> ( let
          _lhsOsem_lhs ::  PP_Doc 
-         _lhsOsem_lhs = rule603  ()
+         _lhsOsem_lhs = rule608  ()
          _lhsOisUnderscore :: Bool
-         _lhsOisUnderscore = rule604  ()
+         _lhsOisUnderscore = rule609  ()
          _lhsOattrTypes :: PP_Doc
-         _lhsOattrTypes = rule605  ()
+         _lhsOattrTypes = rule610  ()
          _lhsOattrs :: Set String
-         _lhsOattrs = rule606  ()
-         _copy = rule607 arg_pos_
+         _lhsOattrs = rule611  ()
+         _copy = rule612 arg_pos_
          _lhsOcopy :: Pattern
-         _lhsOcopy = rule608 _copy
+         _lhsOcopy = rule613 _copy
          __result_ = T_Pattern_vOut40 _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOisUnderscore _lhsOsem_lhs
          in __result_ )
      in C_Pattern_s41 v40
-   {-# INLINE rule603 #-}
-   {-# LINE 1127 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule603 = \  (_ :: ()) ->
-                                  {-# LINE 1127 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  text "_"
-                                  {-# LINE 4832 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule604 #-}
-   {-# LINE 1136 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule604 = \  (_ :: ()) ->
-                                    {-# LINE 1136 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                    True
-                                    {-# LINE 4838 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule605 #-}
-   rule605 = \  (_ :: ()) ->
-     empty
-   {-# INLINE rule606 #-}
-   rule606 = \  (_ :: ()) ->
-     Set.empty
-   {-# INLINE rule607 #-}
-   rule607 = \ pos_ ->
-     Underscore pos_
    {-# INLINE rule608 #-}
-   rule608 = \ _copy ->
+   {-# LINE 1129 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule608 = \  (_ :: ()) ->
+                                  {-# LINE 1129 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  text "_"
+                                  {-# LINE 4855 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule609 #-}
+   {-# LINE 1138 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule609 = \  (_ :: ()) ->
+                                    {-# LINE 1138 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                    True
+                                    {-# LINE 4861 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule610 #-}
+   rule610 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule611 #-}
+   rule611 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule612 #-}
+   rule612 = \ pos_ ->
+     Underscore pos_
+   {-# INLINE rule613 #-}
+   rule613 = \ _copy ->
      _copy
 
 -- Patterns ----------------------------------------------------
@@ -4890,87 +4913,87 @@ sem_Patterns_Cons arg_hd_ arg_tl_ = T_Patterns (return st44) where
          (T_Pattern_vOut40 _hdIattrTypes _hdIattrs _hdIcopy _hdIisUnderscore _hdIsem_lhs) = inv_Pattern_s41 _hdX41 (T_Pattern_vIn40 _hdOallInhmap _hdOallSynmap _hdOanyLazyKind _hdOinhmap _hdOlocalAttrTypes _hdOoptions _hdOsynmap)
          (T_Patterns_vOut43 _tlIattrTypes _tlIattrs _tlIcopy _tlIsem_lhs) = inv_Patterns_s44 _tlX44 (T_Patterns_vIn43 _tlOallInhmap _tlOallSynmap _tlOanyLazyKind _tlOinhmap _tlOlocalAttrTypes _tlOoptions _tlOsynmap)
          _lhsOattrTypes :: PP_Doc
-         _lhsOattrTypes = rule609 _hdIattrTypes _tlIattrTypes
+         _lhsOattrTypes = rule614 _hdIattrTypes _tlIattrTypes
          _lhsOattrs :: Set String
-         _lhsOattrs = rule610 _hdIattrs _tlIattrs
+         _lhsOattrs = rule615 _hdIattrs _tlIattrs
          _lhsOsem_lhs :: [PP_Doc]
-         _lhsOsem_lhs = rule611 _hdIsem_lhs _tlIsem_lhs
-         _copy = rule612 _hdIcopy _tlIcopy
+         _lhsOsem_lhs = rule616 _hdIsem_lhs _tlIsem_lhs
+         _copy = rule617 _hdIcopy _tlIcopy
          _lhsOcopy :: Patterns
-         _lhsOcopy = rule613 _copy
-         _hdOallInhmap = rule614 _lhsIallInhmap
-         _hdOallSynmap = rule615 _lhsIallSynmap
-         _hdOanyLazyKind = rule616 _lhsIanyLazyKind
-         _hdOinhmap = rule617 _lhsIinhmap
-         _hdOlocalAttrTypes = rule618 _lhsIlocalAttrTypes
-         _hdOoptions = rule619 _lhsIoptions
-         _hdOsynmap = rule620 _lhsIsynmap
-         _tlOallInhmap = rule621 _lhsIallInhmap
-         _tlOallSynmap = rule622 _lhsIallSynmap
-         _tlOanyLazyKind = rule623 _lhsIanyLazyKind
-         _tlOinhmap = rule624 _lhsIinhmap
-         _tlOlocalAttrTypes = rule625 _lhsIlocalAttrTypes
-         _tlOoptions = rule626 _lhsIoptions
-         _tlOsynmap = rule627 _lhsIsynmap
+         _lhsOcopy = rule618 _copy
+         _hdOallInhmap = rule619 _lhsIallInhmap
+         _hdOallSynmap = rule620 _lhsIallSynmap
+         _hdOanyLazyKind = rule621 _lhsIanyLazyKind
+         _hdOinhmap = rule622 _lhsIinhmap
+         _hdOlocalAttrTypes = rule623 _lhsIlocalAttrTypes
+         _hdOoptions = rule624 _lhsIoptions
+         _hdOsynmap = rule625 _lhsIsynmap
+         _tlOallInhmap = rule626 _lhsIallInhmap
+         _tlOallSynmap = rule627 _lhsIallSynmap
+         _tlOanyLazyKind = rule628 _lhsIanyLazyKind
+         _tlOinhmap = rule629 _lhsIinhmap
+         _tlOlocalAttrTypes = rule630 _lhsIlocalAttrTypes
+         _tlOoptions = rule631 _lhsIoptions
+         _tlOsynmap = rule632 _lhsIsynmap
          __result_ = T_Patterns_vOut43 _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOsem_lhs
          in __result_ )
      in C_Patterns_s44 v43
-   {-# INLINE rule609 #-}
-   rule609 = \ ((_hdIattrTypes) :: PP_Doc) ((_tlIattrTypes) :: PP_Doc) ->
-     _hdIattrTypes >-< _tlIattrTypes
-   {-# INLINE rule610 #-}
-   rule610 = \ ((_hdIattrs) :: Set String) ((_tlIattrs) :: Set String) ->
-     _hdIattrs `Set.union` _tlIattrs
-   {-# INLINE rule611 #-}
-   rule611 = \ ((_hdIsem_lhs) ::  PP_Doc ) ((_tlIsem_lhs) :: [PP_Doc]) ->
-     _hdIsem_lhs : _tlIsem_lhs
-   {-# INLINE rule612 #-}
-   rule612 = \ ((_hdIcopy) :: Pattern) ((_tlIcopy) :: Patterns) ->
-     (:) _hdIcopy _tlIcopy
-   {-# INLINE rule613 #-}
-   rule613 = \ _copy ->
-     _copy
    {-# INLINE rule614 #-}
-   rule614 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
-     _lhsIallInhmap
+   rule614 = \ ((_hdIattrTypes) :: PP_Doc) ((_tlIattrTypes) :: PP_Doc) ->
+     _hdIattrTypes >-< _tlIattrTypes
    {-# INLINE rule615 #-}
-   rule615 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
-     _lhsIallSynmap
+   rule615 = \ ((_hdIattrs) :: Set String) ((_tlIattrs) :: Set String) ->
+     _hdIattrs `Set.union` _tlIattrs
    {-# INLINE rule616 #-}
-   rule616 = \ ((_lhsIanyLazyKind) :: Bool) ->
-     _lhsIanyLazyKind
+   rule616 = \ ((_hdIsem_lhs) ::  PP_Doc ) ((_tlIsem_lhs) :: [PP_Doc]) ->
+     _hdIsem_lhs : _tlIsem_lhs
    {-# INLINE rule617 #-}
-   rule617 = \ ((_lhsIinhmap) :: Attributes) ->
-     _lhsIinhmap
+   rule617 = \ ((_hdIcopy) :: Pattern) ((_tlIcopy) :: Patterns) ->
+     (:) _hdIcopy _tlIcopy
    {-# INLINE rule618 #-}
-   rule618 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
-     _lhsIlocalAttrTypes
+   rule618 = \ _copy ->
+     _copy
    {-# INLINE rule619 #-}
-   rule619 = \ ((_lhsIoptions) :: Options) ->
-     _lhsIoptions
-   {-# INLINE rule620 #-}
-   rule620 = \ ((_lhsIsynmap) :: Attributes) ->
-     _lhsIsynmap
-   {-# INLINE rule621 #-}
-   rule621 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
+   rule619 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
      _lhsIallInhmap
-   {-# INLINE rule622 #-}
-   rule622 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
+   {-# INLINE rule620 #-}
+   rule620 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
      _lhsIallSynmap
-   {-# INLINE rule623 #-}
-   rule623 = \ ((_lhsIanyLazyKind) :: Bool) ->
+   {-# INLINE rule621 #-}
+   rule621 = \ ((_lhsIanyLazyKind) :: Bool) ->
      _lhsIanyLazyKind
-   {-# INLINE rule624 #-}
-   rule624 = \ ((_lhsIinhmap) :: Attributes) ->
+   {-# INLINE rule622 #-}
+   rule622 = \ ((_lhsIinhmap) :: Attributes) ->
      _lhsIinhmap
-   {-# INLINE rule625 #-}
-   rule625 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
+   {-# INLINE rule623 #-}
+   rule623 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
      _lhsIlocalAttrTypes
-   {-# INLINE rule626 #-}
-   rule626 = \ ((_lhsIoptions) :: Options) ->
+   {-# INLINE rule624 #-}
+   rule624 = \ ((_lhsIoptions) :: Options) ->
      _lhsIoptions
+   {-# INLINE rule625 #-}
+   rule625 = \ ((_lhsIsynmap) :: Attributes) ->
+     _lhsIsynmap
+   {-# INLINE rule626 #-}
+   rule626 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
+     _lhsIallInhmap
    {-# INLINE rule627 #-}
-   rule627 = \ ((_lhsIsynmap) :: Attributes) ->
+   rule627 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
+     _lhsIallSynmap
+   {-# INLINE rule628 #-}
+   rule628 = \ ((_lhsIanyLazyKind) :: Bool) ->
+     _lhsIanyLazyKind
+   {-# INLINE rule629 #-}
+   rule629 = \ ((_lhsIinhmap) :: Attributes) ->
+     _lhsIinhmap
+   {-# INLINE rule630 #-}
+   rule630 = \ ((_lhsIlocalAttrTypes) :: Map Identifier Type) ->
+     _lhsIlocalAttrTypes
+   {-# INLINE rule631 #-}
+   rule631 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule632 #-}
+   rule632 = \ ((_lhsIsynmap) :: Attributes) ->
      _lhsIsynmap
 {-# NOINLINE sem_Patterns_Nil #-}
 sem_Patterns_Nil ::  T_Patterns 
@@ -4980,31 +5003,31 @@ sem_Patterns_Nil  = T_Patterns (return st44) where
       v43 :: T_Patterns_v43 
       v43 = \ (T_Patterns_vIn43 _lhsIallInhmap _lhsIallSynmap _lhsIanyLazyKind _lhsIinhmap _lhsIlocalAttrTypes _lhsIoptions _lhsIsynmap) -> ( let
          _lhsOattrTypes :: PP_Doc
-         _lhsOattrTypes = rule628  ()
+         _lhsOattrTypes = rule633  ()
          _lhsOattrs :: Set String
-         _lhsOattrs = rule629  ()
+         _lhsOattrs = rule634  ()
          _lhsOsem_lhs :: [PP_Doc]
-         _lhsOsem_lhs = rule630  ()
-         _copy = rule631  ()
+         _lhsOsem_lhs = rule635  ()
+         _copy = rule636  ()
          _lhsOcopy :: Patterns
-         _lhsOcopy = rule632 _copy
+         _lhsOcopy = rule637 _copy
          __result_ = T_Patterns_vOut43 _lhsOattrTypes _lhsOattrs _lhsOcopy _lhsOsem_lhs
          in __result_ )
      in C_Patterns_s44 v43
-   {-# INLINE rule628 #-}
-   rule628 = \  (_ :: ()) ->
+   {-# INLINE rule633 #-}
+   rule633 = \  (_ :: ()) ->
      empty
-   {-# INLINE rule629 #-}
-   rule629 = \  (_ :: ()) ->
+   {-# INLINE rule634 #-}
+   rule634 = \  (_ :: ()) ->
      Set.empty
-   {-# INLINE rule630 #-}
-   rule630 = \  (_ :: ()) ->
+   {-# INLINE rule635 #-}
+   rule635 = \  (_ :: ()) ->
      []
-   {-# INLINE rule631 #-}
-   rule631 = \  (_ :: ()) ->
+   {-# INLINE rule636 #-}
+   rule636 = \  (_ :: ()) ->
      []
-   {-# INLINE rule632 #-}
-   rule632 = \ _copy ->
+   {-# INLINE rule637 #-}
+   rule637 = \ _copy ->
      _copy
 
 -- Visit -------------------------------------------------------
@@ -5047,139 +5070,139 @@ sem_Visit_Visit arg_ident_ arg_from_ arg_to_ arg_inh_ arg_syn_ arg_steps_ arg_ki
          _stepsX53 = Control.Monad.Identity.runIdentity (attach_T_VisitSteps (arg_steps_))
          (T_VisitSteps_vOut52 _stepsIdefs _stepsIerrors _stepsIindex _stepsIisLast _stepsIlazyIntras _stepsIprevMaxSimRefs _stepsIruleKinds _stepsIruleUsage _stepsIsem_steps _stepsIsize _stepsIsync_steps _stepsIusedArgs _stepsIuses _stepsIvisitKinds) = inv_VisitSteps_s53 _stepsX53 (T_VisitSteps_vIn52 _stepsOallFromToStates _stepsOallInitStates _stepsOallVisitKinds _stepsOallchildvisit _stepsOavisitdefs _stepsOavisituses _stepsOchildTypes _stepsOchildintros _stepsOfmtMode _stepsOindex _stepsOkind _stepsOmrules _stepsOoptions _stepsOprevMaxSimRefs _stepsOruledefs _stepsOruleuses _stepsOuseParallel)
          _lhsOallvisits ::  VisitStateState 
-         _lhsOallvisits = rule633 arg_from_ arg_ident_ arg_to_
-         _nameT_visit = rule634 _lhsInt arg_ident_
-         _nameTIn_visit = rule635 _lhsInt arg_ident_
-         _nameTOut_visit = rule636 _lhsInt arg_ident_
-         _nameTNext_visit = rule637 _lhsInt arg_to_
-         _nextVisitInfo = rule638 _lhsInextVisits arg_to_
-         _typecon = rule639 _lhsIoptions arg_kind_
-         _t_params = rule640 _lhsIparams
+         _lhsOallvisits = rule638 arg_from_ arg_ident_ arg_to_
+         _nameT_visit = rule639 _lhsInt arg_ident_
+         _nameTIn_visit = rule640 _lhsInt arg_ident_
+         _nameTOut_visit = rule641 _lhsInt arg_ident_
+         _nameTNext_visit = rule642 _lhsInt arg_to_
+         _nextVisitInfo = rule643 _lhsInextVisits arg_to_
+         _typecon = rule644 _lhsIoptions arg_kind_
+         _t_params = rule645 _lhsIparams
          _lhsOt_visits :: PP_Doc
-         _lhsOt_visits = rule641 _addbang1 _inhpart _lhsIoptions _nameTIn_visit _nameTNext_visit _nameTOut_visit _nameT_visit _nextVisitInfo _synpart _t_params _typecon
-         _inhpart = rule642 _lhsIinhmap _ppTypeList arg_inh_
-         _synpart = rule643 _lhsIsynmap _ppTypeList arg_syn_
-         _ppTypeList = rule644 _addbang1
+         _lhsOt_visits = rule646 _addbang1 _inhpart _lhsIoptions _nameTIn_visit _nameTNext_visit _nameTOut_visit _nameT_visit _nextVisitInfo _synpart _t_params _typecon
+         _inhpart = rule647 _lhsIinhmap _ppTypeList arg_inh_
+         _synpart = rule648 _lhsIsynmap _ppTypeList arg_syn_
+         _ppTypeList = rule649 _addbang1
          _lhsOsem_visit ::   (StateIdentifier,Bool -> PP_Doc)  
-         _lhsOsem_visit = rule645 _addbang _inhpats _lhsIcon _lhsInt _lhsIoptions _nameTIn_visit _nameT_visit _stepsClosing _stepsInitial _stepsIsem_steps _t_params _vname arg_from_ arg_ident_
-         _stepsInitial = rule646 arg_kind_
-         _stepsClosing = rule647 _addbang _nextStBuild _resultval arg_kind_
-         _vname = rule648 arg_ident_
-         _inhpats = rule649 arg_inh_
-         _inhargs = rule650 arg_inh_
-         _synargs = rule651 arg_syn_
-         _nextargsMp = rule652 _lhsIallintramap arg_to_
-         _nextargs = rule653 _nextargsMp
-         _nextst = rule654 _lhsIoptions _nextargs _nextargsMp arg_to_
-         _resultval = rule655 _nameTOut_visit _nextStRef _synargs
-         (_nextStBuild,_nextStRef) = rule656 _addbang _nextVisitInfo _nextst
-         _stepsOkind = rule657 arg_kind_
-         _stepsOfmtMode = rule658 arg_kind_
-         _stepsOindex = rule659  ()
-         _stepsOprevMaxSimRefs = rule660  ()
-         _stepsOuseParallel = rule661  ()
-         _prevVisitInfo = rule662 _lhsInextVisits arg_from_
+         _lhsOsem_visit = rule650 _addbang _inhpats _lhsIcon _lhsInt _lhsIoptions _nameTIn_visit _nameT_visit _stepsClosing _stepsInitial _stepsIsem_steps _t_params _vname arg_from_ arg_ident_
+         _stepsInitial = rule651 arg_kind_
+         _stepsClosing = rule652 _addbang _nextStBuild _resultval arg_kind_
+         _vname = rule653 arg_ident_
+         _inhpats = rule654 _lhsIoptions arg_inh_
+         _inhargs = rule655 _lhsIoptions arg_inh_
+         _synargs = rule656 _lhsIoptions arg_syn_
+         _nextargsMp = rule657 _lhsIallintramap arg_to_
+         _nextargs = rule658 _nextargsMp
+         _nextst = rule659 _lhsIoptions _nextargs _nextargsMp arg_to_
+         _resultval = rule660 _nameTOut_visit _nextStRef _synargs
+         (_nextStBuild,_nextStRef) = rule661 _addbang _nextVisitInfo _nextst
+         _stepsOkind = rule662 arg_kind_
+         _stepsOfmtMode = rule663 arg_kind_
+         _stepsOindex = rule664  ()
+         _stepsOprevMaxSimRefs = rule665  ()
+         _stepsOuseParallel = rule666  ()
+         _prevVisitInfo = rule667 _lhsInextVisits arg_from_
          _lhsOchildvisit :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))
-         _lhsOchildvisit = rule663 _invokecode arg_ident_
-         _invokecode = rule664 _addbang _inhargs _lhsInt _lhsIoptions _nameTIn_visit _nameTOut_visit _nextVisitInfo _prevVisitInfo arg_from_ arg_ident_ arg_kind_ arg_syn_ arg_to_
-         _thisintra = rule665 _defsAsMap _nextintra _uses
+         _lhsOchildvisit = rule668 _invokecode arg_ident_
+         _invokecode = rule669 _addbang _inhargs _lhsInt _lhsIoptions _nameTIn_visit _nameTOut_visit _nextVisitInfo _prevVisitInfo arg_from_ arg_ident_ arg_kind_ arg_syn_ arg_to_
+         _thisintra = rule670 _defsAsMap _nextintra _uses
          _lhsOintramap :: Map StateIdentifier (Map String (Maybe NonLocalAttr))
-         _lhsOintramap = rule666 _thisintra arg_from_
-         _nextintra = rule667 _lhsIallintramap arg_to_
-         _uses = rule668 _stepsIuses arg_syn_
-         _inhVarNms = rule669 arg_inh_
-         _defs = rule670 _inhVarNms _lhsIterminaldefs _stepsIdefs
-         _defsAsMap = rule671 _defs
+         _lhsOintramap = rule671 _thisintra arg_from_
+         _nextintra = rule672 _lhsIallintramap arg_to_
+         _uses = rule673 _lhsIoptions _stepsIuses arg_syn_
+         _inhVarNms = rule674 _lhsIoptions arg_inh_
+         _defs = rule675 _inhVarNms _lhsIterminaldefs _stepsIdefs
+         _defsAsMap = rule676 _defs
          _lhsOvisitdefs :: Map VisitIdentifier (Set Identifier)
-         _lhsOvisitdefs = rule672 arg_ident_ arg_syn_
+         _lhsOvisitdefs = rule677 arg_ident_ arg_syn_
          _lhsOvisituses :: Map VisitIdentifier (Set Identifier)
-         _lhsOvisituses = rule673 arg_ident_ arg_inh_
-         _lazyIntrasInh = rule674 _inhVarNms _stepsIdefs arg_kind_
+         _lhsOvisituses = rule678 arg_ident_ arg_inh_
+         _lazyIntrasInh = rule679 _inhVarNms _stepsIdefs arg_kind_
          _lhsOlazyIntras :: Set String
-         _lhsOlazyIntras = rule675 _lazyIntrasInh _stepsIlazyIntras
-         _addbang = rule676 _lhsIoptions
-         _addbang1 = rule677 _addbang arg_kind_
+         _lhsOlazyIntras = rule680 _lazyIntrasInh _stepsIlazyIntras
+         _addbang = rule681 _lhsIoptions
+         _addbang1 = rule682 _addbang arg_kind_
          _lhsOfromToStates :: Map VisitIdentifier (Int,Int)
-         _lhsOfromToStates = rule678 arg_from_ arg_ident_ arg_to_
+         _lhsOfromToStates = rule683 arg_from_ arg_ident_ arg_to_
          _lhsOvisitKinds :: Map VisitIdentifier VisitKind
-         _lhsOvisitKinds = rule679 arg_ident_ arg_kind_
+         _lhsOvisitKinds = rule684 arg_ident_ arg_kind_
          _lhsOerrors :: Seq Error
-         _lhsOerrors = rule680 _stepsIerrors
+         _lhsOerrors = rule685 _stepsIerrors
          _lhsOruleKinds :: Map Identifier (Set VisitKind)
-         _lhsOruleKinds = rule681 _stepsIruleKinds
+         _lhsOruleKinds = rule686 _stepsIruleKinds
          _lhsOruleUsage :: Map Identifier Int
-         _lhsOruleUsage = rule682 _stepsIruleUsage
+         _lhsOruleUsage = rule687 _stepsIruleUsage
          _lhsOusedArgs :: Set String
-         _lhsOusedArgs = rule683 _stepsIusedArgs
-         _stepsOallFromToStates = rule684 _lhsIallFromToStates
-         _stepsOallInitStates = rule685 _lhsIallInitStates
-         _stepsOallVisitKinds = rule686 _lhsIallVisitKinds
-         _stepsOallchildvisit = rule687 _lhsIallchildvisit
-         _stepsOavisitdefs = rule688 _lhsIavisitdefs
-         _stepsOavisituses = rule689 _lhsIavisituses
-         _stepsOchildTypes = rule690 _lhsIchildTypes
-         _stepsOchildintros = rule691 _lhsIchildintros
-         _stepsOmrules = rule692 _lhsImrules
-         _stepsOoptions = rule693 _lhsIoptions
-         _stepsOruledefs = rule694 _lhsIruledefs
-         _stepsOruleuses = rule695 _lhsIruleuses
+         _lhsOusedArgs = rule688 _stepsIusedArgs
+         _stepsOallFromToStates = rule689 _lhsIallFromToStates
+         _stepsOallInitStates = rule690 _lhsIallInitStates
+         _stepsOallVisitKinds = rule691 _lhsIallVisitKinds
+         _stepsOallchildvisit = rule692 _lhsIallchildvisit
+         _stepsOavisitdefs = rule693 _lhsIavisitdefs
+         _stepsOavisituses = rule694 _lhsIavisituses
+         _stepsOchildTypes = rule695 _lhsIchildTypes
+         _stepsOchildintros = rule696 _lhsIchildintros
+         _stepsOmrules = rule697 _lhsImrules
+         _stepsOoptions = rule698 _lhsIoptions
+         _stepsOruledefs = rule699 _lhsIruledefs
+         _stepsOruleuses = rule700 _lhsIruleuses
          __result_ = T_Visit_vOut46 _lhsOallvisits _lhsOchildvisit _lhsOerrors _lhsOfromToStates _lhsOintramap _lhsOlazyIntras _lhsOruleKinds _lhsOruleUsage _lhsOsem_visit _lhsOt_visits _lhsOusedArgs _lhsOvisitKinds _lhsOvisitdefs _lhsOvisituses
          in __result_ )
      in C_Visit_s47 v46
-   {-# INLINE rule633 #-}
-   {-# LINE 338 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule633 = \ from_ ident_ to_ ->
-                            {-# LINE 338 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            (ident_, from_, to_)
-                            {-# LINE 5135 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule634 #-}
-   {-# LINE 397 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule634 = \ ((_lhsInt) :: NontermIdent) ident_ ->
-                                  {-# LINE 397 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  conNmTVisit _lhsInt ident_
-                                  {-# LINE 5141 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule635 #-}
-   {-# LINE 398 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule635 = \ ((_lhsInt) :: NontermIdent) ident_ ->
-                                  {-# LINE 398 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  conNmTVisitIn _lhsInt ident_
-                                  {-# LINE 5147 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule636 #-}
-   {-# LINE 399 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule636 = \ ((_lhsInt) :: NontermIdent) ident_ ->
-                                  {-# LINE 399 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  conNmTVisitOut _lhsInt ident_
-                                  {-# LINE 5153 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule637 #-}
-   {-# LINE 400 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule637 = \ ((_lhsInt) :: NontermIdent) to_ ->
-                                  {-# LINE 400 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  conNmTNextVisit _lhsInt to_
-                                  {-# LINE 5159 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule638 #-}
-   {-# LINE 402 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule638 = \ ((_lhsInextVisits) :: Map StateIdentifier StateCtx) to_ ->
-                                  {-# LINE 402 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                  Map.findWithDefault ManyVis to_ _lhsInextVisits
-                                  {-# LINE 5165 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 340 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule638 = \ from_ ident_ to_ ->
+                            {-# LINE 340 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            (ident_, from_, to_)
+                            {-# LINE 5158 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule639 #-}
-   {-# LINE 403 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule639 = \ ((_lhsIoptions) :: Options) kind_ ->
-                                  {-# LINE 403 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 399 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule639 = \ ((_lhsInt) :: NontermIdent) ident_ ->
+                                  {-# LINE 399 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  conNmTVisit _lhsInt ident_
+                                  {-# LINE 5164 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule640 #-}
+   {-# LINE 400 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule640 = \ ((_lhsInt) :: NontermIdent) ident_ ->
+                                  {-# LINE 400 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  conNmTVisitIn _lhsInt ident_
+                                  {-# LINE 5170 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule641 #-}
+   {-# LINE 401 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule641 = \ ((_lhsInt) :: NontermIdent) ident_ ->
+                                  {-# LINE 401 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  conNmTVisitOut _lhsInt ident_
+                                  {-# LINE 5176 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule642 #-}
+   {-# LINE 402 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule642 = \ ((_lhsInt) :: NontermIdent) to_ ->
+                                  {-# LINE 402 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  conNmTNextVisit _lhsInt to_
+                                  {-# LINE 5182 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule643 #-}
+   {-# LINE 404 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule643 = \ ((_lhsInextVisits) :: Map StateIdentifier StateCtx) to_ ->
+                                  {-# LINE 404 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  Map.findWithDefault ManyVis to_ _lhsInextVisits
+                                  {-# LINE 5188 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule644 #-}
+   {-# LINE 405 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule644 = \ ((_lhsIoptions) :: Options) kind_ ->
+                                  {-# LINE 405 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   case kind_ of
                                     VisitPure _  -> empty
                                     VisitMonadic -> ppMonadType _lhsIoptions
-                                  {-# LINE 5173 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule640 #-}
-   {-# LINE 407 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule640 = \ ((_lhsIparams) :: [Identifier]) ->
-                            {-# LINE 407 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 5196 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule645 #-}
+   {-# LINE 409 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule645 = \ ((_lhsIparams) :: [Identifier]) ->
+                            {-# LINE 409 "./src-ag/ExecutionPlan2Hs.ag" #-}
                             ppSpaced _lhsIparams
-                            {-# LINE 5179 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule641 #-}
-   {-# LINE 408 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule641 = \ _addbang1 _inhpart ((_lhsIoptions) :: Options) _nameTIn_visit _nameTNext_visit _nameTOut_visit _nameT_visit _nextVisitInfo _synpart _t_params _typecon ->
-                           {-# LINE 408 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            {-# LINE 5202 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule646 #-}
+   {-# LINE 410 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule646 = \ _addbang1 _inhpart ((_lhsIoptions) :: Options) _nameTIn_visit _nameTNext_visit _nameTOut_visit _nameT_visit _nextVisitInfo _synpart _t_params _typecon ->
+                           {-# LINE 410 "./src-ag/ExecutionPlan2Hs.ag" #-}
                            "type" >#< _nameT_visit     >#< _t_params     >#< "=" >#<
                              pp_parens (_nameTIn_visit     >#< _t_params    )
                                >#< ( if dummyTokenVisit _lhsIoptions
@@ -5193,30 +5216,30 @@ sem_Visit_Visit arg_ident_ arg_from_ arg_to_ arg_inh_ arg_syn_ arg_steps_ arg_ki
                                 _synpart     >#< case _nextVisitInfo     of
                                                    NoneVis    -> empty
                                                    _          -> _addbang1     $ pp_parens (_nameTNext_visit     >#< _t_params    )
-                           {-# LINE 5197 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule642 #-}
-   {-# LINE 421 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule642 = \ ((_lhsIinhmap) :: Attributes) _ppTypeList inh_ ->
-                            {-# LINE 421 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            _ppTypeList     inh_ _lhsIinhmap
-                            {-# LINE 5203 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule643 #-}
-   {-# LINE 422 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule643 = \ ((_lhsIsynmap) :: Attributes) _ppTypeList syn_ ->
-                            {-# LINE 422 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            _ppTypeList     syn_ _lhsIsynmap
-                            {-# LINE 5209 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule644 #-}
+                           {-# LINE 5220 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule647 #-}
    {-# LINE 423 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule644 = \ _addbang1 ->
-                             {-# LINE 423 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule647 = \ ((_lhsIinhmap) :: Attributes) _ppTypeList inh_ ->
+                            {-# LINE 423 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            _ppTypeList     inh_ _lhsIinhmap
+                            {-# LINE 5226 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule648 #-}
+   {-# LINE 424 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule648 = \ ((_lhsIsynmap) :: Attributes) _ppTypeList syn_ ->
+                            {-# LINE 424 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            _ppTypeList     syn_ _lhsIsynmap
+                            {-# LINE 5232 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule649 #-}
+   {-# LINE 425 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule649 = \ _addbang1 ->
+                             {-# LINE 425 "./src-ag/ExecutionPlan2Hs.ag" #-}
                              \s m -> ppSpaced $ map (\i -> _addbang1     $ pp_parens $ case Map.lookup i m of
                                                                                         Just tp -> ppTp tp ) $ Set.toList s
-                             {-# LINE 5216 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule645 #-}
-   {-# LINE 715 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule645 = \ _addbang _inhpats ((_lhsIcon) :: ConstructorIdent) ((_lhsInt) :: NontermIdent) ((_lhsIoptions) :: Options) _nameTIn_visit _nameT_visit _stepsClosing _stepsInitial ((_stepsIsem_steps) :: PP_Doc) _t_params _vname from_ ident_ ->
-                            {-# LINE 715 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                             {-# LINE 5239 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule650 #-}
+   {-# LINE 717 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule650 = \ _addbang _inhpats ((_lhsIcon) :: ConstructorIdent) ((_lhsInt) :: NontermIdent) ((_lhsIoptions) :: Options) _nameTIn_visit _nameT_visit _stepsClosing _stepsInitial ((_stepsIsem_steps) :: PP_Doc) _t_params _vname from_ ident_ ->
+                            {-# LINE 717 "./src-ag/ExecutionPlan2Hs.ag" #-}
                             ( from_
                             , \addInlinePragma ->
                                  ( if noInlinePragmas _lhsIoptions
@@ -5240,20 +5263,20 @@ sem_Visit_Visit arg_ident_ arg_from_ arg_to_ arg_inh_ arg_syn_ arg_steps_ arg_ki
                                      ) >#< "(" >#< _stepsInitial
                                  >-< indent 3 (_stepsIsem_steps >-< _stepsClosing     >#< ")")
                             )
-                            {-# LINE 5244 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule646 #-}
-   {-# LINE 740 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule646 = \ kind_ ->
-                               {-# LINE 740 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            {-# LINE 5267 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule651 #-}
+   {-# LINE 742 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule651 = \ kind_ ->
+                               {-# LINE 742 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                case kind_ of
                                  VisitPure False -> text "let"
                                  VisitPure True  -> empty
                                  VisitMonadic    -> text "do"
-                               {-# LINE 5253 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule647 #-}
-   {-# LINE 744 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule647 = \ _addbang _nextStBuild _resultval kind_ ->
-                                {-# LINE 744 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                               {-# LINE 5276 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule652 #-}
+   {-# LINE 746 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule652 = \ _addbang _nextStBuild _resultval kind_ ->
+                                {-# LINE 746 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                 let decls =  _nextStBuild
                                              >-<  _addbang     (pp resultValName) >#< "=" >#< _resultval
                                 in case kind_ of
@@ -5263,119 +5286,119 @@ sem_Visit_Visit arg_ident_ arg_from_ arg_to_ arg_inh_ arg_syn_ arg_steps_ arg_ki
                                                         >-< indent 1 ("in" >#< resultValName)
                                      VisitMonadic    -> "let" >#< decls
                                                         >-< "return" >#< resultValName
-                                {-# LINE 5267 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule648 #-}
-   {-# LINE 753 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule648 = \ ident_ ->
-                            {-# LINE 753 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            "v" >|< ident_
-                            {-# LINE 5273 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule649 #-}
-   {-# LINE 754 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule649 = \ inh_ ->
-                            {-# LINE 754 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            ppSpaced $ map (\arg ->                    pp $ attrname True _LHS arg) $ Set.toList inh_
-                            {-# LINE 5279 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule650 #-}
-   {-# LINE 755 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule650 = \ inh_ ->
-                            {-# LINE 755 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            \chn -> ppSpaced $ map (attrname False chn) $ Set.toList inh_
-                            {-# LINE 5285 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule651 #-}
-   {-# LINE 756 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule651 = \ syn_ ->
-                            {-# LINE 756 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            ppSpaced $ map (\arg -> attrname False _LHS arg) $ Set.toList syn_
-                            {-# LINE 5291 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule652 #-}
-   {-# LINE 757 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule652 = \ ((_lhsIallintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) to_ ->
-                             {-# LINE 757 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                             maybe Map.empty id $ Map.lookup to_ _lhsIallintramap
-                             {-# LINE 5297 "dist/build/ExecutionPlan2Hs.hs"#-}
+                                {-# LINE 5290 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule653 #-}
-   {-# LINE 758 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule653 = \ _nextargsMp ->
-                            {-# LINE 758 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            ppSpaced $ Map.keys $ _nextargsMp
-                            {-# LINE 5303 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 755 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule653 = \ ident_ ->
+                            {-# LINE 755 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            "v" >|< ident_
+                            {-# LINE 5296 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule654 #-}
-   {-# LINE 759 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule654 = \ ((_lhsIoptions) :: Options) _nextargs _nextargsMp to_ ->
-                            {-# LINE 759 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            "st" >|< to_ >#< _nextargs     >#< dummyArg _lhsIoptions (Map.null _nextargsMp    )
-                            {-# LINE 5309 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 756 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule654 = \ ((_lhsIoptions) :: Options) inh_ ->
+                            {-# LINE 756 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            ppSpaced $ map (\arg ->                    pp $ attrname _lhsIoptions True _LHS arg) $ Set.toList inh_
+                            {-# LINE 5302 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule655 #-}
-   {-# LINE 760 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule655 = \ _nameTOut_visit _nextStRef _synargs ->
-                            {-# LINE 760 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            _nameTOut_visit     >#< _synargs     >#< _nextStRef
-                            {-# LINE 5315 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 757 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule655 = \ ((_lhsIoptions) :: Options) inh_ ->
+                            {-# LINE 757 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            \chn -> ppSpaced $ map (attrname _lhsIoptions False chn) $ Set.toList inh_
+                            {-# LINE 5308 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule656 #-}
+   {-# LINE 758 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule656 = \ ((_lhsIoptions) :: Options) syn_ ->
+                            {-# LINE 758 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            ppSpaced $ map (\arg -> attrname _lhsIoptions False _LHS arg) $ Set.toList syn_
+                            {-# LINE 5314 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule657 #-}
+   {-# LINE 759 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule657 = \ ((_lhsIallintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) to_ ->
+                             {-# LINE 759 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                             maybe Map.empty id $ Map.lookup to_ _lhsIallintramap
+                             {-# LINE 5320 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule658 #-}
+   {-# LINE 760 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule658 = \ _nextargsMp ->
+                            {-# LINE 760 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            ppSpaced $ Map.keys $ _nextargsMp
+                            {-# LINE 5326 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule659 #-}
+   {-# LINE 761 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule659 = \ ((_lhsIoptions) :: Options) _nextargs _nextargsMp to_ ->
+                            {-# LINE 761 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            "st" >|< to_ >#< _nextargs     >#< dummyArg _lhsIoptions (Map.null _nextargsMp    )
+                            {-# LINE 5332 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule660 #-}
    {-# LINE 762 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule656 = \ _addbang _nextVisitInfo _nextst ->
-                {-# LINE 762 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule660 = \ _nameTOut_visit _nextStRef _synargs ->
+                            {-# LINE 762 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            _nameTOut_visit     >#< _synargs     >#< _nextStRef
+                            {-# LINE 5338 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule661 #-}
+   {-# LINE 764 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule661 = \ _addbang _nextVisitInfo _nextst ->
+                {-# LINE 764 "./src-ag/ExecutionPlan2Hs.ag" #-}
                 case _nextVisitInfo     of
                   NoneVis  -> (empty, empty)
                   _        -> (_addbang     (pp nextStName) >#< "=" >#< _nextst    , pp nextStName)
-                {-# LINE 5323 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule657 #-}
-   {-# LINE 776 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule657 = \ kind_ ->
-                                  {-# LINE 776 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                {-# LINE 5346 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule662 #-}
+   {-# LINE 778 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule662 = \ kind_ ->
+                                  {-# LINE 778 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                   kind_
-                                  {-# LINE 5329 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule658 #-}
-   {-# LINE 827 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule658 = \ kind_ ->
-                    {-# LINE 827 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                  {-# LINE 5352 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule663 #-}
+   {-# LINE 829 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule663 = \ kind_ ->
+                    {-# LINE 829 "./src-ag/ExecutionPlan2Hs.ag" #-}
                     case kind_ of
                       VisitPure False -> FormatLetDecl
                       VisitPure True  -> FormatLetLine
                       VisitMonadic    -> FormatDo
-                    {-# LINE 5338 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule659 #-}
-   {-# LINE 876 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule659 = \  (_ :: ()) ->
-                                     {-# LINE 876 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                     0
-                                     {-# LINE 5344 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule660 #-}
-   {-# LINE 883 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule660 = \  (_ :: ()) ->
-                                              {-# LINE 883 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                              0
-                                              {-# LINE 5350 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule661 #-}
-   {-# LINE 899 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule661 = \  (_ :: ()) ->
-                                           {-# LINE 899 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                           False
-                                           {-# LINE 5356 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule662 #-}
-   {-# LINE 1217 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule662 = \ ((_lhsInextVisits) :: Map StateIdentifier StateCtx) from_ ->
-                           {-# LINE 1217 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                           Map.findWithDefault ManyVis from_ _lhsInextVisits
-                           {-# LINE 5362 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule663 #-}
-   {-# LINE 1218 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule663 = \ _invokecode ident_ ->
-                        {-# LINE 1218 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                        Map.singleton ident_ _invokecode
-                        {-# LINE 5368 "dist/build/ExecutionPlan2Hs.hs"#-}
+                    {-# LINE 5361 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule664 #-}
-   {-# LINE 1219 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule664 = \ _addbang _inhargs ((_lhsInt) :: NontermIdent) ((_lhsIoptions) :: Options) _nameTIn_visit _nameTOut_visit _nextVisitInfo _prevVisitInfo from_ ident_ kind_ syn_ to_ ->
-                        {-# LINE 1219 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 878 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule664 = \  (_ :: ()) ->
+                                     {-# LINE 878 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                     0
+                                     {-# LINE 5367 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule665 #-}
+   {-# LINE 885 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule665 = \  (_ :: ()) ->
+                                              {-# LINE 885 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                              0
+                                              {-# LINE 5373 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule666 #-}
+   {-# LINE 901 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule666 = \  (_ :: ()) ->
+                                           {-# LINE 901 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                           False
+                                           {-# LINE 5379 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule667 #-}
+   {-# LINE 1220 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule667 = \ ((_lhsInextVisits) :: Map StateIdentifier StateCtx) from_ ->
+                           {-# LINE 1220 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                           Map.findWithDefault ManyVis from_ _lhsInextVisits
+                           {-# LINE 5385 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule668 #-}
+   {-# LINE 1221 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule668 = \ _invokecode ident_ ->
+                        {-# LINE 1221 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                        Map.singleton ident_ _invokecode
+                        {-# LINE 5391 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule669 #-}
+   {-# LINE 1222 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule669 = \ _addbang _inhargs ((_lhsInt) :: NontermIdent) ((_lhsIoptions) :: Options) _nameTIn_visit _nameTOut_visit _nextVisitInfo _prevVisitInfo from_ ident_ kind_ syn_ to_ ->
+                        {-# LINE 1222 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         \chn kind ->
                           if kind `compatibleKind` kind_
                           then Right $
                             let pat | isLazyKind kind_ = pat0
                                     | otherwise        = _addbang     pat0
                                 pat0  = pp_parens pat1
-                                pat1  = _nameTOut_visit     >#< (ppSpaced $ map (attrname True chn) $ Set.toList syn_)
+                                pat1  = _nameTOut_visit     >#< (ppSpaced $ map (attrname _lhsIoptions True chn) $ Set.toList syn_)
                                                             >#< cont
                                 cont  = case _nextVisitInfo     of
                                           NoneVis  -> empty
@@ -5398,148 +5421,148 @@ sem_Visit_Visit arg_ident_ arg_from_ arg_to_ arg_inh_ arg_syn_ arg_steps_ arg_ki
                                       | otherwise                    = empty
                             in (pat, expr)
                           else Left $ IncompatibleVisitKind chn ident_ kind kind_
-                        {-# LINE 5402 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule665 #-}
-   {-# LINE 1315 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule665 = \ _defsAsMap _nextintra _uses ->
-                            {-# LINE 1315 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            (_uses     `Map.union` _nextintra    ) `Map.difference` _defsAsMap
-                            {-# LINE 5408 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule666 #-}
-   {-# LINE 1316 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule666 = \ _thisintra from_ ->
-                            {-# LINE 1316 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            Map.singleton from_ _thisintra
-                            {-# LINE 5414 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule667 #-}
-   {-# LINE 1317 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule667 = \ ((_lhsIallintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) to_ ->
-                            {-# LINE 1317 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            maybe Map.empty id $ Map.lookup to_ _lhsIallintramap
-                            {-# LINE 5420 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule668 #-}
-   {-# LINE 1318 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule668 = \ ((_stepsIuses) :: Map String (Maybe NonLocalAttr)) syn_ ->
-                            {-# LINE 1318 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            let mp1 = _stepsIuses
-                                mp2 = Map.fromList [ (lhsname False i, Just (AttrSyn _LHS i)) | i <- Set.elems syn_ ]
-                            in mp1 `Map.union` mp2
-                            {-# LINE 5428 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule669 #-}
-   {-# LINE 1321 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule669 = \ inh_ ->
-                            {-# LINE 1321 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            Set.map (lhsname True) inh_
-                            {-# LINE 5434 "dist/build/ExecutionPlan2Hs.hs"#-}
+                        {-# LINE 5425 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule670 #-}
-   {-# LINE 1322 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule670 = \ _inhVarNms ((_lhsIterminaldefs) :: Set String) ((_stepsIdefs) :: Set String) ->
-                            {-# LINE 1322 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            _stepsIdefs `Set.union` _inhVarNms     `Set.union` _lhsIterminaldefs
-                            {-# LINE 5440 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 1318 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule670 = \ _defsAsMap _nextintra _uses ->
+                            {-# LINE 1318 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            (_uses     `Map.union` _nextintra    ) `Map.difference` _defsAsMap
+                            {-# LINE 5431 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule671 #-}
-   {-# LINE 1323 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule671 = \ _defs ->
-                            {-# LINE 1323 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            Map.fromList [ (a, Nothing) | a <- Set.elems _defs     ]
-                            {-# LINE 5446 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 1319 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule671 = \ _thisintra from_ ->
+                            {-# LINE 1319 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            Map.singleton from_ _thisintra
+                            {-# LINE 5437 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule672 #-}
-   {-# LINE 1347 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule672 = \ ident_ syn_ ->
-                            {-# LINE 1347 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            Map.singleton ident_ syn_
-                            {-# LINE 5452 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 1320 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule672 = \ ((_lhsIallintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) to_ ->
+                            {-# LINE 1320 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            maybe Map.empty id $ Map.lookup to_ _lhsIallintramap
+                            {-# LINE 5443 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule673 #-}
-   {-# LINE 1348 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule673 = \ ident_ inh_ ->
-                            {-# LINE 1348 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            Map.singleton ident_ inh_
-                            {-# LINE 5458 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 1321 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule673 = \ ((_lhsIoptions) :: Options) ((_stepsIuses) :: Map String (Maybe NonLocalAttr)) syn_ ->
+                            {-# LINE 1321 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            let mp1 = _stepsIuses
+                                mp2 = Map.fromList [ (lhsname _lhsIoptions False i, Just (AttrSyn _LHS i)) | i <- Set.elems syn_ ]
+                            in mp1 `Map.union` mp2
+                            {-# LINE 5451 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule674 #-}
-   {-# LINE 1380 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule674 = \ _inhVarNms ((_stepsIdefs) :: Set String) kind_ ->
-                        {-# LINE 1380 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# LINE 1324 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule674 = \ ((_lhsIoptions) :: Options) inh_ ->
+                            {-# LINE 1324 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            Set.map (lhsname _lhsIoptions True) inh_
+                            {-# LINE 5457 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule675 #-}
+   {-# LINE 1325 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule675 = \ _inhVarNms ((_lhsIterminaldefs) :: Set String) ((_stepsIdefs) :: Set String) ->
+                            {-# LINE 1325 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            _stepsIdefs `Set.union` _inhVarNms     `Set.union` _lhsIterminaldefs
+                            {-# LINE 5463 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule676 #-}
+   {-# LINE 1326 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule676 = \ _defs ->
+                            {-# LINE 1326 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            Map.fromList [ (a, Nothing) | a <- Set.elems _defs     ]
+                            {-# LINE 5469 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule677 #-}
+   {-# LINE 1350 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule677 = \ ident_ syn_ ->
+                            {-# LINE 1350 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            Map.singleton ident_ syn_
+                            {-# LINE 5475 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule678 #-}
+   {-# LINE 1351 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule678 = \ ident_ inh_ ->
+                            {-# LINE 1351 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            Map.singleton ident_ inh_
+                            {-# LINE 5481 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule679 #-}
+   {-# LINE 1383 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule679 = \ _inhVarNms ((_stepsIdefs) :: Set String) kind_ ->
+                        {-# LINE 1383 "./src-ag/ExecutionPlan2Hs.ag" #-}
                         case kind_ of
                           VisitPure False -> _inhVarNms     `Set.union` _stepsIdefs
                           _               -> Set.empty
-                        {-# LINE 5466 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule675 #-}
-   {-# LINE 1383 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule675 = \ _lazyIntrasInh ((_stepsIlazyIntras) :: Set String) ->
-                     {-# LINE 1383 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                     _lazyIntrasInh     `Set.union` _stepsIlazyIntras
-                     {-# LINE 5472 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule676 #-}
-   {-# LINE 1536 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule676 = \ ((_lhsIoptions) :: Options) ->
-                                                    {-# LINE 1536 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                                    \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                                                    {-# LINE 5478 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule677 #-}
-   {-# LINE 1544 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule677 = \ _addbang kind_ ->
-                                                     {-# LINE 1544 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                                     if isLazyKind kind_ then id else _addbang
-                                                     {-# LINE 5484 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule678 #-}
-   {-# LINE 1571 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule678 = \ from_ ident_ to_ ->
-                       {-# LINE 1571 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                       Map.singleton ident_ (from_, to_)
-                       {-# LINE 5490 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule679 #-}
-   {-# LINE 1615 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule679 = \ ident_ kind_ ->
-                     {-# LINE 1615 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                     Map.singleton ident_ kind_
-                     {-# LINE 5496 "dist/build/ExecutionPlan2Hs.hs"#-}
+                        {-# LINE 5489 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule680 #-}
-   rule680 = \ ((_stepsIerrors) :: Seq Error) ->
-     _stepsIerrors
+   {-# LINE 1386 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule680 = \ _lazyIntrasInh ((_stepsIlazyIntras) :: Set String) ->
+                     {-# LINE 1386 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     _lazyIntrasInh     `Set.union` _stepsIlazyIntras
+                     {-# LINE 5495 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule681 #-}
-   rule681 = \ ((_stepsIruleKinds) :: Map Identifier (Set VisitKind)) ->
-     _stepsIruleKinds
+   {-# LINE 1539 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule681 = \ ((_lhsIoptions) :: Options) ->
+                                                    {-# LINE 1539 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                    \x -> if bangpats _lhsIoptions then "!" >|< x else x
+                                                    {-# LINE 5501 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule682 #-}
-   rule682 = \ ((_stepsIruleUsage) :: Map Identifier Int) ->
-     _stepsIruleUsage
+   {-# LINE 1547 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule682 = \ _addbang kind_ ->
+                                                     {-# LINE 1547 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                     if isLazyKind kind_ then id else _addbang
+                                                     {-# LINE 5507 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule683 #-}
-   rule683 = \ ((_stepsIusedArgs) :: Set String) ->
-     _stepsIusedArgs
+   {-# LINE 1574 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule683 = \ from_ ident_ to_ ->
+                       {-# LINE 1574 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                       Map.singleton ident_ (from_, to_)
+                       {-# LINE 5513 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule684 #-}
-   rule684 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
-     _lhsIallFromToStates
+   {-# LINE 1618 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule684 = \ ident_ kind_ ->
+                     {-# LINE 1618 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                     Map.singleton ident_ kind_
+                     {-# LINE 5519 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule685 #-}
-   rule685 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
-     _lhsIallInitStates
+   rule685 = \ ((_stepsIerrors) :: Seq Error) ->
+     _stepsIerrors
    {-# INLINE rule686 #-}
-   rule686 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
-     _lhsIallVisitKinds
+   rule686 = \ ((_stepsIruleKinds) :: Map Identifier (Set VisitKind)) ->
+     _stepsIruleKinds
    {-# INLINE rule687 #-}
-   rule687 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
-     _lhsIallchildvisit
+   rule687 = \ ((_stepsIruleUsage) :: Map Identifier Int) ->
+     _stepsIruleUsage
    {-# INLINE rule688 #-}
-   rule688 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
-     _lhsIavisitdefs
+   rule688 = \ ((_stepsIusedArgs) :: Set String) ->
+     _stepsIusedArgs
    {-# INLINE rule689 #-}
-   rule689 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
-     _lhsIavisituses
+   rule689 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
+     _lhsIallFromToStates
    {-# INLINE rule690 #-}
-   rule690 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
-     _lhsIchildTypes
+   rule690 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
+     _lhsIallInitStates
    {-# INLINE rule691 #-}
-   rule691 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
-     _lhsIchildintros
+   rule691 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
+     _lhsIallVisitKinds
    {-# INLINE rule692 #-}
-   rule692 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
-     _lhsImrules
+   rule692 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
+     _lhsIallchildvisit
    {-# INLINE rule693 #-}
-   rule693 = \ ((_lhsIoptions) :: Options) ->
-     _lhsIoptions
+   rule693 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
+     _lhsIavisitdefs
    {-# INLINE rule694 #-}
-   rule694 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
-     _lhsIruledefs
+   rule694 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
+     _lhsIavisituses
    {-# INLINE rule695 #-}
-   rule695 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
+   rule695 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
+     _lhsIchildTypes
+   {-# INLINE rule696 #-}
+   rule696 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
+     _lhsIchildintros
+   {-# INLINE rule697 #-}
+   rule697 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
+     _lhsImrules
+   {-# INLINE rule698 #-}
+   rule698 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule699 #-}
+   rule699 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
+     _lhsIruledefs
+   {-# INLINE rule700 #-}
+   rule700 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
      _lhsIruleuses
 
 -- VisitStep ---------------------------------------------------
@@ -5583,97 +5606,97 @@ sem_VisitStep_Sem arg_name_ = T_VisitStep (return st50) where
    st50 = let
       v49 :: T_VisitStep_v49 
       v49 = \ (T_VisitStep_vIn49 _lhsIallFromToStates _lhsIallInitStates _lhsIallVisitKinds _lhsIallchildvisit _lhsIavisitdefs _lhsIavisituses _lhsIchildTypes _lhsIchildintros _lhsIfmtMode _lhsIindex _lhsIisLast _lhsIkind _lhsImrules _lhsIoptions _lhsIprevMaxSimRefs _lhsIruledefs _lhsIruleuses _lhsIuseParallel) -> ( let
-         _ruleItf = rule696 _lhsImrules arg_name_
+         _ruleItf = rule701 _lhsImrules arg_name_
          _lhsOerrors :: Seq Error
-         (_lhsOerrors,_sem_steps) = rule697 _lhsIfmtMode _lhsIkind _ruleItf
+         (_lhsOerrors,_sem_steps) = rule702 _lhsIfmtMode _lhsIkind _ruleItf
          _lhsOruleUsage :: Map Identifier Int
-         _lhsOruleUsage = rule698 arg_name_
+         _lhsOruleUsage = rule703 arg_name_
          _lhsOruleKinds :: Map Identifier (Set VisitKind)
-         _lhsOruleKinds = rule699 _lhsIkind arg_name_
+         _lhsOruleKinds = rule704 _lhsIkind arg_name_
          _lhsOdefs :: Set String
-         _lhsOdefs = rule700 _lhsIruledefs arg_name_
+         _lhsOdefs = rule705 _lhsIruledefs arg_name_
          _lhsOuses :: Map String (Maybe NonLocalAttr)
-         _lhsOuses = rule701 _lhsIruleuses arg_name_
+         _lhsOuses = rule706 _lhsIruleuses arg_name_
          _lhsOlazyIntras :: Set String
-         _lhsOlazyIntras = rule702  ()
+         _lhsOlazyIntras = rule707  ()
          _lhsOsem_steps :: PP_Doc
-         _lhsOsem_steps = rule703 _sem_steps
+         _lhsOsem_steps = rule708 _sem_steps
          _lhsOsync_steps :: PP_Doc
-         _lhsOsync_steps = rule704  ()
+         _lhsOsync_steps = rule709  ()
          _lhsOusedArgs :: Set String
-         _lhsOusedArgs = rule705  ()
+         _lhsOusedArgs = rule710  ()
          _lhsOvisitKinds :: Map VisitIdentifier VisitKind
-         _lhsOvisitKinds = rule706  ()
+         _lhsOvisitKinds = rule711  ()
          _lhsOindex :: Int
-         _lhsOindex = rule707 _lhsIindex
+         _lhsOindex = rule712 _lhsIindex
          _lhsOisLast :: Bool
-         _lhsOisLast = rule708 _lhsIisLast
+         _lhsOisLast = rule713 _lhsIisLast
          _lhsOprevMaxSimRefs :: Int
-         _lhsOprevMaxSimRefs = rule709 _lhsIprevMaxSimRefs
+         _lhsOprevMaxSimRefs = rule714 _lhsIprevMaxSimRefs
          __result_ = T_VisitStep_vOut49 _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsync_steps _lhsOusedArgs _lhsOuses _lhsOvisitKinds
          in __result_ )
      in C_VisitStep_s50 v49
-   {-# INLINE rule696 #-}
-   {-# LINE 785 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule696 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) name_ ->
-                               {-# LINE 785 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# INLINE rule701 #-}
+   {-# LINE 787 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule701 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) name_ ->
+                               {-# LINE 787 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                Map.findWithDefault (error $ "Rule "  ++ show name_  ++ " not found") name_ _lhsImrules
-                               {-# LINE 5622 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule697 #-}
-   {-# LINE 786 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule697 = \ ((_lhsIfmtMode) :: FormatMode) ((_lhsIkind) :: VisitKind) _ruleItf ->
-                                               {-# LINE 786 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                               {-# LINE 5645 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule702 #-}
+   {-# LINE 788 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule702 = \ ((_lhsIfmtMode) :: FormatMode) ((_lhsIkind) :: VisitKind) _ruleItf ->
+                                               {-# LINE 788 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                                case _ruleItf     _lhsIkind _lhsIfmtMode of
                                                  Left e     -> (Seq.singleton e, empty)
                                                  Right stmt -> (Seq.empty, stmt)
-                                               {-# LINE 5630 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule698 #-}
-   {-# LINE 1268 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule698 = \ name_ ->
-                                                 {-# LINE 1268 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                                 Map.singleton name_ 1
-                                                 {-# LINE 5636 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule699 #-}
-   {-# LINE 1278 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule699 = \ ((_lhsIkind) :: VisitKind) name_ ->
-                    {-# LINE 1278 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                    Map.singleton name_ (Set.singleton _lhsIkind)
-                    {-# LINE 5642 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule700 #-}
-   {-# LINE 1363 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule700 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) name_ ->
-                            {-# LINE 1363 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            maybe (error "Rule not found") id $ Map.lookup name_ _lhsIruledefs
-                            {-# LINE 5648 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule701 #-}
-   {-# LINE 1364 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule701 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) name_ ->
-                            {-# LINE 1364 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            maybe (error "Rule not found") id $ Map.lookup name_ _lhsIruleuses
-                            {-# LINE 5654 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule702 #-}
-   rule702 = \  (_ :: ()) ->
-     Set.empty
+                                               {-# LINE 5653 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule703 #-}
-   rule703 = \ _sem_steps ->
-     _sem_steps
+   {-# LINE 1271 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule703 = \ name_ ->
+                                                 {-# LINE 1271 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                 Map.singleton name_ 1
+                                                 {-# LINE 5659 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule704 #-}
-   rule704 = \  (_ :: ()) ->
-     empty
+   {-# LINE 1281 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule704 = \ ((_lhsIkind) :: VisitKind) name_ ->
+                    {-# LINE 1281 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                    Map.singleton name_ (Set.singleton _lhsIkind)
+                    {-# LINE 5665 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule705 #-}
-   rule705 = \  (_ :: ()) ->
-     Set.empty
+   {-# LINE 1366 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule705 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) name_ ->
+                            {-# LINE 1366 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            maybe (error "Rule not found") id $ Map.lookup name_ _lhsIruledefs
+                            {-# LINE 5671 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule706 #-}
-   rule706 = \  (_ :: ()) ->
-     mempty
+   {-# LINE 1367 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule706 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) name_ ->
+                            {-# LINE 1367 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            maybe (error "Rule not found") id $ Map.lookup name_ _lhsIruleuses
+                            {-# LINE 5677 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule707 #-}
-   rule707 = \ ((_lhsIindex) :: Int) ->
-     _lhsIindex
+   rule707 = \  (_ :: ()) ->
+     Set.empty
    {-# INLINE rule708 #-}
-   rule708 = \ ((_lhsIisLast) :: Bool) ->
-     _lhsIisLast
+   rule708 = \ _sem_steps ->
+     _sem_steps
    {-# INLINE rule709 #-}
-   rule709 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
+   rule709 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule710 #-}
+   rule710 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule711 #-}
+   rule711 = \  (_ :: ()) ->
+     mempty
+   {-# INLINE rule712 #-}
+   rule712 = \ ((_lhsIindex) :: Int) ->
+     _lhsIindex
+   {-# INLINE rule713 #-}
+   rule713 = \ ((_lhsIisLast) :: Bool) ->
+     _lhsIisLast
+   {-# INLINE rule714 #-}
+   rule714 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
      _lhsIprevMaxSimRefs
 {-# NOINLINE sem_VisitStep_ChildVisit #-}
 sem_VisitStep_ChildVisit :: (Identifier) -> (NontermIdent) -> (VisitIdentifier) -> T_VisitStep 
@@ -5682,65 +5705,65 @@ sem_VisitStep_ChildVisit arg_child_ _ arg_visit_ = T_VisitStep (return st50) whe
    st50 = let
       v49 :: T_VisitStep_v49 
       v49 = \ (T_VisitStep_vIn49 _lhsIallFromToStates _lhsIallInitStates _lhsIallVisitKinds _lhsIallchildvisit _lhsIavisitdefs _lhsIavisituses _lhsIchildTypes _lhsIchildintros _lhsIfmtMode _lhsIindex _lhsIisLast _lhsIkind _lhsImrules _lhsIoptions _lhsIprevMaxSimRefs _lhsIruledefs _lhsIruleuses _lhsIuseParallel) -> ( let
-         _visitItf = rule710 _lhsIallchildvisit arg_visit_
+         _visitItf = rule715 _lhsIallchildvisit arg_visit_
          _lhsOerrors :: Seq Error
-         (_lhsOerrors,_patPP,_exprPP) = rule711 _lhsIkind _visitItf arg_child_
-         _useParallel = rule712 _lhsIisLast _lhsIuseParallel
+         (_lhsOerrors,_patPP,_exprPP) = rule716 _lhsIkind _visitItf arg_child_
+         _useParallel = rule717 _lhsIisLast _lhsIuseParallel
          _lhsOsem_steps :: PP_Doc
-         _lhsOsem_steps = rule713 _addbang _convToMonad _exprPP _lhsIfmtMode _lhsIindex _lhsIkind _patPP _useParallel
-         _convToMonad = rule714 _callKind
-         _callKind = rule715 _lhsIallVisitKinds arg_visit_
+         _lhsOsem_steps = rule718 _addbang _convToMonad _exprPP _lhsIfmtMode _lhsIindex _lhsIkind _patPP _useParallel
+         _convToMonad = rule719 _callKind
+         _callKind = rule720 _lhsIallVisitKinds arg_visit_
          _lhsOsync_steps :: PP_Doc
-         _lhsOsync_steps = rule716 _lhsIindex _patPP _useParallel
+         _lhsOsync_steps = rule721 _lhsIindex _patPP _useParallel
          _lhsOdefs :: Set String
-         _lhsOdefs = rule717 _lhsIavisitdefs _to arg_child_ arg_visit_
+         _lhsOdefs = rule722 _lhsIavisitdefs _lhsIoptions _to arg_child_ arg_visit_
          _lhsOuses :: Map String (Maybe NonLocalAttr)
-         _lhsOuses = rule718 _from _lhsIavisituses arg_child_ arg_visit_
-         _addbang = rule719 _lhsIoptions
-         (_from,_to) = rule720 _lhsIallFromToStates arg_visit_
+         _lhsOuses = rule723 _from _lhsIavisituses _lhsIoptions arg_child_ arg_visit_
+         _addbang = rule724 _lhsIoptions
+         (_from,_to) = rule725 _lhsIallFromToStates arg_visit_
          _lhsOlazyIntras :: Set String
-         _lhsOlazyIntras = rule721  ()
+         _lhsOlazyIntras = rule726  ()
          _lhsOruleKinds :: Map Identifier (Set VisitKind)
-         _lhsOruleKinds = rule722  ()
+         _lhsOruleKinds = rule727  ()
          _lhsOruleUsage :: Map Identifier Int
-         _lhsOruleUsage = rule723  ()
+         _lhsOruleUsage = rule728  ()
          _lhsOusedArgs :: Set String
-         _lhsOusedArgs = rule724  ()
+         _lhsOusedArgs = rule729  ()
          _lhsOvisitKinds :: Map VisitIdentifier VisitKind
-         _lhsOvisitKinds = rule725  ()
+         _lhsOvisitKinds = rule730  ()
          _lhsOindex :: Int
-         _lhsOindex = rule726 _lhsIindex
+         _lhsOindex = rule731 _lhsIindex
          _lhsOisLast :: Bool
-         _lhsOisLast = rule727 _lhsIisLast
+         _lhsOisLast = rule732 _lhsIisLast
          _lhsOprevMaxSimRefs :: Int
-         _lhsOprevMaxSimRefs = rule728 _lhsIprevMaxSimRefs
+         _lhsOprevMaxSimRefs = rule733 _lhsIprevMaxSimRefs
          __result_ = T_VisitStep_vOut49 _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsync_steps _lhsOusedArgs _lhsOuses _lhsOvisitKinds
          in __result_ )
      in C_VisitStep_s50 v49
-   {-# INLINE rule710 #-}
-   {-# LINE 794 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule710 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) visit_ ->
-                                {-# LINE 794 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# INLINE rule715 #-}
+   {-# LINE 796 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule715 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) visit_ ->
+                                {-# LINE 796 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                 Map.findWithDefault (error $ "Visit " ++ show visit_ ++ " not found") visit_ _lhsIallchildvisit
-                                {-# LINE 5726 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule711 #-}
-   {-# LINE 795 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule711 = \ ((_lhsIkind) :: VisitKind) _visitItf child_ ->
-                                                       {-# LINE 795 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                {-# LINE 5749 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule716 #-}
+   {-# LINE 797 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule716 = \ ((_lhsIkind) :: VisitKind) _visitItf child_ ->
+                                                       {-# LINE 797 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                                        case _visitItf     child_ _lhsIkind of
                                                          Left e           -> (Seq.singleton e, empty, empty)
                                                          Right (pat,expr) -> (Seq.empty, pat, expr)
-                                                       {-# LINE 5734 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule712 #-}
-   {-# LINE 799 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule712 = \ ((_lhsIisLast) :: Bool) ((_lhsIuseParallel) :: Bool) ->
-                                   {-# LINE 799 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                       {-# LINE 5757 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule717 #-}
+   {-# LINE 801 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule717 = \ ((_lhsIisLast) :: Bool) ((_lhsIuseParallel) :: Bool) ->
+                                   {-# LINE 801 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    _lhsIuseParallel && not _lhsIisLast
-                                   {-# LINE 5740 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule713 #-}
-   {-# LINE 800 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule713 = \ _addbang _convToMonad _exprPP ((_lhsIfmtMode) :: FormatMode) ((_lhsIindex) :: Int) ((_lhsIkind) :: VisitKind) _patPP _useParallel ->
-                                 {-# LINE 800 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 5763 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule718 #-}
+   {-# LINE 802 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule718 = \ _addbang _convToMonad _exprPP ((_lhsIfmtMode) :: FormatMode) ((_lhsIindex) :: Int) ((_lhsIkind) :: VisitKind) _patPP _useParallel ->
+                                 {-# LINE 802 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  if _useParallel
                                  then _addbang     ("sync_" >|< _lhsIindex) >#< "<- newEmptyMVar"
                                       >-< "forkIO" >#< pp_parens (_convToMonad     >#< pp_parens _exprPP     >#< ">>= \\" >#< _addbang     (pp parResultName) >#< " -> putMVar sync_" >|< _lhsIindex >#< parResultName)
@@ -5748,78 +5771,78 @@ sem_VisitStep_ChildVisit arg_child_ _ arg_visit_ = T_VisitStep (return st50) whe
                                                    VisitPure _  -> _patPP     >#< "=" >#< _exprPP
                                                    VisitMonadic -> _patPP     >#< "<-" >#< _exprPP
                                       in fmtDecl False _lhsIfmtMode decl
-                                 {-# LINE 5752 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule714 #-}
-   {-# LINE 807 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule714 = \ _callKind ->
-                                   {-# LINE 807 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 5775 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule719 #-}
+   {-# LINE 809 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule719 = \ _callKind ->
+                                   {-# LINE 809 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                    case _callKind     of
                                      VisitPure _  -> text "return"
                                      VisitMonadic -> empty
-                                   {-# LINE 5760 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule715 #-}
-   {-# LINE 810 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule715 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) visit_ ->
-                                 {-# LINE 810 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                   {-# LINE 5783 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule720 #-}
+   {-# LINE 812 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule720 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) visit_ ->
+                                 {-# LINE 812 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  Map.findWithDefault (error "visit kind should be in the map") visit_ _lhsIallVisitKinds
-                                 {-# LINE 5766 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule716 #-}
-   {-# LINE 818 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule716 = \ ((_lhsIindex) :: Int) _patPP _useParallel ->
-                     {-# LINE 818 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 5789 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule721 #-}
+   {-# LINE 820 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule721 = \ ((_lhsIindex) :: Int) _patPP _useParallel ->
+                     {-# LINE 820 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      if _useParallel
                      then _patPP     >#< "<-" >#< "takeMVar sync_" >|< _lhsIindex
                      else empty
-                     {-# LINE 5774 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule717 #-}
-   {-# LINE 1365 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule717 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) _to child_ visit_ ->
-                            {-# LINE 1365 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            Set.insert (stname child_ _to) $ maybe (error "Visit not found") (Set.map $ attrname True child_) $ Map.lookup visit_ _lhsIavisitdefs
-                            {-# LINE 5780 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule718 #-}
-   {-# LINE 1366 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule718 = \ _from ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) child_ visit_ ->
-                            {-# LINE 1366 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                            let convert attrs = Map.fromList [ (attrname False child_ attr, Just $ mkNonLocalAttr True child_ attr) | attr <- Set.elems attrs ]
+                     {-# LINE 5797 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule722 #-}
+   {-# LINE 1368 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule722 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ((_lhsIoptions) :: Options) _to child_ visit_ ->
+                            {-# LINE 1368 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            Set.insert (stname child_ _to) $ maybe (error "Visit not found") (Set.map $ attrname _lhsIoptions True child_) $ Map.lookup visit_ _lhsIavisitdefs
+                            {-# LINE 5803 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule723 #-}
+   {-# LINE 1369 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule723 = \ _from ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ((_lhsIoptions) :: Options) child_ visit_ ->
+                            {-# LINE 1369 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                            let convert attrs = Map.fromList [ (attrname _lhsIoptions False child_ attr, Just $ mkNonLocalAttr True child_ attr) | attr <- Set.elems attrs ]
                             in Map.insert (stname child_ _from) Nothing $ convert $
                                  maybe (error "Visit not found") id $ Map.lookup visit_ _lhsIavisituses
-                            {-# LINE 5788 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule719 #-}
-   {-# LINE 1541 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule719 = \ ((_lhsIoptions) :: Options) ->
-                                                    {-# LINE 1541 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                                    \x -> if bangpats _lhsIoptions then "!" >|< x else x
-                                                    {-# LINE 5794 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule720 #-}
-   {-# LINE 1577 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule720 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) visit_ ->
-                         {-# LINE 1577 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                         Map.findWithDefault (error "visit not in allFromToStates") visit_ _lhsIallFromToStates
-                         {-# LINE 5800 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule721 #-}
-   rule721 = \  (_ :: ()) ->
-     Set.empty
-   {-# INLINE rule722 #-}
-   rule722 = \  (_ :: ()) ->
-     Map.empty
-   {-# INLINE rule723 #-}
-   rule723 = \  (_ :: ()) ->
-     Map.empty
+                            {-# LINE 5811 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule724 #-}
-   rule724 = \  (_ :: ()) ->
-     Set.empty
+   {-# LINE 1544 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule724 = \ ((_lhsIoptions) :: Options) ->
+                                                    {-# LINE 1544 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                                    \x -> if bangpats _lhsIoptions then "!" >|< x else x
+                                                    {-# LINE 5817 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule725 #-}
-   rule725 = \  (_ :: ()) ->
-     mempty
+   {-# LINE 1580 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule725 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) visit_ ->
+                         {-# LINE 1580 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                         Map.findWithDefault (error "visit not in allFromToStates") visit_ _lhsIallFromToStates
+                         {-# LINE 5823 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule726 #-}
-   rule726 = \ ((_lhsIindex) :: Int) ->
-     _lhsIindex
+   rule726 = \  (_ :: ()) ->
+     Set.empty
    {-# INLINE rule727 #-}
-   rule727 = \ ((_lhsIisLast) :: Bool) ->
-     _lhsIisLast
+   rule727 = \  (_ :: ()) ->
+     Map.empty
    {-# INLINE rule728 #-}
-   rule728 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
+   rule728 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule729 #-}
+   rule729 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule730 #-}
+   rule730 = \  (_ :: ()) ->
+     mempty
+   {-# INLINE rule731 #-}
+   rule731 = \ ((_lhsIindex) :: Int) ->
+     _lhsIindex
+   {-# INLINE rule732 #-}
+   rule732 = \ ((_lhsIisLast) :: Bool) ->
+     _lhsIisLast
+   {-# INLINE rule733 #-}
+   rule733 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
      _lhsIprevMaxSimRefs
 {-# NOINLINE sem_VisitStep_PureGroup #-}
 sem_VisitStep_PureGroup :: T_VisitSteps  -> (Bool) -> T_VisitStep 
@@ -5830,159 +5853,159 @@ sem_VisitStep_PureGroup arg_steps_ arg_ordered_ = T_VisitStep (return st50) wher
       v49 = \ (T_VisitStep_vIn49 _lhsIallFromToStates _lhsIallInitStates _lhsIallVisitKinds _lhsIallchildvisit _lhsIavisitdefs _lhsIavisituses _lhsIchildTypes _lhsIchildintros _lhsIfmtMode _lhsIindex _lhsIisLast _lhsIkind _lhsImrules _lhsIoptions _lhsIprevMaxSimRefs _lhsIruledefs _lhsIruleuses _lhsIuseParallel) -> ( let
          _stepsX53 = Control.Monad.Identity.runIdentity (attach_T_VisitSteps (arg_steps_))
          (T_VisitSteps_vOut52 _stepsIdefs _stepsIerrors _stepsIindex _stepsIisLast _stepsIlazyIntras _stepsIprevMaxSimRefs _stepsIruleKinds _stepsIruleUsage _stepsIsem_steps _stepsIsize _stepsIsync_steps _stepsIusedArgs _stepsIuses _stepsIvisitKinds) = inv_VisitSteps_s53 _stepsX53 (T_VisitSteps_vIn52 _stepsOallFromToStates _stepsOallInitStates _stepsOallVisitKinds _stepsOallchildvisit _stepsOavisitdefs _stepsOavisituses _stepsOchildTypes _stepsOchildintros _stepsOfmtMode _stepsOindex _stepsOkind _stepsOmrules _stepsOoptions _stepsOprevMaxSimRefs _stepsOruledefs _stepsOruleuses _stepsOuseParallel)
-         _stepsOkind = rule729 arg_ordered_
+         _stepsOkind = rule734 arg_ordered_
          _lhsOsem_steps :: PP_Doc
-         _lhsOsem_steps = rule730 _lhsIfmtMode _stepsIsem_steps
-         _stepsOfmtMode = rule731 _lhsIfmtMode
+         _lhsOsem_steps = rule735 _lhsIfmtMode _stepsIsem_steps
+         _stepsOfmtMode = rule736 _lhsIfmtMode
          _lhsOlazyIntras :: Set String
-         _lhsOlazyIntras = rule732 _stepsIdefs _stepsIlazyIntras arg_ordered_
+         _lhsOlazyIntras = rule737 _stepsIdefs _stepsIlazyIntras arg_ordered_
          _lhsOdefs :: Set String
-         _lhsOdefs = rule733 _stepsIdefs
+         _lhsOdefs = rule738 _stepsIdefs
          _lhsOerrors :: Seq Error
-         _lhsOerrors = rule734 _stepsIerrors
+         _lhsOerrors = rule739 _stepsIerrors
          _lhsOruleKinds :: Map Identifier (Set VisitKind)
-         _lhsOruleKinds = rule735 _stepsIruleKinds
+         _lhsOruleKinds = rule740 _stepsIruleKinds
          _lhsOruleUsage :: Map Identifier Int
-         _lhsOruleUsage = rule736 _stepsIruleUsage
+         _lhsOruleUsage = rule741 _stepsIruleUsage
          _lhsOsync_steps :: PP_Doc
-         _lhsOsync_steps = rule737 _stepsIsync_steps
+         _lhsOsync_steps = rule742 _stepsIsync_steps
          _lhsOusedArgs :: Set String
-         _lhsOusedArgs = rule738 _stepsIusedArgs
+         _lhsOusedArgs = rule743 _stepsIusedArgs
          _lhsOuses :: Map String (Maybe NonLocalAttr)
-         _lhsOuses = rule739 _stepsIuses
+         _lhsOuses = rule744 _stepsIuses
          _lhsOvisitKinds :: Map VisitIdentifier VisitKind
-         _lhsOvisitKinds = rule740 _stepsIvisitKinds
+         _lhsOvisitKinds = rule745 _stepsIvisitKinds
          _lhsOindex :: Int
-         _lhsOindex = rule741 _stepsIindex
+         _lhsOindex = rule746 _stepsIindex
          _lhsOisLast :: Bool
-         _lhsOisLast = rule742 _stepsIisLast
+         _lhsOisLast = rule747 _stepsIisLast
          _lhsOprevMaxSimRefs :: Int
-         _lhsOprevMaxSimRefs = rule743 _stepsIprevMaxSimRefs
-         _stepsOallFromToStates = rule744 _lhsIallFromToStates
-         _stepsOallInitStates = rule745 _lhsIallInitStates
-         _stepsOallVisitKinds = rule746 _lhsIallVisitKinds
-         _stepsOallchildvisit = rule747 _lhsIallchildvisit
-         _stepsOavisitdefs = rule748 _lhsIavisitdefs
-         _stepsOavisituses = rule749 _lhsIavisituses
-         _stepsOchildTypes = rule750 _lhsIchildTypes
-         _stepsOchildintros = rule751 _lhsIchildintros
-         _stepsOindex = rule752 _lhsIindex
-         _stepsOmrules = rule753 _lhsImrules
-         _stepsOoptions = rule754 _lhsIoptions
-         _stepsOprevMaxSimRefs = rule755 _lhsIprevMaxSimRefs
-         _stepsOruledefs = rule756 _lhsIruledefs
-         _stepsOruleuses = rule757 _lhsIruleuses
-         _stepsOuseParallel = rule758 _lhsIuseParallel
+         _lhsOprevMaxSimRefs = rule748 _stepsIprevMaxSimRefs
+         _stepsOallFromToStates = rule749 _lhsIallFromToStates
+         _stepsOallInitStates = rule750 _lhsIallInitStates
+         _stepsOallVisitKinds = rule751 _lhsIallVisitKinds
+         _stepsOallchildvisit = rule752 _lhsIallchildvisit
+         _stepsOavisitdefs = rule753 _lhsIavisitdefs
+         _stepsOavisituses = rule754 _lhsIavisituses
+         _stepsOchildTypes = rule755 _lhsIchildTypes
+         _stepsOchildintros = rule756 _lhsIchildintros
+         _stepsOindex = rule757 _lhsIindex
+         _stepsOmrules = rule758 _lhsImrules
+         _stepsOoptions = rule759 _lhsIoptions
+         _stepsOprevMaxSimRefs = rule760 _lhsIprevMaxSimRefs
+         _stepsOruledefs = rule761 _lhsIruledefs
+         _stepsOruleuses = rule762 _lhsIruleuses
+         _stepsOuseParallel = rule763 _lhsIuseParallel
          __result_ = T_VisitStep_vOut49 _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsync_steps _lhsOusedArgs _lhsOuses _lhsOvisitKinds
          in __result_ )
      in C_VisitStep_s50 v49
-   {-# INLINE rule729 #-}
-   {-# LINE 780 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule729 = \ ordered_ ->
-                 {-# LINE 780 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# INLINE rule734 #-}
+   {-# LINE 782 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule734 = \ ordered_ ->
+                 {-# LINE 782 "./src-ag/ExecutionPlan2Hs.ag" #-}
                  VisitPure ordered_
-                 {-# LINE 5885 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule730 #-}
-   {-# LINE 812 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule730 = \ ((_lhsIfmtMode) :: FormatMode) ((_stepsIsem_steps) :: PP_Doc) ->
-                                 {-# LINE 812 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                 {-# LINE 5908 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule735 #-}
+   {-# LINE 814 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule735 = \ ((_lhsIfmtMode) :: FormatMode) ((_stepsIsem_steps) :: PP_Doc) ->
+                                 {-# LINE 814 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  case _lhsIfmtMode of
                                    FormatDo -> "let" >#< _stepsIsem_steps
                                    _        -> _stepsIsem_steps
-                                 {-# LINE 5893 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule731 #-}
-   {-# LINE 833 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule731 = \ ((_lhsIfmtMode) :: FormatMode) ->
-                    {-# LINE 833 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 5916 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule736 #-}
+   {-# LINE 835 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule736 = \ ((_lhsIfmtMode) :: FormatMode) ->
+                    {-# LINE 835 "./src-ag/ExecutionPlan2Hs.ag" #-}
                     case _lhsIfmtMode of
                       FormatDo      -> FormatLetDecl
                       mode          -> mode
-                    {-# LINE 5901 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule732 #-}
-   {-# LINE 1386 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule732 = \ ((_stepsIdefs) :: Set String) ((_stepsIlazyIntras) :: Set String) ordered_ ->
-                     {-# LINE 1386 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                    {-# LINE 5924 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule737 #-}
+   {-# LINE 1389 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule737 = \ ((_stepsIdefs) :: Set String) ((_stepsIlazyIntras) :: Set String) ordered_ ->
+                     {-# LINE 1389 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      if ordered_
                      then _stepsIlazyIntras
                      else _stepsIdefs
-                     {-# LINE 5909 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule733 #-}
-   rule733 = \ ((_stepsIdefs) :: Set String) ->
-     _stepsIdefs
-   {-# INLINE rule734 #-}
-   rule734 = \ ((_stepsIerrors) :: Seq Error) ->
-     _stepsIerrors
-   {-# INLINE rule735 #-}
-   rule735 = \ ((_stepsIruleKinds) :: Map Identifier (Set VisitKind)) ->
-     _stepsIruleKinds
-   {-# INLINE rule736 #-}
-   rule736 = \ ((_stepsIruleUsage) :: Map Identifier Int) ->
-     _stepsIruleUsage
-   {-# INLINE rule737 #-}
-   rule737 = \ ((_stepsIsync_steps) :: PP_Doc) ->
-     _stepsIsync_steps
+                     {-# LINE 5932 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule738 #-}
-   rule738 = \ ((_stepsIusedArgs) :: Set String) ->
-     _stepsIusedArgs
+   rule738 = \ ((_stepsIdefs) :: Set String) ->
+     _stepsIdefs
    {-# INLINE rule739 #-}
-   rule739 = \ ((_stepsIuses) :: Map String (Maybe NonLocalAttr)) ->
-     _stepsIuses
+   rule739 = \ ((_stepsIerrors) :: Seq Error) ->
+     _stepsIerrors
    {-# INLINE rule740 #-}
-   rule740 = \ ((_stepsIvisitKinds) :: Map VisitIdentifier VisitKind) ->
-     _stepsIvisitKinds
+   rule740 = \ ((_stepsIruleKinds) :: Map Identifier (Set VisitKind)) ->
+     _stepsIruleKinds
    {-# INLINE rule741 #-}
-   rule741 = \ ((_stepsIindex) :: Int) ->
-     _stepsIindex
+   rule741 = \ ((_stepsIruleUsage) :: Map Identifier Int) ->
+     _stepsIruleUsage
    {-# INLINE rule742 #-}
-   rule742 = \ ((_stepsIisLast) :: Bool) ->
-     _stepsIisLast
+   rule742 = \ ((_stepsIsync_steps) :: PP_Doc) ->
+     _stepsIsync_steps
    {-# INLINE rule743 #-}
-   rule743 = \ ((_stepsIprevMaxSimRefs) :: Int) ->
-     _stepsIprevMaxSimRefs
+   rule743 = \ ((_stepsIusedArgs) :: Set String) ->
+     _stepsIusedArgs
    {-# INLINE rule744 #-}
-   rule744 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
-     _lhsIallFromToStates
+   rule744 = \ ((_stepsIuses) :: Map String (Maybe NonLocalAttr)) ->
+     _stepsIuses
    {-# INLINE rule745 #-}
-   rule745 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
-     _lhsIallInitStates
+   rule745 = \ ((_stepsIvisitKinds) :: Map VisitIdentifier VisitKind) ->
+     _stepsIvisitKinds
    {-# INLINE rule746 #-}
-   rule746 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
-     _lhsIallVisitKinds
+   rule746 = \ ((_stepsIindex) :: Int) ->
+     _stepsIindex
    {-# INLINE rule747 #-}
-   rule747 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
-     _lhsIallchildvisit
+   rule747 = \ ((_stepsIisLast) :: Bool) ->
+     _stepsIisLast
    {-# INLINE rule748 #-}
-   rule748 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
-     _lhsIavisitdefs
+   rule748 = \ ((_stepsIprevMaxSimRefs) :: Int) ->
+     _stepsIprevMaxSimRefs
    {-# INLINE rule749 #-}
-   rule749 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
-     _lhsIavisituses
+   rule749 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
+     _lhsIallFromToStates
    {-# INLINE rule750 #-}
-   rule750 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
-     _lhsIchildTypes
+   rule750 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
+     _lhsIallInitStates
    {-# INLINE rule751 #-}
-   rule751 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
-     _lhsIchildintros
+   rule751 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
+     _lhsIallVisitKinds
    {-# INLINE rule752 #-}
-   rule752 = \ ((_lhsIindex) :: Int) ->
-     _lhsIindex
+   rule752 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
+     _lhsIallchildvisit
    {-# INLINE rule753 #-}
-   rule753 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
-     _lhsImrules
+   rule753 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
+     _lhsIavisitdefs
    {-# INLINE rule754 #-}
-   rule754 = \ ((_lhsIoptions) :: Options) ->
-     _lhsIoptions
+   rule754 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
+     _lhsIavisituses
    {-# INLINE rule755 #-}
-   rule755 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
-     _lhsIprevMaxSimRefs
+   rule755 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
+     _lhsIchildTypes
    {-# INLINE rule756 #-}
-   rule756 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
-     _lhsIruledefs
+   rule756 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
+     _lhsIchildintros
    {-# INLINE rule757 #-}
-   rule757 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
-     _lhsIruleuses
+   rule757 = \ ((_lhsIindex) :: Int) ->
+     _lhsIindex
    {-# INLINE rule758 #-}
-   rule758 = \ ((_lhsIuseParallel) :: Bool) ->
+   rule758 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
+     _lhsImrules
+   {-# INLINE rule759 #-}
+   rule759 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule760 #-}
+   rule760 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
+     _lhsIprevMaxSimRefs
+   {-# INLINE rule761 #-}
+   rule761 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
+     _lhsIruledefs
+   {-# INLINE rule762 #-}
+   rule762 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
+     _lhsIruleuses
+   {-# INLINE rule763 #-}
+   rule763 = \ ((_lhsIuseParallel) :: Bool) ->
      _lhsIuseParallel
 {-# NOINLINE sem_VisitStep_Sim #-}
 sem_VisitStep_Sim :: T_VisitSteps  -> T_VisitStep 
@@ -5994,170 +6017,170 @@ sem_VisitStep_Sim arg_steps_ = T_VisitStep (return st50) where
          _stepsX53 = Control.Monad.Identity.runIdentity (attach_T_VisitSteps (arg_steps_))
          (T_VisitSteps_vOut52 _stepsIdefs _stepsIerrors _stepsIindex _stepsIisLast _stepsIlazyIntras _stepsIprevMaxSimRefs _stepsIruleKinds _stepsIruleUsage _stepsIsem_steps _stepsIsize _stepsIsync_steps _stepsIusedArgs _stepsIuses _stepsIvisitKinds) = inv_VisitSteps_s53 _stepsX53 (T_VisitSteps_vIn52 _stepsOallFromToStates _stepsOallInitStates _stepsOallVisitKinds _stepsOallchildvisit _stepsOavisitdefs _stepsOavisituses _stepsOchildTypes _stepsOchildintros _stepsOfmtMode _stepsOindex _stepsOkind _stepsOmrules _stepsOoptions _stepsOprevMaxSimRefs _stepsOruledefs _stepsOruleuses _stepsOuseParallel)
          _lhsOsem_steps :: PP_Doc
-         _lhsOsem_steps = rule759 _stepsIsem_steps _stepsIsync_steps
-         _stepsOindex = rule760  ()
+         _lhsOsem_steps = rule764 _stepsIsem_steps _stepsIsync_steps
+         _stepsOindex = rule765  ()
          _lhsOindex :: Int
-         _lhsOindex = rule761 _lhsIindex
+         _lhsOindex = rule766 _lhsIindex
          _lhsOprevMaxSimRefs :: Int
-         _lhsOprevMaxSimRefs = rule762 _lhsIprevMaxSimRefs _stepsIindex _useParallel
-         _useParallel = rule763 _isMonadic _lhsIoptions _stepsIsize
-         _isMonadic = rule764 _lhsIkind
+         _lhsOprevMaxSimRefs = rule767 _lhsIprevMaxSimRefs _stepsIindex _useParallel
+         _useParallel = rule768 _isMonadic _lhsIoptions _stepsIsize
+         _isMonadic = rule769 _lhsIkind
          _lhsOdefs :: Set String
-         _lhsOdefs = rule765 _stepsIdefs
+         _lhsOdefs = rule770 _stepsIdefs
          _lhsOerrors :: Seq Error
-         _lhsOerrors = rule766 _stepsIerrors
+         _lhsOerrors = rule771 _stepsIerrors
          _lhsOlazyIntras :: Set String
-         _lhsOlazyIntras = rule767 _stepsIlazyIntras
+         _lhsOlazyIntras = rule772 _stepsIlazyIntras
          _lhsOruleKinds :: Map Identifier (Set VisitKind)
-         _lhsOruleKinds = rule768 _stepsIruleKinds
+         _lhsOruleKinds = rule773 _stepsIruleKinds
          _lhsOruleUsage :: Map Identifier Int
-         _lhsOruleUsage = rule769 _stepsIruleUsage
+         _lhsOruleUsage = rule774 _stepsIruleUsage
          _lhsOsync_steps :: PP_Doc
-         _lhsOsync_steps = rule770 _stepsIsync_steps
+         _lhsOsync_steps = rule775 _stepsIsync_steps
          _lhsOusedArgs :: Set String
-         _lhsOusedArgs = rule771 _stepsIusedArgs
+         _lhsOusedArgs = rule776 _stepsIusedArgs
          _lhsOuses :: Map String (Maybe NonLocalAttr)
-         _lhsOuses = rule772 _stepsIuses
+         _lhsOuses = rule777 _stepsIuses
          _lhsOvisitKinds :: Map VisitIdentifier VisitKind
-         _lhsOvisitKinds = rule773 _stepsIvisitKinds
+         _lhsOvisitKinds = rule778 _stepsIvisitKinds
          _lhsOisLast :: Bool
-         _lhsOisLast = rule774 _stepsIisLast
-         _stepsOallFromToStates = rule775 _lhsIallFromToStates
-         _stepsOallInitStates = rule776 _lhsIallInitStates
-         _stepsOallVisitKinds = rule777 _lhsIallVisitKinds
-         _stepsOallchildvisit = rule778 _lhsIallchildvisit
-         _stepsOavisitdefs = rule779 _lhsIavisitdefs
-         _stepsOavisituses = rule780 _lhsIavisituses
-         _stepsOchildTypes = rule781 _lhsIchildTypes
-         _stepsOchildintros = rule782 _lhsIchildintros
-         _stepsOfmtMode = rule783 _lhsIfmtMode
-         _stepsOkind = rule784 _lhsIkind
-         _stepsOmrules = rule785 _lhsImrules
-         _stepsOoptions = rule786 _lhsIoptions
-         _stepsOprevMaxSimRefs = rule787 _lhsIprevMaxSimRefs
-         _stepsOruledefs = rule788 _lhsIruledefs
-         _stepsOruleuses = rule789 _lhsIruleuses
-         _stepsOuseParallel = rule790 _useParallel
+         _lhsOisLast = rule779 _stepsIisLast
+         _stepsOallFromToStates = rule780 _lhsIallFromToStates
+         _stepsOallInitStates = rule781 _lhsIallInitStates
+         _stepsOallVisitKinds = rule782 _lhsIallVisitKinds
+         _stepsOallchildvisit = rule783 _lhsIallchildvisit
+         _stepsOavisitdefs = rule784 _lhsIavisitdefs
+         _stepsOavisituses = rule785 _lhsIavisituses
+         _stepsOchildTypes = rule786 _lhsIchildTypes
+         _stepsOchildintros = rule787 _lhsIchildintros
+         _stepsOfmtMode = rule788 _lhsIfmtMode
+         _stepsOkind = rule789 _lhsIkind
+         _stepsOmrules = rule790 _lhsImrules
+         _stepsOoptions = rule791 _lhsIoptions
+         _stepsOprevMaxSimRefs = rule792 _lhsIprevMaxSimRefs
+         _stepsOruledefs = rule793 _lhsIruledefs
+         _stepsOruleuses = rule794 _lhsIruleuses
+         _stepsOuseParallel = rule795 _useParallel
          __result_ = T_VisitStep_vOut49 _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsync_steps _lhsOusedArgs _lhsOuses _lhsOvisitKinds
          in __result_ )
      in C_VisitStep_s50 v49
-   {-# INLINE rule759 #-}
-   {-# LINE 811 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule759 = \ ((_stepsIsem_steps) :: PP_Doc) ((_stepsIsync_steps) :: PP_Doc) ->
-                                 {-# LINE 811 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   {-# INLINE rule764 #-}
+   {-# LINE 813 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule764 = \ ((_stepsIsem_steps) :: PP_Doc) ((_stepsIsync_steps) :: PP_Doc) ->
+                                 {-# LINE 813 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                  _stepsIsem_steps >-< _stepsIsync_steps
-                                 {-# LINE 6050 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule760 #-}
-   {-# LINE 877 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule760 = \  (_ :: ()) ->
-                                     {-# LINE 877 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 {-# LINE 6073 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule765 #-}
+   {-# LINE 879 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule765 = \  (_ :: ()) ->
+                                     {-# LINE 879 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                      0
-                                     {-# LINE 6056 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule761 #-}
-   {-# LINE 878 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule761 = \ ((_lhsIindex) :: Int) ->
-                                     {-# LINE 878 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                     {-# LINE 6079 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule766 #-}
+   {-# LINE 880 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule766 = \ ((_lhsIindex) :: Int) ->
+                                     {-# LINE 880 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                      _lhsIindex
-                                     {-# LINE 6062 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule762 #-}
-   {-# LINE 885 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule762 = \ ((_lhsIprevMaxSimRefs) :: Int) ((_stepsIindex) :: Int) _useParallel ->
-                         {-# LINE 885 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                     {-# LINE 6085 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule767 #-}
+   {-# LINE 887 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule767 = \ ((_lhsIprevMaxSimRefs) :: Int) ((_stepsIindex) :: Int) _useParallel ->
+                         {-# LINE 887 "./src-ag/ExecutionPlan2Hs.ag" #-}
                          if _useParallel
                          then _lhsIprevMaxSimRefs `max` (_stepsIindex - 1)
                          else _lhsIprevMaxSimRefs
-                         {-# LINE 6070 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule763 #-}
-   {-# LINE 900 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule763 = \ _isMonadic ((_lhsIoptions) :: Options) ((_stepsIsize) :: Int) ->
-                                         {-# LINE 900 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                         {-# LINE 6093 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule768 #-}
+   {-# LINE 902 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule768 = \ _isMonadic ((_lhsIoptions) :: Options) ((_stepsIsize) :: Int) ->
+                                         {-# LINE 902 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                          parallelInvoke _lhsIoptions && _stepsIsize > 1 && _isMonadic
-                                         {-# LINE 6076 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule764 #-}
-   {-# LINE 901 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule764 = \ ((_lhsIkind) :: VisitKind) ->
-                                         {-# LINE 901 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                         {-# LINE 6099 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule769 #-}
+   {-# LINE 903 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule769 = \ ((_lhsIkind) :: VisitKind) ->
+                                         {-# LINE 903 "./src-ag/ExecutionPlan2Hs.ag" #-}
                                          case _lhsIkind of
                                            VisitMonadic -> True
                                            _            -> False
-                                         {-# LINE 6084 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule765 #-}
-   rule765 = \ ((_stepsIdefs) :: Set String) ->
-     _stepsIdefs
-   {-# INLINE rule766 #-}
-   rule766 = \ ((_stepsIerrors) :: Seq Error) ->
-     _stepsIerrors
-   {-# INLINE rule767 #-}
-   rule767 = \ ((_stepsIlazyIntras) :: Set String) ->
-     _stepsIlazyIntras
-   {-# INLINE rule768 #-}
-   rule768 = \ ((_stepsIruleKinds) :: Map Identifier (Set VisitKind)) ->
-     _stepsIruleKinds
-   {-# INLINE rule769 #-}
-   rule769 = \ ((_stepsIruleUsage) :: Map Identifier Int) ->
-     _stepsIruleUsage
+                                         {-# LINE 6107 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule770 #-}
-   rule770 = \ ((_stepsIsync_steps) :: PP_Doc) ->
-     _stepsIsync_steps
+   rule770 = \ ((_stepsIdefs) :: Set String) ->
+     _stepsIdefs
    {-# INLINE rule771 #-}
-   rule771 = \ ((_stepsIusedArgs) :: Set String) ->
-     _stepsIusedArgs
+   rule771 = \ ((_stepsIerrors) :: Seq Error) ->
+     _stepsIerrors
    {-# INLINE rule772 #-}
-   rule772 = \ ((_stepsIuses) :: Map String (Maybe NonLocalAttr)) ->
-     _stepsIuses
+   rule772 = \ ((_stepsIlazyIntras) :: Set String) ->
+     _stepsIlazyIntras
    {-# INLINE rule773 #-}
-   rule773 = \ ((_stepsIvisitKinds) :: Map VisitIdentifier VisitKind) ->
-     _stepsIvisitKinds
+   rule773 = \ ((_stepsIruleKinds) :: Map Identifier (Set VisitKind)) ->
+     _stepsIruleKinds
    {-# INLINE rule774 #-}
-   rule774 = \ ((_stepsIisLast) :: Bool) ->
-     _stepsIisLast
+   rule774 = \ ((_stepsIruleUsage) :: Map Identifier Int) ->
+     _stepsIruleUsage
    {-# INLINE rule775 #-}
-   rule775 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
-     _lhsIallFromToStates
+   rule775 = \ ((_stepsIsync_steps) :: PP_Doc) ->
+     _stepsIsync_steps
    {-# INLINE rule776 #-}
-   rule776 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
-     _lhsIallInitStates
+   rule776 = \ ((_stepsIusedArgs) :: Set String) ->
+     _stepsIusedArgs
    {-# INLINE rule777 #-}
-   rule777 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
-     _lhsIallVisitKinds
+   rule777 = \ ((_stepsIuses) :: Map String (Maybe NonLocalAttr)) ->
+     _stepsIuses
    {-# INLINE rule778 #-}
-   rule778 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
-     _lhsIallchildvisit
+   rule778 = \ ((_stepsIvisitKinds) :: Map VisitIdentifier VisitKind) ->
+     _stepsIvisitKinds
    {-# INLINE rule779 #-}
-   rule779 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
-     _lhsIavisitdefs
+   rule779 = \ ((_stepsIisLast) :: Bool) ->
+     _stepsIisLast
    {-# INLINE rule780 #-}
-   rule780 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
-     _lhsIavisituses
+   rule780 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
+     _lhsIallFromToStates
    {-# INLINE rule781 #-}
-   rule781 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
-     _lhsIchildTypes
+   rule781 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
+     _lhsIallInitStates
    {-# INLINE rule782 #-}
-   rule782 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
-     _lhsIchildintros
+   rule782 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
+     _lhsIallVisitKinds
    {-# INLINE rule783 #-}
-   rule783 = \ ((_lhsIfmtMode) :: FormatMode) ->
-     _lhsIfmtMode
+   rule783 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
+     _lhsIallchildvisit
    {-# INLINE rule784 #-}
-   rule784 = \ ((_lhsIkind) :: VisitKind) ->
-     _lhsIkind
+   rule784 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
+     _lhsIavisitdefs
    {-# INLINE rule785 #-}
-   rule785 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
-     _lhsImrules
+   rule785 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
+     _lhsIavisituses
    {-# INLINE rule786 #-}
-   rule786 = \ ((_lhsIoptions) :: Options) ->
-     _lhsIoptions
+   rule786 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
+     _lhsIchildTypes
    {-# INLINE rule787 #-}
-   rule787 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
-     _lhsIprevMaxSimRefs
+   rule787 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
+     _lhsIchildintros
    {-# INLINE rule788 #-}
-   rule788 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
-     _lhsIruledefs
+   rule788 = \ ((_lhsIfmtMode) :: FormatMode) ->
+     _lhsIfmtMode
    {-# INLINE rule789 #-}
-   rule789 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
-     _lhsIruleuses
+   rule789 = \ ((_lhsIkind) :: VisitKind) ->
+     _lhsIkind
    {-# INLINE rule790 #-}
-   rule790 = \ _useParallel ->
+   rule790 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
+     _lhsImrules
+   {-# INLINE rule791 #-}
+   rule791 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule792 #-}
+   rule792 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
+     _lhsIprevMaxSimRefs
+   {-# INLINE rule793 #-}
+   rule793 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
+     _lhsIruledefs
+   {-# INLINE rule794 #-}
+   rule794 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
+     _lhsIruleuses
+   {-# INLINE rule795 #-}
+   rule795 = \ _useParallel ->
      _useParallel
 {-# NOINLINE sem_VisitStep_ChildIntro #-}
 sem_VisitStep_ChildIntro :: (Identifier) -> T_VisitStep 
@@ -6166,73 +6189,73 @@ sem_VisitStep_ChildIntro arg_child_ = T_VisitStep (return st50) where
    st50 = let
       v49 :: T_VisitStep_v49 
       v49 = \ (T_VisitStep_vIn49 _lhsIallFromToStates _lhsIallInitStates _lhsIallVisitKinds _lhsIallchildvisit _lhsIavisitdefs _lhsIavisituses _lhsIchildTypes _lhsIchildintros _lhsIfmtMode _lhsIindex _lhsIisLast _lhsIkind _lhsImrules _lhsIoptions _lhsIprevMaxSimRefs _lhsIruledefs _lhsIruleuses _lhsIuseParallel) -> ( let
-         _attachItf = rule791 _lhsIchildintros arg_child_
+         _attachItf = rule796 _lhsIchildintros arg_child_
          _lhsOerrors :: Seq Error
          _lhsOsem_steps :: PP_Doc
          _lhsOdefs :: Set String
          _lhsOuses :: Map String (Maybe NonLocalAttr)
-         (_lhsOerrors,_lhsOsem_steps,_lhsOdefs,_lhsOuses) = rule792 _attachItf _lhsIfmtMode _lhsIkind
+         (_lhsOerrors,_lhsOsem_steps,_lhsOdefs,_lhsOuses) = rule797 _attachItf _lhsIfmtMode _lhsIkind
          _lhsOlazyIntras :: Set String
-         _lhsOlazyIntras = rule793  ()
+         _lhsOlazyIntras = rule798  ()
          _lhsOruleKinds :: Map Identifier (Set VisitKind)
-         _lhsOruleKinds = rule794  ()
+         _lhsOruleKinds = rule799  ()
          _lhsOruleUsage :: Map Identifier Int
-         _lhsOruleUsage = rule795  ()
+         _lhsOruleUsage = rule800  ()
          _lhsOsync_steps :: PP_Doc
-         _lhsOsync_steps = rule796  ()
+         _lhsOsync_steps = rule801  ()
          _lhsOusedArgs :: Set String
-         _lhsOusedArgs = rule797  ()
+         _lhsOusedArgs = rule802  ()
          _lhsOvisitKinds :: Map VisitIdentifier VisitKind
-         _lhsOvisitKinds = rule798  ()
+         _lhsOvisitKinds = rule803  ()
          _lhsOindex :: Int
-         _lhsOindex = rule799 _lhsIindex
+         _lhsOindex = rule804 _lhsIindex
          _lhsOisLast :: Bool
-         _lhsOisLast = rule800 _lhsIisLast
+         _lhsOisLast = rule805 _lhsIisLast
          _lhsOprevMaxSimRefs :: Int
-         _lhsOprevMaxSimRefs = rule801 _lhsIprevMaxSimRefs
+         _lhsOprevMaxSimRefs = rule806 _lhsIprevMaxSimRefs
          __result_ = T_VisitStep_vOut49 _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsync_steps _lhsOusedArgs _lhsOuses _lhsOvisitKinds
          in __result_ )
      in C_VisitStep_s50 v49
-   {-# INLINE rule791 #-}
-   {-# LINE 789 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule791 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) child_ ->
-                                 {-# LINE 789 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                                 Map.findWithDefault (error $ "Child " ++ show child_ ++ " not found") child_ _lhsIchildintros
-                                 {-# LINE 6202 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule792 #-}
+   {-# INLINE rule796 #-}
    {-# LINE 791 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule792 = \ _attachItf ((_lhsIfmtMode) :: FormatMode) ((_lhsIkind) :: VisitKind) ->
-                     {-# LINE 791 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule796 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) child_ ->
+                                 {-# LINE 791 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                                 Map.findWithDefault (error $ "Child " ++ show child_ ++ " not found") child_ _lhsIchildintros
+                                 {-# LINE 6225 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# INLINE rule797 #-}
+   {-# LINE 793 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule797 = \ _attachItf ((_lhsIfmtMode) :: FormatMode) ((_lhsIkind) :: VisitKind) ->
+                     {-# LINE 793 "./src-ag/ExecutionPlan2Hs.ag" #-}
                      case _attachItf     _lhsIkind _lhsIfmtMode of
                        Left e                   -> (Seq.singleton e, empty, Set.empty, Map.empty)
                        Right (code, defs, uses) -> (Seq.empty, code, defs, uses)
-                     {-# LINE 6210 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule793 #-}
-   rule793 = \  (_ :: ()) ->
-     Set.empty
-   {-# INLINE rule794 #-}
-   rule794 = \  (_ :: ()) ->
-     Map.empty
-   {-# INLINE rule795 #-}
-   rule795 = \  (_ :: ()) ->
-     Map.empty
-   {-# INLINE rule796 #-}
-   rule796 = \  (_ :: ()) ->
-     empty
-   {-# INLINE rule797 #-}
-   rule797 = \  (_ :: ()) ->
-     Set.empty
+                     {-# LINE 6233 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule798 #-}
    rule798 = \  (_ :: ()) ->
-     mempty
+     Set.empty
    {-# INLINE rule799 #-}
-   rule799 = \ ((_lhsIindex) :: Int) ->
-     _lhsIindex
+   rule799 = \  (_ :: ()) ->
+     Map.empty
    {-# INLINE rule800 #-}
-   rule800 = \ ((_lhsIisLast) :: Bool) ->
-     _lhsIisLast
+   rule800 = \  (_ :: ()) ->
+     Map.empty
    {-# INLINE rule801 #-}
-   rule801 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
+   rule801 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule802 #-}
+   rule802 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule803 #-}
+   rule803 = \  (_ :: ()) ->
+     mempty
+   {-# INLINE rule804 #-}
+   rule804 = \ ((_lhsIindex) :: Int) ->
+     _lhsIindex
+   {-# INLINE rule805 #-}
+   rule805 = \ ((_lhsIisLast) :: Bool) ->
+     _lhsIisLast
+   {-# INLINE rule806 #-}
+   rule806 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
      _lhsIprevMaxSimRefs
 
 -- VisitSteps --------------------------------------------------
@@ -6277,235 +6300,235 @@ sem_VisitSteps_Cons arg_hd_ arg_tl_ = T_VisitSteps (return st53) where
          (T_VisitStep_vOut49 _hdIdefs _hdIerrors _hdIindex _hdIisLast _hdIlazyIntras _hdIprevMaxSimRefs _hdIruleKinds _hdIruleUsage _hdIsem_steps _hdIsync_steps _hdIusedArgs _hdIuses _hdIvisitKinds) = inv_VisitStep_s50 _hdX50 (T_VisitStep_vIn49 _hdOallFromToStates _hdOallInitStates _hdOallVisitKinds _hdOallchildvisit _hdOavisitdefs _hdOavisituses _hdOchildTypes _hdOchildintros _hdOfmtMode _hdOindex _hdOisLast _hdOkind _hdOmrules _hdOoptions _hdOprevMaxSimRefs _hdOruledefs _hdOruleuses _hdOuseParallel)
          (T_VisitSteps_vOut52 _tlIdefs _tlIerrors _tlIindex _tlIisLast _tlIlazyIntras _tlIprevMaxSimRefs _tlIruleKinds _tlIruleUsage _tlIsem_steps _tlIsize _tlIsync_steps _tlIusedArgs _tlIuses _tlIvisitKinds) = inv_VisitSteps_s53 _tlX53 (T_VisitSteps_vIn52 _tlOallFromToStates _tlOallInitStates _tlOallVisitKinds _tlOallchildvisit _tlOavisitdefs _tlOavisituses _tlOchildTypes _tlOchildintros _tlOfmtMode _tlOindex _tlOkind _tlOmrules _tlOoptions _tlOprevMaxSimRefs _tlOruledefs _tlOruleuses _tlOuseParallel)
          _lhsOsize :: Int
-         _lhsOsize = rule802 _tlIsize
-         _hdOindex = rule803 _lhsIindex
-         _tlOindex = rule804 _lhsIindex
+         _lhsOsize = rule807 _tlIsize
+         _hdOindex = rule808 _lhsIindex
+         _tlOindex = rule809 _lhsIindex
          _lhsOindex :: Int
-         _lhsOindex = rule805 _tlIindex
+         _lhsOindex = rule810 _tlIindex
          _lhsOisLast :: Bool
-         _lhsOisLast = rule806  ()
-         _hdOisLast = rule807 _tlIisLast
+         _lhsOisLast = rule811  ()
+         _hdOisLast = rule812 _tlIisLast
          _lhsOdefs :: Set String
-         _lhsOdefs = rule808 _hdIdefs _tlIdefs
+         _lhsOdefs = rule813 _hdIdefs _tlIdefs
          _lhsOerrors :: Seq Error
-         _lhsOerrors = rule809 _hdIerrors _tlIerrors
+         _lhsOerrors = rule814 _hdIerrors _tlIerrors
          _lhsOlazyIntras :: Set String
-         _lhsOlazyIntras = rule810 _hdIlazyIntras _tlIlazyIntras
+         _lhsOlazyIntras = rule815 _hdIlazyIntras _tlIlazyIntras
          _lhsOruleKinds :: Map Identifier (Set VisitKind)
-         _lhsOruleKinds = rule811 _hdIruleKinds _tlIruleKinds
+         _lhsOruleKinds = rule816 _hdIruleKinds _tlIruleKinds
          _lhsOruleUsage :: Map Identifier Int
-         _lhsOruleUsage = rule812 _hdIruleUsage _tlIruleUsage
+         _lhsOruleUsage = rule817 _hdIruleUsage _tlIruleUsage
          _lhsOsem_steps :: PP_Doc
-         _lhsOsem_steps = rule813 _hdIsem_steps _tlIsem_steps
+         _lhsOsem_steps = rule818 _hdIsem_steps _tlIsem_steps
          _lhsOsync_steps :: PP_Doc
-         _lhsOsync_steps = rule814 _hdIsync_steps _tlIsync_steps
+         _lhsOsync_steps = rule819 _hdIsync_steps _tlIsync_steps
          _lhsOusedArgs :: Set String
-         _lhsOusedArgs = rule815 _hdIusedArgs _tlIusedArgs
+         _lhsOusedArgs = rule820 _hdIusedArgs _tlIusedArgs
          _lhsOuses :: Map String (Maybe NonLocalAttr)
-         _lhsOuses = rule816 _hdIuses _tlIuses
+         _lhsOuses = rule821 _hdIuses _tlIuses
          _lhsOvisitKinds :: Map VisitIdentifier VisitKind
-         _lhsOvisitKinds = rule817 _hdIvisitKinds _tlIvisitKinds
+         _lhsOvisitKinds = rule822 _hdIvisitKinds _tlIvisitKinds
          _lhsOprevMaxSimRefs :: Int
-         _lhsOprevMaxSimRefs = rule818 _tlIprevMaxSimRefs
-         _hdOallFromToStates = rule819 _lhsIallFromToStates
-         _hdOallInitStates = rule820 _lhsIallInitStates
-         _hdOallVisitKinds = rule821 _lhsIallVisitKinds
-         _hdOallchildvisit = rule822 _lhsIallchildvisit
-         _hdOavisitdefs = rule823 _lhsIavisitdefs
-         _hdOavisituses = rule824 _lhsIavisituses
-         _hdOchildTypes = rule825 _lhsIchildTypes
-         _hdOchildintros = rule826 _lhsIchildintros
-         _hdOfmtMode = rule827 _lhsIfmtMode
-         _hdOkind = rule828 _lhsIkind
-         _hdOmrules = rule829 _lhsImrules
-         _hdOoptions = rule830 _lhsIoptions
-         _hdOprevMaxSimRefs = rule831 _lhsIprevMaxSimRefs
-         _hdOruledefs = rule832 _lhsIruledefs
-         _hdOruleuses = rule833 _lhsIruleuses
-         _hdOuseParallel = rule834 _lhsIuseParallel
-         _tlOallFromToStates = rule835 _lhsIallFromToStates
-         _tlOallInitStates = rule836 _lhsIallInitStates
-         _tlOallVisitKinds = rule837 _lhsIallVisitKinds
-         _tlOallchildvisit = rule838 _lhsIallchildvisit
-         _tlOavisitdefs = rule839 _lhsIavisitdefs
-         _tlOavisituses = rule840 _lhsIavisituses
-         _tlOchildTypes = rule841 _lhsIchildTypes
-         _tlOchildintros = rule842 _lhsIchildintros
-         _tlOfmtMode = rule843 _lhsIfmtMode
-         _tlOkind = rule844 _lhsIkind
-         _tlOmrules = rule845 _lhsImrules
-         _tlOoptions = rule846 _lhsIoptions
-         _tlOprevMaxSimRefs = rule847 _hdIprevMaxSimRefs
-         _tlOruledefs = rule848 _lhsIruledefs
-         _tlOruleuses = rule849 _lhsIruleuses
-         _tlOuseParallel = rule850 _lhsIuseParallel
+         _lhsOprevMaxSimRefs = rule823 _tlIprevMaxSimRefs
+         _hdOallFromToStates = rule824 _lhsIallFromToStates
+         _hdOallInitStates = rule825 _lhsIallInitStates
+         _hdOallVisitKinds = rule826 _lhsIallVisitKinds
+         _hdOallchildvisit = rule827 _lhsIallchildvisit
+         _hdOavisitdefs = rule828 _lhsIavisitdefs
+         _hdOavisituses = rule829 _lhsIavisituses
+         _hdOchildTypes = rule830 _lhsIchildTypes
+         _hdOchildintros = rule831 _lhsIchildintros
+         _hdOfmtMode = rule832 _lhsIfmtMode
+         _hdOkind = rule833 _lhsIkind
+         _hdOmrules = rule834 _lhsImrules
+         _hdOoptions = rule835 _lhsIoptions
+         _hdOprevMaxSimRefs = rule836 _lhsIprevMaxSimRefs
+         _hdOruledefs = rule837 _lhsIruledefs
+         _hdOruleuses = rule838 _lhsIruleuses
+         _hdOuseParallel = rule839 _lhsIuseParallel
+         _tlOallFromToStates = rule840 _lhsIallFromToStates
+         _tlOallInitStates = rule841 _lhsIallInitStates
+         _tlOallVisitKinds = rule842 _lhsIallVisitKinds
+         _tlOallchildvisit = rule843 _lhsIallchildvisit
+         _tlOavisitdefs = rule844 _lhsIavisitdefs
+         _tlOavisituses = rule845 _lhsIavisituses
+         _tlOchildTypes = rule846 _lhsIchildTypes
+         _tlOchildintros = rule847 _lhsIchildintros
+         _tlOfmtMode = rule848 _lhsIfmtMode
+         _tlOkind = rule849 _lhsIkind
+         _tlOmrules = rule850 _lhsImrules
+         _tlOoptions = rule851 _lhsIoptions
+         _tlOprevMaxSimRefs = rule852 _hdIprevMaxSimRefs
+         _tlOruledefs = rule853 _lhsIruledefs
+         _tlOruleuses = rule854 _lhsIruleuses
+         _tlOuseParallel = rule855 _lhsIuseParallel
          __result_ = T_VisitSteps_vOut52 _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsize _lhsOsync_steps _lhsOusedArgs _lhsOuses _lhsOvisitKinds
          in __result_ )
      in C_VisitSteps_s53 v52
-   {-# INLINE rule802 #-}
-   {-# LINE 868 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule802 = \ ((_tlIsize) :: Int) ->
-                      {-# LINE 868 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                      1 + _tlIsize
-                      {-# LINE 6351 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule803 #-}
-   {-# LINE 873 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule803 = \ ((_lhsIindex) :: Int) ->
-                {-# LINE 873 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                _lhsIindex
-                {-# LINE 6357 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule804 #-}
-   {-# LINE 874 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule804 = \ ((_lhsIindex) :: Int) ->
-                {-# LINE 874 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                1 + _lhsIindex
-                {-# LINE 6363 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule805 #-}
-   {-# LINE 875 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule805 = \ ((_tlIindex) :: Int) ->
-                {-# LINE 875 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                _tlIindex
-                {-# LINE 6369 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule806 #-}
-   {-# LINE 894 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule806 = \  (_ :: ()) ->
-                         {-# LINE 894 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                         False
-                         {-# LINE 6375 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule807 #-}
-   {-# LINE 895 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule807 = \ ((_tlIisLast) :: Bool) ->
-                         {-# LINE 895 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                         _tlIisLast
-                         {-# LINE 6381 "dist/build/ExecutionPlan2Hs.hs"#-}
+   {-# LINE 870 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule807 = \ ((_tlIsize) :: Int) ->
+                      {-# LINE 870 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                      1 + _tlIsize
+                      {-# LINE 6374 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule808 #-}
-   rule808 = \ ((_hdIdefs) :: Set String) ((_tlIdefs) :: Set String) ->
-     _hdIdefs `Set.union` _tlIdefs
+   {-# LINE 875 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule808 = \ ((_lhsIindex) :: Int) ->
+                {-# LINE 875 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                _lhsIindex
+                {-# LINE 6380 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule809 #-}
-   rule809 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
-     _hdIerrors Seq.>< _tlIerrors
+   {-# LINE 876 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule809 = \ ((_lhsIindex) :: Int) ->
+                {-# LINE 876 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                1 + _lhsIindex
+                {-# LINE 6386 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule810 #-}
-   rule810 = \ ((_hdIlazyIntras) :: Set String) ((_tlIlazyIntras) :: Set String) ->
-     _hdIlazyIntras `Set.union` _tlIlazyIntras
+   {-# LINE 877 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule810 = \ ((_tlIindex) :: Int) ->
+                {-# LINE 877 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                _tlIindex
+                {-# LINE 6392 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule811 #-}
-   rule811 = \ ((_hdIruleKinds) :: Map Identifier (Set VisitKind)) ((_tlIruleKinds) :: Map Identifier (Set VisitKind)) ->
-     _hdIruleKinds `unionWithMappend` _tlIruleKinds
+   {-# LINE 896 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule811 = \  (_ :: ()) ->
+                         {-# LINE 896 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                         False
+                         {-# LINE 6398 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule812 #-}
-   rule812 = \ ((_hdIruleUsage) :: Map Identifier Int) ((_tlIruleUsage) :: Map Identifier Int) ->
-     _hdIruleUsage `unionWithSum` _tlIruleUsage
+   {-# LINE 897 "./src-ag/ExecutionPlan2Hs.ag" #-}
+   rule812 = \ ((_tlIisLast) :: Bool) ->
+                         {-# LINE 897 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                         _tlIisLast
+                         {-# LINE 6404 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule813 #-}
-   rule813 = \ ((_hdIsem_steps) :: PP_Doc) ((_tlIsem_steps) :: PP_Doc) ->
-     _hdIsem_steps >-< _tlIsem_steps
+   rule813 = \ ((_hdIdefs) :: Set String) ((_tlIdefs) :: Set String) ->
+     _hdIdefs `Set.union` _tlIdefs
    {-# INLINE rule814 #-}
-   rule814 = \ ((_hdIsync_steps) :: PP_Doc) ((_tlIsync_steps) :: PP_Doc) ->
-     _hdIsync_steps >-< _tlIsync_steps
+   rule814 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
+     _hdIerrors Seq.>< _tlIerrors
    {-# INLINE rule815 #-}
-   rule815 = \ ((_hdIusedArgs) :: Set String) ((_tlIusedArgs) :: Set String) ->
-     _hdIusedArgs `Set.union` _tlIusedArgs
+   rule815 = \ ((_hdIlazyIntras) :: Set String) ((_tlIlazyIntras) :: Set String) ->
+     _hdIlazyIntras `Set.union` _tlIlazyIntras
    {-# INLINE rule816 #-}
-   rule816 = \ ((_hdIuses) :: Map String (Maybe NonLocalAttr)) ((_tlIuses) :: Map String (Maybe NonLocalAttr)) ->
-     _hdIuses `Map.union` _tlIuses
+   rule816 = \ ((_hdIruleKinds) :: Map Identifier (Set VisitKind)) ((_tlIruleKinds) :: Map Identifier (Set VisitKind)) ->
+     _hdIruleKinds `unionWithMappend` _tlIruleKinds
    {-# INLINE rule817 #-}
-   rule817 = \ ((_hdIvisitKinds) :: Map VisitIdentifier VisitKind) ((_tlIvisitKinds) :: Map VisitIdentifier VisitKind) ->
-     _hdIvisitKinds `mappend` _tlIvisitKinds
+   rule817 = \ ((_hdIruleUsage) :: Map Identifier Int) ((_tlIruleUsage) :: Map Identifier Int) ->
+     _hdIruleUsage `unionWithSum` _tlIruleUsage
    {-# INLINE rule818 #-}
-   rule818 = \ ((_tlIprevMaxSimRefs) :: Int) ->
-     _tlIprevMaxSimRefs
+   rule818 = \ ((_hdIsem_steps) :: PP_Doc) ((_tlIsem_steps) :: PP_Doc) ->
+     _hdIsem_steps >-< _tlIsem_steps
    {-# INLINE rule819 #-}
-   rule819 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
-     _lhsIallFromToStates
+   rule819 = \ ((_hdIsync_steps) :: PP_Doc) ((_tlIsync_steps) :: PP_Doc) ->
+     _hdIsync_steps >-< _tlIsync_steps
    {-# INLINE rule820 #-}
-   rule820 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
-     _lhsIallInitStates
+   rule820 = \ ((_hdIusedArgs) :: Set String) ((_tlIusedArgs) :: Set String) ->
+     _hdIusedArgs `Set.union` _tlIusedArgs
    {-# INLINE rule821 #-}
-   rule821 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
-     _lhsIallVisitKinds
+   rule821 = \ ((_hdIuses) :: Map String (Maybe NonLocalAttr)) ((_tlIuses) :: Map String (Maybe NonLocalAttr)) ->
+     _hdIuses `Map.union` _tlIuses
    {-# INLINE rule822 #-}
-   rule822 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
-     _lhsIallchildvisit
+   rule822 = \ ((_hdIvisitKinds) :: Map VisitIdentifier VisitKind) ((_tlIvisitKinds) :: Map VisitIdentifier VisitKind) ->
+     _hdIvisitKinds `mappend` _tlIvisitKinds
    {-# INLINE rule823 #-}
-   rule823 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
-     _lhsIavisitdefs
+   rule823 = \ ((_tlIprevMaxSimRefs) :: Int) ->
+     _tlIprevMaxSimRefs
    {-# INLINE rule824 #-}
-   rule824 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
-     _lhsIavisituses
-   {-# INLINE rule825 #-}
-   rule825 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
-     _lhsIchildTypes
-   {-# INLINE rule826 #-}
-   rule826 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
-     _lhsIchildintros
-   {-# INLINE rule827 #-}
-   rule827 = \ ((_lhsIfmtMode) :: FormatMode) ->
-     _lhsIfmtMode
-   {-# INLINE rule828 #-}
-   rule828 = \ ((_lhsIkind) :: VisitKind) ->
-     _lhsIkind
-   {-# INLINE rule829 #-}
-   rule829 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
-     _lhsImrules
-   {-# INLINE rule830 #-}
-   rule830 = \ ((_lhsIoptions) :: Options) ->
-     _lhsIoptions
-   {-# INLINE rule831 #-}
-   rule831 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
-     _lhsIprevMaxSimRefs
-   {-# INLINE rule832 #-}
-   rule832 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
-     _lhsIruledefs
-   {-# INLINE rule833 #-}
-   rule833 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
-     _lhsIruleuses
-   {-# INLINE rule834 #-}
-   rule834 = \ ((_lhsIuseParallel) :: Bool) ->
-     _lhsIuseParallel
-   {-# INLINE rule835 #-}
-   rule835 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
+   rule824 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
      _lhsIallFromToStates
-   {-# INLINE rule836 #-}
-   rule836 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
+   {-# INLINE rule825 #-}
+   rule825 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
      _lhsIallInitStates
-   {-# INLINE rule837 #-}
-   rule837 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
+   {-# INLINE rule826 #-}
+   rule826 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
      _lhsIallVisitKinds
-   {-# INLINE rule838 #-}
-   rule838 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
+   {-# INLINE rule827 #-}
+   rule827 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
      _lhsIallchildvisit
-   {-# INLINE rule839 #-}
-   rule839 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
+   {-# INLINE rule828 #-}
+   rule828 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
      _lhsIavisitdefs
-   {-# INLINE rule840 #-}
-   rule840 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
+   {-# INLINE rule829 #-}
+   rule829 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
      _lhsIavisituses
-   {-# INLINE rule841 #-}
-   rule841 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
+   {-# INLINE rule830 #-}
+   rule830 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
      _lhsIchildTypes
-   {-# INLINE rule842 #-}
-   rule842 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
+   {-# INLINE rule831 #-}
+   rule831 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
      _lhsIchildintros
-   {-# INLINE rule843 #-}
-   rule843 = \ ((_lhsIfmtMode) :: FormatMode) ->
+   {-# INLINE rule832 #-}
+   rule832 = \ ((_lhsIfmtMode) :: FormatMode) ->
      _lhsIfmtMode
-   {-# INLINE rule844 #-}
-   rule844 = \ ((_lhsIkind) :: VisitKind) ->
+   {-# INLINE rule833 #-}
+   rule833 = \ ((_lhsIkind) :: VisitKind) ->
      _lhsIkind
-   {-# INLINE rule845 #-}
-   rule845 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
+   {-# INLINE rule834 #-}
+   rule834 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
      _lhsImrules
-   {-# INLINE rule846 #-}
-   rule846 = \ ((_lhsIoptions) :: Options) ->
+   {-# INLINE rule835 #-}
+   rule835 = \ ((_lhsIoptions) :: Options) ->
      _lhsIoptions
-   {-# INLINE rule847 #-}
-   rule847 = \ ((_hdIprevMaxSimRefs) :: Int) ->
-     _hdIprevMaxSimRefs
-   {-# INLINE rule848 #-}
-   rule848 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
+   {-# INLINE rule836 #-}
+   rule836 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
+     _lhsIprevMaxSimRefs
+   {-# INLINE rule837 #-}
+   rule837 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
      _lhsIruledefs
-   {-# INLINE rule849 #-}
-   rule849 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
+   {-# INLINE rule838 #-}
+   rule838 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
      _lhsIruleuses
+   {-# INLINE rule839 #-}
+   rule839 = \ ((_lhsIuseParallel) :: Bool) ->
+     _lhsIuseParallel
+   {-# INLINE rule840 #-}
+   rule840 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
+     _lhsIallFromToStates
+   {-# INLINE rule841 #-}
+   rule841 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
+     _lhsIallInitStates
+   {-# INLINE rule842 #-}
+   rule842 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
+     _lhsIallVisitKinds
+   {-# INLINE rule843 #-}
+   rule843 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
+     _lhsIallchildvisit
+   {-# INLINE rule844 #-}
+   rule844 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
+     _lhsIavisitdefs
+   {-# INLINE rule845 #-}
+   rule845 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
+     _lhsIavisituses
+   {-# INLINE rule846 #-}
+   rule846 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
+     _lhsIchildTypes
+   {-# INLINE rule847 #-}
+   rule847 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
+     _lhsIchildintros
+   {-# INLINE rule848 #-}
+   rule848 = \ ((_lhsIfmtMode) :: FormatMode) ->
+     _lhsIfmtMode
+   {-# INLINE rule849 #-}
+   rule849 = \ ((_lhsIkind) :: VisitKind) ->
+     _lhsIkind
    {-# INLINE rule850 #-}
-   rule850 = \ ((_lhsIuseParallel) :: Bool) ->
+   rule850 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
+     _lhsImrules
+   {-# INLINE rule851 #-}
+   rule851 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
+   {-# INLINE rule852 #-}
+   rule852 = \ ((_hdIprevMaxSimRefs) :: Int) ->
+     _hdIprevMaxSimRefs
+   {-# INLINE rule853 #-}
+   rule853 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
+     _lhsIruledefs
+   {-# INLINE rule854 #-}
+   rule854 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
+     _lhsIruleuses
+   {-# INLINE rule855 #-}
+   rule855 = \ ((_lhsIuseParallel) :: Bool) ->
      _lhsIuseParallel
 {-# NOINLINE sem_VisitSteps_Nil #-}
 sem_VisitSteps_Nil ::  T_VisitSteps 
@@ -6515,69 +6538,54 @@ sem_VisitSteps_Nil  = T_VisitSteps (return st53) where
       v52 :: T_VisitSteps_v52 
       v52 = \ (T_VisitSteps_vIn52 _lhsIallFromToStates _lhsIallInitStates _lhsIallVisitKinds _lhsIallchildvisit _lhsIavisitdefs _lhsIavisituses _lhsIchildTypes _lhsIchildintros _lhsIfmtMode _lhsIindex _lhsIkind _lhsImrules _lhsIoptions _lhsIprevMaxSimRefs _lhsIruledefs _lhsIruleuses _lhsIuseParallel) -> ( let
          _lhsOsize :: Int
-         _lhsOsize = rule851  ()
+         _lhsOsize = rule856  ()
          _lhsOisLast :: Bool
-         _lhsOisLast = rule852  ()
+         _lhsOisLast = rule857  ()
          _lhsOdefs :: Set String
-         _lhsOdefs = rule853  ()
+         _lhsOdefs = rule858  ()
          _lhsOerrors :: Seq Error
-         _lhsOerrors = rule854  ()
+         _lhsOerrors = rule859  ()
          _lhsOlazyIntras :: Set String
-         _lhsOlazyIntras = rule855  ()
+         _lhsOlazyIntras = rule860  ()
          _lhsOruleKinds :: Map Identifier (Set VisitKind)
-         _lhsOruleKinds = rule856  ()
+         _lhsOruleKinds = rule861  ()
          _lhsOruleUsage :: Map Identifier Int
-         _lhsOruleUsage = rule857  ()
+         _lhsOruleUsage = rule862  ()
          _lhsOsem_steps :: PP_Doc
-         _lhsOsem_steps = rule858  ()
+         _lhsOsem_steps = rule863  ()
          _lhsOsync_steps :: PP_Doc
-         _lhsOsync_steps = rule859  ()
+         _lhsOsync_steps = rule864  ()
          _lhsOusedArgs :: Set String
-         _lhsOusedArgs = rule860  ()
+         _lhsOusedArgs = rule865  ()
          _lhsOuses :: Map String (Maybe NonLocalAttr)
-         _lhsOuses = rule861  ()
+         _lhsOuses = rule866  ()
          _lhsOvisitKinds :: Map VisitIdentifier VisitKind
-         _lhsOvisitKinds = rule862  ()
+         _lhsOvisitKinds = rule867  ()
          _lhsOindex :: Int
-         _lhsOindex = rule863 _lhsIindex
+         _lhsOindex = rule868 _lhsIindex
          _lhsOprevMaxSimRefs :: Int
-         _lhsOprevMaxSimRefs = rule864 _lhsIprevMaxSimRefs
+         _lhsOprevMaxSimRefs = rule869 _lhsIprevMaxSimRefs
          __result_ = T_VisitSteps_vOut52 _lhsOdefs _lhsOerrors _lhsOindex _lhsOisLast _lhsOlazyIntras _lhsOprevMaxSimRefs _lhsOruleKinds _lhsOruleUsage _lhsOsem_steps _lhsOsize _lhsOsync_steps _lhsOusedArgs _lhsOuses _lhsOvisitKinds
          in __result_ )
      in C_VisitSteps_s53 v52
-   {-# INLINE rule851 #-}
-   {-# LINE 867 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule851 = \  (_ :: ()) ->
-                      {-# LINE 867 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                      0
-                      {-# LINE 6554 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule852 #-}
-   {-# LINE 893 "./src-ag/ExecutionPlan2Hs.ag" #-}
-   rule852 = \  (_ :: ()) ->
-                         {-# LINE 893 "./src-ag/ExecutionPlan2Hs.ag" #-}
-                         True
-                         {-# LINE 6560 "dist/build/ExecutionPlan2Hs.hs"#-}
-   {-# INLINE rule853 #-}
-   rule853 = \  (_ :: ()) ->
-     Set.empty
-   {-# INLINE rule854 #-}
-   rule854 = \  (_ :: ()) ->
-     Seq.empty
-   {-# INLINE rule855 #-}
-   rule855 = \  (_ :: ()) ->
-     Set.empty
    {-# INLINE rule856 #-}
+   {-# LINE 869 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule856 = \  (_ :: ()) ->
-     Map.empty
+                      {-# LINE 869 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                      0
+                      {-# LINE 6577 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule857 #-}
+   {-# LINE 895 "./src-ag/ExecutionPlan2Hs.ag" #-}
    rule857 = \  (_ :: ()) ->
-     Map.empty
+                         {-# LINE 895 "./src-ag/ExecutionPlan2Hs.ag" #-}
+                         True
+                         {-# LINE 6583 "dist/build/ExecutionPlan2Hs.hs"#-}
    {-# INLINE rule858 #-}
    rule858 = \  (_ :: ()) ->
-     empty
+     Set.empty
    {-# INLINE rule859 #-}
    rule859 = \  (_ :: ()) ->
-     empty
+     Seq.empty
    {-# INLINE rule860 #-}
    rule860 = \  (_ :: ()) ->
      Set.empty
@@ -6586,12 +6594,27 @@ sem_VisitSteps_Nil  = T_VisitSteps (return st53) where
      Map.empty
    {-# INLINE rule862 #-}
    rule862 = \  (_ :: ()) ->
-     mempty
+     Map.empty
    {-# INLINE rule863 #-}
-   rule863 = \ ((_lhsIindex) :: Int) ->
-     _lhsIindex
+   rule863 = \  (_ :: ()) ->
+     empty
    {-# INLINE rule864 #-}
-   rule864 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
+   rule864 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule865 #-}
+   rule865 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule866 #-}
+   rule866 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule867 #-}
+   rule867 = \  (_ :: ()) ->
+     mempty
+   {-# INLINE rule868 #-}
+   rule868 = \ ((_lhsIindex) :: Int) ->
+     _lhsIindex
+   {-# INLINE rule869 #-}
+   rule869 = \ ((_lhsIprevMaxSimRefs) :: Int) ->
      _lhsIprevMaxSimRefs
 
 -- Visits ------------------------------------------------------
@@ -6636,261 +6659,261 @@ sem_Visits_Cons arg_hd_ arg_tl_ = T_Visits (return st56) where
          (T_Visit_vOut46 _hdIallvisits _hdIchildvisit _hdIerrors _hdIfromToStates _hdIintramap _hdIlazyIntras _hdIruleKinds _hdIruleUsage _hdIsem_visit _hdIt_visits _hdIusedArgs _hdIvisitKinds _hdIvisitdefs _hdIvisituses) = inv_Visit_s47 _hdX47 (T_Visit_vIn46 _hdOallFromToStates _hdOallInhmap _hdOallInitStates _hdOallSynmap _hdOallVisitKinds _hdOallchildvisit _hdOallintramap _hdOavisitdefs _hdOavisituses _hdOchildTypes _hdOchildintros _hdOcon _hdOinhmap _hdOmrules _hdOnextVisits _hdOnt _hdOoptions _hdOparams _hdOprevVisits _hdOruledefs _hdOruleuses _hdOsynmap _hdOterminaldefs)
          (T_Visits_vOut55 _tlIallvisits _tlIchildvisit _tlIerrors _tlIfromToStates _tlIintramap _tlIlazyIntras _tlIruleKinds _tlIruleUsage _tlIsem_visit _tlIt_visits _tlIusedArgs _tlIvisitKinds _tlIvisitdefs _tlIvisituses) = inv_Visits_s56 _tlX56 (T_Visits_vIn55 _tlOallFromToStates _tlOallInhmap _tlOallInitStates _tlOallSynmap _tlOallVisitKinds _tlOallchildvisit _tlOallintramap _tlOavisitdefs _tlOavisituses _tlOchildTypes _tlOchildintros _tlOcon _tlOinhmap _tlOmrules _tlOnextVisits _tlOnt _tlOoptions _tlOparams _tlOprevVisits _tlOruledefs _tlOruleuses _tlOsynmap _tlOterminaldefs)
          _lhsOallvisits :: [VisitStateState]
-         _lhsOallvisits = rule865 _hdIallvisits _tlIallvisits
+         _lhsOallvisits = rule870 _hdIallvisits _tlIallvisits
          _lhsOchildvisit :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))
-         _lhsOchildvisit = rule866 _hdIchildvisit _tlIchildvisit
+         _lhsOchildvisit = rule871 _hdIchildvisit _tlIchildvisit
          _lhsOerrors :: Seq Error
-         _lhsOerrors = rule867 _hdIerrors _tlIerrors
+         _lhsOerrors = rule872 _hdIerrors _tlIerrors
          _lhsOfromToStates :: Map VisitIdentifier (Int,Int)
-         _lhsOfromToStates = rule868 _hdIfromToStates _tlIfromToStates
+         _lhsOfromToStates = rule873 _hdIfromToStates _tlIfromToStates
          _lhsOintramap :: Map StateIdentifier (Map String (Maybe NonLocalAttr))
-         _lhsOintramap = rule869 _hdIintramap _tlIintramap
+         _lhsOintramap = rule874 _hdIintramap _tlIintramap
          _lhsOlazyIntras :: Set String
-         _lhsOlazyIntras = rule870 _hdIlazyIntras _tlIlazyIntras
+         _lhsOlazyIntras = rule875 _hdIlazyIntras _tlIlazyIntras
          _lhsOruleKinds :: Map Identifier (Set VisitKind)
-         _lhsOruleKinds = rule871 _hdIruleKinds _tlIruleKinds
+         _lhsOruleKinds = rule876 _hdIruleKinds _tlIruleKinds
          _lhsOruleUsage :: Map Identifier Int
-         _lhsOruleUsage = rule872 _hdIruleUsage _tlIruleUsage
+         _lhsOruleUsage = rule877 _hdIruleUsage _tlIruleUsage
          _lhsOsem_visit ::  [(StateIdentifier,Bool -> PP_Doc)] 
-         _lhsOsem_visit = rule873 _hdIsem_visit _tlIsem_visit
+         _lhsOsem_visit = rule878 _hdIsem_visit _tlIsem_visit
          _lhsOt_visits :: PP_Doc
-         _lhsOt_visits = rule874 _hdIt_visits _tlIt_visits
+         _lhsOt_visits = rule879 _hdIt_visits _tlIt_visits
          _lhsOusedArgs :: Set String
-         _lhsOusedArgs = rule875 _hdIusedArgs _tlIusedArgs
+         _lhsOusedArgs = rule880 _hdIusedArgs _tlIusedArgs
          _lhsOvisitKinds :: Map VisitIdentifier VisitKind
-         _lhsOvisitKinds = rule876 _hdIvisitKinds _tlIvisitKinds
+         _lhsOvisitKinds = rule881 _hdIvisitKinds _tlIvisitKinds
          _lhsOvisitdefs :: Map VisitIdentifier (Set Identifier)
-         _lhsOvisitdefs = rule877 _hdIvisitdefs _tlIvisitdefs
+         _lhsOvisitdefs = rule882 _hdIvisitdefs _tlIvisitdefs
          _lhsOvisituses :: Map VisitIdentifier (Set Identifier)
-         _lhsOvisituses = rule878 _hdIvisituses _tlIvisituses
-         _hdOallFromToStates = rule879 _lhsIallFromToStates
-         _hdOallInhmap = rule880 _lhsIallInhmap
-         _hdOallInitStates = rule881 _lhsIallInitStates
-         _hdOallSynmap = rule882 _lhsIallSynmap
-         _hdOallVisitKinds = rule883 _lhsIallVisitKinds
-         _hdOallchildvisit = rule884 _lhsIallchildvisit
-         _hdOallintramap = rule885 _lhsIallintramap
-         _hdOavisitdefs = rule886 _lhsIavisitdefs
-         _hdOavisituses = rule887 _lhsIavisituses
-         _hdOchildTypes = rule888 _lhsIchildTypes
-         _hdOchildintros = rule889 _lhsIchildintros
-         _hdOcon = rule890 _lhsIcon
-         _hdOinhmap = rule891 _lhsIinhmap
-         _hdOmrules = rule892 _lhsImrules
-         _hdOnextVisits = rule893 _lhsInextVisits
-         _hdOnt = rule894 _lhsInt
-         _hdOoptions = rule895 _lhsIoptions
-         _hdOparams = rule896 _lhsIparams
-         _hdOprevVisits = rule897 _lhsIprevVisits
-         _hdOruledefs = rule898 _lhsIruledefs
-         _hdOruleuses = rule899 _lhsIruleuses
-         _hdOsynmap = rule900 _lhsIsynmap
-         _hdOterminaldefs = rule901 _lhsIterminaldefs
-         _tlOallFromToStates = rule902 _lhsIallFromToStates
-         _tlOallInhmap = rule903 _lhsIallInhmap
-         _tlOallInitStates = rule904 _lhsIallInitStates
-         _tlOallSynmap = rule905 _lhsIallSynmap
-         _tlOallVisitKinds = rule906 _lhsIallVisitKinds
-         _tlOallchildvisit = rule907 _lhsIallchildvisit
-         _tlOallintramap = rule908 _lhsIallintramap
-         _tlOavisitdefs = rule909 _lhsIavisitdefs
-         _tlOavisituses = rule910 _lhsIavisituses
-         _tlOchildTypes = rule911 _lhsIchildTypes
-         _tlOchildintros = rule912 _lhsIchildintros
-         _tlOcon = rule913 _lhsIcon
-         _tlOinhmap = rule914 _lhsIinhmap
-         _tlOmrules = rule915 _lhsImrules
-         _tlOnextVisits = rule916 _lhsInextVisits
-         _tlOnt = rule917 _lhsInt
-         _tlOoptions = rule918 _lhsIoptions
-         _tlOparams = rule919 _lhsIparams
-         _tlOprevVisits = rule920 _lhsIprevVisits
-         _tlOruledefs = rule921 _lhsIruledefs
-         _tlOruleuses = rule922 _lhsIruleuses
-         _tlOsynmap = rule923 _lhsIsynmap
-         _tlOterminaldefs = rule924 _lhsIterminaldefs
+         _lhsOvisituses = rule883 _hdIvisituses _tlIvisituses
+         _hdOallFromToStates = rule884 _lhsIallFromToStates
+         _hdOallInhmap = rule885 _lhsIallInhmap
+         _hdOallInitStates = rule886 _lhsIallInitStates
+         _hdOallSynmap = rule887 _lhsIallSynmap
+         _hdOallVisitKinds = rule888 _lhsIallVisitKinds
+         _hdOallchildvisit = rule889 _lhsIallchildvisit
+         _hdOallintramap = rule890 _lhsIallintramap
+         _hdOavisitdefs = rule891 _lhsIavisitdefs
+         _hdOavisituses = rule892 _lhsIavisituses
+         _hdOchildTypes = rule893 _lhsIchildTypes
+         _hdOchildintros = rule894 _lhsIchildintros
+         _hdOcon = rule895 _lhsIcon
+         _hdOinhmap = rule896 _lhsIinhmap
+         _hdOmrules = rule897 _lhsImrules
+         _hdOnextVisits = rule898 _lhsInextVisits
+         _hdOnt = rule899 _lhsInt
+         _hdOoptions = rule900 _lhsIoptions
+         _hdOparams = rule901 _lhsIparams
+         _hdOprevVisits = rule902 _lhsIprevVisits
+         _hdOruledefs = rule903 _lhsIruledefs
+         _hdOruleuses = rule904 _lhsIruleuses
+         _hdOsynmap = rule905 _lhsIsynmap
+         _hdOterminaldefs = rule906 _lhsIterminaldefs
+         _tlOallFromToStates = rule907 _lhsIallFromToStates
+         _tlOallInhmap = rule908 _lhsIallInhmap
+         _tlOallInitStates = rule909 _lhsIallInitStates
+         _tlOallSynmap = rule910 _lhsIallSynmap
+         _tlOallVisitKinds = rule911 _lhsIallVisitKinds
+         _tlOallchildvisit = rule912 _lhsIallchildvisit
+         _tlOallintramap = rule913 _lhsIallintramap
+         _tlOavisitdefs = rule914 _lhsIavisitdefs
+         _tlOavisituses = rule915 _lhsIavisituses
+         _tlOchildTypes = rule916 _lhsIchildTypes
+         _tlOchildintros = rule917 _lhsIchildintros
+         _tlOcon = rule918 _lhsIcon
+         _tlOinhmap = rule919 _lhsIinhmap
+         _tlOmrules = rule920 _lhsImrules
+         _tlOnextVisits = rule921 _lhsInextVisits
+         _tlOnt = rule922 _lhsInt
+         _tlOoptions = rule923 _lhsIoptions
+         _tlOparams = rule924 _lhsIparams
+         _tlOprevVisits = rule925 _lhsIprevVisits
+         _tlOruledefs = rule926 _lhsIruledefs
+         _tlOruleuses = rule927 _lhsIruleuses
+         _tlOsynmap = rule928 _lhsIsynmap
+         _tlOterminaldefs = rule929 _lhsIterminaldefs
          __result_ = T_Visits_vOut55 _lhsOallvisits _lhsOchildvisit _lhsOerrors _lhsOfromToStates _lhsOintramap _lhsOlazyIntras _lhsOruleKinds _lhsOruleUsage _lhsOsem_visit _lhsOt_visits _lhsOusedArgs _lhsOvisitKinds _lhsOvisitdefs _lhsOvisituses
          in __result_ )
      in C_Visits_s56 v55
-   {-# INLINE rule865 #-}
-   rule865 = \ ((_hdIallvisits) ::  VisitStateState ) ((_tlIallvisits) :: [VisitStateState]) ->
-     _hdIallvisits : _tlIallvisits
-   {-# INLINE rule866 #-}
-   rule866 = \ ((_hdIchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ((_tlIchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
-     _hdIchildvisit `Map.union` _tlIchildvisit
-   {-# INLINE rule867 #-}
-   rule867 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
-     _hdIerrors Seq.>< _tlIerrors
-   {-# INLINE rule868 #-}
-   rule868 = \ ((_hdIfromToStates) :: Map VisitIdentifier (Int,Int)) ((_tlIfromToStates) :: Map VisitIdentifier (Int,Int)) ->
-     _hdIfromToStates `mappend` _tlIfromToStates
-   {-# INLINE rule869 #-}
-   rule869 = \ ((_hdIintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) ((_tlIintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) ->
-     _hdIintramap `uwMapUnion` _tlIintramap
    {-# INLINE rule870 #-}
-   rule870 = \ ((_hdIlazyIntras) :: Set String) ((_tlIlazyIntras) :: Set String) ->
-     _hdIlazyIntras `Set.union` _tlIlazyIntras
+   rule870 = \ ((_hdIallvisits) ::  VisitStateState ) ((_tlIallvisits) :: [VisitStateState]) ->
+     _hdIallvisits : _tlIallvisits
    {-# INLINE rule871 #-}
-   rule871 = \ ((_hdIruleKinds) :: Map Identifier (Set VisitKind)) ((_tlIruleKinds) :: Map Identifier (Set VisitKind)) ->
-     _hdIruleKinds `unionWithMappend` _tlIruleKinds
+   rule871 = \ ((_hdIchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ((_tlIchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
+     _hdIchildvisit `Map.union` _tlIchildvisit
    {-# INLINE rule872 #-}
-   rule872 = \ ((_hdIruleUsage) :: Map Identifier Int) ((_tlIruleUsage) :: Map Identifier Int) ->
-     _hdIruleUsage `unionWithSum` _tlIruleUsage
+   rule872 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
+     _hdIerrors Seq.>< _tlIerrors
    {-# INLINE rule873 #-}
-   rule873 = \ ((_hdIsem_visit) ::   (StateIdentifier,Bool -> PP_Doc)  ) ((_tlIsem_visit) ::  [(StateIdentifier,Bool -> PP_Doc)] ) ->
-     _hdIsem_visit : _tlIsem_visit
+   rule873 = \ ((_hdIfromToStates) :: Map VisitIdentifier (Int,Int)) ((_tlIfromToStates) :: Map VisitIdentifier (Int,Int)) ->
+     _hdIfromToStates `mappend` _tlIfromToStates
    {-# INLINE rule874 #-}
-   rule874 = \ ((_hdIt_visits) :: PP_Doc) ((_tlIt_visits) :: PP_Doc) ->
-     _hdIt_visits >-< _tlIt_visits
+   rule874 = \ ((_hdIintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) ((_tlIintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) ->
+     _hdIintramap `uwMapUnion` _tlIintramap
    {-# INLINE rule875 #-}
-   rule875 = \ ((_hdIusedArgs) :: Set String) ((_tlIusedArgs) :: Set String) ->
-     _hdIusedArgs `Set.union` _tlIusedArgs
+   rule875 = \ ((_hdIlazyIntras) :: Set String) ((_tlIlazyIntras) :: Set String) ->
+     _hdIlazyIntras `Set.union` _tlIlazyIntras
    {-# INLINE rule876 #-}
-   rule876 = \ ((_hdIvisitKinds) :: Map VisitIdentifier VisitKind) ((_tlIvisitKinds) :: Map VisitIdentifier VisitKind) ->
-     _hdIvisitKinds `mappend` _tlIvisitKinds
+   rule876 = \ ((_hdIruleKinds) :: Map Identifier (Set VisitKind)) ((_tlIruleKinds) :: Map Identifier (Set VisitKind)) ->
+     _hdIruleKinds `unionWithMappend` _tlIruleKinds
    {-# INLINE rule877 #-}
-   rule877 = \ ((_hdIvisitdefs) :: Map VisitIdentifier (Set Identifier)) ((_tlIvisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
-     _hdIvisitdefs `uwSetUnion` _tlIvisitdefs
+   rule877 = \ ((_hdIruleUsage) :: Map Identifier Int) ((_tlIruleUsage) :: Map Identifier Int) ->
+     _hdIruleUsage `unionWithSum` _tlIruleUsage
    {-# INLINE rule878 #-}
-   rule878 = \ ((_hdIvisituses) :: Map VisitIdentifier (Set Identifier)) ((_tlIvisituses) :: Map VisitIdentifier (Set Identifier)) ->
-     _hdIvisituses `uwSetUnion` _tlIvisituses
+   rule878 = \ ((_hdIsem_visit) ::   (StateIdentifier,Bool -> PP_Doc)  ) ((_tlIsem_visit) ::  [(StateIdentifier,Bool -> PP_Doc)] ) ->
+     _hdIsem_visit : _tlIsem_visit
    {-# INLINE rule879 #-}
-   rule879 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
-     _lhsIallFromToStates
+   rule879 = \ ((_hdIt_visits) :: PP_Doc) ((_tlIt_visits) :: PP_Doc) ->
+     _hdIt_visits >-< _tlIt_visits
    {-# INLINE rule880 #-}
-   rule880 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
-     _lhsIallInhmap
+   rule880 = \ ((_hdIusedArgs) :: Set String) ((_tlIusedArgs) :: Set String) ->
+     _hdIusedArgs `Set.union` _tlIusedArgs
    {-# INLINE rule881 #-}
-   rule881 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
-     _lhsIallInitStates
+   rule881 = \ ((_hdIvisitKinds) :: Map VisitIdentifier VisitKind) ((_tlIvisitKinds) :: Map VisitIdentifier VisitKind) ->
+     _hdIvisitKinds `mappend` _tlIvisitKinds
    {-# INLINE rule882 #-}
-   rule882 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
-     _lhsIallSynmap
+   rule882 = \ ((_hdIvisitdefs) :: Map VisitIdentifier (Set Identifier)) ((_tlIvisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
+     _hdIvisitdefs `uwSetUnion` _tlIvisitdefs
    {-# INLINE rule883 #-}
-   rule883 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
-     _lhsIallVisitKinds
+   rule883 = \ ((_hdIvisituses) :: Map VisitIdentifier (Set Identifier)) ((_tlIvisituses) :: Map VisitIdentifier (Set Identifier)) ->
+     _hdIvisituses `uwSetUnion` _tlIvisituses
    {-# INLINE rule884 #-}
-   rule884 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
-     _lhsIallchildvisit
-   {-# INLINE rule885 #-}
-   rule885 = \ ((_lhsIallintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) ->
-     _lhsIallintramap
-   {-# INLINE rule886 #-}
-   rule886 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
-     _lhsIavisitdefs
-   {-# INLINE rule887 #-}
-   rule887 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
-     _lhsIavisituses
-   {-# INLINE rule888 #-}
-   rule888 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
-     _lhsIchildTypes
-   {-# INLINE rule889 #-}
-   rule889 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
-     _lhsIchildintros
-   {-# INLINE rule890 #-}
-   rule890 = \ ((_lhsIcon) :: ConstructorIdent) ->
-     _lhsIcon
-   {-# INLINE rule891 #-}
-   rule891 = \ ((_lhsIinhmap) :: Attributes) ->
-     _lhsIinhmap
-   {-# INLINE rule892 #-}
-   rule892 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
-     _lhsImrules
-   {-# INLINE rule893 #-}
-   rule893 = \ ((_lhsInextVisits) :: Map StateIdentifier StateCtx) ->
-     _lhsInextVisits
-   {-# INLINE rule894 #-}
-   rule894 = \ ((_lhsInt) :: NontermIdent) ->
-     _lhsInt
-   {-# INLINE rule895 #-}
-   rule895 = \ ((_lhsIoptions) :: Options) ->
-     _lhsIoptions
-   {-# INLINE rule896 #-}
-   rule896 = \ ((_lhsIparams) :: [Identifier]) ->
-     _lhsIparams
-   {-# INLINE rule897 #-}
-   rule897 = \ ((_lhsIprevVisits) :: Map StateIdentifier StateCtx) ->
-     _lhsIprevVisits
-   {-# INLINE rule898 #-}
-   rule898 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
-     _lhsIruledefs
-   {-# INLINE rule899 #-}
-   rule899 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
-     _lhsIruleuses
-   {-# INLINE rule900 #-}
-   rule900 = \ ((_lhsIsynmap) :: Attributes) ->
-     _lhsIsynmap
-   {-# INLINE rule901 #-}
-   rule901 = \ ((_lhsIterminaldefs) :: Set String) ->
-     _lhsIterminaldefs
-   {-# INLINE rule902 #-}
-   rule902 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
+   rule884 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
      _lhsIallFromToStates
-   {-# INLINE rule903 #-}
-   rule903 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
+   {-# INLINE rule885 #-}
+   rule885 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
      _lhsIallInhmap
-   {-# INLINE rule904 #-}
-   rule904 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
+   {-# INLINE rule886 #-}
+   rule886 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
      _lhsIallInitStates
-   {-# INLINE rule905 #-}
-   rule905 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
+   {-# INLINE rule887 #-}
+   rule887 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
      _lhsIallSynmap
-   {-# INLINE rule906 #-}
-   rule906 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
+   {-# INLINE rule888 #-}
+   rule888 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
      _lhsIallVisitKinds
-   {-# INLINE rule907 #-}
-   rule907 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
+   {-# INLINE rule889 #-}
+   rule889 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
      _lhsIallchildvisit
-   {-# INLINE rule908 #-}
-   rule908 = \ ((_lhsIallintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) ->
+   {-# INLINE rule890 #-}
+   rule890 = \ ((_lhsIallintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) ->
      _lhsIallintramap
-   {-# INLINE rule909 #-}
-   rule909 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
+   {-# INLINE rule891 #-}
+   rule891 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
      _lhsIavisitdefs
-   {-# INLINE rule910 #-}
-   rule910 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
+   {-# INLINE rule892 #-}
+   rule892 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
      _lhsIavisituses
-   {-# INLINE rule911 #-}
-   rule911 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
+   {-# INLINE rule893 #-}
+   rule893 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
      _lhsIchildTypes
-   {-# INLINE rule912 #-}
-   rule912 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
+   {-# INLINE rule894 #-}
+   rule894 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
      _lhsIchildintros
-   {-# INLINE rule913 #-}
-   rule913 = \ ((_lhsIcon) :: ConstructorIdent) ->
+   {-# INLINE rule895 #-}
+   rule895 = \ ((_lhsIcon) :: ConstructorIdent) ->
      _lhsIcon
-   {-# INLINE rule914 #-}
-   rule914 = \ ((_lhsIinhmap) :: Attributes) ->
+   {-# INLINE rule896 #-}
+   rule896 = \ ((_lhsIinhmap) :: Attributes) ->
      _lhsIinhmap
-   {-# INLINE rule915 #-}
-   rule915 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
+   {-# INLINE rule897 #-}
+   rule897 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
      _lhsImrules
-   {-# INLINE rule916 #-}
-   rule916 = \ ((_lhsInextVisits) :: Map StateIdentifier StateCtx) ->
+   {-# INLINE rule898 #-}
+   rule898 = \ ((_lhsInextVisits) :: Map StateIdentifier StateCtx) ->
      _lhsInextVisits
-   {-# INLINE rule917 #-}
-   rule917 = \ ((_lhsInt) :: NontermIdent) ->
+   {-# INLINE rule899 #-}
+   rule899 = \ ((_lhsInt) :: NontermIdent) ->
      _lhsInt
-   {-# INLINE rule918 #-}
-   rule918 = \ ((_lhsIoptions) :: Options) ->
+   {-# INLINE rule900 #-}
+   rule900 = \ ((_lhsIoptions) :: Options) ->
      _lhsIoptions
-   {-# INLINE rule919 #-}
-   rule919 = \ ((_lhsIparams) :: [Identifier]) ->
+   {-# INLINE rule901 #-}
+   rule901 = \ ((_lhsIparams) :: [Identifier]) ->
      _lhsIparams
-   {-# INLINE rule920 #-}
-   rule920 = \ ((_lhsIprevVisits) :: Map StateIdentifier StateCtx) ->
+   {-# INLINE rule902 #-}
+   rule902 = \ ((_lhsIprevVisits) :: Map StateIdentifier StateCtx) ->
      _lhsIprevVisits
-   {-# INLINE rule921 #-}
-   rule921 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
+   {-# INLINE rule903 #-}
+   rule903 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
      _lhsIruledefs
-   {-# INLINE rule922 #-}
-   rule922 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
+   {-# INLINE rule904 #-}
+   rule904 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
      _lhsIruleuses
-   {-# INLINE rule923 #-}
-   rule923 = \ ((_lhsIsynmap) :: Attributes) ->
+   {-# INLINE rule905 #-}
+   rule905 = \ ((_lhsIsynmap) :: Attributes) ->
      _lhsIsynmap
+   {-# INLINE rule906 #-}
+   rule906 = \ ((_lhsIterminaldefs) :: Set String) ->
+     _lhsIterminaldefs
+   {-# INLINE rule907 #-}
+   rule907 = \ ((_lhsIallFromToStates) :: Map VisitIdentifier (Int,Int)) ->
+     _lhsIallFromToStates
+   {-# INLINE rule908 #-}
+   rule908 = \ ((_lhsIallInhmap) :: Map NontermIdent Attributes) ->
+     _lhsIallInhmap
+   {-# INLINE rule909 #-}
+   rule909 = \ ((_lhsIallInitStates) :: Map NontermIdent Int) ->
+     _lhsIallInitStates
+   {-# INLINE rule910 #-}
+   rule910 = \ ((_lhsIallSynmap) :: Map NontermIdent Attributes) ->
+     _lhsIallSynmap
+   {-# INLINE rule911 #-}
+   rule911 = \ ((_lhsIallVisitKinds) :: Map VisitIdentifier VisitKind) ->
+     _lhsIallVisitKinds
+   {-# INLINE rule912 #-}
+   rule912 = \ ((_lhsIallchildvisit) :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))) ->
+     _lhsIallchildvisit
+   {-# INLINE rule913 #-}
+   rule913 = \ ((_lhsIallintramap) :: Map StateIdentifier (Map String (Maybe NonLocalAttr))) ->
+     _lhsIallintramap
+   {-# INLINE rule914 #-}
+   rule914 = \ ((_lhsIavisitdefs) :: Map VisitIdentifier (Set Identifier)) ->
+     _lhsIavisitdefs
+   {-# INLINE rule915 #-}
+   rule915 = \ ((_lhsIavisituses) :: Map VisitIdentifier (Set Identifier)) ->
+     _lhsIavisituses
+   {-# INLINE rule916 #-}
+   rule916 = \ ((_lhsIchildTypes) :: Map Identifier Type) ->
+     _lhsIchildTypes
+   {-# INLINE rule917 #-}
+   rule917 = \ ((_lhsIchildintros) :: Map Identifier (VisitKind -> FormatMode -> Either Error (PP_Doc, Set String, Map String (Maybe NonLocalAttr)))) ->
+     _lhsIchildintros
+   {-# INLINE rule918 #-}
+   rule918 = \ ((_lhsIcon) :: ConstructorIdent) ->
+     _lhsIcon
+   {-# INLINE rule919 #-}
+   rule919 = \ ((_lhsIinhmap) :: Attributes) ->
+     _lhsIinhmap
+   {-# INLINE rule920 #-}
+   rule920 = \ ((_lhsImrules) :: Map Identifier (VisitKind -> FormatMode -> Either Error PP_Doc)) ->
+     _lhsImrules
+   {-# INLINE rule921 #-}
+   rule921 = \ ((_lhsInextVisits) :: Map StateIdentifier StateCtx) ->
+     _lhsInextVisits
+   {-# INLINE rule922 #-}
+   rule922 = \ ((_lhsInt) :: NontermIdent) ->
+     _lhsInt
+   {-# INLINE rule923 #-}
+   rule923 = \ ((_lhsIoptions) :: Options) ->
+     _lhsIoptions
    {-# INLINE rule924 #-}
-   rule924 = \ ((_lhsIterminaldefs) :: Set String) ->
+   rule924 = \ ((_lhsIparams) :: [Identifier]) ->
+     _lhsIparams
+   {-# INLINE rule925 #-}
+   rule925 = \ ((_lhsIprevVisits) :: Map StateIdentifier StateCtx) ->
+     _lhsIprevVisits
+   {-# INLINE rule926 #-}
+   rule926 = \ ((_lhsIruledefs) :: Map Identifier (Set String)) ->
+     _lhsIruledefs
+   {-# INLINE rule927 #-}
+   rule927 = \ ((_lhsIruleuses) :: Map Identifier (Map String (Maybe NonLocalAttr))) ->
+     _lhsIruleuses
+   {-# INLINE rule928 #-}
+   rule928 = \ ((_lhsIsynmap) :: Attributes) ->
+     _lhsIsynmap
+   {-# INLINE rule929 #-}
+   rule929 = \ ((_lhsIterminaldefs) :: Set String) ->
      _lhsIterminaldefs
 {-# NOINLINE sem_Visits_Nil #-}
 sem_Visits_Nil ::  T_Visits 
@@ -6900,75 +6923,75 @@ sem_Visits_Nil  = T_Visits (return st56) where
       v55 :: T_Visits_v55 
       v55 = \ (T_Visits_vIn55 _lhsIallFromToStates _lhsIallInhmap _lhsIallInitStates _lhsIallSynmap _lhsIallVisitKinds _lhsIallchildvisit _lhsIallintramap _lhsIavisitdefs _lhsIavisituses _lhsIchildTypes _lhsIchildintros _lhsIcon _lhsIinhmap _lhsImrules _lhsInextVisits _lhsInt _lhsIoptions _lhsIparams _lhsIprevVisits _lhsIruledefs _lhsIruleuses _lhsIsynmap _lhsIterminaldefs) -> ( let
          _lhsOallvisits :: [VisitStateState]
-         _lhsOallvisits = rule925  ()
+         _lhsOallvisits = rule930  ()
          _lhsOchildvisit :: Map VisitIdentifier (Identifier -> VisitKind -> Either Error (PP_Doc, PP_Doc))
-         _lhsOchildvisit = rule926  ()
+         _lhsOchildvisit = rule931  ()
          _lhsOerrors :: Seq Error
-         _lhsOerrors = rule927  ()
+         _lhsOerrors = rule932  ()
          _lhsOfromToStates :: Map VisitIdentifier (Int,Int)
-         _lhsOfromToStates = rule928  ()
+         _lhsOfromToStates = rule933  ()
          _lhsOintramap :: Map StateIdentifier (Map String (Maybe NonLocalAttr))
-         _lhsOintramap = rule929  ()
+         _lhsOintramap = rule934  ()
          _lhsOlazyIntras :: Set String
-         _lhsOlazyIntras = rule930  ()
+         _lhsOlazyIntras = rule935  ()
          _lhsOruleKinds :: Map Identifier (Set VisitKind)
-         _lhsOruleKinds = rule931  ()
+         _lhsOruleKinds = rule936  ()
          _lhsOruleUsage :: Map Identifier Int
-         _lhsOruleUsage = rule932  ()
+         _lhsOruleUsage = rule937  ()
          _lhsOsem_visit ::  [(StateIdentifier,Bool -> PP_Doc)] 
-         _lhsOsem_visit = rule933  ()
+         _lhsOsem_visit = rule938  ()
          _lhsOt_visits :: PP_Doc
-         _lhsOt_visits = rule934  ()
+         _lhsOt_visits = rule939  ()
          _lhsOusedArgs :: Set String
-         _lhsOusedArgs = rule935  ()
+         _lhsOusedArgs = rule940  ()
          _lhsOvisitKinds :: Map VisitIdentifier VisitKind
-         _lhsOvisitKinds = rule936  ()
+         _lhsOvisitKinds = rule941  ()
          _lhsOvisitdefs :: Map VisitIdentifier (Set Identifier)
-         _lhsOvisitdefs = rule937  ()
+         _lhsOvisitdefs = rule942  ()
          _lhsOvisituses :: Map VisitIdentifier (Set Identifier)
-         _lhsOvisituses = rule938  ()
+         _lhsOvisituses = rule943  ()
          __result_ = T_Visits_vOut55 _lhsOallvisits _lhsOchildvisit _lhsOerrors _lhsOfromToStates _lhsOintramap _lhsOlazyIntras _lhsOruleKinds _lhsOruleUsage _lhsOsem_visit _lhsOt_visits _lhsOusedArgs _lhsOvisitKinds _lhsOvisitdefs _lhsOvisituses
          in __result_ )
      in C_Visits_s56 v55
-   {-# INLINE rule925 #-}
-   rule925 = \  (_ :: ()) ->
-     []
-   {-# INLINE rule926 #-}
-   rule926 = \  (_ :: ()) ->
-     Map.empty
-   {-# INLINE rule927 #-}
-   rule927 = \  (_ :: ()) ->
-     Seq.empty
-   {-# INLINE rule928 #-}
-   rule928 = \  (_ :: ()) ->
-     mempty
-   {-# INLINE rule929 #-}
-   rule929 = \  (_ :: ()) ->
-     Map.empty
    {-# INLINE rule930 #-}
    rule930 = \  (_ :: ()) ->
-     Set.empty
+     []
    {-# INLINE rule931 #-}
    rule931 = \  (_ :: ()) ->
      Map.empty
    {-# INLINE rule932 #-}
    rule932 = \  (_ :: ()) ->
-     Map.empty
+     Seq.empty
    {-# INLINE rule933 #-}
    rule933 = \  (_ :: ()) ->
-     []
+     mempty
    {-# INLINE rule934 #-}
    rule934 = \  (_ :: ()) ->
-     empty
+     Map.empty
    {-# INLINE rule935 #-}
    rule935 = \  (_ :: ()) ->
      Set.empty
    {-# INLINE rule936 #-}
    rule936 = \  (_ :: ()) ->
-     mempty
+     Map.empty
    {-# INLINE rule937 #-}
    rule937 = \  (_ :: ()) ->
      Map.empty
    {-# INLINE rule938 #-}
    rule938 = \  (_ :: ()) ->
+     []
+   {-# INLINE rule939 #-}
+   rule939 = \  (_ :: ()) ->
+     empty
+   {-# INLINE rule940 #-}
+   rule940 = \  (_ :: ()) ->
+     Set.empty
+   {-# INLINE rule941 #-}
+   rule941 = \  (_ :: ()) ->
+     mempty
+   {-# INLINE rule942 #-}
+   rule942 = \  (_ :: ()) ->
+     Map.empty
+   {-# INLINE rule943 #-}
+   rule943 = \  (_ :: ()) ->
      Map.empty

@@ -3,6 +3,25 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Desugar where
+{-# LINE 2 "./src-ag/HsToken.ag" #-}
+
+import CommonTypes
+import UU.Scanner.Position(Pos)
+{-# LINE 11 "dist/build/Desugar.hs" #-}
+
+{-# LINE 2 "./src-ag/Expression.ag" #-}
+
+import UU.Scanner.Position(Pos)
+import HsToken
+{-# LINE 17 "dist/build/Desugar.hs" #-}
+
+{-# LINE 2 "./src-ag/Patterns.ag" #-}
+
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+{-# LINE 24 "dist/build/Desugar.hs" #-}
+
 {-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
 
 -- AbstractSyntax.ag imports
@@ -13,25 +32,6 @@ import Expression  (Expression(..))
 import Macro --marcos
 import CommonTypes
 import ErrorMessages
-{-# LINE 17 "dist/build/Desugar.hs" #-}
-
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
-
--- Patterns.ag imports
-import UU.Scanner.Position(Pos)
-import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 24 "dist/build/Desugar.hs" #-}
-
-{-# LINE 2 "./src-ag/Expression.ag" #-}
-
-import UU.Scanner.Position(Pos)
-import HsToken
-{-# LINE 30 "dist/build/Desugar.hs" #-}
-
-{-# LINE 2 "./src-ag/HsToken.ag" #-}
-
-import CommonTypes
-import UU.Scanner.Position(Pos)
 {-# LINE 36 "dist/build/Desugar.hs" #-}
 
 {-# LINE 14 "./src-ag/Desugar.ag" #-}
