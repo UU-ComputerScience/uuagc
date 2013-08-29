@@ -39,7 +39,11 @@ clean:
 		$(patsubst %,%.hs,$(PROJ_ALL)) \
 		$(patsubst %,%.hi,$(PROJ_ALL)) \
 		$(patsubst %,%.o ,$(PROJ_ALL)) \
-		test.html test0.html
+		test.html test0.html \
+		html.tgz
+
+distr:
+	tar cfzv html.tgz $(wildcard *.ag) $(wildcard *.doc) Makefile README
 
 test3: test3.doc html Makefile
 	./html test3.doc test3.html
