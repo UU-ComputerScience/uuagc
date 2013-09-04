@@ -13,10 +13,10 @@ Then write a custom Setup.hs:
 module Main where
 
 import Distribution.Simple
-import Distribution.Simple.UUAGC
+import Distribution.Simple.UUAGC (uuagcLibUserHook)
+import UU.UUAGC (uuagc)
 
-compiler = "uuagc"
-main = defaultMainWithHooks (uuagcUserHook' compiler)
+main = defaultMainWithHooks (uuagcLibUserHook uuagc)
 --
 
 Add extra-source-files: uuagc_options
