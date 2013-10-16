@@ -19,37 +19,21 @@ Attributes themselves can masquerade as subtrees and be analyzed accordingly (hi
 Nonterminals (data types), productions (data constructors), attributes, and rules for attributes can be specified separately, and are woven and ordered automatically. These aspect-oriented programming features make AGs convenient to use in large projects.
 
 The system is in use by a variety of large and small projects, such as the Utrecht Haskell Compiler UHC~\cref{uhc}, the editor Proxima for structured documents (\url{http://www.haskell.org/communities/05-2010/html/report.html#sect6.4.5}), the Helium compiler (\url{http://www.haskell.org/communities/05-2009/html/report.html#sect2.3}), the Generic Haskell compiler, UUAG itself, and many master student projects.
-The current version is 0.9.42.3 (April 2013), is extensively tested, and is available on Hackage. There is also a Cabal plugin for easy use of AG files in Haskell projects.
+The current version is 0.9.50 (August 2013), is extensively tested, and is available on Hackage. There is also a Cabal plugin for easy use of AG files in Haskell projects.
 
 Some of the recent changes to the UUAG system are:
 \begin{description}
-\item[OCaml support.]
-  We have added OCaml code generation such that UUAG can also be used in OCaml projects.
-
-\item[Improved build system.]
-  We have improved the building procedure to make sure that the UUAGC can both be built from source as well as from the included generated Haskell sources, without the need of an external bootstrap program. 
-
-\item[First-class AGs.]
-  We provide a translation from UUAG to AspectAG (\url{http://www.haskell.org/communities/11-2011/html/report.html#sect5.4.2})%~\cref{aspectag}
-  .
-  AspectAG is a library of strongly typed Attribute Grammars
-  implemented using type-level programming. With this extension, we can write the main part of
-  an AG conveniently with UUAG, and use AspectAG for (dynamic) extensions. Our goal is to have
-  an extensible version of the UHC.
-
-\item[Ordered evaluation.]
-  We have implemented a variant of Kennedy and Warren (1976)
-  for \emph{ordered} AGs. For any absolutely non-circular AGs, this algorithm finds a static
-  evaluation order, which solves some of the problems we had with an earlier approach for
-  ordered AGs. A static evaluation order allows the generated code to be strict, which is
-  important to reduce the memory usage when dealing with large ASTs.
-  The generated code is purely functional, does not require type
-  annotations for local attributes, and the Haskell compiler proves that the static evaluation
-  order is correct.
+\item[OCaml and Clean support.]
+  We have added OCaml and Clean code generation such that UUAG can also be used in OCaml projects and in Clean projects.
 \end{description}
 
 We are currently working on the following enhancements:
 \begin{description}
+\item[Evaluation scheduling and fixed point computation.]
+  We are running a project to improve the scheduling algorithms in combination with fixed point computations. The currently implemented algorithms for scheduling AG computations do not fully satisfy our needs; the code we write goes beyond the class of OAGs, but the algorithm by Kennedy and Warren (1976) results in an undesired increase of generated code due to non-linear evaluation orders. However, because we know that our code belongs to the class of linear orderable AGs, we would like to find and algorithm that can find this linear order, and thus lies in between the two existing approaches.
+
+Fixed point computations and ordered AG computations do not easily mix. In some cases however we would like to include fixed point computations inside an ordered AG, so the second aim of this project is to introduce way of letting the user specify such computations, and evaluate these in the right way.
+
 \item[Incremental evaluation.]
   We are currently also running a Ph.D.\ project that investigates incremental evaluation of
   AGs. In this ongoing work we hope to improve the UUAG compiler by adding support for
