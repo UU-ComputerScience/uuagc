@@ -7,6 +7,7 @@ import Data.List                     (partition)
 import Control.Monad                 (zipWithM_)
 import Data.Maybe
 import System.FilePath
+import System.IO
 
 import qualified Data.Set as Set
 import qualified Data.Map as Map
@@ -519,7 +520,7 @@ getDeps flags files
        let ppErrs = PrErr.wrap_Errors (PrErr.sem_Errors errs) PrErr.Inh_Errors {PrErr.options_Inh_Errors = flags, PrErr.dups_Inh_Errors = []}
        if null errs
         then return fs
-        else do putStr . formatErrors $ PrErr.pp_Syn_Errors ppErrs
+        else do hPutStr stderr . formatErrors $ PrErr.pp_Syn_Errors ppErrs
                 failWithCode flags 1
                 return []
   where

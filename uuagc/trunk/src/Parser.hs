@@ -11,6 +11,7 @@ import TokenDef
 import Data.List (intersperse)
 import Data.Char
 import Scanner (Input(..),scanLit,input)
+import System.FilePath
 import Data.List
 import Expression
 import Macro --marcos
@@ -62,8 +63,9 @@ parseAGI opts searchPath file
 
 depsAG :: Options -> [FilePath] -> String -> IO ([String], [Message Token Pos])
 depsAG opts searchPath file
-  = do (_,_,fs,_,mesgs) <- parseFile False opts searchPath file
-       return (tail fs, mesgs) -- first file is always the file itself
+  = do let fn = normalise file
+       (_,_,fs,_,mesgs) <- parseFile False opts searchPath fn
+       return (filter (/= fn) fs, mesgs)
 
 -- marcos: added the parameter 'agi' and the 'ext' part
 parseFile :: Bool -> Options -> [FilePath] -> String -> IO  ([Elem],[String],[String], Maybe String,[Message Token Pos ])
@@ -71,7 +73,7 @@ parseFile = parseFile' []
 
 parseFile' :: [String] -> Bool -> Options -> [FilePath] -> String -> IO  ([Elem],[String],[String], Maybe String,[Message Token Pos ])
 parseFile' parsedfiles agi opts searchPath filename
- = do file <- resolveFile opts searchPath filename
+ = do file <- normalise `fmap` resolveFile opts searchPath filename
       if file `elem` parsedfiles 
         then return ([], [], parsedfiles, Nothing, [])
         else do
@@ -105,10 +107,11 @@ parseFile' parsedfiles agi opts searchPath filename
              addElem e      (es,fs,ext) = (e:es,   fs, ext)
              addInc  (fn,_) (es,fs,ext) 
                | noIncludes opts = (es, fs, ext)  -- skip includes
-               | otherwise       = (es,fn:fs, ext)
+               | otherwise       = (es,normalise fn:fs, ext)
              addExt  (fn,_) (es,fs,ext)
                | noIncludes opts = (es, fs, ext)  -- skip includes
-               | otherwise       = if agi then (es,fs, Just fn) else (es,fn:fs, ext) --marcos
+               | otherwise       = if agi then (es,fs, Just fn') else (es,fn':fs, ext) --marcos
+               where fn' = normalise fn
 
     pCodescrapL = (\(ValToken _ str pos) -> (str, pos))<$>
                         parseScrapL <?> "a code block"
