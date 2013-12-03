@@ -130,6 +130,8 @@ DATA Type     | Arr              left  : Type
               | TMap             key   : Type
                                  value : Type
               | TIntMap          value : Type
+              | TSet             tp    : Type
+              | TIntSet
 
 DATA Lhs      | Pattern3    pat3  : Pattern
               | Pattern3SM  pat3  : Pattern

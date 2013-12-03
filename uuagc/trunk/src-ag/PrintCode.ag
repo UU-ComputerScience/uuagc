@@ -294,6 +294,10 @@ SEM Type  [ | | prec:Int ]
                  lhs.pp    = text "Data.Map.Map" >#< pp_parens @key.pp >#< pp_parens @value.pp
   | TIntMap      lhs.prec  = 5
                  lhs.pp    = text "Data.IntMap.IntMap" >#< pp_parens @value.pp
+  | TSet         lhs.prec  = 5
+                 lhs.pp    = text "Data.Set.Set" >#< pp_parens @tp.pp
+  | TIntSet      lhs.prec  = 5
+                 lhs.pp    = text "Data.IntSet.IntSet"
 
 
 {

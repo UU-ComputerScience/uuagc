@@ -171,6 +171,8 @@ SEM Type
   | TEither    lhs.pp = error "pp of Type.TEither is not supported"
   | TMap       lhs.pp = error "pp of Type.TMap is not supported"
   | TIntMap    lhs.pp = error "pp of Type.TIntMap is not supported"
+  | TSet       lhs.pp = error "pp of Type.TSet is not supported"
+  | TIntSet    lhs.pp = error "pp of Type.TIntSet is not supported"
 
 {
 toOcamlTC :: String -> String
