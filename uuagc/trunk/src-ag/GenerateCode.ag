@@ -790,6 +790,7 @@ evalType opts replf t'
           TEither l r          -> TEither (chase l) (chase r)
           TMap k v             -> TMap (chase k) (chase v)
           TIntMap v            -> TIntMap (chase v)
+          TSet m               -> TSet (chase m)
           _                    -> t
 
     replaceTok t
@@ -1011,7 +1012,8 @@ SEM CNonterminal
                                                         CommonTypes.IntMap t     -> TIntMap $ typeToCodeType (Just @nt) params' t
                                                         CommonTypes.List t       -> Code.List $ typeToCodeType (Just @nt) params' t
                                                         CommonTypes.Tuple ts     -> Code.TupleType [typeToCodeType (Just @nt) params' t | (_,t) <- ts ]
-                                                        tp'                      -> error $ show tp' ++ " not supported"
+                                                        CommonTypes.OrdSet t     -> TSet $ typeToCodeType (Just @nt) params' t
+                                                        CommonTypes.IntSet       -> TIntSet
                                                  in Code.Type (getName @nt) params' (idEvalType @lhs.options theType)
                                    derivings  = maybe [] (map getName . Set.toList) (Map.lookup @nt @lhs.derivings)
                                    dataDef    = Data (getName @nt) (map getName @params) @prods.dataAlts (maybe False id @lhs.o_data) derivings
@@ -1124,8 +1126,25 @@ SEM CNonterminal
 
                                                          lhs = Fun (cataname @lhs.prefix @nt) [TupleExpr (map fst tps')]
                                                          rhs = App con rargs
+                                                     in  [Decl lhs rhs Set.empty Set.empty] 
+                                                 CommonTypes.OrdSet tp ->
+                                                     let entry = SimpleExpr (semname @lhs.prefix @nt (identifier "Entry"))
+                                                         nil   = SimpleExpr (semname @lhs.prefix @nt (identifier "Nil" ))
+                                                         arg   = SimpleExpr "set"
+                                                         rentry = case tp of
+                                                                   NT t _ _ -> let t' = maybe t id (deforestedNt t)
+                                                                               in App "(.)" [entry, SimpleExpr $ cataname @lhs.prefix t']
+                                                                   _        -> entry
+                                                         lhs = Fun (cataname @lhs.prefix @nt) [arg]
+                                                         rhs = (App "Data.Set.foldr" [rentry,nil,arg])
                                                      in  [Decl lhs rhs Set.empty Set.empty]
-						 _ -> error "TODO"
+                                                 CommonTypes.IntSet ->
+                                                     let entry = SimpleExpr (semname @lhs.prefix @nt (identifier "Entry"))
+                                                         nil   = SimpleExpr (semname @lhs.prefix @nt (identifier "Nil" ))
+                                                         arg   = SimpleExpr "set"
+                                                         lhs = Fun (cataname @lhs.prefix @nt) [arg]
+                                                         rhs = (App "Data.IntSet.foldr" [entry,nil,arg])
+                                                     in  [Decl lhs rhs Set.empty Set.empty]
                                in  Comment "cata" :
                                    (if @lhs.o_sig then [tSig] else []) ++
                                    maybe @prods.cataAlts special (lookup @nt @lhs.typeSyns)
