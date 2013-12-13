@@ -29,7 +29,10 @@ scanTokens keywordstxt keywordsops specchars opchars opts pos input
    iskw     = locatein keywordstxt
    isop     = locatein keywordsops
    isSymb   = locatein specchars
-   isOpsym  = locatein opchars
+   -- See http://stackoverflow.com/questions/10548170/what-characters-are-permitted-for-haskell-operators
+   isOpsym  c = locatein opchars c
+                -- For unicode operators
+                || (not (isAscii c) && (isSymbol c || isPunctuation c))
 
    isIdStart c = isLower c || c == '_'
 
