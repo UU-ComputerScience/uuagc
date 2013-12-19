@@ -234,7 +234,7 @@ useRule opts locals ch_outs (n,(op,e,pos))
                                           | otherwise = "(" ++ op ++ " " ++ l ++ " " ++ r ++ ")"  -- associates to the right
                                         str = foldr1 opExpr (map (flip attrName n) elems)
 
-    in makeRule (_LHS,n)
+    in makeRule (_LOC,n)
                 (Expression noPos tks)
                 ("use rule " ++ pos)
                 False
@@ -309,7 +309,7 @@ copyRule options wrappers nt con modcopy locals (env,(fld,as))
                       deprChild =  maybe False (== _ACHILD) sel
 {-# LINE 311 "dist/build/DefaultRules.hs" #-}
 
-{-# LINE 488 "./src-ag/DefaultRules.ag" #-}
+{-# LINE 490 "./src-ag/DefaultRules.ag" #-}
 
 buildTuple fs = "(" ++ concat (intersperse "," fs) ++ ")"
 
@@ -378,7 +378,7 @@ addMerges (target,(_,_,expr)) rules
     childLoc = Ident (show target ++ "_merge") (getPos target)
 {-# LINE 380 "dist/build/DefaultRules.hs" #-}
 
-{-# LINE 606 "./src-ag/DefaultRules.ag" #-}
+{-# LINE 608 "./src-ag/DefaultRules.ag" #-}
 
 elimSelfId :: NontermIdent -> [Identifier] -> Type -> Type
 elimSelfId nt args Self = NT nt (map getName args) False
@@ -389,7 +389,7 @@ elimSelfStr nt args Self = NT nt args False
 elimSelfStr _ _ tp = tp
 {-# LINE 391 "dist/build/DefaultRules.hs" #-}
 
-{-# LINE 658 "./src-ag/DefaultRules.ag" #-}
+{-# LINE 660 "./src-ag/DefaultRules.ag" #-}
 
 -- When a rule has a name, create an alias for a rule
 -- and a modified rule that refers to the alias
@@ -404,13 +404,13 @@ mkRuleAlias (Rule (Just nm) pat expr owrt origin expl pure identity mbErr eager)
   r'    = Rule Nothing pat expr' owrt origin False True identity Nothing False
 {-# LINE 406 "dist/build/DefaultRules.hs" #-}
 
-{-# LINE 675 "./src-ag/DefaultRules.ag" #-}
+{-# LINE 677 "./src-ag/DefaultRules.ag" #-}
 
 needsMultiRules :: Options -> Bool
 needsMultiRules opts = (visit opts || withCycle opts) && not (kennedyWarren opts)
 {-# LINE 412 "dist/build/DefaultRules.hs" #-}
 
-{-# LINE 680 "./src-ag/DefaultRules.ag" #-}
+{-# LINE 682 "./src-ag/DefaultRules.ag" #-}
 
 {-
 multiRule replaces
@@ -632,36 +632,36 @@ sem_Child_Child !arg_name_ !arg_tp_ !arg_kind_ = T_Child (return st0) where
                               else _syn1
                               {-# LINE 634 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule6 #-}
-   {-# LINE 574 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 576 "./src-ag/DefaultRules.ag" #-}
    rule6 = \ !kind_ !name_ !tp_ ->
-                        {-# LINE 574 "./src-ag/DefaultRules.ag" #-}
+                        {-# LINE 576 "./src-ag/DefaultRules.ag" #-}
                         (name_,tp_,kind_)
                         {-# LINE 640 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule7 #-}
-   {-# LINE 596 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 598 "./src-ag/DefaultRules.ag" #-}
    rule7 = \ !name_ !tp_ ->
-                           {-# LINE 596 "./src-ag/DefaultRules.ag" #-}
+                           {-# LINE 598 "./src-ag/DefaultRules.ag" #-}
                            case tp_ of
                              NT nt params _ -> (nt, params)
                              Self           -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
                              Haskell t      -> (identifier t, [])
                            {-# LINE 649 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule8 #-}
-   {-# LINE 600 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 602 "./src-ag/DefaultRules.ag" #-}
    rule8 = \ !_inh !_nt !_params ->
-               {-# LINE 600 "./src-ag/DefaultRules.ag" #-}
+               {-# LINE 602 "./src-ag/DefaultRules.ag" #-}
                Map.map (elimSelfStr _nt     _params    ) _inh
                {-# LINE 655 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule9 #-}
-   {-# LINE 601 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 603 "./src-ag/DefaultRules.ag" #-}
    rule9 = \ !_nt !_params !_syn ->
-               {-# LINE 601 "./src-ag/DefaultRules.ag" #-}
+               {-# LINE 603 "./src-ag/DefaultRules.ag" #-}
                Map.map (elimSelfStr _nt     _params    ) _syn
                {-# LINE 661 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule10 #-}
-   {-# LINE 642 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 644 "./src-ag/DefaultRules.ag" #-}
    rule10 = \ !kind_ !name_ !tp_ ->
-                 {-# LINE 642 "./src-ag/DefaultRules.ag" #-}
+                 {-# LINE 644 "./src-ag/DefaultRules.ag" #-}
                  Child name_ tp_ kind_
                  {-# LINE 667 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule11 #-}
@@ -823,9 +823,9 @@ sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st2) where
                          (_hdIname, _hdIsynthesized) : _tlIoutputs
                          {-# LINE 825 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule15 #-}
-   {-# LINE 570 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 572 "./src-ag/DefaultRules.ag" #-}
    rule15 = \ ((!_hdIfield) ::  (Identifier,Type,ChildKind) ) ((!_tlIfields) :: [(Identifier,Type,ChildKind)]) ->
-                        {-# LINE 570 "./src-ag/DefaultRules.ag" #-}
+                        {-# LINE 572 "./src-ag/DefaultRules.ag" #-}
                         _hdIfield : _tlIfields
                         {-# LINE 831 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule16 #-}
@@ -931,9 +931,9 @@ sem_Children_Nil  = T_Children (return st2) where
                          []
                          {-# LINE 933 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule35 #-}
-   {-# LINE 571 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 573 "./src-ag/DefaultRules.ag" #-}
    rule35 = \  (_ :: ()) ->
-                        {-# LINE 571 "./src-ag/DefaultRules.ag" #-}
+                        {-# LINE 573 "./src-ag/DefaultRules.ag" #-}
                         []
                         {-# LINE 939 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule36 #-}
@@ -1051,33 +1051,33 @@ sem_Grammar_Grammar !arg_typeSyns_ !arg_useMap_ !arg_derivings_ !arg_wrappers_ a
                                  typeSyns_
                                  {-# LINE 1053 "dist/build/DefaultRules.hs"#-}
    {-# INLINE rule47 #-}
-   {-# LINE 623 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 625 "./src-ag/DefaultRules.ag" #-}
    rule47 = \  (_ :: ()) ->
-                           {-# LINE 623 "./src-ag/DefaultRules.ag" #-}
+                           {-# LINE 625 "./src-ag/DefaultRules.ag" #-}
                            1
                            {-# LINE 1059 "dist/build/DefaultRules.hs"#-}
    {-# INLINE rule48 #-}
-   {-# LINE 737 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 739 "./src-ag/DefaultRules.ag" #-}
    rule48 = \ !manualAttrOrderMap_ ->
-                                   {-# LINE 737 "./src-ag/DefaultRules.ag" #-}
+                                   {-# LINE 739 "./src-ag/DefaultRules.ag" #-}
                                    manualAttrOrderMap_
                                    {-# LINE 1065 "dist/build/DefaultRules.hs"#-}
    {-# INLINE rule49 #-}
-   {-# LINE 803 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 805 "./src-ag/DefaultRules.ag" #-}
    rule49 = \ !augmentsMap_ ->
-                                                    {-# LINE 803 "./src-ag/DefaultRules.ag" #-}
+                                                    {-# LINE 805 "./src-ag/DefaultRules.ag" #-}
                                                     augmentsMap_
                                                     {-# LINE 1071 "dist/build/DefaultRules.hs"#-}
    {-# INLINE rule50 #-}
-   {-# LINE 810 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 812 "./src-ag/DefaultRules.ag" #-}
    rule50 = \ !aroundsMap_ ->
-                                                   {-# LINE 810 "./src-ag/DefaultRules.ag" #-}
+                                                   {-# LINE 812 "./src-ag/DefaultRules.ag" #-}
                                                    aroundsMap_
                                                    {-# LINE 1077 "dist/build/DefaultRules.hs"#-}
    {-# INLINE rule51 #-}
-   {-# LINE 818 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 820 "./src-ag/DefaultRules.ag" #-}
    rule51 = \ !mergeMap_ ->
-                                                  {-# LINE 818 "./src-ag/DefaultRules.ag" #-}
+                                                  {-# LINE 820 "./src-ag/DefaultRules.ag" #-}
                                                   mergeMap_
                                                   {-# LINE 1083 "dist/build/DefaultRules.hs"#-}
    {-# INLINE rule52 #-}
@@ -1463,39 +1463,39 @@ sem_Nonterminal_Nonterminal !arg_nt_ !arg_params_ !arg_inh_ !arg_syn_ arg_prods_
                                nt_
                                {-# LINE 1465 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE rule67 #-}
-   {-# LINE 592 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 594 "./src-ag/DefaultRules.ag" #-}
    rule67 = \ !inh_ !nt_ !params_ ->
-               {-# LINE 592 "./src-ag/DefaultRules.ag" #-}
+               {-# LINE 594 "./src-ag/DefaultRules.ag" #-}
                Map.map (elimSelfId nt_ params_) inh_
                {-# LINE 1471 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE rule68 #-}
-   {-# LINE 593 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 595 "./src-ag/DefaultRules.ag" #-}
    rule68 = \ !nt_ !params_ !syn_ ->
-               {-# LINE 593 "./src-ag/DefaultRules.ag" #-}
+               {-# LINE 595 "./src-ag/DefaultRules.ag" #-}
                Map.map (elimSelfId nt_ params_) syn_
                {-# LINE 1477 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE rule69 #-}
-   {-# LINE 632 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 634 "./src-ag/DefaultRules.ag" #-}
    rule69 = \ !_inh1 ((!_prodsIoutput) :: Productions) !_syn1 !nt_ !params_ ->
-                 {-# LINE 632 "./src-ag/DefaultRules.ag" #-}
+                 {-# LINE 634 "./src-ag/DefaultRules.ag" #-}
                  Nonterminal nt_ params_ _inh1     _syn1     _prodsIoutput
                  {-# LINE 1483 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE rule70 #-}
-   {-# LINE 804 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 806 "./src-ag/DefaultRules.ag" #-}
    rule70 = \ ((!_lhsIaugmentsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !nt_ ->
-                                                  {-# LINE 804 "./src-ag/DefaultRules.ag" #-}
+                                                  {-# LINE 806 "./src-ag/DefaultRules.ag" #-}
                                                   Map.findWithDefault Map.empty nt_ _lhsIaugmentsIn
                                                   {-# LINE 1489 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE rule71 #-}
-   {-# LINE 811 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 813 "./src-ag/DefaultRules.ag" #-}
    rule71 = \ ((!_lhsIaroundsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !nt_ ->
-                                                   {-# LINE 811 "./src-ag/DefaultRules.ag" #-}
+                                                   {-# LINE 813 "./src-ag/DefaultRules.ag" #-}
                                                    Map.findWithDefault Map.empty nt_ _lhsIaroundsIn
                                                    {-# LINE 1495 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE rule72 #-}
-   {-# LINE 819 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 821 "./src-ag/DefaultRules.ag" #-}
    rule72 = \ ((!_lhsImergesIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression)))) !nt_ ->
-                                                  {-# LINE 819 "./src-ag/DefaultRules.ag" #-}
+                                                  {-# LINE 821 "./src-ag/DefaultRules.ag" #-}
                                                   Map.findWithDefault Map.empty nt_ _lhsImergesIn
                                                   {-# LINE 1501 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule73 #-}
@@ -2606,23 +2606,23 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st10) wher
           in __result_ )
      in C_Pattern_s55 k55
    {-# NOINLINE rule154 #-}
-   {-# LINE 564 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 566 "./src-ag/DefaultRules.ag" #-}
    rule154 = \ ((!_patIdefinedAttrs) :: Set (Identifier,Identifier)) !attr_ !field_ ->
-                               {-# LINE 564 "./src-ag/DefaultRules.ag" #-}
+                               {-# LINE 566 "./src-ag/DefaultRules.ag" #-}
                                Set.insert (field_,attr_) _patIdefinedAttrs
                                {-# LINE 2614 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE rule155 #-}
-   {-# LINE 565 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 567 "./src-ag/DefaultRules.ag" #-}
    rule155 = \ ((!_patIlocals) :: Set Identifier) !attr_ !field_ ->
-                               {-# LINE 565 "./src-ag/DefaultRules.ag" #-}
+                               {-# LINE 567 "./src-ag/DefaultRules.ag" #-}
                                if field_ == _LOC
                                   then Set.insert attr_ _patIlocals
                                   else _patIlocals
                                {-# LINE 2622 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE rule156 #-}
-   {-# LINE 582 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 584 "./src-ag/DefaultRules.ag" #-}
    rule156 = \  (_ :: ()) ->
-                                    {-# LINE 582 "./src-ag/DefaultRules.ag" #-}
+                                    {-# LINE 584 "./src-ag/DefaultRules.ag" #-}
                                     True
                                     {-# LINE 2628 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule157 #-}
@@ -3545,15 +3545,16 @@ sem_Production_Production !arg_con_ !arg_params_ !arg_constraints_ arg_children_
           lhs_env    = last envs
           (selfAttrs, normalAttrs)
             = Map.partitionWithKey (\k _ -> maybe False isSELFNonterminal $ Map.lookup k _lhsIsynOrig) _lhsIsyn
-          (_,undefAttrs)
-            = removeDefined _rulesIdefinedAttrs (_LHS, normalAttrs)
-          (useAttrs,others)
-            = splitAttrs _lhsIuseMap undefAttrs
+          others = snd $ removeDefined _rulesIdefinedAttrs (_LHS, normalAttrs)
+          useAttrs = fst $ splitAttrs _lhsIuseMap $
+                     snd $ removeDefined _rulesIdefinedAttrs (_LOC, normalAttrs)
           (rules1, errors1)
             = concatRE $ map (copyRule _lhsIoptions _lhsIwrappers _lhsInt con_ _lhsIcr locals)
                              (zip envs (map (removeDefined _rulesIdefinedAttrs) _childrenIinputs))
           uRules
             = map (useRule _lhsIoptions locals _childrenIoutputs) useAttrs
+          uLocals
+            = Set.fromList $ map fst useAttrs
           selfLocRules
             =  [ selfRule False attr $
                    lexTokens _lhsIoptions noPos $
@@ -3581,44 +3582,44 @@ sem_Production_Production !arg_con_ !arg_params_ !arg_constraints_ arg_children_
                        _lhsInt
                        con_
                        _lhsIcr
-                       locals
+                       (locals `Set.union` uLocals)
                        (lhs_env, (_LHS, others))
       in (uRules++selfLocRules++selfRules++rules5++rules1, errors1><errs5)
-      {-# LINE 3588 "dist/build/DefaultRules.hs"#-}
+      {-# LINE 3589 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule206 #-}
-   {-# LINE 636 "./src-ag/DefaultRules.ag" #-}
-   rule206 = \ !_augmentsIn !_newRls ((!_rulesIoutput) :: Rules) ->
-                     {-# LINE 636 "./src-ag/DefaultRules.ag" #-}
-                     foldr addAugments (_rulesIoutput ++ _newRls) (Map.assocs _augmentsIn    )
-                     {-# LINE 3594 "dist/build/DefaultRules.hs"#-}
-   {-# NOINLINE[1] rule207 #-}
-   {-# LINE 637 "./src-ag/DefaultRules.ag" #-}
-   rule207 = \ !_aroundsIn !_extra1 ->
-                     {-# LINE 637 "./src-ag/DefaultRules.ag" #-}
-                     foldr addArounds _extra1     (Map.assocs _aroundsIn    )
-                     {-# LINE 3600 "dist/build/DefaultRules.hs"#-}
-   {-# NOINLINE[1] rule208 #-}
    {-# LINE 638 "./src-ag/DefaultRules.ag" #-}
-   rule208 = \ !_extra2 !_mergesIn ->
+   rule206 = \ !_augmentsIn !_newRls ((!_rulesIoutput) :: Rules) ->
                      {-# LINE 638 "./src-ag/DefaultRules.ag" #-}
-                     foldr addMerges _extra2     (Map.assocs _mergesIn    )
-                     {-# LINE 3606 "dist/build/DefaultRules.hs"#-}
-   {-# NOINLINE[1] rule209 #-}
+                     foldr addAugments (_rulesIoutput ++ _newRls) (Map.assocs _augmentsIn    )
+                     {-# LINE 3595 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule207 #-}
    {-# LINE 639 "./src-ag/DefaultRules.ag" #-}
-   rule209 = \ ((!_childrenIoutput) :: Children) !_extra3 ((!_typeSigsIoutput) :: TypeSigs) !con_ !constraints_ !macro_ !params_ ->
+   rule207 = \ !_aroundsIn !_extra1 ->
                      {-# LINE 639 "./src-ag/DefaultRules.ag" #-}
+                     foldr addArounds _extra1     (Map.assocs _aroundsIn    )
+                     {-# LINE 3601 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule208 #-}
+   {-# LINE 640 "./src-ag/DefaultRules.ag" #-}
+   rule208 = \ !_extra2 !_mergesIn ->
+                     {-# LINE 640 "./src-ag/DefaultRules.ag" #-}
+                     foldr addMerges _extra2     (Map.assocs _mergesIn    )
+                     {-# LINE 3607 "dist/build/DefaultRules.hs"#-}
+   {-# NOINLINE[1] rule209 #-}
+   {-# LINE 641 "./src-ag/DefaultRules.ag" #-}
+   rule209 = \ ((!_childrenIoutput) :: Children) !_extra3 ((!_typeSigsIoutput) :: TypeSigs) !con_ !constraints_ !macro_ !params_ ->
+                     {-# LINE 641 "./src-ag/DefaultRules.ag" #-}
                      Production con_ params_ constraints_ _childrenIoutput _extra3     _typeSigsIoutput macro_
-                     {-# LINE 3612 "dist/build/DefaultRules.hs"#-}
+                     {-# LINE 3613 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule210 #-}
-   {-# LINE 747 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 749 "./src-ag/DefaultRules.ag" #-}
    rule210 = \ ((!_lhsImanualAttrOrderMap) :: AttrOrderMap) ((!_lhsInt) :: NontermIdent) !con_ ->
-                        {-# LINE 747 "./src-ag/DefaultRules.ag" #-}
+                        {-# LINE 749 "./src-ag/DefaultRules.ag" #-}
                         Set.toList $ Map.findWithDefault Set.empty con_ $ Map.findWithDefault Map.empty _lhsInt _lhsImanualAttrOrderMap
-                        {-# LINE 3618 "dist/build/DefaultRules.hs"#-}
+                        {-# LINE 3619 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule211 #-}
-   {-# LINE 750 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 752 "./src-ag/DefaultRules.ag" #-}
    rule211 = \ ((!_childrenIinputs) :: [(Identifier, Attributes)]) ((!_childrenIoutputs) :: [(Identifier, Attributes)]) ((!_lhsIinh) :: Attributes) ((!_lhsInt) :: NontermIdent) ((!_lhsIsyn) :: Attributes) !_orderDeps ((!_rulesIlocals) :: Set Identifier) ((!_rulesIruleNames) :: Set Identifier) !con_ ->
-            {-# LINE 750 "./src-ag/DefaultRules.ag" #-}
+            {-# LINE 752 "./src-ag/DefaultRules.ag" #-}
             let chldOutMap = Map.fromList [ (k, Map.keysSet s) | (k,s) <- _childrenIoutputs ]
                 chldInMap  = Map.fromList [ (k, Map.keysSet s) | (k,s) <- _childrenIinputs ]
                 isInAttribute :: Identifier -> Identifier -> [Error]
@@ -3654,31 +3655,31 @@ sem_Production_Production !arg_con_ !arg_params_ !arg_constraints_ arg_children_
                [ checkIn occA ++ checkOut occB
                | (Dependency occA occB) <- _orderDeps
                ]
-            {-# LINE 3658 "dist/build/DefaultRules.hs"#-}
+            {-# LINE 3659 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule212 #-}
-   {-# LINE 805 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 807 "./src-ag/DefaultRules.ag" #-}
    rule212 = \ ((!_lhsIaugmentsIn) :: Map ConstructorIdent (Map Identifier [Expression])) !con_ ->
-                                                  {-# LINE 805 "./src-ag/DefaultRules.ag" #-}
+                                                  {-# LINE 807 "./src-ag/DefaultRules.ag" #-}
                                                   Map.findWithDefault Map.empty con_ _lhsIaugmentsIn
-                                                  {-# LINE 3664 "dist/build/DefaultRules.hs"#-}
+                                                  {-# LINE 3665 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule213 #-}
-   {-# LINE 812 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 814 "./src-ag/DefaultRules.ag" #-}
    rule213 = \ ((!_lhsIaroundsIn) :: Map ConstructorIdent (Map Identifier [Expression])) !con_ ->
-                                                   {-# LINE 812 "./src-ag/DefaultRules.ag" #-}
+                                                   {-# LINE 814 "./src-ag/DefaultRules.ag" #-}
                                                    Map.findWithDefault Map.empty con_ _lhsIaroundsIn
-                                                   {-# LINE 3670 "dist/build/DefaultRules.hs"#-}
+                                                   {-# LINE 3671 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule214 #-}
-   {-# LINE 820 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 822 "./src-ag/DefaultRules.ag" #-}
    rule214 = \ ((!_lhsImergesIn) :: Map ConstructorIdent (Map Identifier (Identifier,[Identifier],Expression))) !con_ ->
-                                                  {-# LINE 820 "./src-ag/DefaultRules.ag" #-}
+                                                  {-# LINE 822 "./src-ag/DefaultRules.ag" #-}
                                                   Map.findWithDefault Map.empty con_ _lhsImergesIn
-                                                  {-# LINE 3676 "dist/build/DefaultRules.hs"#-}
+                                                  {-# LINE 3677 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule215 #-}
-   {-# LINE 821 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 823 "./src-ag/DefaultRules.ag" #-}
    rule215 = \ !_mergesIn ->
-                                                  {-# LINE 821 "./src-ag/DefaultRules.ag" #-}
+                                                  {-# LINE 823 "./src-ag/DefaultRules.ag" #-}
                                                   Set.fromList [ c | (_,cs,_) <- Map.elems _mergesIn    , c <- cs ]
-                                                  {-# LINE 3682 "dist/build/DefaultRules.hs"#-}
+                                                  {-# LINE 3683 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule217 #-}
    rule217 = \ ((!_rulesIuniq) :: Int) ->
      _rulesIuniq
@@ -4263,39 +4264,39 @@ sem_Rule_Rule !arg_mbName_ arg_pattern_ !arg_rhs_ !arg_owrt_ !arg_origin_ !arg_e
           in __result_ )
      in C_Rule_s51 v44
    {-# NOINLINE[1] rule280 #-}
-   {-# LINE 585 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 587 "./src-ag/DefaultRules.ag" #-}
    rule280 = \ !pure_ ->
-                                {-# LINE 585 "./src-ag/DefaultRules.ag" #-}
+                                {-# LINE 587 "./src-ag/DefaultRules.ag" #-}
                                 pure_
-                                {-# LINE 4271 "dist/build/DefaultRules.hs"#-}
+                                {-# LINE 4272 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule281 #-}
-   {-# LINE 652 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 654 "./src-ag/DefaultRules.ag" #-}
    rule281 = \ !_output ->
-                                         {-# LINE 652 "./src-ag/DefaultRules.ag" #-}
+                                         {-# LINE 654 "./src-ag/DefaultRules.ag" #-}
                                          mkRuleAlias _output
-                                         {-# LINE 4277 "dist/build/DefaultRules.hs"#-}
+                                         {-# LINE 4278 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule282 #-}
-   {-# LINE 653 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 655 "./src-ag/DefaultRules.ag" #-}
    rule282 = \ ((!_lhsIoptions) :: Options) ((!_lhsIuniq) :: Int) !_output1 ->
-                                      {-# LINE 653 "./src-ag/DefaultRules.ag" #-}
+                                      {-# LINE 655 "./src-ag/DefaultRules.ag" #-}
                                       if needsMultiRules _lhsIoptions
                                       then multiRule _output1     _lhsIuniq
                                       else ([_output1    ], _lhsIuniq)
-                                      {-# LINE 4285 "dist/build/DefaultRules.hs"#-}
+                                      {-# LINE 4286 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule283 #-}
-   {-# LINE 656 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 658 "./src-ag/DefaultRules.ag" #-}
    rule283 = \ !_mbAlias !_outputs ->
-                          {-# LINE 656 "./src-ag/DefaultRules.ag" #-}
+                          {-# LINE 658 "./src-ag/DefaultRules.ag" #-}
                           maybe [] return _mbAlias     ++ _outputs
-                          {-# LINE 4291 "dist/build/DefaultRules.hs"#-}
+                          {-# LINE 4292 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule284 #-}
-   {-# LINE 741 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 743 "./src-ag/DefaultRules.ag" #-}
    rule284 = \ !mbName_ ->
-                                   {-# LINE 741 "./src-ag/DefaultRules.ag" #-}
+                                   {-# LINE 743 "./src-ag/DefaultRules.ag" #-}
                                    case mbName_ of
                                      Nothing -> Set.empty
                                      Just nm -> Set.singleton nm
-                                   {-# LINE 4299 "dist/build/DefaultRules.hs"#-}
+                                   {-# LINE 4300 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule285 #-}
    rule285 = \ ((!_patternIcontainsVars) :: Bool) ->
      _patternIcontainsVars
@@ -4457,11 +4458,11 @@ sem_Rules_Cons arg_hd_ arg_tl_ = T_Rules (return st20) where
           in __result_ )
      in C_Rules_s42 v31
    {-# NOINLINE[1] rule293 #-}
-   {-# LINE 648 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 650 "./src-ag/DefaultRules.ag" #-}
    rule293 = \ ((!_hdIcontainsVars) :: Bool) ((!_hdIisPure) :: Bool) ((!_hdIoutputs) :: Rules) ((!_tlIoutput) :: Rules) ->
-                        {-# LINE 648 "./src-ag/DefaultRules.ag" #-}
+                        {-# LINE 650 "./src-ag/DefaultRules.ag" #-}
                         if _hdIcontainsVars && _hdIisPure then _hdIoutputs ++ _tlIoutput else _tlIoutput
-                        {-# LINE 4465 "dist/build/DefaultRules.hs"#-}
+                        {-# LINE 4466 "dist/build/DefaultRules.hs"#-}
    {-# NOINLINE[1] rule294 #-}
    rule294 = \ ((!_hdIdefinedAttrs) :: Set (Identifier,Identifier)) ((!_tlIdefinedAttrs) :: Set (Identifier,Identifier)) ->
      _hdIdefinedAttrs `Set.union` _tlIdefinedAttrs
@@ -4624,17 +4625,17 @@ sem_TypeSig_TypeSig !arg_name_ !arg_tp_ = T_TypeSig (return st22) where
           in __result_ )
      in C_TypeSig_s22 v11
    {-# INLINE rule317 #-}
-   {-# LINE 604 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 606 "./src-ag/DefaultRules.ag" #-}
    rule317 = \ ((!_lhsInt) :: NontermIdent) ((!_lhsIparams) :: [Identifier]) !tp_ ->
-              {-# LINE 604 "./src-ag/DefaultRules.ag" #-}
+              {-# LINE 606 "./src-ag/DefaultRules.ag" #-}
               elimSelfId _lhsInt _lhsIparams tp_
-              {-# LINE 4632 "dist/build/DefaultRules.hs"#-}
+              {-# LINE 4633 "dist/build/DefaultRules.hs"#-}
    {-# INLINE rule318 #-}
-   {-# LINE 645 "./src-ag/DefaultRules.ag" #-}
+   {-# LINE 647 "./src-ag/DefaultRules.ag" #-}
    rule318 = \ !_tp1 !name_ ->
-                 {-# LINE 645 "./src-ag/DefaultRules.ag" #-}
+                 {-# LINE 647 "./src-ag/DefaultRules.ag" #-}
                  TypeSig name_ _tp1
-                 {-# LINE 4638 "dist/build/DefaultRules.hs"#-}
+                 {-# LINE 4639 "dist/build/DefaultRules.hs"#-}
 
 -- TypeSigs ----------------------------------------------------
 -- wrapper
