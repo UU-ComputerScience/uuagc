@@ -328,7 +328,7 @@ useRule opts locals ch_outs (n,(op,e,pos))
                                           | otherwise = "(" ++ op ++ " " ++ l ++ " " ++ r ++ ")"  -- associates to the right
                                         str = foldr1 opExpr (map (flip attrName n) elems)
 
-    in makeRule (_LHS,n)
+    in makeRule (_LOC,n)
                 (Expression noPos tks)
                 ("use rule " ++ pos)
                 False
@@ -435,11 +435,11 @@ SEM Production
         (selfAttrs, normalAttrs)
           = Map.partitionWithKey (\k _ -> maybe False isSELFNonterminal $ Map.lookup k @lhs.synOrig) @lhs.syn
 
-        (_,undefAttrs)
-          = removeDefined @rules.definedAttrs (_LHS, normalAttrs)
-
-        (useAttrs,others)
-          = splitAttrs @lhs.useMap undefAttrs
+        others = snd $ removeDefined @rules.definedAttrs (_LHS, normalAttrs)
+        
+        -- Generate use attrs as local
+        useAttrs = fst $ splitAttrs @lhs.useMap $ 
+                   snd $ removeDefined @rules.definedAttrs (_LOC, normalAttrs)
 
         (rules1, errors1)
           = concatRE $ map (copyRule @lhs.options @lhs.wrappers @lhs.nt @con @lhs.cr locals)
@@ -447,6 +447,8 @@ SEM Production
 
         uRules
           = map (useRule @lhs.options locals @children.outputs) useAttrs
+        uLocals
+          = Set.fromList $ map fst useAttrs
 
         -- creates a loc.xxx if there is a synthesized attr xxx of type SELF and no
         -- loc.xxx exists yet. If there exists a terminal yyy and a local loc.yyy, then
@@ -481,7 +483,7 @@ SEM Production
                      @lhs.nt
                      @con
                      @lhs.cr
-                     locals
+                     (locals `Set.union` uLocals)
                      (lhs_env, (_LHS, others))
     in (uRules++selfLocRules++selfRules++rules5++rules1, errors1><errs5)
 
