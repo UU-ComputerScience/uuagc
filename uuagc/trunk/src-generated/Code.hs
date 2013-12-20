@@ -10,7 +10,7 @@ import qualified Data.Set as Set
 import Data.Map(Map)
 import qualified Data.Map as Map
 {-# LINE 13 "dist/build/Code.hs" #-}
-{-# LINE 144 "./src-ag/Code.ag" #-}
+{-# LINE 146 "./src-ag/Code.ag" #-}
 
 -- Unboxed tuples
 --   unbox  Whether unboxed tuples are wanted or not
@@ -325,6 +325,9 @@ data Program = Program (Chunks) (Bool)
          child value          : Type 
       alternative TIntMap:
          child value          : Type 
+      alternative TSet:
+         child tp             : Type 
+      alternative TIntSet:
 -}
 data Type = Arr (Type) (Type)
           | CtxApp (([(String, [String])])) (Type)
@@ -339,6 +342,8 @@ data Type = Arr (Type) (Type)
           | TEither (Type) (Type)
           | TMap (Type) (Type)
           | TIntMap (Type)
+          | TSet (Type)
+          | TIntSet
           deriving ( Show)
 -- Types -------------------------------------------------------
 {-

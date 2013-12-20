@@ -31,7 +31,7 @@ import Data.Char(toLower)
 {-# LINE 32 "dist/build/PrintOcamlCode.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
-{-# LINE 144 "./src-ag/Code.ag" #-}
+{-# LINE 146 "./src-ag/Code.ag" #-}
 
 -- Unboxed tuples
 --   unbox  Whether unboxed tuples are wanted or not
@@ -69,7 +69,7 @@ ppTuple True  pps = "(" >|< pp_block " " (replicate (length pps `max` 1) ')') ",
 ppTuple False pps = "(" >|< pp_block " " ")" "," pps
 {-# LINE 71 "dist/build/PrintOcamlCode.hs" #-}
 
-{-# LINE 175 "./src-ag/PrintOcamlCode.ag" #-}
+{-# LINE 177 "./src-ag/PrintOcamlCode.ag" #-}
 
 toOcamlTC :: String -> String
 toOcamlTC (c:cs) = toLower c : cs
@@ -124,9 +124,9 @@ sem_CaseAlt_CaseAlt arg_left_ arg_expr_ = T_CaseAlt (return st2) where
          in __result_ )
      in C_CaseAlt_s2 v1
    {-# INLINE rule0 #-}
-   {-# LINE 182 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 184 "./src-ag/PrintOcamlCode.ag" #-}
    rule0 = \ ((_exprIpp) :: PP_Doc) ((_leftIpp) :: PP_Doc) ->
-                               {-# LINE 182 "./src-ag/PrintOcamlCode.ag" #-}
+                               {-# LINE 184 "./src-ag/PrintOcamlCode.ag" #-}
                                _leftIpp >#< "->" >#< _exprIpp
                                {-# LINE 132 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule1 #-}
@@ -482,9 +482,9 @@ sem_DataAlt_DataAlt !arg_name_ arg_args_ = T_DataAlt (return st14) where
          in __result_ )
      in C_DataAlt_s14 v13
    {-# INLINE rule30 #-}
-   {-# LINE 185 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 187 "./src-ag/PrintOcamlCode.ag" #-}
    rule30 = \ ((_argsIpps) :: PP_Docs) name_ ->
-                               {-# LINE 185 "./src-ag/PrintOcamlCode.ag" #-}
+                               {-# LINE 187 "./src-ag/PrintOcamlCode.ag" #-}
                                name_ >#< "of" >#< pp_block "" "" " * " (map pp_parens _argsIpps)
                                {-# LINE 490 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_DataAlt_Record #-}
@@ -502,9 +502,9 @@ sem_DataAlt_Record _ arg_args_ = T_DataAlt (return st14) where
          in __result_ )
      in C_DataAlt_s14 v13
    {-# INLINE rule31 #-}
-   {-# LINE 186 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 188 "./src-ag/PrintOcamlCode.ag" #-}
    rule31 = \ ((_argsIpps) :: PP_Docs) ->
-                               {-# LINE 186 "./src-ag/PrintOcamlCode.ag" #-}
+                               {-# LINE 188 "./src-ag/PrintOcamlCode.ag" #-}
                                pp_block "{" "}" ";" _argsIpps
                                {-# LINE 510 "dist/build/PrintOcamlCode.hs"#-}
 
@@ -1051,9 +1051,9 @@ sem_Expr_Let arg_decls_ arg_body_ = T_Expr (return st26) where
                                  pp_parens $ vlist (_declsIpps ++ [_bodyIpp])
                                  {-# LINE 1053 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule62 #-}
-   {-# LINE 218 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 220 "./src-ag/PrintOcamlCode.ag" #-}
    rule62 = \  (_ :: ()) ->
-                           {-# LINE 218 "./src-ag/PrintOcamlCode.ag" #-}
+                           {-# LINE 220 "./src-ag/PrintOcamlCode.ag" #-}
                            False
                            {-# LINE 1059 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule63 #-}
@@ -1124,9 +1124,9 @@ sem_Expr_Do arg_stmts_ arg_body_ = T_Expr (return st26) where
                                  error "pp of Expr.Do not supported"
                                  {-# LINE 1126 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule69 #-}
-   {-# LINE 220 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 222 "./src-ag/PrintOcamlCode.ag" #-}
    rule69 = \  (_ :: ()) ->
-                           {-# LINE 220 "./src-ag/PrintOcamlCode.ag" #-}
+                           {-# LINE 222 "./src-ag/PrintOcamlCode.ag" #-}
                            False
                            {-# LINE 1132 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule70 #-}
@@ -1773,9 +1773,9 @@ sem_NamedType_Named _ !arg_name_ arg_tp_ = T_NamedType (return st35) where
          in __result_ )
      in C_NamedType_s35 v34
    {-# INLINE rule117 #-}
-   {-# LINE 189 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 191 "./src-ag/PrintOcamlCode.ag" #-}
    rule117 = \ ((_tpIpp) :: PP_Doc) name_ ->
-                               {-# LINE 189 "./src-ag/PrintOcamlCode.ag" #-}
+                               {-# LINE 191 "./src-ag/PrintOcamlCode.ag" #-}
                                name_ >#< ":" >#< _tpIpp
                                {-# LINE 1781 "dist/build/PrintOcamlCode.hs"#-}
 
@@ -1905,15 +1905,15 @@ sem_Pattern_Constr !arg_name_ arg_pats_ = T_Pattern (return st41) where
          in __result_ )
      in C_Pattern_s41 v40
    {-# INLINE rule120 #-}
-   {-# LINE 192 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 194 "./src-ag/PrintOcamlCode.ag" #-}
    rule120 = \ ((_patsIpps) :: PP_Docs) name_ ->
-                           {-# LINE 192 "./src-ag/PrintOcamlCode.ag" #-}
+                           {-# LINE 194 "./src-ag/PrintOcamlCode.ag" #-}
                            pp_parens $ name_ >#< hv_sp _patsIpps
                            {-# LINE 1913 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule121 #-}
-   {-# LINE 202 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 204 "./src-ag/PrintOcamlCode.ag" #-}
    rule121 = \  (_ :: ()) ->
-                                    {-# LINE 202 "./src-ag/PrintOcamlCode.ag" #-}
+                                    {-# LINE 204 "./src-ag/PrintOcamlCode.ag" #-}
                                     False
                                     {-# LINE 1919 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule122 #-}
@@ -1946,15 +1946,15 @@ sem_Pattern_Product !arg_pos_ arg_pats_ = T_Pattern (return st41) where
          in __result_ )
      in C_Pattern_s41 v40
    {-# INLINE rule125 #-}
-   {-# LINE 193 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 195 "./src-ag/PrintOcamlCode.ag" #-}
    rule125 = \ ((_patsIpps) :: PP_Docs) ->
-                           {-# LINE 193 "./src-ag/PrintOcamlCode.ag" #-}
+                           {-# LINE 195 "./src-ag/PrintOcamlCode.ag" #-}
                            pp_block "(" ")" "," _patsIpps
                            {-# LINE 1954 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule126 #-}
-   {-# LINE 203 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 205 "./src-ag/PrintOcamlCode.ag" #-}
    rule126 = \  (_ :: ()) ->
-                                    {-# LINE 203 "./src-ag/PrintOcamlCode.ag" #-}
+                                    {-# LINE 205 "./src-ag/PrintOcamlCode.ag" #-}
                                     False
                                     {-# LINE 1960 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule127 #-}
@@ -1987,17 +1987,17 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st41) wher
          in __result_ )
      in C_Pattern_s41 v40
    {-# INLINE rule130 #-}
-   {-# LINE 195 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 197 "./src-ag/PrintOcamlCode.ag" #-}
    rule130 = \ ((_lhsIoptions) :: Options) ((_patIisUnderscore) :: Bool) attr_ field_ ->
-                           {-# LINE 195 "./src-ag/PrintOcamlCode.ag" #-}
+                           {-# LINE 197 "./src-ag/PrintOcamlCode.ag" #-}
                            if _patIisUnderscore
                             then pp (attrname _lhsIoptions False field_ attr_)
                             else error "pp of Pattern.Alias is only supported in the form (x@_)"
                            {-# LINE 1997 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule131 #-}
-   {-# LINE 204 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 206 "./src-ag/PrintOcamlCode.ag" #-}
    rule131 = \  (_ :: ()) ->
-                                    {-# LINE 204 "./src-ag/PrintOcamlCode.ag" #-}
+                                    {-# LINE 206 "./src-ag/PrintOcamlCode.ag" #-}
                                     False
                                     {-# LINE 2003 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule132 #-}
@@ -2030,9 +2030,9 @@ sem_Pattern_Irrefutable arg_pat_ = T_Pattern (return st41) where
          in __result_ )
      in C_Pattern_s41 v40
    {-# INLINE rule135 #-}
-   {-# LINE 198 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 200 "./src-ag/PrintOcamlCode.ag" #-}
    rule135 = \  (_ :: ()) ->
-                           {-# LINE 198 "./src-ag/PrintOcamlCode.ag" #-}
+                           {-# LINE 200 "./src-ag/PrintOcamlCode.ag" #-}
                            error "pp of Pattern.Irrefutable not supported"
                            {-# LINE 2038 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule136 #-}
@@ -2065,15 +2065,15 @@ sem_Pattern_Underscore !arg_pos_ = T_Pattern (return st41) where
          in __result_ )
      in C_Pattern_s41 v40
    {-# INLINE rule140 #-}
-   {-# LINE 199 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 201 "./src-ag/PrintOcamlCode.ag" #-}
    rule140 = \  (_ :: ()) ->
-                           {-# LINE 199 "./src-ag/PrintOcamlCode.ag" #-}
+                           {-# LINE 201 "./src-ag/PrintOcamlCode.ag" #-}
                            text "_"
                            {-# LINE 2073 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule141 #-}
-   {-# LINE 205 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 207 "./src-ag/PrintOcamlCode.ag" #-}
    rule141 = \  (_ :: ()) ->
-                                    {-# LINE 205 "./src-ag/PrintOcamlCode.ag" #-}
+                                    {-# LINE 207 "./src-ag/PrintOcamlCode.ag" #-}
                                     True
                                     {-# LINE 2079 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule142 #-}
@@ -2234,9 +2234,9 @@ sem_Program_Program arg_chunks_ _ = T_Program (return st47) where
                                _chunksIpps
                                {-# LINE 2236 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule153 #-}
-   {-# LINE 214 "./src-ag/PrintOcamlCode.ag" #-}
+   {-# LINE 216 "./src-ag/PrintOcamlCode.ag" #-}
    rule153 = \  (_ :: ()) ->
-                            {-# LINE 214 "./src-ag/PrintOcamlCode.ag" #-}
+                            {-# LINE 216 "./src-ag/PrintOcamlCode.ag" #-}
                             True
                             {-# LINE 2242 "dist/build/PrintOcamlCode.hs"#-}
    {-# INLINE rule154 #-}
@@ -2276,6 +2276,8 @@ sem_Type ( TMaybe tp_ ) = sem_Type_TMaybe ( sem_Type tp_ )
 sem_Type ( TEither left_ right_ ) = sem_Type_TEither ( sem_Type left_ ) ( sem_Type right_ )
 sem_Type ( TMap key_ value_ ) = sem_Type_TMap ( sem_Type key_ ) ( sem_Type value_ )
 sem_Type ( TIntMap value_ ) = sem_Type_TIntMap ( sem_Type value_ )
+sem_Type ( TSet tp_ ) = sem_Type_TSet ( sem_Type tp_ )
+sem_Type ( TIntSet  ) = sem_Type_TIntSet 
 
 -- semantic domain
 newtype T_Type  = T_Type {
@@ -2309,7 +2311,7 @@ sem_Type_Arr arg_left_ arg_right_ = T_Type (return st50) where
    rule156 = \ ((_leftIpp) :: PP_Doc) ((_rightIpp) :: PP_Doc) ->
                           {-# LINE 161 "./src-ag/PrintOcamlCode.ag" #-}
                           pp_parens (_leftIpp >#< "->" >#< _rightIpp)
-                          {-# LINE 2313 "dist/build/PrintOcamlCode.hs"#-}
+                          {-# LINE 2315 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_Type_CtxApp #-}
 sem_Type_CtxApp :: ([(String, [String])]) -> T_Type  -> T_Type 
 sem_Type_CtxApp _ arg_right_ = T_Type (return st50) where
@@ -2329,7 +2331,7 @@ sem_Type_CtxApp _ arg_right_ = T_Type (return st50) where
    rule157 = \  (_ :: ()) ->
                           {-# LINE 162 "./src-ag/PrintOcamlCode.ag" #-}
                           error "pp of Type.CtxApp not supported"
-                          {-# LINE 2333 "dist/build/PrintOcamlCode.hs"#-}
+                          {-# LINE 2335 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_Type_QuantApp #-}
 sem_Type_QuantApp :: (String) -> T_Type  -> T_Type 
 sem_Type_QuantApp _ arg_right_ = T_Type (return st50) where
@@ -2368,7 +2370,7 @@ sem_Type_TypeApp arg_func_ arg_args_ = T_Type (return st50) where
    rule159 = \ ((_argsIpps) :: PP_Docs) ((_funcIpp) :: PP_Doc) ->
                           {-# LINE 163 "./src-ag/PrintOcamlCode.ag" #-}
                           pp_parens (hv_sp (_argsIpps ++ [_funcIpp]))
-                          {-# LINE 2372 "dist/build/PrintOcamlCode.hs"#-}
+                          {-# LINE 2374 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_Type_TupleType #-}
 sem_Type_TupleType :: T_Types  -> T_Type 
 sem_Type_TupleType arg_tps_ = T_Type (return st50) where
@@ -2388,7 +2390,7 @@ sem_Type_TupleType arg_tps_ = T_Type (return st50) where
    rule160 = \ ((_tpsIpps) :: PP_Docs) ->
                           {-# LINE 164 "./src-ag/PrintOcamlCode.ag" #-}
                           pp_block "(" ")" "," _tpsIpps
-                          {-# LINE 2392 "dist/build/PrintOcamlCode.hs"#-}
+                          {-# LINE 2394 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_Type_UnboxedTupleType #-}
 sem_Type_UnboxedTupleType :: T_Types  -> T_Type 
 sem_Type_UnboxedTupleType arg_tps_ = T_Type (return st50) where
@@ -2408,7 +2410,7 @@ sem_Type_UnboxedTupleType arg_tps_ = T_Type (return st50) where
    rule161 = \  (_ :: ()) ->
                           {-# LINE 166 "./src-ag/PrintOcamlCode.ag" #-}
                           error "pp of Type.UnboxedTupleType is not supported"
-                          {-# LINE 2412 "dist/build/PrintOcamlCode.hs"#-}
+                          {-# LINE 2414 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_Type_List #-}
 sem_Type_List :: T_Type  -> T_Type 
 sem_Type_List arg_tp_ = T_Type (return st50) where
@@ -2428,7 +2430,7 @@ sem_Type_List arg_tp_ = T_Type (return st50) where
    rule162 = \ ((_tpIpp) :: PP_Doc) ->
                           {-# LINE 167 "./src-ag/PrintOcamlCode.ag" #-}
                           _tpIpp >#< "list"
-                          {-# LINE 2432 "dist/build/PrintOcamlCode.hs"#-}
+                          {-# LINE 2434 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_Type_SimpleType #-}
 sem_Type_SimpleType :: (String) -> T_Type 
 sem_Type_SimpleType !arg_txt_ = T_Type (return st50) where
@@ -2446,7 +2448,7 @@ sem_Type_SimpleType !arg_txt_ = T_Type (return st50) where
    rule163 = \ txt_ ->
                           {-# LINE 168 "./src-ag/PrintOcamlCode.ag" #-}
                           text txt_
-                          {-# LINE 2450 "dist/build/PrintOcamlCode.hs"#-}
+                          {-# LINE 2452 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_Type_NontermType #-}
 sem_Type_NontermType :: (String) -> ([String]) -> (Bool) -> T_Type 
 sem_Type_NontermType !arg_name_ !arg_params_ _ = T_Type (return st50) where
@@ -2464,7 +2466,7 @@ sem_Type_NontermType !arg_name_ !arg_params_ _ = T_Type (return st50) where
    rule164 = \ name_ params_ ->
                            {-# LINE 169 "./src-ag/PrintOcamlCode.ag" #-}
                            pp_block "(" ")" " " (map text params_ ++ [text $ toOcamlTC name_])
-                           {-# LINE 2468 "dist/build/PrintOcamlCode.hs"#-}
+                           {-# LINE 2470 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_Type_TMaybe #-}
 sem_Type_TMaybe :: T_Type  -> T_Type 
 sem_Type_TMaybe arg_tp_ = T_Type (return st50) where
@@ -2484,7 +2486,7 @@ sem_Type_TMaybe arg_tp_ = T_Type (return st50) where
    rule165 = \ ((_tpIpp) :: PP_Doc) ->
                           {-# LINE 170 "./src-ag/PrintOcamlCode.ag" #-}
                           _tpIpp >#< "opt"
-                          {-# LINE 2488 "dist/build/PrintOcamlCode.hs"#-}
+                          {-# LINE 2490 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_Type_TEither #-}
 sem_Type_TEither :: T_Type  -> T_Type  -> T_Type 
 sem_Type_TEither arg_left_ arg_right_ = T_Type (return st50) where
@@ -2506,7 +2508,7 @@ sem_Type_TEither arg_left_ arg_right_ = T_Type (return st50) where
    rule166 = \  (_ :: ()) ->
                           {-# LINE 171 "./src-ag/PrintOcamlCode.ag" #-}
                           error "pp of Type.TEither is not supported"
-                          {-# LINE 2510 "dist/build/PrintOcamlCode.hs"#-}
+                          {-# LINE 2512 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_Type_TMap #-}
 sem_Type_TMap :: T_Type  -> T_Type  -> T_Type 
 sem_Type_TMap arg_key_ arg_value_ = T_Type (return st50) where
@@ -2528,7 +2530,7 @@ sem_Type_TMap arg_key_ arg_value_ = T_Type (return st50) where
    rule167 = \  (_ :: ()) ->
                           {-# LINE 172 "./src-ag/PrintOcamlCode.ag" #-}
                           error "pp of Type.TMap is not supported"
-                          {-# LINE 2532 "dist/build/PrintOcamlCode.hs"#-}
+                          {-# LINE 2534 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_Type_TIntMap #-}
 sem_Type_TIntMap :: T_Type  -> T_Type 
 sem_Type_TIntMap arg_value_ = T_Type (return st50) where
@@ -2548,7 +2550,45 @@ sem_Type_TIntMap arg_value_ = T_Type (return st50) where
    rule168 = \  (_ :: ()) ->
                           {-# LINE 173 "./src-ag/PrintOcamlCode.ag" #-}
                           error "pp of Type.TIntMap is not supported"
-                          {-# LINE 2552 "dist/build/PrintOcamlCode.hs"#-}
+                          {-# LINE 2554 "dist/build/PrintOcamlCode.hs"#-}
+{-# NOINLINE sem_Type_TSet #-}
+sem_Type_TSet :: T_Type  -> T_Type 
+sem_Type_TSet arg_tp_ = T_Type (return st50) where
+   {-# NOINLINE st50 #-}
+   !st50 = let
+      v49 :: T_Type_v49 
+      v49 = \ !(T_Type_vIn49 ) -> ( let
+         _tpX50 = Control.Monad.Identity.runIdentity (attach_T_Type (arg_tp_))
+         (T_Type_vOut49 _tpIpp) = inv_Type_s50 _tpX50 (T_Type_vIn49 )
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule169  ()
+         !__result_ = T_Type_vOut49 _lhsOpp
+         in __result_ )
+     in C_Type_s50 v49
+   {-# INLINE rule169 #-}
+   {-# LINE 174 "./src-ag/PrintOcamlCode.ag" #-}
+   rule169 = \  (_ :: ()) ->
+                          {-# LINE 174 "./src-ag/PrintOcamlCode.ag" #-}
+                          error "pp of Type.TSet is not supported"
+                          {-# LINE 2574 "dist/build/PrintOcamlCode.hs"#-}
+{-# NOINLINE sem_Type_TIntSet #-}
+sem_Type_TIntSet ::  T_Type 
+sem_Type_TIntSet  = T_Type (return st50) where
+   {-# NOINLINE st50 #-}
+   !st50 = let
+      v49 :: T_Type_v49 
+      v49 = \ !(T_Type_vIn49 ) -> ( let
+         _lhsOpp :: PP_Doc
+         _lhsOpp = rule170  ()
+         !__result_ = T_Type_vOut49 _lhsOpp
+         in __result_ )
+     in C_Type_s50 v49
+   {-# INLINE rule170 #-}
+   {-# LINE 175 "./src-ag/PrintOcamlCode.ag" #-}
+   rule170 = \  (_ :: ()) ->
+                          {-# LINE 175 "./src-ag/PrintOcamlCode.ag" #-}
+                          error "pp of Type.TIntSet is not supported"
+                          {-# LINE 2592 "dist/build/PrintOcamlCode.hs"#-}
 
 -- Types -------------------------------------------------------
 -- wrapper
@@ -2592,16 +2632,16 @@ sem_Types_Cons arg_hd_ arg_tl_ = T_Types (return st53) where
          (T_Type_vOut49 _hdIpp) = inv_Type_s50 _hdX50 (T_Type_vIn49 )
          (T_Types_vOut52 _tlIpps) = inv_Types_s53 _tlX53 (T_Types_vIn52 )
          _lhsOpps :: PP_Docs
-         _lhsOpps = rule169 _hdIpp _tlIpps
+         _lhsOpps = rule171 _hdIpp _tlIpps
          !__result_ = T_Types_vOut52 _lhsOpps
          in __result_ )
      in C_Types_s53 v52
-   {-# INLINE rule169 #-}
+   {-# INLINE rule171 #-}
    {-# LINE 73 "./src-ag/PrintOcamlCode.ag" #-}
-   rule169 = \ ((_hdIpp) :: PP_Doc) ((_tlIpps) :: PP_Docs) ->
+   rule171 = \ ((_hdIpp) :: PP_Doc) ((_tlIpps) :: PP_Docs) ->
                      {-# LINE 73 "./src-ag/PrintOcamlCode.ag" #-}
                      _hdIpp : _tlIpps
-                     {-# LINE 2605 "dist/build/PrintOcamlCode.hs"#-}
+                     {-# LINE 2645 "dist/build/PrintOcamlCode.hs"#-}
 {-# NOINLINE sem_Types_Nil #-}
 sem_Types_Nil ::  T_Types 
 sem_Types_Nil  = T_Types (return st53) where
@@ -2610,13 +2650,13 @@ sem_Types_Nil  = T_Types (return st53) where
       v52 :: T_Types_v52 
       v52 = \ !(T_Types_vIn52 ) -> ( let
          _lhsOpps :: PP_Docs
-         _lhsOpps = rule170  ()
+         _lhsOpps = rule172  ()
          !__result_ = T_Types_vOut52 _lhsOpps
          in __result_ )
      in C_Types_s53 v52
-   {-# INLINE rule170 #-}
+   {-# INLINE rule172 #-}
    {-# LINE 74 "./src-ag/PrintOcamlCode.ag" #-}
-   rule170 = \  (_ :: ()) ->
+   rule172 = \  (_ :: ()) ->
                      {-# LINE 74 "./src-ag/PrintOcamlCode.ag" #-}
                      []
-                     {-# LINE 2623 "dist/build/PrintOcamlCode.hs"#-}
+                     {-# LINE 2663 "dist/build/PrintOcamlCode.hs"#-}
