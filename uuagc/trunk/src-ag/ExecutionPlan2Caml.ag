@@ -617,8 +617,8 @@ SEM ENonterminal | ENonterminal
       >-< @loc.wrapperBody
   loc.wrapperBody
     = case @initialv of
-        Nothing -> text "{ }"  -- case where there are no inherited or synthesized attributes
-        Just initv ->
+        [] -> text "{ }"  -- case where there are no inherited or synthesized attributes
+        (initv:_) -> -- TODO: take care of multiple visits
           let attach  = "let" >#< "sem" >#< "=" >#< "act." >|< nm_attach @nt >#< "()" >#< "in"  -- run attach code
 
               -- result transformer to wrapper output record

@@ -1,0 +1,161 @@
+-------------------------------------------------------------------------------
+--         Distributing options
+-------------------------------------------------------------------------------
+ATTR Grammar Nonterminals Nonterminal Productions Production Children Child
+  [ options : {Options} | | ]
+
+-------------------------------------------------------------------------------
+--         Find out which nonterminals are recursive
+-------------------------------------------------------------------------------
+
+ATTR Nonterminals Nonterminal [ | | ntDeps, ntHoDeps USE {`mappend`} {mempty} : {Map NontermIdent (Set NontermIdent)} ]
+ATTR Nonterminals Nonterminal [ closedNtDeps, closedHoNtDeps, closedHoNtRevDeps : {Map NontermIdent (Set NontermIdent)} | | ]
+ATTR Productions Production Children Child [ | | refNts, refHoNts USE {`mappend`} {mempty} : {Set NontermIdent} ]
+
+SEM Nonterminal | Nonterminal
+  lhs.ntDeps            = Map.singleton @nt @prods.refNts
+  lhs.ntHoDeps          = Map.singleton @nt @prods.refHoNts
+
+  loc.closedNtDeps      = Map.findWithDefault Set.empty @nt @lhs.closedNtDeps
+  loc.closedHoNtDeps    = Map.findWithDefault Set.empty @nt @lhs.closedHoNtDeps
+  loc.closedHoNtRevDeps = Map.findWithDefault Set.empty @nt @lhs.closedHoNtRevDeps
+
+  loc.recursive         = @nt `Set.member` @loc.closedNtDeps
+  loc.nontrivAcyc       = @nt `Set.member` @loc.closedHoNtDeps
+  loc.hoInfo            = HigherOrderInfo { hoNtDeps            = @loc.closedHoNtDeps
+                                          , hoNtRevDeps         = @loc.closedHoNtRevDeps
+                                          , hoAcyclic           = @loc.nontrivAcyc
+                                          }
+
+SEM Child | Child
+  loc.refNts = case @tp of
+                 NT nt _ _ -> Set.singleton nt
+                 _         -> mempty
+  loc.refHoNts = if @loc.isHigherOrder then @loc.refNts else mempty
+  loc.isHigherOrder = case @kind of
+                        ChildSyntax -> False
+                        _           -> True
+
+SEM Grammar | Grammar
+  loc.closedNtDeps      = closeMap @nonts.ntDeps
+  loc.closedHoNtDeps    = closeMap @nonts.ntHoDeps
+  loc.closedHoNtRevDeps = revDeps @loc.closedHoNtDeps
+
+-------------------------------------------------------------------------------
+--         Distribute the ContextMap to nonterminals
+-------------------------------------------------------------------------------
+
+ATTR Nonterminals Nonterminal [ classContexts : ContextMap | | ]
+
+SEM Grammar | Grammar
+  nonts.classContexts = @contextMap
+
+SEM Nonterminal | Nonterminal
+  loc.classContexts = Map.findWithDefault [] @nt @lhs.classContexts
+
+-------------------------------------------------------------------------------
+--         Gather all rules per production for the execution plan
+-------------------------------------------------------------------------------
+ATTR Expression [ | | copy : SELF ]
+
+ATTR Rule  [ | | erules : ERule ]
+ATTR Rules [ | | erules USE {:} {[]} : ERules  ]
+
+SEM Rule
+  | Rule lhs.erules = ERule @loc.rulename
+                            @pattern.copy
+                            @rhs.copy
+                            @owrt
+                            @origin
+                            @explicit
+                            @pure
+                            @mbError
+
+-------------------------------------------------------------------------------
+--         Determine which children have an around-rule
+-------------------------------------------------------------------------------
+
+-- Propagate the around-map downward
+ATTR Nonterminals Nonterminal
+  [ aroundMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))} || ]
+
+ATTR Productions Production
+  [ aroundMap : {Map ConstructorIdent (Map Identifier [Expression])} || ]
+
+ATTR Children Child
+  [ aroundMap : {Map Identifier [Expression]} | | ]
+
+SEM Nonterminal | Nonterminal  loc.aroundMap = Map.findWithDefault Map.empty @nt @lhs.aroundMap
+SEM Production | Production    loc.aroundMap = Map.findWithDefault Map.empty @con @lhs.aroundMap
+
+SEM Grammar | Grammar
+  nonts.aroundMap = @aroundsMap
+
+SEM Child | Child
+  loc.hasArounds = case Map.lookup @name @lhs.aroundMap of
+                     Nothing -> False
+                     Just as -> not (null as)
+
+-------------------------------------------------------------------------------
+--         Determine which children are used by merges
+-------------------------------------------------------------------------------
+
+-- Propagate the around-map downward
+ATTR Nonterminals Nonterminal
+  [ mergeMap : {Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))} || ]
+
+ATTR Productions Production
+  [ mergeMap : {Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression))} || ]
+
+ATTR Children Child
+  [ mergeMap : {Map Identifier (Identifier, [Identifier], Expression)} mergedChildren : {Set Identifier} | | ]
+
+SEM Nonterminal | Nonterminal  loc.mergeMap = Map.findWithDefault Map.empty @nt @lhs.mergeMap
+SEM Production | Production    loc.mergeMap = Map.findWithDefault Map.empty @con @lhs.mergeMap
+
+SEM Grammar | Grammar
+  nonts.mergeMap = @mergeMap
+
+SEM Production | Production
+  loc.mergedChildren = Set.unions [ Set.fromList ms | (_,ms,_) <- Map.elems @loc.mergeMap ]
+
+SEM Child | Child
+  loc.merges   = maybe Nothing (\(_,ms,_) -> Just ms) $ Map.lookup @name @lhs.mergeMap
+  loc.isMerged = @name `Set.member` @lhs.mergedChildren
+
+
+-------------------------------------------------------------------------------
+--         Gather all childs per production for the execution plan
+-------------------------------------------------------------------------------
+
+ATTR Child    [ | | echilds : EChild ]
+ATTR Children [ | | echilds USE {:} {[]} : EChildren ]
+
+SEM Child
+  | Child lhs.echilds = case @tp of
+                          NT _ _ _ -> EChild @name @tp @kind @loc.hasArounds @loc.merges @loc.isMerged
+                          _        -> ETerm @name @tp
+
+-------------------------------------------------------------------------------
+--         Output nonterminal type mappings
+-------------------------------------------------------------------------------
+ATTR Grammar
+     Nonterminals  [ | | inhmap USE {`Map.union`} {Map.empty} : {Map.Map NontermIdent Attributes}
+     	                 synmap USE {`Map.union`} {Map.empty} : {Map.Map NontermIdent Attributes} ]
+
+ATTR Nonterminal [ | | inhmap : {Map.Map NontermIdent Attributes}
+     		       synmap : {Map.Map NontermIdent Attributes} ]
+SEM Nonterminal
+  | Nonterminal lhs.inhmap = Map.singleton @nt @inh
+    		lhs.synmap = Map.singleton @nt @syn
+
+-------------------------------------------------------------------------------
+--         Output nonterminal type mappings
+-------------------------------------------------------------------------------
+ATTR Grammar Nonterminals Nonterminal [ | | localSigMap USE {`Map.union`} {Map.empty} : {Map.Map NontermIdent (Map.Map ConstructorIdent (Map.Map Identifier Type))} ]
+ATTR Productions Production           [ | | localSigMap USE {`Map.union`} {Map.empty} : {Map.Map ConstructorIdent (Map.Map Identifier Type)} ]
+ATTR TypeSigs TypeSig                 [ | | localSigMap USE {`Map.union`} {Map.empty} : {Map Identifier Type} ]
+
+SEM Nonterminal | Nonterminal  lhs.localSigMap = Map.singleton @nt @prods.localSigMap
+SEM Production | Production    lhs.localSigMap = Map.singleton @con @typeSigs.localSigMap
+SEM TypeSig | TypeSig          lhs.localSigMap = Map.singleton @name @tp

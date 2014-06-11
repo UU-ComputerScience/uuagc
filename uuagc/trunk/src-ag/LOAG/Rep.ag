@@ -1,0 +1,41 @@
+MODULE {LOAG.Rep}
+{}{
+import LOAG.Common
+import qualified Data.Array as A
+import qualified Data.Map   as M
+import qualified Data.Set   as S
+}
+
+
+DATA LOAGRep | LOAGRep
+    ps   : {[PLabel]}
+    ap   : A_P
+    an   : A_N
+    ain  : AI_N
+    asn  : AS_N
+    sfp  : SF_P 
+    pmp  : PMP
+    pmpr : PMP_R
+    nmp  : NMP
+    nmpr : NMP_R
+    gen  : {A.Array Int Int}
+    inss : {A.Array Int [Int]}
+    ofld : {A.Array Int Int}
+    fty  : FTY
+    fieldMap  : FMap 
+    fsInP: {M.Map PLabel [(PLabel,FLabel)]}
+
+TYPE FieldAtts = [FieldAtt]
+-- t is the type of the attribute this occurrence belongs to
+DATA FieldAtt | FieldAtt     t : {MyType} p : {PLabel} 
+                             f : {FLabel} a : {ALabel}
+
+TYPE MySegments = [MySegment]
+DATA MySegment | MySegment
+                    visnr   : Int 
+                    inhAttr : {[Int]}
+                    synAttr : {[Int]}
+                    inhOccs : {Maybe [Int]}
+                    synOccs : {Maybe [Int]}
+
+DERIVING MySegments MySegment : Show

@@ -86,6 +86,7 @@ allOptions =
   , MyOpt []        ["version"]       (NoArg versionOpt)          (boolOpt showVersion) "get version information"
   , MyOpt ['O']     ["optimize"]      (NoArg optimizeOpt)         noOpt                 "optimize generated code (--visit --case)"
   , MyOpt []        ["visit"]         (NoArg visitOpt)            (boolOpt visit)       "try generating visit functions"
+  , MyOpt []        ["loag"]          (NoArg loagOpt)             (boolOpt loag)        "recognises all linear ordered attribute grammars"
   , MyOpt []        ["seq"]           (NoArg seqOpt)              (boolOpt withSeq)     "force evaluation using function seq (visit functions only)"
   , MyOpt []        ["unbox"]         (NoArg unboxOpt)            (boolOpt unbox)       "use unboxed tuples"
   , MyOpt []        ["bangpats"]      (NoArg bangpatsOpt)         (boolOpt bangpats)    "use bang patterns (visit functions only)"
@@ -185,6 +186,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , showHelp :: Bool
                       , showVersion :: Bool
                       , visit :: Bool
+                      , loag  :: Bool
                       , withSeq :: Bool
                       , unbox :: Bool
                       , bangpats :: Bool
@@ -281,6 +283,7 @@ noOptions = Options { moduleName    = NoName
                     , withSelf      = False
                     , withCycle     = False
                     , visit         = False
+                    , loag          = False
                     , withSeq       = False
                     , unbox         = False
                     , bangpats      = False
@@ -351,6 +354,10 @@ noOptions = Options { moduleName    = NoName
                     , noInlinePragmas = False
                     , aggressiveInlinePragmas = False
                     }
+
+loagOpt :: Options -> Options
+loagOpt opts = 
+    opts{loag = True, visit = False, withCycle = False}
 
 --Options -> String -> [String]
 moduleOpt :: Maybe String -> Options -> Options

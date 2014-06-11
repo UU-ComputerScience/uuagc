@@ -469,31 +469,42 @@ SEM ENonterminal
                                 >-<
                                 indent 3 (case @initialv of
                                   -- case where there are no inherited or synthesized attributes
-                                  Nothing -> @loc.synname >#< " { }"
-                                  Just initv ->
-                                    let inCon  = conNmTVisitIn @nt initv
-                                        outCon = conNmTVisitOut @nt initv
-                                        pat    = @loc.addbang $ pp_parens $ pat0
-                                        pat0   = outCon >#< ppSpaced @loc.synlist -- should be an "end" state, thus no continuation expected here
-                                        arg    = inCon >#< ppSpaced @loc.inhlist1
-                                        ind    = case @loc.firstVisitInfo of
+                                  [] -> @loc.synname >#< " { }"
+                                  initvs@(initv:_) ->
+                                    let extra  = if dummyTokenVisit @lhs.options
+                                                 then pp $ dummyArg @lhs.options True
+                                                 else empty
+                                        unMonad | monadicWrappers @lhs.options = empty
+                                                | otherwise                    = unMon @lhs.options
+                                        genSteps _      []           = []
+                                        genSteps curst (curv:nextvs) = setarg : dovis : genSteps nextst nextvs where
+                                          inCon = conNmTVisitIn @nt curv
+                                          outCon = conNmTVisitOut @nt curv
+                                          pat    = @loc.addbang $ pp_parens $ pat0
+                                          pat0   = outCon >#< ppSpaced (map (lhsname @lhs.options False) syns) >#< cont
+                                          cont   | null nextvs = empty
+                                                 | otherwise   = pp "sem"
+                                          inhs = Set.toList $ Map.findWithDefault Set.empty curv @prods.visituses
+                                          syns = Set.toList $ Map.findWithDefault Set.empty curv @prods.visitdefs
+                                          arg = inCon >#< ppSpaced (map (lhsname @lhs.options True) inhs)
+                                          setarg = "let" >#< @loc.addbangWrap (pp "arg" >|< curv) >#< "=" >#< arg
+                                          ind    = case Map.findWithDefault ManyVis curst @nextVisits of
                                                    NoneVis  -> error "wrapper: initial state should have a next visit but it has none"
                                                    OneVis _ -> empty
                                                    ManyVis  -> @loc.k_type >|< "_v" >|< initv
-                                        extra  = if dummyTokenVisit @lhs.options
-                                                 then pp $ dummyArg @lhs.options True
-                                                 else empty
-                                        convert = case Map.lookup initv @lhs.allVisitKinds of
-                                                    Just kind -> case kind of
-                                                                   VisitPure _  -> text "return"
-                                                                   VisitMonadic -> empty
-                                        unMonad | monadicWrappers @lhs.options = empty
-                                                | otherwise                    = unMon @lhs.options
+                                          nextst = curst + 1 -- This is not correct, but works both for KW and AOAG
+                                                             -- Should be lookup up based on visit
+                                          convert = case Map.lookup curv @lhs.allVisitKinds of
+                                                      Just kind -> case kind of
+                                                         VisitPure _  -> text "return"
+                                                         VisitMonadic -> empty
+                                          dovis  = pat >#< "<-" >#< convert >#< pp_parens 
+                                            ("inv_" >|< @nt >|< "_s" >|< curst >#< "sem" >#< ind 
+                                            >#< "arg" >|< curv >#< extra)
                                     in unMonad >#< "("
                                        >-< indent 2 (
                                               "do" >#< ( @loc.addbang (pp "sem") >#< "<-" >#< "act"   -- run the per-node monadic code to get the initial state (of the root)
-                                                       >-< "let" >#< @loc.addbangWrap (pp "arg") >#< "=" >#< arg
-                                                       >-< pat >#< "<-" >#< convert >#< pp_parens ("inv_" >|< @nt >|< "_s" >|< @initial >#< "sem" >#< ind >#< "arg" >#< extra)  -- invoke initial state (of the root)
+                                                       >-< vlist (genSteps @initial initvs)
                                                        >-< "return" >#< pp_parens (@loc.synname >#< ppSpaced @loc.synlist)
                                                        )
                                             )
