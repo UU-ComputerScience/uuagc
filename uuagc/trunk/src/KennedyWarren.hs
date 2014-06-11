@@ -40,7 +40,7 @@ kennedyWarrenLazy _ wr ndis typesyns derivings = plan where
                  (ndiParams ndi)
                  (ndiClassCtxs ndi)
                  initst
-                 (Just initv)
+                 [initv]
                  nextMap
                  prevMap
                  prods
@@ -581,7 +581,7 @@ addVisitStep             :: VGProd -> VisitStep -> VG s ()
 repeatM                  :: VG s () -> VG s ()
 -}
 
-kennedyWarrenVisitM :: Set NontermIdent -> [NontDependencyInformationM s] -> VG s [Maybe Int]
+kennedyWarrenVisitM :: Set NontermIdent -> [NontDependencyInformationM s] -> VG s [[VisitIdentifier]]
 kennedyWarrenVisitM wr ndis = do
   -- Create initial nodes and edges (edges only for wrapper nodes)
   initvs <- forM ndis $ \ndi -> do
@@ -591,8 +591,8 @@ kennedyWarrenVisitM wr ndis = do
     if (Set.member (ndiNonterminal $ ndimOrig $ ndi) wr) && (not (Set.null inh) || not (Set.null syn))
       then do
         VGEdge initv <- createPending nd inh syn
-        return $ Just initv
-      else return Nothing
+        return [initv]
+      else return []
   -- Handle all pending edges while there are any
   repeatM $ do
     pend  <- selectPending
@@ -742,7 +742,7 @@ createLhsSyn = VAttr Syn _LHS
 ------------------------------------------------------------
 ---         Construction of the execution plan           ---
 ------------------------------------------------------------
-kennedyWarrenExecutionPlan :: Options -> [NontDependencyInformationM s] -> [Maybe Int] ->
+kennedyWarrenExecutionPlan :: Options -> [NontDependencyInformationM s] -> [[VisitIdentifier]] ->
                               Set NontermIdent -> TypeSyns -> Derivings -> VG s ExecutionPlan
 kennedyWarrenExecutionPlan opts ndis initvs wr typesyns derivings = do
   -- Loop over all nonterminals

@@ -37,6 +37,14 @@ options: module, pretty, data, genlinepragmas, checkParseHaskell
 file: "src-ag/ExecutionPlan.ag"
 options: module, pretty, data, genlinepragmas, checkParseHaskell
 
+file: "src-ag/LOAG/Order.ag"
+options: module, pretty, checkParseHaskell, self, wrappers, signatures, catas, semfuns, genlinepragmas, kennedywarren 
+
+file: "src-ag/LOAG/Prepare.ag"
+options: module, pretty, checkParseHaskell, self, wrappers, signatures, catas, semfuns, genlinepragmas, kennedywarren 
+
+file: "src-ag/LOAG/Rep.ag"
+options: module, pretty, checkParseHaskell, self, datarecords, data, optimize
 
 file: "src-ag/Macro.ag"
 options: module, pretty, data, genlinepragmas, checkParseHaskell

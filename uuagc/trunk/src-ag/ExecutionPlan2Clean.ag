@@ -540,8 +540,8 @@ SEM ENonterminal
                                     >-<
                                     indent 3 (case @initialv of
                                       -- case where there are no inherited or synthesized attributes
-                                      Nothing -> text @loc.synname -- TODO : Remove? >#< " { }"
-                                      Just initv ->
+                                      [] -> text @loc.synname -- TODO : Remove? >#< " { }"
+                                      (initv:_) -> -- TODO: take care of multiple visits
                                         let inCon  = conNmTVisitIn @nt initv
                                             outCon = conNmTVisitOut @nt initv
                                             pat    = @loc.addbang $ pp_parens $ pat0

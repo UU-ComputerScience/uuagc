@@ -812,7 +812,7 @@ SEM Elem
                                          "nogensems"    -> o { semfuns     = False }
                                          "gentypesigs"  -> o { typeSigs    = True  }
                                          "nogentypesigs"-> o { typeSigs    = False }
-                                         "nocycle"      -> o { withCycle   = False }
+                                         "nocycle"      -> o { withCycle   = False, loag = False }
                                          "cycle"        -> o { withCycle   = True  }
                                          "nostrictdata" -> o { strictData  = False }
                                          "strictdata"   -> o { strictData  = True  }
@@ -821,7 +821,7 @@ SEM Elem
                                          "strictercase" -> o { strictCases = True, stricterCases = True }
                                          "nostrictwrap" -> o { strictWrap  = False }
                                          "strictwrap"   -> o { strictWrap  = True  }
-                                         "novisit"      -> o { visit       = False }
+                                         "novisit"      -> o { visit       = False, loag = False }
                                          "visit"        -> o { visit       = True  }
                                          "nocase"       -> o { cases       = False }
                                          "case"         -> o { cases       = True  }

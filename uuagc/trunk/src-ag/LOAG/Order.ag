@@ -1,0 +1,354 @@
+INCLUDE "AbstractSyntax"
+INCLUDE "Patterns"
+INCLUDE "CodeSyntax"
+INCLUDE "Expression"
+INCLUDE "HsToken"
+INCLUDE "LOAG/Rep"
+INCLUDE "LOAG/Prepare"
+INCLUDE "ExecutionPlanCommon"
+
+MODULE {LOAG.Order}
+{}
+{}
+imports{
+import qualified Data.Array as A
+import qualified Data.Map as Map
+import qualified Data.IntMap as IMap
+import qualified Data.Set as Set
+import qualified Data.IntSet as IS
+import qualified Data.Sequence as Seq
+import qualified CommonTypes as CT
+import Control.Monad (forM,when)
+import Control.Monad.ST
+import Data.Maybe(catMaybes)
+import Data.Monoid(mappend,mempty)
+import Data.STRef
+import AbstractSyntax
+import qualified LOAG.LOAG as   LOAG
+import LOAG.Common
+import LOAG.Rep
+import LOAG.Graphs
+import CodeSyntax
+import Data.Maybe (isJust, fromJust)
+import ExecutionPlan
+import GrammarInfo
+import HsToken (HsToken(..))
+import Pretty
+}
+
+{
+fst' (a,_,_,_) = a
+snd' (_,b,_,_) = b
+trd' (_,_,c,_) = c
+fth' (_,_,_,d) = d
+}
+
+ATTR Grammar [ | | 
+    output   : ExecutionPlan
+    ads      : {Maybe PP_Doc}
+    errors   : {Seq.Seq Error}
+    python   : {Maybe PP_Doc}]
+
+SEM Grammar | Grammar
+    lhs.errors = either Seq.singleton (const Seq.empty) @loc.schedRes
+    lhs.ads    = case either (const []) trd' @loc.schedRes of
+                    []  -> Nothing 
+                    ads -> Just $ ppAds @nonts.pmp ads 
+    lhs.output = ExecutionPlan @nonts.enonts @typeSyns @wrappers @derivings
+
+    nonts.sched   = either (const Map.empty) snd' @loc.schedRes
+    nonts.tdp     = either (error "no tdp") (fromJust.fst') @loc.schedRes
+
+    loc.schedRes =   if CT.loag @lhs.options
+                        then LOAG.schedule @smf.self @self @nonts.ads 
+                                (verbose @lhs.options)
+                        else Right (Nothing,Map.empty,[], Nothing)
+
+    nonts.res_ads = either (const []) trd' @loc.schedRes
+    lhs.python  = either (const Nothing) fth' @loc.schedRes
+
+-- Gather the fake dependencies from the ads result of AOAG
+
+ATTR Nonterminals Nonterminal Productions Production
+    [ res_ads : {[Edge]} || ]
+ATTR Nonterminals Nonterminal 
+    [ || fdps USE {Map.union} {Map.empty} : AttrOrderMap ]
+
+SEM Nonterminal | Nonterminal
+    lhs.fdps    = Map.singleton @nt @prods.fdps
+
+ATTR Productions Production [ || 
+    fdps USE {Map.union} {Map.empty} : {Map.Map ConstructorIdent (Set Dependency)} ]
+
+SEM Production | Production
+    lhs.fdps    = 
+      let op d@(f,t) ds
+            | fst (argsOf $ findWithErr @lhs.pmpf "fdps" f) == (@lhs.dty,getName @con)
+                = Set.insert (edgeToDep @lhs.pmpf d) ds
+            | otherwise                     
+                = ds
+      in Map.singleton @con $ foldr op Set.empty @lhs.res_ads
+{
+data AltAttr = AltAttr Identifier Identifier Bool
+               deriving (Eq, Ord, Show)
+
+edgeToDep :: PMP -> Edge -> Dependency
+edgeToDep pmp (f,t) = 
+    Dependency (OccAttr (identifier f1) (identifier i1)) 
+               (OccAttr (identifier f2) (identifier i2))
+    where (MyOccurrence (_,f1) (i1,_),MyOccurrence (_,f2) (i2,_))
+            = (findWithErr pmp "edgeToDep" f, 
+               findWithErr pmp "edgeToDep" t) 
+    -- TODO how can we get real occurrences, instead of producing fake ones?
+    -- TODO here we could also go wrong with equally named attributes 
+
+ppAds :: PMP -> [Edge] -> PP_Doc
+ppAds pmp = foldr ((>-<) . ppEdge pmp) empty
+
+ppEdge :: PMP -> Edge -> PP_Doc
+ppEdge pmp (f,t) = 
+    text "SEM " >|< text (show ty) >|< " | " >|< text p >|< "   "
+                >|< ppOcc pmp t >|< text " < " >|< ppOcc pmp f
+ where (MyOccurrence ((ty,p),_) _) = pmp Map.! f
+   
+ppOcc :: PMP -> Vertex -> PP_Doc
+ppOcc pmp v = text f >|< text "." >|< fst a
+ where (MyOccurrence ((t,p),f) a) = findWithErr pmp "ppOcc" v
+
+}
+
+-- Construct Execution Plan
+
+ATTR Nonterminals Nonterminal [ 
+    visMapf                         : {Map.Map Int Int}
+    tdp                             : TDPRes ||
+    enonts USE {(++)} {[]}          : ENonterminals
+    visMap USE {M.union} {M.empty}  : {Map.Map Int Int}]
+
+SEM Grammar
+  | Grammar nonts.visMapf = @nonts.visMap
+            nonts.visitnum = 0
+
+SEM Nonterminal
+  | Nonterminal
+        loc.initial = @lhs.visitnum 
+        loc.vnums   = zipWith const [@loc.initial..] @segments
+        loc.initialVisit = @vnums
+        loc.nextVis = Map.fromList $ (@loc.initial + length @vnums, NoneVis)
+                                   : [(v, OneVis v) | v <- @vnums ]
+        loc.prevVis = Map.fromList $ (@loc.initial, NoneVis)
+                                   : [(v+1, OneVis v) | v <- @vnums ]
+        loc.visMap  = let op vnr (MySegment visnr ins syns _ _) =
+                            M.fromList $ zip syns (repeat vnr)
+                        in M.unions $ zipWith op [@loc.initial..] @mysegments
+        lhs.enonts = [ENonterminal 
+                        @nt
+                        @params 
+                        @loc.classContexts
+                        @loc.initial
+                        @loc.initialVisit
+                        @loc.nextVis
+                        @loc.prevVis
+                        @prods.eprods
+                        @loc.recursive
+                        @loc.hoInfo ]
+
+ATTR Productions Production [
+    visMapf                 : {Map.Map Int Int} 
+    tdp                     : TDPRes ||
+    eprods USE {(++)} {[]}  : EProductions ]
+
+SEM Production 
+  | Production
+        segs.ruleMap  = @rules.ruleMap
+        segs.done     = (S.empty, S.empty, S.empty, S.empty)
+        loc.intros  = let intro (Child nm _ kind)
+                            | kind == ChildAttr = Nothing
+                            | otherwise = Just $ ChildIntro nm
+                        in catMaybes $ map intro @children.self
+        lhs.eprods = 
+            let ((Visit ident from to inh syn steps kind):vss) = @segs.evisits
+                steps' = @loc.intros ++ steps
+                visits | null @segs.evisits = []
+                       | otherwise = 
+                            ((Visit ident from to inh syn steps' kind):vss)
+             in [EProduction
+                        @con
+                        @params
+                        @constraints
+                        @rules.erules
+                        @children.echilds
+                        visits ]
+
+ATTR Nonterminals Nonterminal Productions Production MySegments MySegment
+        [ | visitnum : Int |  ]
+
+-- Visit nums should be the same for each production, but different globally
+SEM Productions
+  | Cons tl.visitnum  = @lhs.visitnum
+         lhs.visitnum = @hd.visitnum
+
+SEM MySegment | MySegment +visitnum = (+1)
+ATTR MySegments MySegment [
+    -- maps which attribute occurrence is calculated in which visit
+    visMapf : {Map.Map Int Int} | | ]
+SEM MySegments [| | visMap : {Map.Map Int Int}]
+    | Cons   lhs.visMap = foldr (@hd.visitnum `M.insert`) @tl.visMap @hd.synsO
+    | Nil    lhs.visMap = M.empty
+
+ATTR MySegments MySegment [
+    ps      : PLabel 
+    ruleMap : {Map.Map MyOccurrence Identifier}
+    nmprf   : NMP_R
+    options : {Options}
+    tdp     : TDPRes
+    done    : { (S.Set MyOccurrence, S.Set FLabel
+                , S.Set Identifier, S.Set (FLabel,Int))}
+    ||]
+
+ATTR MySegments [|| evisits USE {:} {[]} : {Visits}]
+ATTR MySegment  [|| 
+    evisits : {Visit}
+    -- synthesized attribute occurrences of this segment
+    synsO   : {[Int]}
+    visnr   : Int
+    done    : { (S.Set MyOccurrence, S.Set FLabel
+                ,S.Set Identifier, S.Set (FLabel,Int))}]
+
+SEM MySegments
+    | Cons  hd.done = @lhs.done
+            tl.done = @hd.done
+
+SEM MySegment 
+  | MySegment 
+      loc.inhs = Map.keysSet$ Map.unions $ map (vertexToAttr @lhs.nmp) @inhAttr
+      loc.syns = Map.keysSet$ Map.unions $ map (vertexToAttr @lhs.nmp) @synAttr
+      loc.inhsO= maybe (error "segment not instantiated") id @inhOccs
+      loc.synsO= maybe (error "segment not instantiated") id @synOccs
+      lhs.visnr= @visnr
+      loc.kind = if monadic @lhs.options then VisitMonadic else VisitPure True
+      lhs.evisits = Visit @lhs.visitnum @lhs.visitnum (@lhs.visitnum+1)
+                          @loc.inhs @loc.syns @loc.steps @loc.kind
+      loc.steps   = if monadic @lhs.options -- TODO is this necessary?
+                        then [Sim @loc.vss] else [PureGroup @loc.vss True]
+      (loc.vss,lhs.done) = (runST $ getVss @lhs.done @lhs.ps @lhs.tdp @synsO 
+                            @lhs.lfpf @lhs.nmprf @lhs.pmpf @lhs.pmprf @lhs.fty
+                            @lhs.visMapf @lhs.ruleMap @lhs.hoMapf)
+
+{
+getVss (done,intros,rules,vnrs) ps tdp synsO lfp nmpr pmp pmpr fty visMap ruleMap hoMap = do
+    ref   <- newSTRef done
+    introed   <- newSTRef intros
+    ruleref   <- newSTRef rules 
+    vnrsref   <- newSTRef vnrs
+    lists <- forM synsO (visit ref introed ruleref vnrsref . (pmp M.!))
+    done  <- readSTRef ref
+    intros  <- readSTRef introed
+    rules  <- readSTRef ruleref
+    vnrs  <- readSTRef vnrsref 
+    return (concat lists, (done, intros, rules, vnrs))
+ where 
+    hochildren = maybe S.empty id $ M.lookup ps hoMap
+    visit ref introed ruleref vnrsref o@(MyOccurrence (_,f) (_,d)) = do
+        visited <- readSTRef ref
+        if (o `S.member` visited) 
+         then return [] -- already visited
+         else do        -- prevent doubles
+          modifySTRef ref (S.insert o)
+          if inOutput
+           then do -- has to be calculated in this sequence
+                rest' <- rest
+                locs' <- locs
+                sem'  <- sem o
+                return $ (rest' ++ locs' ++ sem')
+           else if "lhs" == (snd $ argsOf o)
+                 then return [] -- inherited of parent, nothing todo
+                 else do   -- other input occurrence, perform visit
+                    locs' <- locs
+                    rest' <- rest
+                    visit'<- toVisit o
+                    return (rest' ++ locs' ++ visit')
+     where preds  = maybe [] (IS.toList . (tdp A.!)) $ M.lookup o pmpr
+           rest   = forM preds (visit ref introed ruleref vnrsref. (pmp M.!)) 
+                        >>= (return . concat)
+           free   = maybe [] (S.toList) $ M.lookup o lfp
+           locs   = forM free (visit ref introed ruleref vnrsref)
+                        >>= (return . concat)
+           sem o  = do  rules <- readSTRef ruleref 
+                        if r `S.member` rules
+                          then return []
+                          else do   writeSTRef ruleref (r `S.insert` rules) 
+                                    return [Sem r]
+            where r = maybe (error "ruleMap") id $ Map.lookup o ruleMap
+           inOutput = f == "lhs" && d == Syn || f /= "lhs" && d == Inh
+           toVisit o = do
+             vnrs <- readSTRef vnrsref 
+             if (child,visnr) `S.member` vnrs
+              then return []
+              else writeSTRef vnrsref ((child,visnr) `S.insert` vnrs) >>
+                   if child `S.member` hochildren 
+                   then do intros <- readSTRef introed
+                           case child `S.member` intros of
+                            True    -> return [cvisit]
+                            False   -> do
+                                writeSTRef introed (S.insert child intros)
+                                let occ = (ps,"inst") >.< (child, AnyDir)
+                                    preds = S.toList $ setConcatMap rep $ 
+                                                        lfp M.! occ
+                                    rep :: MyOccurrence -> S.Set MyOccurrence 
+                                    rep occ | isLoc occ   = S.insert occ $ 
+                                                setConcatMap rep $ lfp M.! occ
+                                            | otherwise   = S.singleton occ
+                                rest <- forM preds 
+                                            (visit ref introed ruleref vnrsref)
+                                sem' <- sem occ
+                                return $ (concat rest) ++
+                                         sem' ++
+                                         [ChildIntro (identifier child)] ++
+                                         [cvisit]
+                   else return [cvisit]
+             where  cvisit= ChildVisit (identifier child) ntid visnr
+                    child = snd $ argsOf o
+                    ntid  = ((\(NT name _ _ )-> name) . fromMyTy) nt 
+                    visnr = visMap M.! (nmpr M.! (nt <.> attr o))
+                    nt    = fty M.! (ps,child)
+--TODO empty hochildren instead of filling introed, requires only 1 lookup
+}
+
+ATTR Nonterminals Nonterminal [ 
+        sched : {InterfaceRes} ||]
+SEM  Nonterminal
+  |  Nonterminal  
+        loc.assigned = findWithErr @lhs.sched "could not const. interfaces" 
+                            (getName @nt)
+        loc.mx       = if Map.null @lhs.sched
+                        then 0 
+                        else let mx = fst $ IMap.findMax @loc.assigned in
+                              if even mx then mx else mx + 1 
+        loc.mysegments = 
+            map (\i -> MySegment ((@loc.mx - i) `div` 2)
+                        (maybe [] id $ IMap.lookup i @loc.assigned)
+                        (@loc.assigned IMap.! (i-1)) Nothing Nothing)
+                 [@loc.mx,@loc.mx-2 .. 2]
+        loc.segments = 
+            map (\(MySegment visnr is ss _ _) -> 
+                    CSegment (Map.unions $ map (vertexToAttr @lhs.nmp) is)
+                             (Map.unions $ map (vertexToAttr @lhs.nmp) ss))
+                @loc.mysegments
+
+ATTR Productions Production [ mysegments : MySegments || ]
+SEM Production
+  | Production
+        inst.segs : MySegments
+        --translate from attribute to occurrences
+        inst.segs = 
+            map (\(MySegment visnr inhs syns _ _) -> 
+                   MySegment visnr inhs syns 
+                             (Just $ map (@lhs.pmprf M.!) $ 
+                                    handAllOut (@loc.ps,"lhs") $ 
+                                        map (@lhs.nmp M.!) inhs)
+                             (Just $ map (@lhs.pmprf M.!) $ 
+                                    handAllOut (@loc.ps,"lhs") $ 
+                                        map (@lhs.nmp M.!) syns)
+                         ) @lhs.mysegments
+
