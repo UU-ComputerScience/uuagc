@@ -23,9 +23,7 @@ import Distribution.Simple.UUAGC.AbsSyn( AGFileOption(..)
 import Distribution.Simple.UUAGC.Parser
 import Options hiding (verbose)
 import Distribution.Verbosity
-import System.Process( CreateProcess(..), createProcess, CmdSpec(..)
-                     , StdStream(..), runProcess, waitForProcess
-                     , shell)
+import System.Process( readProcessWithExitCode )
 import System.Directory(getModificationTime
                        ,doesFileExist
                        ,removeFile)
@@ -90,22 +88,15 @@ uuagcUserHook' uuagcPath = uuagcLibUserHook (uuagcFromString uuagcPath)
 -- | Create uuagc function using shell (old method)
 uuagcFromString :: String -> [String] -> FilePath -> IO (ExitCode, [FilePath])
 uuagcFromString uuagcPath args file = do
-  let argline = uuagcPath ++ concatMap (' ':) (args ++ [file])
-  (_, Just ppOutput, Just ppError, ph) <- createProcess (shell argline)
-                                    { std_in  = Inherit
-                                    , std_out = CreatePipe
-                                    , std_err = CreatePipe
-                                    }
-  ec <- waitForProcess ph
+  (ec,out,err) <- readProcessWithExitCode uuagcPath (args ++ [file]) ""
   case ec of
     ExitSuccess ->
-      do putErrorInfo ppError
-         fls <- processContent ppOutput
-         return (ExitSuccess, fls)
+      do hPutStr stderr err
+         return (ExitSuccess, words out)
     (ExitFailure exc) ->
       do hPutStrLn stderr (uuagcPath ++ ": " ++ show exc)
-         putErrorInfo ppOutput
-         putErrorInfo ppError
+         hPutStr stderr out
+         hPutStr stderr err
          return (ExitFailure exc, [])
 
 -- | Main hook, argument should be uuagc function
@@ -120,9 +111,6 @@ uuagcLibUserHook uuagc = hooks where
 originalPreBuild  = preBuild simpleUserHooks
 originalBuildHook = buildHook simpleUserHooks
 originalSDistHook = sDistHook simpleUserHooks
-
-processContent :: Handle -> IO [String]
-processContent = liftM words . hGetContents
 
 putErrorInfo :: Handle -> IO ()
 putErrorInfo h = hGetContents h >>= hPutStr stderr
