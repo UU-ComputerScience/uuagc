@@ -86,7 +86,8 @@ allOptions =
   , MyOpt []        ["version"]       (NoArg versionOpt)          (boolOpt showVersion) "get version information"
   , MyOpt ['O']     ["optimize"]      (NoArg optimizeOpt)         noOpt                 "optimize generated code (--visit --case)"
   , MyOpt []        ["visit"]         (NoArg visitOpt)            (boolOpt visit)       "try generating visit functions"
-  , MyOpt []        ["loag"]          (NoArg loagOpt)             (boolOpt loag)        "recognises all linear ordered attribute grammars"
+  , MyOpt []        ["loag"]          (NoArg loagOpt)             (boolOpt loag)        "recognises all linear ordered attribute grammars by generting a SAT problem, uses verbose to print out numbers of clauses and variables"
+  , MyOpt []        ["aoag"]          (NoArg aoagOpt)             (boolOpt aoag)        "recognises all linear ordered attribute grammars by finding fake dependencies, uses verbose to print out the selected fake dependencies"
   , MyOpt []        ["seq"]           (NoArg seqOpt)              (boolOpt withSeq)     "force evaluation using function seq (visit functions only)"
   , MyOpt []        ["unbox"]         (NoArg unboxOpt)            (boolOpt unbox)       "use unboxed tuples"
   , MyOpt []        ["bangpats"]      (NoArg bangpatsOpt)         (boolOpt bangpats)    "use bang patterns (visit functions only)"
@@ -187,6 +188,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , showVersion :: Bool
                       , visit :: Bool
                       , loag  :: Bool
+                      , aoag  :: Bool
                       , withSeq :: Bool
                       , unbox :: Bool
                       , bangpats :: Bool
@@ -284,6 +286,7 @@ noOptions = Options { moduleName    = NoName
                     , withCycle     = False
                     , visit         = False
                     , loag          = False
+                    , aoag          = False
                     , withSeq       = False
                     , unbox         = False
                     , bangpats      = False
@@ -357,7 +360,11 @@ noOptions = Options { moduleName    = NoName
 
 loagOpt :: Options -> Options
 loagOpt opts = 
-    opts{loag = True, visit = False, withCycle = False}
+    opts{loag = True, visit = False, withCycle = False, aoag = False}
+
+aoagOpt :: Options -> Options
+aoagOpt opts = 
+    opts{loag = True, visit = False, withCycle = False, aoag = True}
 
 --Options -> String -> [String]
 moduleOpt :: Maybe String -> Options -> Options

@@ -2,7 +2,7 @@ MODULE {LOAG.Rep}
 {}{
 import LOAG.Common
 import qualified Data.Array as A
-import qualified Data.Map   as M
+import qualified Data.Map   as Map
 import qualified Data.Set   as S
 }
 
@@ -23,7 +23,7 @@ DATA LOAGRep | LOAGRep
     ofld : {A.Array Int Int}
     fty  : FTY
     fieldMap  : FMap 
-    fsInP: {M.Map PLabel [(PLabel,FLabel)]}
+    fsInP: {Map.Map PLabel [(PLabel,FLabel)]}
 
 TYPE FieldAtts = [FieldAtt]
 -- t is the type of the attribute this occurrence belongs to
