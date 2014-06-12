@@ -18,13 +18,14 @@ import qualified Data.Set as Set
 import qualified Data.IntSet as IS
 import qualified Data.Sequence as Seq
 import qualified CommonTypes as CT
-import Control.Monad (forM,when)
+import Control.Monad (forM)
 import Control.Monad.ST
 import Data.Maybe(catMaybes)
 import Data.Monoid(mappend,mempty)
 import Data.STRef
 import AbstractSyntax
 import qualified LOAG.LOAG as   LOAG
+import qualified LOAG.AOAG as   AOAG
 import LOAG.Common
 import LOAG.Rep
 import LOAG.Graphs
@@ -37,17 +38,15 @@ import Pretty
 }
 
 {
-fst' (a,_,_,_) = a
-snd' (_,b,_,_) = b
-trd' (_,_,c,_) = c
-fth' (_,_,_,d) = d
+fst' (a,_,_) = a
+snd' (_,b,_) = b
+trd' (_,_,c) = c
 }
 
 ATTR Grammar [ | | 
     output   : ExecutionPlan
     ads      : {Maybe PP_Doc}
-    errors   : {Seq.Seq Error}
-    python   : {Maybe PP_Doc}]
+    errors   : {Seq.Seq Error}]
 
 SEM Grammar | Grammar
     lhs.errors = either Seq.singleton (const Seq.empty) @loc.schedRes
@@ -60,12 +59,13 @@ SEM Grammar | Grammar
     nonts.tdp     = either (error "no tdp") (fromJust.fst') @loc.schedRes
 
     loc.schedRes =   if CT.loag @lhs.options
-                        then LOAG.schedule @smf.self @self @nonts.ads 
-                                (verbose @lhs.options)
-                        else Right (Nothing,Map.empty,[], Nothing)
+                        then if CT.aoag @lhs.options
+                                then AOAG.schedule @smf.self @self @nonts.ads
+                                else LOAG.schedule @smf.self @self @nonts.ads 
+                                        (verbose @lhs.options)
+                        else Right (Nothing,Map.empty,[])
 
     nonts.res_ads = either (const []) trd' @loc.schedRes
-    lhs.python  = either (const Nothing) fth' @loc.schedRes
 
 -- Gather the fake dependencies from the ads result of AOAG
 
@@ -99,8 +99,6 @@ edgeToDep pmp (f,t) =
     where (MyOccurrence (_,f1) (i1,_),MyOccurrence (_,f2) (i2,_))
             = (findWithErr pmp "edgeToDep" f, 
                findWithErr pmp "edgeToDep" t) 
-    -- TODO how can we get real occurrences, instead of producing fake ones?
-    -- TODO here we could also go wrong with equally named attributes 
 
 ppAds :: PMP -> [Edge] -> PP_Doc
 ppAds pmp = foldr ((>-<) . ppEdge pmp) empty
@@ -108,7 +106,7 @@ ppAds pmp = foldr ((>-<) . ppEdge pmp) empty
 ppEdge :: PMP -> Edge -> PP_Doc
 ppEdge pmp (f,t) = 
     text "SEM " >|< text (show ty) >|< " | " >|< text p >|< "   "
-                >|< ppOcc pmp t >|< text " < " >|< ppOcc pmp f
+                >|< ppOcc pmp f >|< text " < " >|< ppOcc pmp t
  where (MyOccurrence ((ty,p),_) _) = pmp Map.! f
    
 ppOcc :: PMP -> Vertex -> PP_Doc
@@ -120,10 +118,10 @@ ppOcc pmp v = text f >|< text "." >|< fst a
 -- Construct Execution Plan
 
 ATTR Nonterminals Nonterminal [ 
-    visMapf                         : {Map.Map Int Int}
+    visMapf                         : {IMap.IntMap Int}
     tdp                             : TDPRes ||
     enonts USE {(++)} {[]}          : ENonterminals
-    visMap USE {M.union} {M.empty}  : {Map.Map Int Int}]
+    visMap USE {IMap.union} {IMap.empty}  : {IMap.IntMap Int}]
 
 SEM Grammar
   | Grammar nonts.visMapf = @nonts.visMap
@@ -139,8 +137,8 @@ SEM Nonterminal
         loc.prevVis = Map.fromList $ (@loc.initial, NoneVis)
                                    : [(v+1, OneVis v) | v <- @vnums ]
         loc.visMap  = let op vnr (MySegment visnr ins syns _ _) =
-                            M.fromList $ zip syns (repeat vnr)
-                        in M.unions $ zipWith op [@loc.initial..] @mysegments
+                            IMap.fromList $ zip syns (repeat vnr)
+                       in IMap.unions $ zipWith op [@loc.initial..] @mysegments
         lhs.enonts = [ENonterminal 
                         @nt
                         @params 
@@ -154,14 +152,14 @@ SEM Nonterminal
                         @loc.hoInfo ]
 
 ATTR Productions Production [
-    visMapf                 : {Map.Map Int Int} 
+    visMapf                 : {IMap.IntMap Int} 
     tdp                     : TDPRes ||
     eprods USE {(++)} {[]}  : EProductions ]
 
 SEM Production 
   | Production
         segs.ruleMap  = @rules.ruleMap
-        segs.done     = (S.empty, S.empty, S.empty, S.empty)
+        segs.done     = (Set.empty, Set.empty, Set.empty, Set.empty)
         loc.intros  = let intro (Child nm _ kind)
                             | kind == ChildAttr = Nothing
                             | otherwise = Just $ ChildIntro nm
@@ -191,10 +189,7 @@ SEM Productions
 SEM MySegment | MySegment +visitnum = (+1)
 ATTR MySegments MySegment [
     -- maps which attribute occurrence is calculated in which visit
-    visMapf : {Map.Map Int Int} | | ]
-SEM MySegments [| | visMap : {Map.Map Int Int}]
-    | Cons   lhs.visMap = foldr (@hd.visitnum `M.insert`) @tl.visMap @hd.synsO
-    | Nil    lhs.visMap = M.empty
+    visMapf : {IMap.IntMap Int} | | ]
 
 ATTR MySegments MySegment [
     ps      : PLabel 
@@ -202,8 +197,8 @@ ATTR MySegments MySegment [
     nmprf   : NMP_R
     options : {Options}
     tdp     : TDPRes
-    done    : { (S.Set MyOccurrence, S.Set FLabel
-                , S.Set Identifier, S.Set (FLabel,Int))}
+    done    : { (Set.Set MyOccurrence, Set.Set FLabel
+                , Set.Set Identifier, Set.Set (FLabel,Int))}
     ||]
 
 ATTR MySegments [|| evisits USE {:} {[]} : {Visits}]
@@ -212,8 +207,8 @@ ATTR MySegment  [||
     -- synthesized attribute occurrences of this segment
     synsO   : {[Int]}
     visnr   : Int
-    done    : { (S.Set MyOccurrence, S.Set FLabel
-                ,S.Set Identifier, S.Set (FLabel,Int))}]
+    done    : { (Set.Set MyOccurrence, Set.Set FLabel
+                ,Set.Set Identifier, Set.Set (FLabel,Int))}]
 
 SEM MySegments
     | Cons  hd.done = @lhs.done
@@ -229,7 +224,7 @@ SEM MySegment
       loc.kind = if monadic @lhs.options then VisitMonadic else VisitPure True
       lhs.evisits = Visit @lhs.visitnum @lhs.visitnum (@lhs.visitnum+1)
                           @loc.inhs @loc.syns @loc.steps @loc.kind
-      loc.steps   = if monadic @lhs.options -- TODO is this necessary?
+      loc.steps   = if monadic @lhs.options
                         then [Sim @loc.vss] else [PureGroup @loc.vss True]
       (loc.vss,lhs.done) = (runST $ getVss @lhs.done @lhs.ps @lhs.tdp @synsO 
                             @lhs.lfpf @lhs.nmprf @lhs.pmpf @lhs.pmprf @lhs.fty
@@ -241,20 +236,20 @@ getVss (done,intros,rules,vnrs) ps tdp synsO lfp nmpr pmp pmpr fty visMap ruleMa
     introed   <- newSTRef intros
     ruleref   <- newSTRef rules 
     vnrsref   <- newSTRef vnrs
-    lists <- forM synsO (visit ref introed ruleref vnrsref . (pmp M.!))
+    lists <- forM synsO (visit ref introed ruleref vnrsref . (pmp Map.!))
     done  <- readSTRef ref
     intros  <- readSTRef introed
     rules  <- readSTRef ruleref
     vnrs  <- readSTRef vnrsref 
     return (concat lists, (done, intros, rules, vnrs))
  where 
-    hochildren = maybe S.empty id $ M.lookup ps hoMap
+    hochildren = maybe Set.empty id $ Map.lookup ps hoMap
     visit ref introed ruleref vnrsref o@(MyOccurrence (_,f) (_,d)) = do
         visited <- readSTRef ref
-        if (o `S.member` visited) 
+        if (o `Set.member` visited) 
          then return [] -- already visited
          else do        -- prevent doubles
-          modifySTRef ref (S.insert o)
+          modifySTRef ref (Set.insert o)
           if inOutput
            then do -- has to be calculated in this sequence
                 rest' <- rest
@@ -268,37 +263,37 @@ getVss (done,intros,rules,vnrs) ps tdp synsO lfp nmpr pmp pmpr fty visMap ruleMa
                     rest' <- rest
                     visit'<- toVisit o
                     return (rest' ++ locs' ++ visit')
-     where preds  = maybe [] (IS.toList . (tdp A.!)) $ M.lookup o pmpr
-           rest   = forM preds (visit ref introed ruleref vnrsref. (pmp M.!)) 
+     where preds  = maybe [] (IS.toList . (tdp A.!)) $ Map.lookup o pmpr
+           rest   = forM preds (visit ref introed ruleref vnrsref. (pmp Map.!)) 
                         >>= (return . concat)
-           free   = maybe [] (S.toList) $ M.lookup o lfp
+           free   = maybe [] (Set.toList) $ Map.lookup o lfp
            locs   = forM free (visit ref introed ruleref vnrsref)
                         >>= (return . concat)
            sem o  = do  rules <- readSTRef ruleref 
-                        if r `S.member` rules
+                        if r `Set.member` rules
                           then return []
-                          else do   writeSTRef ruleref (r `S.insert` rules) 
+                          else do   writeSTRef ruleref (r `Set.insert` rules) 
                                     return [Sem r]
             where r = maybe (error "ruleMap") id $ Map.lookup o ruleMap
            inOutput = f == "lhs" && d == Syn || f /= "lhs" && d == Inh
            toVisit o = do
              vnrs <- readSTRef vnrsref 
-             if (child,visnr) `S.member` vnrs
+             if (child,visnr) `Set.member` vnrs
               then return []
-              else writeSTRef vnrsref ((child,visnr) `S.insert` vnrs) >>
-                   if child `S.member` hochildren 
+              else writeSTRef vnrsref ((child,visnr) `Set.insert` vnrs) >>
+                   if child `Set.member` hochildren 
                    then do intros <- readSTRef introed
-                           case child `S.member` intros of
+                           case child `Set.member` intros of
                             True    -> return [cvisit]
                             False   -> do
-                                writeSTRef introed (S.insert child intros)
+                                writeSTRef introed (Set.insert child intros)
                                 let occ = (ps,"inst") >.< (child, AnyDir)
-                                    preds = S.toList $ setConcatMap rep $ 
-                                                        lfp M.! occ
-                                    rep :: MyOccurrence -> S.Set MyOccurrence 
-                                    rep occ | isLoc occ   = S.insert occ $ 
-                                                setConcatMap rep $ lfp M.! occ
-                                            | otherwise   = S.singleton occ
+                                    preds = Set.toList $ setConcatMap rep $ 
+                                                        findWithErr lfp "woot4" occ
+                                    rep :: MyOccurrence -> Set.Set MyOccurrence 
+                                    rep occ | isLoc occ   = Set.insert occ $ 
+                                                setConcatMap rep $ findWithErr lfp "woot3" occ
+                                            | otherwise   = Set.singleton occ
                                 rest <- forM preds 
                                             (visit ref introed ruleref vnrsref)
                                 sem' <- sem occ
@@ -310,8 +305,8 @@ getVss (done,intros,rules,vnrs) ps tdp synsO lfp nmpr pmp pmpr fty visMap ruleMa
              where  cvisit= ChildVisit (identifier child) ntid visnr
                     child = snd $ argsOf o
                     ntid  = ((\(NT name _ _ )-> name) . fromMyTy) nt 
-                    visnr = visMap M.! (nmpr M.! (nt <.> attr o))
-                    nt    = fty M.! (ps,child)
+                    visnr = (\x-> findWithErr' visMap (show (inOutput,o,x)) x) (findWithErr nmpr "woot3" (nt <.> attr o))
+                    nt    = findWithErr fty "woot" (ps,child)
 --TODO empty hochildren instead of filling introed, requires only 1 lookup
 }
 
@@ -325,7 +320,7 @@ SEM  Nonterminal
                         then 0 
                         else let mx = fst $ IMap.findMax @loc.assigned in
                               if even mx then mx else mx + 1 
-        loc.mysegments = 
+        loc.mysegments =  
             map (\i -> MySegment ((@loc.mx - i) `div` 2)
                         (maybe [] id $ IMap.lookup i @loc.assigned)
                         (@loc.assigned IMap.! (i-1)) Nothing Nothing)
@@ -344,11 +339,11 @@ SEM Production
         inst.segs = 
             map (\(MySegment visnr inhs syns _ _) -> 
                    MySegment visnr inhs syns 
-                             (Just $ map (@lhs.pmprf M.!) $ 
+                             (Just $ map (@lhs.pmprf Map.!) $ 
                                     handAllOut (@loc.ps,"lhs") $ 
-                                        map (@lhs.nmp M.!) inhs)
-                             (Just $ map (@lhs.pmprf M.!) $ 
+                                        map (@lhs.nmp Map.!) inhs)
+                             (Just $ map (@lhs.pmprf Map.!) $ 
                                     handAllOut (@loc.ps,"lhs") $ 
-                                        map (@lhs.nmp M.!) syns)
+                                        map (@lhs.nmp Map.!) syns)
                          ) @lhs.mysegments
 

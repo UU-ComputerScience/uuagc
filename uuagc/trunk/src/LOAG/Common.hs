@@ -100,8 +100,7 @@ type FMap   = M.Map (PLabel,FLabel) (S.Set MyOccurrence, S.Set MyOccurrence)
 type FsInP  = M.Map PLabel [(PLabel, FLabel)]
 type LOAGRes =  ( Maybe TDPRes 
                 , InterfaceRes
-                , ADSRes
-                , Maybe PP_Doc)
+                , ADSRes)
 type ADSRes  = [Edge]
 type TDPRes  = A.Array Vertex Vertices --M.Map PLabel TDPGraph
 type TDPGraph = (IM.IntMap Vertices, IM.IntMap Vertices) 
@@ -109,8 +108,8 @@ type InterfaceRes = M.Map String (IM.IntMap [Vertex])
 type HOMap   = M.Map PLabel (S.Set FLabel) 
 
 findWithErr :: (Ord k, Show k, Show a) => M.Map k a -> String -> k -> a
-findWithErr m err k = maybe (error $ err ++ show (k, m)) id $ M.lookup k m
-findWithErr' m err k= maybe (error $ err ++ show (k, m)) id $ IM.lookup k m
+findWithErr m err k = maybe (error err) id $ M.lookup k m
+findWithErr' m err k= maybe (error err) id $ IM.lookup k m
 
 -- Defining the MyAttribute (attribute at non-terimal
 -- and the MyOccurrences (attribute at a production)

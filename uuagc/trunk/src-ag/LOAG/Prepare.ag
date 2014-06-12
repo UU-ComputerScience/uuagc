@@ -10,28 +10,6 @@ MODULE {LOAG.Prepare}
 {}
 {}
 
-imports{
-import qualified Data.Array as A
-import qualified Data.Map as M
-import qualified Data.Set as S
-import qualified Data.Sequence as Seq
-import qualified CommonTypes as CT
-import AbstractSyntax
-import LOAG.Common
-import LOAG.Chordal
-import LOAG.Rep
-import LOAG.Graphs
-import CodeSyntax
-import Data.Maybe (isJust, fromJust)
-import ExecutionPlan
-import GrammarInfo
-import HsToken (HsToken(..))
-import Pretty
-
-import Debug.Trace
-}
-
-
 {
 -- | Translating UUAGC types to MyTypes
 drhs f | f == _LHS               = Inh
@@ -50,46 +28,46 @@ depToEdge pmpr p e =
     where Dependency (OccAttr f1 i1) (OccAttr f2 i2) = e
 
 vertexToAttr :: NMP -> Vertex -> Attributes
-vertexToAttr nmp v = M.singleton (identifier a) (fromMyTy ty)
+vertexToAttr nmp v = Map.singleton (identifier a) (fromMyTy ty)
     where (MyAttribute ty (a,_)) = findWithErr nmp "vertexToAttr" v
 
 }
 
 SEM Grammar | Grammar
     inst.smf : LOAGRep 
-    loc.initO= if M.null @nonts.pmp then 1 else fst $ M.findMin @nonts.pmp
+    loc.initO= if Map.null @nonts.pmp then 1 else fst $ Map.findMin @nonts.pmp
     inst.smf = 
         LOAGRep @nonts.ps @nonts.ap @loc.an 
            @loc.ain @loc.asn @loc.sfp
            @nonts.pmp @nonts.pmpr @loc.nmp @loc.nmpr
-           (A.array (@loc.initO, @loc.initO + M.size @nonts.gen)  $ 
-                M.toList $ @nonts.gen)
-           (A.array (1,M.size @nonts.inss) $ 
-                M.toList $ @nonts.inss)
+           (A.array (@loc.initO, @loc.initO + Map.size @nonts.gen)  $ 
+                Map.toList $ @nonts.gen)
+           (A.array (1,Map.size @nonts.inss) $ 
+                Map.toList $ @nonts.inss)
            (A.array (@loc.initO, @loc.initO + length @nonts.ofld) $ 
                 @nonts.ofld) @nonts.fty @nonts.fieldMap @nonts.fsInP
-    loc.nmp  = M.fromList $ zip [1..] @loc.atts
-    loc.nmpr = M.fromList $ zip @loc.atts [1..]
-    loc.an   = M.unionWith (++) @loc.ain @loc.asn
+    loc.nmp  = Map.fromList $ zip [1..] @loc.atts
+    loc.nmpr = Map.fromList $ zip @loc.atts [1..]
+    loc.an   = Map.unionWith (++) @loc.ain @loc.asn
     loc.ain  = @nonts.inhs
     loc.asn  = @nonts.syns
-    loc.atts = concat $ M.elems @loc.an
-    loc.occs = concat $ M.elems @nonts.ap
+    loc.atts = concat $ Map.elems @loc.an
+    loc.occs = concat $ Map.elems @nonts.ap
     nonts.augM = @manualAttrOrderMap
 
 -- Collecting the attributes 
 ATTR Nonterminals Nonterminal [
-    augM   : {M.Map Identifier (M.Map Identifier (S.Set Dependency))} ||  
-    inhs USE {M.union} {M.empty} : AI_N 
-    syns USE {M.union} {M.empty} : AS_N ]
+    augM   : {Map.Map Identifier (Map.Map Identifier (Set.Set Dependency))} ||  
+    inhs USE {Map.union} {Map.empty} : AI_N 
+    syns USE {Map.union} {Map.empty} : AS_N ]
     
 SEM Nonterminal | Nonterminal 
     lhs.inhs = let dty = TyData (getName @nt) 
-                in M.singleton dty (toMyAttr Inh dty @inh)
+                in Map.singleton dty (toMyAttr Inh dty @inh)
     lhs.syns = let dty = TyData (getName @nt) 
-                in M.singleton dty (toMyAttr Syn dty @syn)
-    prods.augM = case M.lookup @nt @lhs.augM of
-                    Nothing -> M.empty 
+                in Map.singleton dty (toMyAttr Syn dty @syn)
+    prods.augM = case Map.lookup @nt @lhs.augM of
+                    Nothing -> Map.empty 
                     Just a  -> a
 
 -- Adding all attribute sets to the AG type 
@@ -125,9 +103,9 @@ SEM Grammar | Grammar
      loc.ps = @nonts.ps
 ATTR Nonterminals Nonterminal Productions Production [ || 
     ads USE {(++)} {[]}   : {[Edge]}
-    fieldMap USE {(M.union)} {M.empty} : FMap
-    hoMap    USE {(M.union)} {M.empty} : HOMap
-    fsInP USE {(M.union)} {M.empty} : FsInP]
+    fieldMap USE {(Map.union)} {Map.empty} : FMap
+    hoMap    USE {(Map.union)} {Map.empty} : HOMap
+    fsInP USE {(Map.union)} {Map.empty} : FsInP]
 
 SEM Nonterminals Nonterminal [ ||
     ps  USE {(++)} {([])} : {[PLabel]} ]
@@ -136,13 +114,13 @@ SEM Productions [ ||
 SEM Production [ || ps : PLabel ] | Production 
     loc.ps = (@lhs.dty,getName @con)
     lhs.ads   = 
-        case M.lookup @con @lhs.augM of
+        case Map.lookup @con @lhs.augM of
          Nothing -> []
-         Just a  -> S.toList $ S.map (depToEdge @children.pmpr @loc.pll) a
+         Just a  -> Set.toList $ Set.map (depToEdge @children.pmpr @loc.pll) a
     children.dty = @lhs.dty
 
 ATTR Productions Production [
-   augM : {M.Map Identifier (S.Set Dependency)} || ]
+   augM : {Map.Map Identifier (Set.Set Dependency)} || ]
 -- We didnt calculate A_P yet, inheriting A_N we can
 ATTR Productions Production Rules Rule [ 
     -- result type of this constructor 
@@ -158,25 +136,25 @@ ATTR Nonterminals Nonterminal Productions Production Children Child
     nmprf   : NMP_R|
     olab    : Int --  chained attribute for handing out labels to occurrences
     flab    : Int  |--chained attribute for handing out labels to fields
-    ap   USE {M.unionWith (++)} {M.empty}   : A_P
-    gen  USE {M.union}          {M.empty}   : {Map Int Int}
-    inss USE {M.unionWith (++)} {M.empty}   : {Map Int [Int]}
-    pmp  USE {M.union}          {M.empty}   : PMP
-    pmpr USE {M.union}          {M.empty}   : PMP_R
+    ap   USE {Map.unionWith (++)} {Map.empty}   : A_P
+    gen  USE {Map.union}          {Map.empty}   : {Map Int Int}
+    inss USE {Map.unionWith (++)} {Map.empty}   : {Map Int [Int]}
+    pmp  USE {Map.union}          {Map.empty}   : PMP
+    pmpr USE {Map.union}          {Map.empty}   : PMP_R
     -- maps for each occurrence to which field it belongs
     ofld USE {(++)}             {[]}        : {[(Int, Int)]}
-    fty  USE {M.union}          {M.empty}   : FTY
+    fty  USE {Map.union}          {Map.empty}   : FTY
     ]
 
 SEM Grammar | Grammar 
     nonts.an = map2F @loc.an
     nonts.nmprf= @loc.nmpr
-    nonts.olab = if M.null @loc.nmp then 0 else (fst $ M.findMax @loc.nmp)
+    nonts.olab = if Map.null @loc.nmp then 0 else (fst $ Map.findMax @loc.nmp)
     nonts.flab = 0
 
 ATTR Children Child [||
-    fieldMap USE {M.union} {M.empty} : FMap
-    hoMap    USE {M.unionWith (S.union)} {M.empty} : HOMap
+    fieldMap USE {Map.union} {Map.empty} : FMap
+    hoMap    USE {Map.unionWith (Set.union)} {Map.empty} : HOMap
     ]
 SEM Children [ dty : {MyType} || ]
     | Nil 
@@ -187,10 +165,10 @@ SEM Children [ dty : {MyType} || ]
                         @lhs.an @loc.atp
     fatts.flab  = @loc.flab
     loc.label   = (@lhs.pll, "lhs")
-    loc.foccsI  = S.fromList $ handAllOut @loc.label $ @lhs.ain @loc.atp
-    loc.foccsS  = S.fromList $ handAllOut @loc.label $ @lhs.asn @loc.atp
-    loc.fieldMap= M.singleton @loc.label (@loc.foccsI, @loc.foccsS)
-    lhs.fty     = M.singleton @loc.label @lhs.dty
+    loc.foccsI  = Set.fromList $ handAllOut @loc.label $ @lhs.ain @loc.atp
+    loc.foccsS  = Set.fromList $ handAllOut @loc.label $ @lhs.asn @loc.atp
+    loc.fieldMap= Map.singleton @loc.label (@loc.foccsI, @loc.foccsS)
+    lhs.fty     = Map.singleton @loc.label @lhs.dty
 
 SEM Child | Child
     loc.flab    = @lhs.flab + 1
@@ -201,26 +179,26 @@ SEM Child | Child
     fatts.flab  = @loc.flab
     loc.ident   = getName @name
     loc.label   = (@lhs.pll, @loc.ident)
-    loc.foccsI  = S.fromList $ handAllOut @loc.label $ @lhs.ain @loc.atp
-    loc.foccsS  = S.fromList $ handAllOut @loc.label $ @lhs.asn @loc.atp
-    loc.fieldMap= if S.null @loc.foccsI && S.null @loc.foccsS
-                        then M.empty 
-                        else M.singleton @loc.label (@loc.foccsS,@loc.foccsI)
+    loc.foccsI  = Set.fromList $ handAllOut @loc.label $ @lhs.ain @loc.atp
+    loc.foccsS  = Set.fromList $ handAllOut @loc.label $ @lhs.asn @loc.atp
+    loc.fieldMap= if Set.null @loc.foccsI && Set.null @loc.foccsS
+                        then Map.empty 
+                        else Map.singleton @loc.label (@loc.foccsS,@loc.foccsI)
     loc.hoMap   = case @kind of
-                    ChildAttr -> M.singleton @lhs.pll (S.singleton @loc.ident)
-                    _         -> M.empty
-    lhs.fty     = M.singleton (@lhs.pll, getName @name) @loc.atp
+                    ChildAttr -> Map.singleton @lhs.pll (Set.singleton @loc.ident)
+                    _         -> Map.empty
+    lhs.fty     = Map.singleton (@lhs.pll, getName @name) @loc.atp
 
 SEM FieldAtt | FieldAtt
     loc.olab    = @lhs.olab + 1
     loc.alab    = findWithErr @lhs.nmprf "getting attr label" @loc.att
     loc.att     = @t <.> @a
     loc.occ     = (@p, @f) >.< @a
-    loc.pmp     = M.singleton @loc.olab @loc.occ
-    loc.pmpr    = M.singleton @loc.occ  @loc.olab
-    loc.inss    = M.singleton @loc.alab [@loc.olab]
-    loc.gen     = M.singleton @loc.olab @loc.alab
-    lhs.ap      = M.singleton @p [@loc.occ]
+    loc.pmp     = Map.singleton @loc.olab @loc.occ
+    loc.pmpr    = Map.singleton @loc.occ  @loc.olab
+    loc.inss    = Map.singleton @loc.alab [@loc.olab]
+    loc.gen     = Map.singleton @loc.olab @loc.alab
+    lhs.ap      = Map.singleton @p [@loc.occ]
     lhs.ofld    = [(@loc.olab, @lhs.flab)]
 
 -- calculate representation of semantic function 
@@ -228,50 +206,50 @@ SEM FieldAtt | FieldAtt
 SEM Grammar | Grammar
      loc.sfp = repLocRefs @nonts.lfp @nonts.sfp
 ATTR Nonterminals Nonterminal Productions Production Rules Rule [ || 
-    sfp  USE {M.unionWith (S.union)} {M.empty} : SF_P  -- deps of non-locals
-    ruleMap USE {M.union} {M.empty} : {M.Map MyOccurrence Identifier} 
-    lfp  USE {M.unionWith (S.union)} {M.empty} : SF_P  -- deps of local attrs
-    lfpr USE {M.unionWith (S.union)} {M.empty} : SF_P ]-- reverse 
+    sfp  USE {Map.unionWith (Set.union)} {Map.empty} : SF_P  -- deps of non-locals
+    ruleMap USE {Map.union} {Map.empty} : {Map.Map MyOccurrence Identifier} 
+    lfp  USE {Map.unionWith (Set.union)} {Map.empty} : SF_P  -- deps of local attrs
+    lfpr USE {Map.unionWith (Set.union)} {Map.empty} : SF_P ]-- reverse 
 SEM Production | Production
     loc.pll   = (@lhs.dty,getName @con)
     rules.pll = @pll 
     rules.pts = @children.pts
-    lhs.fsInP = M.singleton @pll $ M.keys @children.fieldMap
+    lhs.fsInP = Map.singleton @pll $ Map.keys @children.fieldMap
 
 ATTR Children Child [ ||
-    pts USE {S.union} {S.empty} : {S.Set FLabel} ]
+    pts USE {Set.union} {Set.empty} : {Set.Set FLabel} ]
 
 SEM Child | Child
-    lhs.pts = S.singleton $ getName @name
+    lhs.pts = Set.singleton $ getName @name
 
 ATTR Rules Rule [
     lfpf : SF_P ||
-    usedLocals USE {(S.union)} {S.empty} : {S.Set MyOccurrence}]
+    usedLocals USE {(Set.union)} {Set.empty} : {Set.Set MyOccurrence}]
 
 SEM Rule | Rule
-    loc.usedLocals = S.filter (\(MyOccurrence (_,f) _) -> f == "loc") @rhs.used
-    loc.usesLocals = not $ S.null @loc.usedLocals
+    loc.usedLocals = Set.filter (\(MyOccurrence (_,f) _) -> f == "loc") @rhs.used
+    loc.usesLocals = not $ Set.null @loc.usedLocals
     (lhs.sfp,lhs.ruleMap,lhs.lfp,lhs.lfpr) = 
         foldr (\(f, a, b) (m',rm', l', lr') -> 
           let att = (@lhs.pll, f) >.< a
-              rm  = M.insert att @rulename rm' 
+              rm  = Map.insert att @rulename rm' 
               l   = if @loc.usesLocals && not b
-                      then M.insert att @loc.usedLocals l'
+                      then Map.insert att @loc.usedLocals l'
                       else l'
               lr  = if @loc.usesLocals && not b
-                     then S.fold (\k m -> M.insertWith (S.union) k 
-                                 (S.singleton att) m) lr' @loc.usedLocals
+                     then Set.fold (\k m -> Map.insertWith (Set.union) k 
+                                 (Set.singleton att) m) lr' @loc.usedLocals
                      else lr'
-              sfpins = M.insert att (@rhs.used `S.union` fromHO) m'
-              fromHO = maybe S.empty id (M.lookup hOcc @lhs.lfpf)
+              sfpins = Map.insert att (@rhs.used `Set.union` fromHO) m'
+              fromHO = maybe Set.empty id (Map.lookup hOcc @lhs.lfpf)
                 where hOcc = (@lhs.pll, "inst") >.< (f, AnyDir)
               
             in if b
-                then (m',rm, M.insert att @rhs.used l, 
-                        S.fold (\k m -> M.insertWith (S.union) k 
-                                (S.singleton att) m) lr @rhs.used)
+                then (m',rm, Map.insert att @rhs.used l, 
+                        Set.fold (\k m -> Map.insertWith (Set.union) k 
+                                (Set.singleton att) m) lr @rhs.used)
                 else (sfpins,rm,l,lr))
-                        (M.empty,M.empty,M.empty,M.empty) @pattern.afs
+                        (Map.empty,Map.empty,Map.empty,Map.empty) @pattern.afs
 
 ATTR Patterns Pattern [ ||
     -- the boolean represents whether this occurrence is 
@@ -285,10 +263,10 @@ SEM Pattern | Alias
 
 ATTR Rules Rule Expression HsTokensRoot HsTokens HsToken [
     -- the terminals of current production
-    pts                : {S.Set (FLabel)} || ]
+    pts                : {Set.Set (FLabel)} || ]
 
 ATTR Rule Expression HsTokensRoot HsTokens HsToken [ ||
-    used USE {S.union} {S.empty} : {S.Set MyOccurrence} ]
+    used USE {Set.union} {Set.empty} : {Set.Set MyOccurrence} ]
 
 SEM Expression | Expression
     inst.tokens : HsTokensRoot
@@ -300,26 +278,26 @@ SEM Expression | Expression
 -- reference to terminals of which some are local attributes 
 SEM HsToken | AGLocal 
     lhs.used = 
-        case getName @var `S.member` @lhs.pts of
-          True  -> S.empty 
+        case getName @var `Set.member` @lhs.pts of
+          True  -> Set.empty 
           -- local found without flabel
-          False -> S.singleton $ (@lhs.pll, getName _LOC) >.< 
+          False -> Set.singleton $ (@lhs.pll, getName _LOC) >.< 
                         (getName @var, drhs _LOC)
 -- includes both locals and attributes
 -- locals will be replaced later by repLocRefs
 SEM HsToken | AGField
-    lhs.used = S.singleton $ (@lhs.pll, getName @field) >.< 
+    lhs.used = Set.singleton $ (@lhs.pll, getName @field) >.< 
                                 (getName @attr, drhs @field)
     
 {
 -- | Replace the references to local attributes, by his attrs dependencies
 repLocRefs :: SF_P -> SF_P -> SF_P
 repLocRefs lfp sfp =
-    M.map (setConcatMap rep) sfp
-    where rep :: MyOccurrence -> S.Set MyOccurrence 
+    Map.map (setConcatMap rep) sfp
+    where rep :: MyOccurrence -> Set.Set MyOccurrence 
           rep occ | isLoc occ   = setConcatMap rep $ 
                                     findWithErr lfp "repping locals" occ
-                  | otherwise   = S.singleton occ
+                  | otherwise   = Set.singleton occ
 }
 
 

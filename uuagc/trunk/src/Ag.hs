@@ -4,7 +4,7 @@ module Ag (uuagcLib, uuagcExe,compile) where
 import System.Environment            (getArgs, getProgName)
 import System.Console.GetOpt         (usageInfo)
 import Data.List                     (partition)
-import Control.Monad                 (zipWithM_)
+import Control.Monad                 (zipWithM_,when)
 import Data.Maybe
 import System.FilePath
 import System.IO
@@ -228,6 +228,10 @@ compile flags input output
        else if additionalWarnings > 0
             then printStr $ "\nPlus " ++ show additionalWarnings ++ " more warning" ++ pluralS additionalWarnings ++ ".\n"
             else return ()
+
+      -- show fake dependencies when found with --aoag
+      when (aoag flags' && verbose flags' && isJust (Pass3b.ads_Syn_Grammar output3b)) $
+        putStrLn (show $ fromJust $ Pass3b.ads_Syn_Grammar output3b)
 
       if not (null errorsToStopOn)  -- note: this may already run quite a part of the compilation...
        then failWith 1

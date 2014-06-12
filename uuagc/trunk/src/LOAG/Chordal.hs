@@ -89,7 +89,7 @@ scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn = do
 --                 [] -> do
                 interfaces <- mkInterfaces ids
                 putStrLn "--- Code Generation ---"
-                return (Just edp,interfaces,[],Nothing)
+                return (Just edp,interfaces,[])
 --                 cs -> error ("found " ++ (show $ length cs) ++ " cycles: \n")
  where 
         prs =  [ p | (Nt _ _ _ _ _ ps) <- nts, p <- ps]
