@@ -3,7 +3,8 @@
 -- Module for containing results in LOAG tests
 module LOAG.Result where
 
-import Control.Monad (MonadPlus(..))
+import Control.Applicative
+import Control.Monad (liftM, ap, MonadPlus(..))
 import Control.Monad.Trans (lift, MonadTrans(..))
 import Control.Monad.State (MonadState(..))
 import Control.Monad.ST
@@ -30,6 +31,13 @@ data CType = T1 | T2
 -- | Inspired by ErrorT
 newtype ResultT m a = Result { runResult :: m (Result a) }
 
+instance Monad m => Functor (ResultT m) where
+  fmap = liftM
+
+instance Monad m => Applicative (ResultT m) where
+  pure  = return
+  (<*>) = ap
+
 instance (Monad m) => Monad (ResultT m) where
     return               = Result . return . Give
     (>>=) rt f = Result $ do
@@ -45,6 +53,10 @@ instance MonadTrans ResultT where
 instance MonadState s (ResultT (ST s)) where
     get = get
     put = put
+
+instance Monad m => Alternative (ResultT m) where
+    (<|>) = mplus
+    empty = mzero
 
 instance (Monad m) => MonadPlus (ResultT m) where
     mzero = Result $ return NotLOAG
