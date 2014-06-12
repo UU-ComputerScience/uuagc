@@ -8,12 +8,14 @@ import CommonTypes
 import Data.STRef
 import Data.Maybe (catMaybes, isNothing, fromJust)
 import Data.Tuple (swap)
-import qualified Data.Set as S
+import qualified Data.Array as A
+import           Data.Array.IArray (amap)
+import qualified Data.Graph as G
+import qualified Data.Graph.SCC as SCC
 import qualified Data.IntMap as IM
 import qualified Data.IntSet as IS
 import qualified Data.Map as M
-import qualified Data.Array as A
-import           Data.Array.IArray (amap)
+import qualified Data.Set as S
 import Data.Array.MArray (mapArray)
 import Data.Array.ST
 
@@ -160,67 +162,7 @@ freeze_graph (mf, mt) = do
     fr_t <- lift (freeze mt)
     return (fr_f, fr_t)
 
-mapToArray :: (Int, Int) -> IM.IntMap Vertices -> A.Array Vertex [Vertex] 
-mapToArray bounds tdp = A.accumArray (++) [] bounds flatg
- where  flatg = foldr split [] $ IM.assocs tdp
-        split (f,ts) xs = (map ((,) f . (:[])) (IS.toList ts)) ++ xs
+maxSCCs = catMaybes . map cToList . SCC.sccList . amap IS.toList
+ where cToList  (G.AcyclicSCC _) = Nothing
+       cToList  (G.CyclicSCC vs) = Just vs
 
---maxSCCs = catMaybes . map cToList . SCC.sccList 
--- where cToList  (G.AcyclicSCC _) = Nothing
---       cToList  (G.CyclicSCC vs) = Just vs
-
-findCycles :: (MonadTrans m, MonadState s (m (ST s))) => 
-                       Graph s -> Vertex -> (m (ST s)) [[Vertex]]
-findCycles (gf,gt) v = do
-    f_gf <- lift (freeze gf)
-    f_gt <- lift (freeze gt)
-    let findPath :: (M.Map Vertex Int) -> Vertex -> [[Vertex]]
-        findPath rMap v = 
-            case M.lookup v rMap of
-                Nothing     -> otherres
-                Just r      -> [returnPath r rMap v [v]]
-         where  
-                otherres    = concatMap (findPath rMap') explore
-                explore     = IS.toList $ f_gf A.! v
-                rMap'       = M.insert v idx rMap
-                idx         = M.size rMap
-        returnPath :: Int -> M.Map Vertex Int -> Vertex -> [Vertex] -> [Vertex]
-        returnPath r rMap v acc = 
-                case filter select explore of -- assumes exactly 1 path back
-                    []  -> acc 
-                    [x] -> returnPath r rMap x (x:acc)
-         where  select :: Vertex -> Bool
-                select x    = maybe False validate $ M.lookup x rMap
-                 where validate :: Int -> Bool
-                       validate r' = r' >= r
-                explore     = IS.toList $ f_gt A.! v
-    return $ findPath M.empty v
-
-cyclicPaths :: (MonadTrans m, MonadState s (m (ST s))) => 
-                       Graph s -> Vertex -> (m (ST s)) [[Vertex]]
-cyclicPaths (gf,_) v = do
-    f_gf <- lift (freeze gf)
-    let paths :: [Vertex] -> IS.IntSet -> Vertex -> [[Vertex]]
-        paths acc accS v 
-            | v `IS.member` accS = (takeWhile (/= v) acc) : (proceed nexts)
-            | otherwise = proceed succs
-         where  succs = IS.toList $ f_gf A.! v
-                proceed = concatMap (paths (v:acc) (v `IS.insert` accS))
-                nexts = IS.toList $ f_gf A.! v IS.\\ accS
-    return $ paths [] IS.empty v
-
-contCycles :: (MonadTrans m, MonadState s (m (ST s))) => 
-                       Graph s -> Vertex -> (m (ST s)) [[Vertex]]
-contCycles (gf,_) v = do
-    f_gf <- lift (freeze gf)
-    let findPath :: (Vertex -> [Vertex], IS.IntSet) -> Vertex -> [[Vertex]]
-        findPath (f,s) v = 
-            if IS.member v s
-                then [f v]
-                else otherres
-         where  
-                otherres    = concatMap (findPath (f', v`IS.insert` s)) explore
-                explore     = IS.toList $ f_gf A.! v
-                f' x        | x == v    = [v]
-                            | otherwise = v : (f x)
-    return $ findPath (const [], IS.empty) v

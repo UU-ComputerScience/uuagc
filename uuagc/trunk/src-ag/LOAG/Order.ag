@@ -27,6 +27,7 @@ import AbstractSyntax
 import qualified LOAG.LOAG as   LOAG
 import qualified LOAG.AOAG as   AOAG
 import LOAG.Common
+import LOAG.Optimise
 import LOAG.Rep
 import LOAG.Graphs
 import CodeSyntax
@@ -62,7 +63,8 @@ SEM Grammar | Grammar
                         then if CT.aoag @lhs.options
                                 then AOAG.schedule @smf.self @self @nonts.ads
                                 else LOAG.schedule @smf.self @self @nonts.ads 
-                                        (verbose @lhs.options)
+                                      (verbose @lhs.options
+                                      ,minvisits @lhs.options)
                         else Right (Nothing,Map.empty,[])
 
     nonts.res_ads = either (const []) trd' @loc.schedRes
@@ -323,7 +325,8 @@ SEM  Nonterminal
         loc.mysegments =  
             map (\i -> MySegment ((@loc.mx - i) `div` 2)
                         (maybe [] id $ IMap.lookup i @loc.assigned)
-                        (@loc.assigned IMap.! (i-1)) Nothing Nothing)
+                        (maybe [] id $ IMap.lookup (i-1) @loc.assigned) 
+                            Nothing Nothing)
                  [@loc.mx,@loc.mx-2 .. 2]
         loc.segments = 
             map (\(MySegment visnr is ss _ _) -> 

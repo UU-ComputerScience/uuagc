@@ -44,7 +44,7 @@ newSolvable = do    sat <-  Mini.newSolver
 newLit      :: Sat -> IO MyVar
 newLit sat =
  do p <- Mini.newLit sat
-    return (Var p)
+    return (Var (Mini.neg p))
 
 satValues   :: Sat -> IO (Int,Int)
 satValues sat = 

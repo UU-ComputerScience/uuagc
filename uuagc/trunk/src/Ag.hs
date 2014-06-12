@@ -230,7 +230,8 @@ compile flags input output
             else return ()
 
       -- show fake dependencies when found with --aoag
-      when (aoag flags' && verbose flags' && isJust (Pass3b.ads_Syn_Grammar output3b)) $
+      when (aoag flags' && verbose flags' && 
+            isJust (Pass3b.ads_Syn_Grammar output3b)) $
         putStrLn (show $ fromJust $ Pass3b.ads_Syn_Grammar output3b)
 
       if not (null errorsToStopOn)  -- note: this may already run quite a part of the compilation...

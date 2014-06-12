@@ -36,7 +36,7 @@ executable uuagc
 library
    build-depends: uuagc-cabal >= 1.0.2.0
    build-depends: base >= 4, base < 5, ghc-prim >= 0.2.0.0
-   build-depends: minisat
+   build-depends: minisat, GraphSCC 
    build-depends: containers >= 0.3, directory >= 1.0.1.1, array >= 0.3.0.1
    build-depends: uulib >= 0.9.14, mtl >= 1.1.1.1
    build-depends: haskell-src-exts >= 1.11.1
@@ -106,6 +106,7 @@ library
     , LOAG.Common
     , LOAG.Graphs
     , LOAG.LOAG
+    , LOAG.Optimise
     , LOAG.Order
     , LOAG.Rep
     , LOAG.Result
