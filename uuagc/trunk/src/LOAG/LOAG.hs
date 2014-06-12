@@ -3,11 +3,12 @@
 
 module LOAG.LOAG where
 
-import LOAG.Common
-import LOAG.Rep
-import LOAG.Graphs
-import LOAG.Result
 import LOAG.Chordal
+import LOAG.Common
+import LOAG.Graphs
+import LOAG.Optimise 
+import LOAG.Rep
+import LOAG.Result
 
 import              AbstractSyntax
 import              CommonTypes         hiding (verbose)
@@ -47,8 +48,8 @@ runLOAG l =
 
 -- | Calculate a total order if the semantics given 
 --    originate from a linearly-ordered AG
-schedule :: LOAGRep -> Grammar -> [Edge] -> Bool -> Either Error LOAGRes
-schedule sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) ads verbose
+schedule :: LOAGRep -> Grammar -> [Edge] -> (Bool,Bool) -> Either Error LOAGRes
+schedule sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) ads (verbose,minvisits)
     = runLOAG $ loag ads
  where
     -- get the maps from semantics and translate them to functions    
@@ -133,7 +134,9 @@ schedule sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) ads verbose
     loag ads = run
         where
             run :: LOAG s LOAGRes
-            run = return $ unsafePerformIO $ scheduleLOAG ag putStrLn
+            run = return $ unsafePerformIO $ scheduleLOAG ag putStrLn opts
+            opts | minvisits = [MinVisits]
+                 | otherwise = []
             varsInP p = ((length $ edgesInP p))
             edgesInP p= [ (f, t) | f <- ap p, t <- ap p, siblings (f,t), bnf (f,t)]
             varsInN n = (length $ edgesInN n)

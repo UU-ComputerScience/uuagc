@@ -3,8 +3,9 @@
 module LOAG.AOAG where
 
 import LOAG.Common
-import LOAG.Rep
 import LOAG.Graphs
+import LOAG.Optimise
+import LOAG.Rep
 import LOAG.Result
 
 import AbstractSyntax
@@ -90,6 +91,7 @@ schedule sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) ads
     ofld = (ofld_LOAGRep_LOAGRep sem)       -- X
     ps   = ps_LOAGRep_LOAGRep   sem         -- only dpe
     nonts= map (\(Nonterminal nt_id _ _ _ _) -> TyData $ getName nt_id) dats -- X
+    nts=    map toNt nonts 
     fsInP  = map2F (fsInP_LOAGRep_LOAGRep sem) --X 
     genA = gen_LOAGRep_LOAGRep sem             --X
     inss = inss_LOAGRep_LOAGRep sem            -- instEdge
@@ -192,9 +194,8 @@ schedule sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) ads
                     foldr (\(Nonterminal nt _ _ _ _) -> M.insert (getName nt) 
                                 (IM.singleton 1 [])) M.empty dats)
                 fr_ids <- freeze_graph ids
-                let nonts' = map toNt nonts
-                threads <- lift (completing fr_ids (schedA, schedS) nonts')
-                let (ivd, comp) = fetchEdges fr_ids threads nonts'
+                threads <- lift (completing fr_ids (schedA, schedS) nts)
+                let (ivd, comp) = fetchEdges fr_ids threads nts
                 m_edp dp init_ads ivd comp (schedA, schedS) `catchType3` 
                                 find_ads dp idp ids (schedA, schedS)
 
@@ -316,9 +317,9 @@ schedule sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) ads
                 case mc of
                   Just (e, c) -> throwCycle e c (T3 $ concatMap instEdge comp)
                   Nothing     -> do 
-                        tdp <- lift (freeze edpt)
-                        interfaces <- lift (readSTRef (snd sched))
-                        return (Just tdp, interfaces, ads)
+                        tdp  <- lift (freeze edpt)
+                        infs <- lift (readSTRef (snd sched))
+                        return (Just tdp,infs,ads)
 
             reschedule :: Graph s -> Graph s -> Graph s -> SchedRef s -> 
                            [Edge] -> Edge -> STRef s Int 
@@ -328,7 +329,7 @@ schedule sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) ads
                 forM_ extra $ swap_ivd ids sched
                 fr_ids <- freeze_graph ids
                 threads <- lift (readSTRef threadRef)
-                let (ivd, comp) = fetchEdges fr_ids threads (map toNt nonts)
+                let (ivd, comp) = fetchEdges fr_ids threads nts 
                 m_edp dp ads ivd comp sched `catchType3` 
                     explore dp idp ids sched ads pruner
              where 

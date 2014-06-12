@@ -14,9 +14,7 @@ import Data.List (intercalate)
 import CommonTypes
 import Control.Arrow
 import Control.Monad.ST
-import Control.Monad.State
-import Pretty
-import AbstractSyntax
+import Control.Monad (forM, when, forM_, forM_, foldM)
 
 import LOAG.Graphs
 
@@ -61,6 +59,7 @@ modifyArray r k f = do
 
 setConcatMap f = S.foldr (S.union . f) S.empty
 isLoc (MyOccurrence (_,f) _) = f == "loc" || f == "inst" -- transparent occr ? 
+
 instance Eq Direction where
     Inh == Syn = False
     Syn == Inh = False
@@ -76,6 +75,7 @@ data MyType = TyInt
             | AnyType -- the set of all values (union of all types)
 
 type SchedRef s = (STArray s Vertex (Maybe Int),ThreadRef s)
+type AttrAssRef s = STArray s Vertex (Maybe Int)
 type ThreadRef s = STRef s InterfaceRes
 -- production is identified by its name and its parent non-terminal
 type PLabel = (MyType,String) 
@@ -101,6 +101,7 @@ type FsInP  = M.Map PLabel [(PLabel, FLabel)]
 type LOAGRes =  ( Maybe TDPRes 
                 , InterfaceRes
                 , ADSRes)
+type VisCount= (Int, Int, Float)
 type ADSRes  = [Edge]
 type TDPRes  = A.Array Vertex Vertices --M.Map PLabel TDPGraph
 type TDPGraph = (IM.IntMap Vertices, IM.IntMap Vertices) 
@@ -120,9 +121,6 @@ data MyAttribute  = MyAttribute {typeOf :: MyType, alab :: ALabel}
 infixl 7 <.>
 instance Show MyAttribute where
     show (MyAttribute t a) = show t ++ "<.>" ++ show a
-
-dirOfAttr :: MyAttribute -> Direction
-dirOfAttr = snd . alab
 
 type MyOccurrences = [MyOccurrence]
 data MyOccurrence = MyOccurrence {argsOf :: (PLabel, FLabel), attr :: ALabel}
@@ -162,24 +160,6 @@ pairs :: [a] -> [(a,a)]
 pairs [] = []
 pairs (x:xs) = map ((,) x) xs ++ pairs xs
 
--- all possible combinations one can make from an input list
-combs xs = allCombs (length xs) xs
- where
-    allCombs 0 xs = []
-    allCombs n xs = combsOfSize n xs ++ allCombs (n-1) xs
-     where
-        combsOfSize 0 xs = [[]]
-        combsOfSize _ [] = []
-        combsOfSize n (x:xs) = map (x:) (combsOfSize (n-1) xs)
-                                ++ combsOfSize n xs
-
--- all possible pair-wise combinations of a list of items
-combList :: [[a]] -> [[a]]
-combList xs = foldr (\f acc -> do
-                        x  <- f
-                        xs <- acc
-                        return (x:xs)) (return []) xs
-
 toMyTy :: Type -> MyType
 toMyTy (Haskell str) = TyLit str
 toMyTy (NT id _ _ )  = TyData $ getName id
@@ -195,13 +175,16 @@ toMyAttr d dty = M.foldrWithKey
 
 completing :: FrGraph -> SchedRef s -> [Nt] -> ST s InterfaceRes
 completing ids sched nts = do   
-                                forM_ nts $ completingN ids sched
-                                threads <- readSTRef (snd sched)
-                                return threads
+    ims <- forM nts $ completingN ids (fst sched)
+    let threads = (M.fromList ims)
+    writeSTRef (snd sched) threads
+    return $ threads 
 
-completingN :: FrGraph -> SchedRef s -> Nt -> ST s ()
-completingN ids@(idsf, idst) (schedA, schedS)   
+completingN :: FrGraph -> AttrAssRef s -> Nt -> 
+                    ST s ((String, IM.IntMap [Vertex]))
+completingN ids@(idsf, idst) schedA
                 (Nt nt_id _ _ inhs syns _) = do
+    schedS <- newSTRef IM.empty
     let attrs = inhs ++ syns
         dty = TyData nt_id
         assign (attr,_,dAttr) = do
@@ -218,9 +201,7 @@ completingN ids@(idsf, idst) (schedA, schedS)
                           wrap_up attr (if dA == dAttr 
                                           then mx else mx+1)
         wrap_up attr k = do
-         modifySTRef schedS 
-                (M.alter (Just . maybe (IM.singleton k [attr]) 
-                                (IM.insertWith (++) k [attr])) nt_id)
+         modifySTRef schedS (IM.insertWith (++) k [attr])
          writeArray schedA attr (Just k)
          -- TODO assign only predecessors
          -- tmp fix by lack of direction for preds
@@ -238,9 +219,8 @@ completingN ids@(idsf, idst) (schedA, schedS)
                                  _  -> Just (a,i)
     --make sure all are assigned
     case attrs of
-      [] -> modifySTRef schedS (M.insert nt_id $
-                                    IM.fromList [(1,[]),(2,[])])
-      as -> forM_ as assign
+      [] -> return (nt_id, IM.fromList [(1,[]),(2,[])])
+      as -> forM_ as assign >> readSTRef schedS >>= return . ((,) nt_id)
 
 fetchEdges :: FrGraph -> InterfaceRes -> [Nt] -> ([Edge],[Edge])
 fetchEdges ids threads nts =
@@ -260,10 +240,6 @@ fetchEdgesN (idsf, idst) threads
                    , t <- findK (k-1)]
      in (ivd, [ (f, t) | (f, t) <- ivd
                           , not $ IS.member t (idsf A.! f) ])
-
-
-instance Show Child where
-    show (Child id ty _) = getName id 
 
 instance Show MyType where
     show TyInt        = "Int"

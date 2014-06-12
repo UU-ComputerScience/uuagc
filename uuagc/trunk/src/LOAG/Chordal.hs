@@ -3,6 +3,7 @@ module LOAG.Chordal where
 
 import LOAG.Common
 import LOAG.Graphs
+import LOAG.Optimise
 import LOAG.Solver.MiniSat
 
 import              Control.Monad (unless, forM, when, foldM)
@@ -71,8 +72,8 @@ addsNt g = foldl addNt g
 addNt g (v,n@(v2,c)) = IM.adjust (n:)          v
                      $ IM.adjust ((v,varnot c):)  v2 g
 
-scheduleLOAG :: Ag -> (String -> IO ()) -> IO LOAGRes
-scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn = do
+scheduleLOAG :: Ag -> (String -> IO ()) -> Opts -> IO LOAGRes
+scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn opts = do
     putStrLn "--- Starting ---"
     sat <- newSolvable 
     varMap <- noNtCycles sat nts putStrLn
@@ -84,14 +85,26 @@ scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn = do
     b <- satsolve sat []
     if not b then error "Not LOAG" 
       else do   putStrLn "--- Constructing Interfaces ---"
-                (ids,edp) <- mkGraphs sat varMap dps
---                case maxSCCs edp of
---                 [] -> do
-                interfaces <- mkInterfaces ids
+                (ids,edp,interfaces) <- loagRes sat varMap dps
+                let (_,_,oldavg) = getVisCount nts interfaces
+                when minvisit $ 
+                    putStrLn "--- Minimising #Visit"
+                optimise sat varMap opts nbounds nts interfaces 
+                (ids,edp,interfaces) <- loagRes sat varMap dps
+                let cycles = length $ maxSCCs edp
+                when (cycles > 0) $ 
+                    error ("Bad LOAG scheduling: " ++ show cycles ++ " cycles")
+                let visC@(_,_,newavg) = getVisCount nts interfaces
+                when minvisit $ do
+                    putStrLn ("--- Avg #visit " ++(show oldavg)++" --> "
+                                                ++(show newavg))
                 putStrLn "--- Code Generation ---"
                 return (Just edp,interfaces,[])
---                 cs -> error ("found " ++ (show $ length cs) ++ " cycles: \n")
- where 
+ where  loagRes sat varMap dps = do    
+            (ids,edp) <- mkGraphs sat varMap dps
+            interfaces <- mkInterfaces ids
+            return (ids,edp,interfaces)
+        minvisit = MinVisits `elem` opts
         prs =  [ p | (Nt _ _ _ _ _ ps) <- nts, p <- ps]
         mkInterfaces ids = return $ runST $ do
                 schedA <- newArray nbounds Nothing
@@ -127,11 +140,7 @@ scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn = do
                     modifyArray idsf f (t `IS.insert`)
                     modifyArray idst t (f `IS.insert`)
                     forM es $ \(f,t) -> do --edp does not reflect flow
-                        modifyArray edp t (f `IS.insert`)
-                modifyArray r k f = do
-                    v <- readArray r k
-                    writeArray r k (f v)
-                
+                        modifyArray edp t (f `IS.insert`)                
 
 noCyclesNt :: Sat -> NtGraph -> IO ()
 noCyclesNt sat g  | IM.null g  = return ()
@@ -242,4 +251,5 @@ noPrCycles sat prods varMap putStrLn = do
                                       Just p  -> p
                                       Nothing -> error "no var found"]
                dps = [ (e,Any VarTrue) | e <- es ]
+
 
