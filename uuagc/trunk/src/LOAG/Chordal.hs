@@ -86,20 +86,20 @@ scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn opts = do
     if not b then error "Not LOAG" 
       else do   putStrLn "--- Constructing Interfaces ---"
                 (ids,edp,interfaces) <- loagRes sat varMap dps
-                let (_,_,oldavg) = getVisCount nts interfaces
+                let oldct = getVisCount nts interfaces
                 when minvisit $ 
                     putStrLn "--- Minimising #Visit"
                 optimise sat varMap opts nbounds nts interfaces 
-                (ids,edp,interfaces) <- loagRes sat varMap dps
-                let cycles = length $ maxSCCs edp
+                (ids',edp',interfaces') <- loagRes sat varMap dps
+                let cycles = length $ maxSCCs edp'
                 when (cycles > 0) $ 
                     error ("Bad LOAG scheduling: " ++ show cycles ++ " cycles")
-                let visC@(_,_,newavg) = getVisCount nts interfaces
+                let visC@newct = getVisCount nts interfaces'
                 when minvisit $ do
-                    putStrLn ("--- Avg #visit " ++(show oldavg)++" --> "
-                                                ++(show newavg))
+                    putStrLn ("--- #Visits (max,sum,avg) " ++(show oldct)
+                                ++" --> " ++(show newct))
                 putStrLn "--- Code Generation ---"
-                return (Just edp,interfaces,[])
+                return (Just edp',interfaces',[])
  where  loagRes sat varMap dps = do    
             (ids,edp) <- mkGraphs sat varMap dps
             interfaces <- mkInterfaces ids
