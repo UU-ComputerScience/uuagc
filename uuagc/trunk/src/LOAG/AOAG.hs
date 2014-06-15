@@ -4,7 +4,6 @@ module LOAG.AOAG where
 
 import LOAG.Common
 import LOAG.Graphs
-import LOAG.Optimise
 import LOAG.Rep
 import LOAG.Result
 
@@ -319,7 +318,7 @@ schedule sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) ads
                   Nothing     -> do 
                         tdp  <- lift (freeze edpt)
                         infs <- lift (readSTRef (snd sched))
-                        return (Just tdp,infs,ads)
+                        return $ (Just tdp,infs,ads)
 
             reschedule :: Graph s -> Graph s -> Graph s -> SchedRef s -> 
                            [Edge] -> Edge -> STRef s Int 
