@@ -250,6 +250,6 @@ noPrCycles sat prods varMap putStrLn = do
                      , let c = case M.lookup ge varMap of
                                       Just p  -> p
                                       Nothing -> error "no var found"]
-               dps = [ (e,Any VarTrue) | e <- es ]
+               dps = [ (e,NSib VarTrue) | e <- es ]
 
 
