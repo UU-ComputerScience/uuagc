@@ -105,7 +105,6 @@ library
     , LOAG.Chordal
     , LOAG.Common
     , LOAG.Graphs
-    , LOAG.LOAG
     , LOAG.Optimise
     , LOAG.Order
     , LOAG.Rep

@@ -10,12 +10,14 @@ import qualified Data.Sequence as Seq
 import Data.Maybe (isNothing)
 import Data.STRef
 import Data.Array.ST
-import Data.List (intercalate)
+import Data.List (intercalate, foldl', nub)
+import Data.Tuple (swap)
 import CommonTypes
 import Control.Arrow
 import Control.Monad.ST
 import Control.Monad (forM, when, forM_, forM_, foldM)
 
+import AbstractSyntax
 import LOAG.Graphs
 
 data Ag = Ag    (Int,Int)   -- attribute  range
@@ -48,6 +50,7 @@ data Attr  = Attr String Direction MyType
     deriving (Show, Eq, Ord)
 data Direction = Inh | AnyDir | Syn
     deriving (Show, Ord, Enum)
+
 
 foldM' :: (Monad m) => (a -> b -> m a) -> a -> [b] -> m a
 foldM' _ a [] = return a
