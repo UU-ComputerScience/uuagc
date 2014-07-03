@@ -11,13 +11,11 @@ import Data.Maybe (isNothing)
 import Data.STRef
 import Data.Array.ST
 import Data.List (intercalate, foldl', nub)
-import Data.Tuple (swap)
 import CommonTypes
 import Control.Arrow
 import Control.Monad.ST
 import Control.Monad (forM, when, forM_, forM_, foldM)
 
-import AbstractSyntax
 import LOAG.Graphs
 
 data Ag = Ag    (Int,Int)   -- attribute  range
@@ -25,9 +23,8 @@ data Ag = Ag    (Int,Int)   -- attribute  range
                 [Edge]      -- direct dependencies
                 [Nt]        -- non-terminals
 data Nt = Nt String 
-                -- TODO can remove instances from next 2?
-                [(Edge,[Edge])] -- direct dps from inh -> syn + instances
-                [(Edge,[Edge])] -- direct dps from syn -> inh + instances
+                [Edge] -- direct dps from inh -> syn
+                [Edge] -- direct dps from syn -> inh 
                 -- inh attributes with direction and instances
                 [(Vertex,[Vertex],Direction)]
                 -- syn attributes with direction and instances
@@ -206,8 +203,6 @@ completingN ids@(idsf, idst) schedA
         wrap_up attr k = do
          modifySTRef schedS (IM.insertWith (++) k [attr])
          writeArray schedA attr (Just k)
-         -- TODO assign only predecessors
-         -- tmp fix by lack of direction for preds
          forM_ attrs assign
         selMax :: [(Vertex, Maybe Int)] -> Maybe (Vertex, Int)
         selMax [(v,mi)] = fmap ((,) v) mi

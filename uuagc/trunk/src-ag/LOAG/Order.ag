@@ -316,7 +316,6 @@ getVss (done,intros,rules,vnrs) ps tdp synsO lfp nmpr pmp pmpr fty visMap ruleMa
                     ntid  = ((\(NT name _ _ )-> name) . fromMyTy) nt 
                     visnr = (\x-> findWithErr' visMap (show (inOutput,o,x)) x) (findWithErr nmpr "woot3" (nt <.> attr o))
                     nt    = findWithErr fty "woot" (ps,child)
---TODO empty hochildren instead of filling introed, requires only 1 lookup
 }
 
 ATTR Nonterminals Nonterminal [ 
@@ -369,7 +368,6 @@ repToAg sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) =
     genA = gen_LOAGRep_LOAGRep sem
     fieldM  = fieldMap_LOAGRep_LOAGRep sem
     genEdge (f,t) = (gen f, gen t)
-    instEdge (f, t) = zip (inss A.! f) (inss A.! t)
     fsInP  = map2F (fsInP_LOAGRep_LOAGRep sem)
     siblings (f, t) = ofld A.! f == ofld A.! t
     ofld = (ofld_LOAGRep_LOAGRep sem)
@@ -399,13 +397,13 @@ repToAg sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) =
             (addD Inh $ ain ty) (addD Syn $ asn ty) (map (toPr ty) prods)
      where nt  = getName ntid
            ty  = TyData nt
-           dpt =  [ ((as, ai),instEdge (as,ai)) | ai <- ain ty
+           dpt =  [ (as, ai) | ai <- ain ty
                    , as <- nub$ [ gen s |
                                   i <- inss A.! ai
                                 , s <- map (pmpr Map.!) $ 
                                     Set.toList (sfp $ pmp Map.! i)
                                 , siblings (s,i)]]
-           dpf =  [ ((ai, as),instEdge (ai,as)) | as <- asn ty
+           dpf =  [ (ai, as) | as <- asn ty
                    , ai <- nub$ [ gen i |
                                   s <- inss A.! as
                                 , i <- map (pmpr Map.!) $

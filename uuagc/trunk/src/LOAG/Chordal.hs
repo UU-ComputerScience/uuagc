@@ -217,8 +217,8 @@ noNtCycles sat tps putStrLn = do
             putStrLn ("nt : " ++ tid ++ " ... " ++ 
                         show vars ++ " ...")
             ass <- sequence $
-                    [ return ((i,s),VarTrue) | ((i,s),_) <- dpf ]++
-                    [ return ((i,s),VarFalse)| ((s,i),_) <- dpt ] 
+                    [ return ((i,s),VarTrue) | ((i,s)) <- dpf ]++
+                    [ return ((i,s),VarFalse)| ((s,i)) <- dpt ] 
             let assM = M.fromList ass
             mvars<- sequence   
                     [ if new then do
