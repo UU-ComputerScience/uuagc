@@ -78,11 +78,10 @@ schedule sem gram@(Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _)
     = runAOAG $ aoag default_settings ads
  where
     -- get the maps from semantics and translate them to functions    
-    pmp  = (pmp_LOAGRep_LOAGRep  sem)       -- bounds, dpe, m_edp
-    nmp  = (nmp_LOAGRep_LOAGRep  sem)       -- bounds, reschedule
+    nmp  = (nmp_LOAGRep_LOAGRep  sem)     
     ofld = (ofld_LOAGRep_LOAGRep sem)       
     genA = gen_LOAGRep_LOAGRep sem             
-    inss = inss_LOAGRep_LOAGRep sem         -- instEdge
+    inss = inss_LOAGRep_LOAGRep sem        
  
     -- select candidates, using the edge that caused the cycle
     -- from the list of intra-thread dependencies 
@@ -105,7 +104,6 @@ schedule sem gram@(Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _)
 
     -- | Given an nonterminal-edge, instantiate it
     --   assumes that the occurrences of fields are added in the same order
-    -- only m_edp
     instEdge :: Edge -> [Edge]
     instEdge (f, t) = zip (inss A.! f) (inss A.! t)
  
