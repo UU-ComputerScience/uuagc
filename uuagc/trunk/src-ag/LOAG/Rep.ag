@@ -1,11 +1,17 @@
 MODULE {LOAG.Rep}
 {}{
+import CommonTypes
+import AbstractSyntax
 import LOAG.Common
 import qualified Data.Array as A
 import qualified Data.Map   as Map
-import qualified Data.Set   as S
+import qualified Data.Set   as Set
 }
-
+imports{
+import Data.List (intercalate, foldl', nub)
+import Data.Tuple (swap)
+import Control.Arrow
+}
 
 DATA LOAGRep | LOAGRep
     ps   : {[PLabel]}
@@ -39,3 +45,5 @@ DATA MySegment | MySegment
                     synOccs : {Maybe [Int]}
 
 DERIVING MySegments MySegment : Show
+
+

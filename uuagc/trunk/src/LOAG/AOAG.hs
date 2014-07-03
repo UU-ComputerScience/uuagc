@@ -72,38 +72,18 @@ type ADS = [Edge]
 type AOAGRes =  LOAGRes
 -- | Calculate a total order if the semantics given 
 --    originate from a linearly-ordered AG
-schedule :: LOAGRep -> Grammar -> [Edge] -> Either Error AOAGRes
-schedule sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) ads 
+schedule :: LOAGRep -> Grammar -> Ag -> [Edge] -> Either Error AOAGRes
+schedule sem gram@(Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) 
+                ag@(Ag bounds_s bounds_p de nts) ads 
     = runAOAG $ aoag default_settings ads
  where
     -- get the maps from semantics and translate them to functions    
-    ain  = map (findWithErr nmpr "building an") . map2F (ain_LOAGRep_LOAGRep sem) --X
-    asn  = map (findWithErr nmpr "building an") . map2F (asn_LOAGRep_LOAGRep sem) --X
-    ap   = map (findWithErr pmpr "building ap") . map2F  (ap_LOAGRep_LOAGRep   sem) -- only dpe
-    afp  = filter inOutput . ap --X
-    fieldM  = fieldMap_LOAGRep_LOAGRep sem --X
-    sfp  = map2F' (sfp_LOAGRep_LOAGRep sem) -- only dpe
     pmp  = (pmp_LOAGRep_LOAGRep  sem)       -- bounds, dpe, m_edp
-    pmpr = (pmpr_LOAGRep_LOAGRep sem)       -- only dpe
     nmp  = (nmp_LOAGRep_LOAGRep  sem)       -- bounds, reschedule
-    nmpr = (nmpr_LOAGRep_LOAGRep sem)       -- X
-    ofld = (ofld_LOAGRep_LOAGRep sem)       -- X
-    ps   = ps_LOAGRep_LOAGRep   sem         -- only dpe
-    nonts= map (\(Nonterminal nt_id _ _ _ _) -> TyData $ getName nt_id) dats -- X
-    nts=    map toNt nonts 
-    fsInP  = map2F (fsInP_LOAGRep_LOAGRep sem) --X 
-    genA = gen_LOAGRep_LOAGRep sem             --X
-    inss = inss_LOAGRep_LOAGRep sem            -- instEdge
+    ofld = (ofld_LOAGRep_LOAGRep sem)       
+    genA = gen_LOAGRep_LOAGRep sem             
+    inss = inss_LOAGRep_LOAGRep sem         -- instEdge
  
-    bounds_p = if M.null pmp then (0,-1) 
-                else (fst $ M.findMin pmp, fst $ M.findMax pmp)
-    bounds_s = if M.null nmp then (0,-1) 
-                else (fst $ M.findMin nmp, fst $ M.findMax nmp)
- 
-    de    = [ e      | p <- ps,   e <- dpe p ]
-    dpe p = [ (findWithErr pmpr "building dpe" a, b) 
-            | b <- ap p, a <- S.toList $ sfp (findWithErr pmp "fetching sfp" b) ]
-
     -- select candidates, using the edge that caused the cycle
     -- from the list of intra-thread dependencies 
     -- (intra-visit dependencies without edges in ids)
@@ -111,26 +91,15 @@ schedule sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) ads
     candidates _ c = foldr (\(f,t) acc -> 
                                 if f `IS.member` c &&t `IS.member` c
                                     then (t,f):acc else acc) []
-    -- X
-    inContext :: Vertex -> Bool
-    inContext f = (f1 == "lhs" && d1 == Inh || f1 /= "lhs" && d1 == Syn) 
-        where (MyOccurrence (_,f1) (_,d1)) = pmp M.! f
-    -- X
-    inOutput :: Vertex -> Bool
-    inOutput = not . inContext 
-
     -- | Move occurrence to its corresponding attribute 
-    -- X
     gen :: Vertex -> Vertex
     gen v = genA A.! v
 
-    -- X 
     genEdge :: Edge -> Edge
     genEdge (f,t) = (gen f, gen t)
 
     -- | Decide for a given production edge whether the vertices 
     --      belong to the same field
-    --X
     siblings :: Edge -> Bool
     siblings (f, t) = ofld A.! f == ofld A.! t
 
@@ -139,45 +108,6 @@ schedule sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) ads
     -- only m_edp
     instEdge :: Edge -> [Edge]
     instEdge (f, t) = zip (inss A.! f) (inss A.! t)
-
-    -- TODO MAJOR TODO, copy-past from LOAG.hs , generalise!!
-    toNt :: MyType -> Nt
-    toNt ty@(TyData ntid) = Nt ntid dpf dpt (addD Inh $ ain ty) 
-                                            (addD Syn $ asn ty) (map toPr ps)
-     where dpt =  [ ((as, ai), instEdge (as,ai)) | ai <- ain ty
-                   , as <- nub $ [ gen s |
-                                   i <- inss A.! ai
-                                 , s <- map (pmpr M.!) $ 
-                                    S.toList (sfp $ pmp M.! i)
-                                 , siblings (s,i)]]
-           dpf =  [ ((ai, as),instEdge (ai,as)) | as <- asn ty
-                   , ai <- nub $   [ gen i |
-                                     s <- inss A.! as
-                                   , i <- map (pmpr M.!) $
-                                            S.toList (sfp $ pmp M.! s)
-                                   , siblings (i,s)]]
-           addD d = map (\i -> (i,inss A.! i,d))
-    toPr :: PLabel -> Pr
-    toPr p = Pr p dpp fc_occs (map toFd $ fsInP p)
-     where dpp = [ (f',t)
-                    | t <- afp p, f <- (S.toList $ sfp (pmp M.! t))
-                    , let f' = pmpr M.! f
-                    , not (siblings (f',t))]
-           fc_occs = foldl' match [] fss
-            where fss = fsInP p
-           match s fs = [ ready (inp, out) lhs | inp <- S.toList inhs
-                                           , out <- S.toList syns] ++ s
-            where ((inhs, syns),lhs) | (snd fs) /= "lhs" = 
-                                        (swap (fieldM M.! fs), False)
-                               | otherwise = (fieldM M.! fs, True)
-                  ready e@(f,t) b = (e', genEdge e', b)
-                   where e' = (pmpr M.! f, pmpr M.! t)
-    toFd :: (PLabel, FLabel) -> Fd
-    toFd fs@((TyData ty, pr), fd) = Fd fd ty inhs syns
-     where (is,ss) = fieldM M.! fs
-           inhs = map (((genA A.!) &&& id).(pmpr M.!))$ S.toList is
-           syns = map (((genA A.!) &&& id).(pmpr M.!))$ S.toList ss
-
  
     aoag :: Settings -> [Edge] -> AOAG s AOAGRes
     aoag cfg init_ads = run
