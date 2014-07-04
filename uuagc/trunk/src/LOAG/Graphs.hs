@@ -10,8 +10,6 @@ import Data.Maybe (catMaybes, isNothing, fromJust)
 import Data.Tuple (swap)
 import qualified Data.Array as A
 import           Data.Array.IArray (amap)
-import qualified Data.Graph as G
-import qualified Data.Graph.SCC as SCC
 import qualified Data.IntMap as IM
 import qualified Data.IntSet as IS
 import qualified Data.Map as M
@@ -161,8 +159,3 @@ freeze_graph (mf, mt) = do
     fr_f <- lift (freeze mf)
     fr_t <- lift (freeze mt)
     return (fr_f, fr_t)
-
-maxSCCs = catMaybes . map cToList . SCC.sccList . amap IS.toList
- where cToList  (G.AcyclicSCC _) = Nothing
-       cToList  (G.CyclicSCC vs) = Just vs
-
