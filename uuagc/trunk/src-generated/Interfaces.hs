@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/Interfaces.ag)
+-- UUAGC 0.9.51 (src-ag/Interfaces.ag)
 module Interfaces where
-{-# LINE 2 "./src-ag/Interfaces.ag" #-}
+{-# LINE 2 "src-ag/Interfaces.ag" #-}
 
 import CommonTypes
 import SequentialTypes

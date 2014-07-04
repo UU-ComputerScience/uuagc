@@ -2,20 +2,20 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module ResolveLocals where
-{-# LINE 2 "./src-ag/Expression.ag" #-}
+{-# LINE 2 "src-ag/Expression.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import HsToken
 {-# LINE 10 "dist/build/ResolveLocals.hs" #-}
 
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
+{-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 17 "dist/build/ResolveLocals.hs" #-}
 
-{-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
+{-# LINE 2 "src-ag/AbstractSyntax.ag" #-}
 
 -- AbstractSyntax.ag imports
 import Data.Set(Set)
@@ -27,7 +27,7 @@ import CommonTypes
 import ErrorMessages
 {-# LINE 29 "dist/build/ResolveLocals.hs" #-}
 
-{-# LINE 15 "./src-ag/ResolveLocals.ag" #-}
+{-# LINE 15 "src-ag/ResolveLocals.ag" #-}
 
 import qualified Data.Set as Set
 import qualified Data.Map as Map
@@ -55,8 +55,8 @@ wrap_Child :: T_Child  -> Inh_Child  -> (Syn_Child )
 wrap_Child (T_Child act) (Inh_Child _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIsyn _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Child_vIn1 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIsyn _lhsIsynMap
-        (T_Child_vOut1 _lhsOattributes _lhsOfield _lhsOoutput) <- return (inv_Child_s2 sem arg)
+        let arg1 = T_Child_vIn1 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIsyn _lhsIsynMap
+        (T_Child_vOut1 _lhsOattributes _lhsOfield _lhsOoutput) <- return (inv_Child_s2 sem arg1)
         return (Syn_Child _lhsOattributes _lhsOfield _lhsOoutput)
    )
 
@@ -97,36 +97,36 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
          in __result_ )
      in C_Child_s2 v1
    {-# INLINE rule0 #-}
-   {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 19 "src-ag/DistChildAttr.ag" #-}
    rule0 = \ name_ tp_ ->
-                       {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
+                       {-# LINE 19 "src-ag/DistChildAttr.ag" #-}
                        case tp_ of
                          NT nt _ _ -> nt
                          Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
                          Haskell t -> identifier ""
                        {-# LINE 108 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule1 #-}
-   {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
    rule1 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
-                      {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
+                      {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIinhMap
                       {-# LINE 114 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule2 #-}
-   {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
    rule2 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
-                      {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
+                      {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIsynMap
                       {-# LINE 120 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule3 #-}
-   {-# LINE 83 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 83 "src-ag/ResolveLocals.ag" #-}
    rule3 = \ _inh _syn name_ ->
-                             {-# LINE 83 "./src-ag/ResolveLocals.ag" #-}
+                             {-# LINE 83 "src-ag/ResolveLocals.ag" #-}
                              [(name_, _inh    , _syn    )]
                              {-# LINE 126 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule4 #-}
-   {-# LINE 86 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 86 "src-ag/ResolveLocals.ag" #-}
    rule4 = \ kind_ name_ tp_ ->
-                        {-# LINE 86 "./src-ag/ResolveLocals.ag" #-}
+                        {-# LINE 86 "src-ag/ResolveLocals.ag" #-}
                         (name_, tp_, kind_)
                         {-# LINE 132 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule5 #-}
@@ -145,8 +145,8 @@ wrap_Children :: T_Children  -> Inh_Children  -> (Syn_Children )
 wrap_Children (T_Children act) (Inh_Children _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIsyn _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Children_vIn4 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIsyn _lhsIsynMap
-        (T_Children_vOut4 _lhsOattributes _lhsOfields _lhsOoutput) <- return (inv_Children_s5 sem arg)
+        let arg4 = T_Children_vIn4 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIsyn _lhsIsynMap
+        (T_Children_vOut4 _lhsOattributes _lhsOfields _lhsOoutput) <- return (inv_Children_s5 sem arg4)
         return (Syn_Children _lhsOattributes _lhsOfields _lhsOoutput)
    )
 
@@ -208,9 +208,9 @@ sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st5) where
          in __result_ )
      in C_Children_s5 v4
    {-# INLINE rule7 #-}
-   {-# LINE 89 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 89 "src-ag/ResolveLocals.ag" #-}
    rule7 = \ ((_hdIfield) :: (Identifier,Type,ChildKind)) ((_tlIfields) :: [(Identifier,Type,ChildKind)]) ->
-                         {-# LINE 89 "./src-ag/ResolveLocals.ag" #-}
+                         {-# LINE 89 "src-ag/ResolveLocals.ag" #-}
                          _hdIfield : _tlIfields
                          {-# LINE 216 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule8 #-}
@@ -300,9 +300,9 @@ sem_Children_Nil  = T_Children (return st5) where
          in __result_ )
      in C_Children_s5 v4
    {-# INLINE rule31 #-}
-   {-# LINE 90 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 90 "src-ag/ResolveLocals.ag" #-}
    rule31 = \  (_ :: ()) ->
-                         {-# LINE 90 "./src-ag/ResolveLocals.ag" #-}
+                         {-# LINE 90 "src-ag/ResolveLocals.ag" #-}
                          []
                          {-# LINE 308 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule32 #-}
@@ -324,8 +324,8 @@ wrap_Expression :: T_Expression  -> Inh_Expression  -> (Syn_Expression )
 wrap_Expression (T_Expression act) (Inh_Expression _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsImergeMap _lhsInt _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Expression_vIn7 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsImergeMap _lhsInt _lhsIoptions
-        (T_Expression_vOut7 _lhsOerrors _lhsOoutput) <- return (inv_Expression_s8 sem arg)
+        let arg7 = T_Expression_vIn7 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsImergeMap _lhsInt _lhsIoptions
+        (T_Expression_vOut7 _lhsOerrors _lhsOoutput) <- return (inv_Expression_s8 sem arg7)
         return (Syn_Expression _lhsOerrors _lhsOoutput)
    )
 
@@ -362,9 +362,9 @@ sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st8) where
          in __result_ )
      in C_Expression_s8 v7
    {-# INLINE rule35 #-}
-   {-# LINE 145 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 145 "src-ag/ResolveLocals.ag" #-}
    rule35 = \ ((_lhsIallfields) :: [(Identifier,Type,ChildKind)]) ((_lhsIallnts) :: [Identifier]) ((_lhsIattrs) :: [(Identifier,Identifier)]) ((_lhsIcon) :: Identifier) ((_lhsImergeMap) :: Map Identifier (Identifier,[Identifier])) ((_lhsInt) :: Identifier) ((_lhsIoptions) :: Options) tks_ ->
-                                {-# LINE 145 "./src-ag/ResolveLocals.ag" #-}
+                                {-# LINE 145 "src-ag/ResolveLocals.ag" #-}
                                 let mergedChildren = [ x | (_,xs) <- Map.elems _lhsImergeMap, x <- xs ]
                                     attrsIn = filter (\(fld,_) -> not (fld `elem` mergedChildren)) _lhsIattrs
                                     inherited = Inh_HsTokensRoot
@@ -379,9 +379,9 @@ sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st8) where
                                 in (errors_Syn_HsTokensRoot synthesized, output_Syn_HsTokensRoot synthesized)
                                 {-# LINE 381 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule36 #-}
-   {-# LINE 157 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 157 "src-ag/ResolveLocals.ag" #-}
    rule36 = \ _newTks pos_ ->
-                               {-# LINE 157 "./src-ag/ResolveLocals.ag" #-}
+                               {-# LINE 157 "src-ag/ResolveLocals.ag" #-}
                                Expression pos_ _newTks
                                {-# LINE 387 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule37 #-}
@@ -400,8 +400,8 @@ wrap_Grammar :: T_Grammar  -> Inh_Grammar  -> (Syn_Grammar )
 wrap_Grammar (T_Grammar act) (Inh_Grammar _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Grammar_vIn10 _lhsIoptions
-        (T_Grammar_vOut10 _lhsOerrors _lhsOoutput) <- return (inv_Grammar_s11 sem arg)
+        let arg10 = T_Grammar_vIn10 _lhsIoptions
+        (T_Grammar_vOut10 _lhsOerrors _lhsOoutput) <- return (inv_Grammar_s11 sem arg10)
         return (Syn_Grammar _lhsOerrors _lhsOoutput)
    )
 
@@ -444,27 +444,27 @@ sem_Grammar_Grammar arg_typeSyns_ arg_useMap_ arg_derivings_ arg_wrappers_ arg_n
          in __result_ )
      in C_Grammar_s11 v10
    {-# INLINE rule39 #-}
-   {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 15 "src-ag/DistChildAttr.ag" #-}
    rule39 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
-                             {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
+                             {-# LINE 15 "src-ag/DistChildAttr.ag" #-}
                              _nontsIinhMap'
                              {-# LINE 452 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule40 #-}
-   {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
    rule40 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
-                             {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
+                             {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
                              _nontsIsynMap'
                              {-# LINE 458 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule41 #-}
-   {-# LINE 59 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 59 "src-ag/ResolveLocals.ag" #-}
    rule41 = \ ((_nontsInonts) :: [(NontermIdent,[ConstructorIdent])]) ->
-                             {-# LINE 59 "./src-ag/ResolveLocals.ag" #-}
+                             {-# LINE 59 "src-ag/ResolveLocals.ag" #-}
                              map fst (_nontsInonts)
                              {-# LINE 464 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule42 #-}
-   {-# LINE 119 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 119 "src-ag/ResolveLocals.ag" #-}
    rule42 = \ mergeMap_ ->
-                                 {-# LINE 119 "./src-ag/ResolveLocals.ag" #-}
+                                 {-# LINE 119 "src-ag/ResolveLocals.ag" #-}
                                  Map.map (Map.map (Map.map (\(nt,srcs,_) -> (nt,srcs)))) mergeMap_
                                  {-# LINE 470 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule43 #-}
@@ -489,8 +489,8 @@ wrap_Nonterminal :: T_Nonterminal  -> Inh_Nonterminal  -> (Syn_Nonterminal )
 wrap_Nonterminal (T_Nonterminal act) (Inh_Nonterminal _lhsIallnts _lhsIinhMap _lhsImergeMap _lhsIoptions _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Nonterminal_vIn13 _lhsIallnts _lhsIinhMap _lhsImergeMap _lhsIoptions _lhsIsynMap
-        (T_Nonterminal_vOut13 _lhsOerrors _lhsOinhMap' _lhsOnonts _lhsOoutput _lhsOsynMap') <- return (inv_Nonterminal_s14 sem arg)
+        let arg13 = T_Nonterminal_vIn13 _lhsIallnts _lhsIinhMap _lhsImergeMap _lhsIoptions _lhsIsynMap
+        (T_Nonterminal_vOut13 _lhsOerrors _lhsOinhMap' _lhsOnonts _lhsOoutput _lhsOsynMap') <- return (inv_Nonterminal_s14 sem arg13)
         return (Syn_Nonterminal _lhsOerrors _lhsOinhMap' _lhsOnonts _lhsOoutput _lhsOsynMap')
    )
 
@@ -543,45 +543,45 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
          in __result_ )
      in C_Nonterminal_s14 v13
    {-# INLINE rule47 #-}
-   {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 7 "src-ag/DistChildAttr.ag" #-}
    rule47 = \ inh_ nt_ ->
-                                 {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
+                                 {-# LINE 7 "src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ inh_
                                  {-# LINE 551 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule48 #-}
-   {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
    rule48 = \ nt_ syn_ ->
-                                 {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
+                                 {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ syn_
                                  {-# LINE 557 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule49 #-}
-   {-# LINE 63 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 63 "src-ag/ResolveLocals.ag" #-}
    rule49 = \ ((_prodsIcons) :: [ConstructorIdent]) nt_ ->
-                                {-# LINE 63 "./src-ag/ResolveLocals.ag" #-}
+                                {-# LINE 63 "src-ag/ResolveLocals.ag" #-}
                                 [(nt_,_prodsIcons)]
                                 {-# LINE 563 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule50 #-}
-   {-# LINE 111 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 111 "src-ag/ResolveLocals.ag" #-}
    rule50 = \ nt_ ->
-                               {-# LINE 111 "./src-ag/ResolveLocals.ag" #-}
+                               {-# LINE 111 "src-ag/ResolveLocals.ag" #-}
                                nt_
                                {-# LINE 569 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule51 #-}
-   {-# LINE 114 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 114 "src-ag/ResolveLocals.ag" #-}
    rule51 = \ inh_ ->
-                               {-# LINE 114 "./src-ag/ResolveLocals.ag" #-}
+                               {-# LINE 114 "src-ag/ResolveLocals.ag" #-}
                                inh_
                                {-# LINE 575 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule52 #-}
-   {-# LINE 115 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 115 "src-ag/ResolveLocals.ag" #-}
    rule52 = \ syn_ ->
-                               {-# LINE 115 "./src-ag/ResolveLocals.ag" #-}
+                               {-# LINE 115 "src-ag/ResolveLocals.ag" #-}
                                syn_
                                {-# LINE 581 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule53 #-}
-   {-# LINE 127 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 127 "src-ag/ResolveLocals.ag" #-}
    rule53 = \ ((_lhsImergeMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))) nt_ ->
-                                                {-# LINE 127 "./src-ag/ResolveLocals.ag" #-}
+                                                {-# LINE 127 "src-ag/ResolveLocals.ag" #-}
                                                 Map.findWithDefault Map.empty nt_ _lhsImergeMap
                                                 {-# LINE 587 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule54 #-}
@@ -618,8 +618,8 @@ wrap_Nonterminals :: T_Nonterminals  -> Inh_Nonterminals  -> (Syn_Nonterminals )
 wrap_Nonterminals (T_Nonterminals act) (Inh_Nonterminals _lhsIallnts _lhsIinhMap _lhsImergeMap _lhsIoptions _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Nonterminals_vIn16 _lhsIallnts _lhsIinhMap _lhsImergeMap _lhsIoptions _lhsIsynMap
-        (T_Nonterminals_vOut16 _lhsOerrors _lhsOinhMap' _lhsOnonts _lhsOoutput _lhsOsynMap') <- return (inv_Nonterminals_s17 sem arg)
+        let arg16 = T_Nonterminals_vIn16 _lhsIallnts _lhsIinhMap _lhsImergeMap _lhsIoptions _lhsIsynMap
+        (T_Nonterminals_vOut16 _lhsOerrors _lhsOinhMap' _lhsOnonts _lhsOoutput _lhsOsynMap') <- return (inv_Nonterminals_s17 sem arg16)
         return (Syn_Nonterminals _lhsOerrors _lhsOinhMap' _lhsOnonts _lhsOoutput _lhsOsynMap')
    )
 
@@ -771,8 +771,8 @@ wrap_Pattern :: T_Pattern  -> Inh_Pattern  -> (Syn_Pattern )
 wrap_Pattern (T_Pattern act) (Inh_Pattern _lhsIcon _lhsIinh _lhsInt _lhsIsyn) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Pattern_vIn19 _lhsIcon _lhsIinh _lhsInt _lhsIsyn
-        (T_Pattern_vOut19 _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput) <- return (inv_Pattern_s20 sem arg)
+        let arg19 = T_Pattern_vIn19 _lhsIcon _lhsIinh _lhsInt _lhsIsyn
+        (T_Pattern_vOut19 _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput) <- return (inv_Pattern_s20 sem arg19)
         return (Syn_Pattern _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
    )
 
@@ -947,17 +947,17 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st20) where
          in __result_ )
      in C_Pattern_s20 v19
    {-# INLINE rule106 #-}
-   {-# LINE 95 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 95 "src-ag/ResolveLocals.ag" #-}
    rule106 = \ attr_ field_ ->
-                               {-# LINE 95 "./src-ag/ResolveLocals.ag" #-}
+                               {-# LINE 95 "src-ag/ResolveLocals.ag" #-}
                                if field_ == _LOC
                                   then [attr_]
                                   else []
                                {-# LINE 957 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule107 #-}
-   {-# LINE 98 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 98 "src-ag/ResolveLocals.ag" #-}
    rule107 = \ attr_ field_ ->
-                               {-# LINE 98 "./src-ag/ResolveLocals.ag" #-}
+                               {-# LINE 98 "src-ag/ResolveLocals.ag" #-}
                                if field_ == _INST
                                   then [attr_]
                                   else []
@@ -1103,8 +1103,8 @@ wrap_Patterns :: T_Patterns  -> Inh_Patterns  -> (Syn_Patterns )
 wrap_Patterns (T_Patterns act) (Inh_Patterns _lhsIcon _lhsIinh _lhsInt _lhsIsyn) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Patterns_vIn22 _lhsIcon _lhsIinh _lhsInt _lhsIsyn
-        (T_Patterns_vOut22 _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput) <- return (inv_Patterns_s23 sem arg)
+        let arg22 = T_Patterns_vIn22 _lhsIcon _lhsIinh _lhsInt _lhsIsyn
+        (T_Patterns_vOut22 _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput) <- return (inv_Patterns_s23 sem arg22)
         return (Syn_Patterns _lhsOcopy _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
    )
 
@@ -1256,8 +1256,8 @@ wrap_Production :: T_Production  -> Inh_Production  -> (Syn_Production )
 wrap_Production (T_Production act) (Inh_Production _lhsIallnts _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIoptions _lhsIsyn _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Production_vIn25 _lhsIallnts _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIoptions _lhsIsyn _lhsIsynMap
-        (T_Production_vOut25 _lhsOcons _lhsOerrors _lhsOoutput) <- return (inv_Production_s26 sem arg)
+        let arg25 = T_Production_vIn25 _lhsIallnts _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIoptions _lhsIsyn _lhsIsynMap
+        (T_Production_vOut25 _lhsOcons _lhsOerrors _lhsOoutput) <- return (inv_Production_s26 sem arg25)
         return (Syn_Production _lhsOcons _lhsOerrors _lhsOoutput)
    )
 
@@ -1325,54 +1325,54 @@ sem_Production_Production arg_con_ arg_params_ arg_constraints_ arg_children_ ar
          in __result_ )
      in C_Production_s26 v25
    {-# INLINE rule157 #-}
-   {-# LINE 66 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 66 "src-ag/ResolveLocals.ag" #-}
    rule157 = \ con_ ->
-                              {-# LINE 66 "./src-ag/ResolveLocals.ag" #-}
+                              {-# LINE 66 "src-ag/ResolveLocals.ag" #-}
                               [con_]
                               {-# LINE 1333 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule158 #-}
-   {-# LINE 73 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 73 "src-ag/ResolveLocals.ag" #-}
    rule158 = \ ((_childrenIfields) :: [(Identifier,Type,ChildKind)]) ->
-                                  {-# LINE 73 "./src-ag/ResolveLocals.ag" #-}
+                                  {-# LINE 73 "src-ag/ResolveLocals.ag" #-}
                                   _childrenIfields
                                   {-# LINE 1339 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule159 #-}
-   {-# LINE 74 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 74 "src-ag/ResolveLocals.ag" #-}
    rule159 = \ ((_childrenIattributes) :: [(Identifier,Attributes,Attributes)]) _inhnames ((_rulesIinstVars) :: [Identifier]) ((_rulesIlocVars) :: [Identifier]) ->
-                                   {-# LINE 74 "./src-ag/ResolveLocals.ag" #-}
+                                   {-# LINE 74 "src-ag/ResolveLocals.ag" #-}
                                    map ((,) _LOC)  _rulesIlocVars ++
                                    map ((,) _INST) _rulesIinstVars ++
                                    map ((,) _LHS)  _inhnames ++
                                    concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- _childrenIattributes]
                                    {-# LINE 1348 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule160 #-}
-   {-# LINE 78 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 78 "src-ag/ResolveLocals.ag" #-}
    rule160 = \ ((_lhsIinh) :: Attributes) ->
-                                   {-# LINE 78 "./src-ag/ResolveLocals.ag" #-}
+                                   {-# LINE 78 "src-ag/ResolveLocals.ag" #-}
                                    Map.keys _lhsIinh
                                    {-# LINE 1354 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule161 #-}
-   {-# LINE 79 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 79 "src-ag/ResolveLocals.ag" #-}
    rule161 = \ ((_lhsIsyn) :: Attributes) ->
-                                   {-# LINE 79 "./src-ag/ResolveLocals.ag" #-}
+                                   {-# LINE 79 "src-ag/ResolveLocals.ag" #-}
                                    Map.keys _lhsIsyn
                                    {-# LINE 1360 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule162 #-}
-   {-# LINE 107 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 107 "src-ag/ResolveLocals.ag" #-}
    rule162 = \ con_ ->
-                                  {-# LINE 107 "./src-ag/ResolveLocals.ag" #-}
+                                  {-# LINE 107 "src-ag/ResolveLocals.ag" #-}
                                   con_
                                   {-# LINE 1366 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule163 #-}
-   {-# LINE 109 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 109 "src-ag/ResolveLocals.ag" #-}
    rule163 = \ con_ ->
-                               {-# LINE 109 "./src-ag/ResolveLocals.ag" #-}
+                               {-# LINE 109 "src-ag/ResolveLocals.ag" #-}
                                con_
                                {-# LINE 1372 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule164 #-}
-   {-# LINE 128 "./src-ag/ResolveLocals.ag" #-}
+   {-# LINE 128 "src-ag/ResolveLocals.ag" #-}
    rule164 = \ ((_lhsImergeMap) :: Map ConstructorIdent (Map Identifier (Identifier,[Identifier]))) con_ ->
-                                                {-# LINE 128 "./src-ag/ResolveLocals.ag" #-}
+                                                {-# LINE 128 "src-ag/ResolveLocals.ag" #-}
                                                 Map.findWithDefault Map.empty con_ _lhsImergeMap
                                                 {-# LINE 1378 "dist/build/ResolveLocals.hs"#-}
    {-# INLINE rule165 #-}
@@ -1445,8 +1445,8 @@ wrap_Productions :: T_Productions  -> Inh_Productions  -> (Syn_Productions )
 wrap_Productions (T_Productions act) (Inh_Productions _lhsIallnts _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIoptions _lhsIsyn _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Productions_vIn28 _lhsIallnts _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIoptions _lhsIsyn _lhsIsynMap
-        (T_Productions_vOut28 _lhsOcons _lhsOerrors _lhsOoutput) <- return (inv_Productions_s29 sem arg)
+        let arg28 = T_Productions_vIn28 _lhsIallnts _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIoptions _lhsIsyn _lhsIsynMap
+        (T_Productions_vOut28 _lhsOcons _lhsOerrors _lhsOoutput) <- return (inv_Productions_s29 sem arg28)
         return (Syn_Productions _lhsOcons _lhsOerrors _lhsOoutput)
    )
 
@@ -1602,8 +1602,8 @@ wrap_Rule :: T_Rule  -> Inh_Rule  -> (Syn_Rule )
 wrap_Rule (T_Rule act) (Inh_Rule _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsImergeMap _lhsInt _lhsIoptions _lhsIsyn) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Rule_vIn31 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsImergeMap _lhsInt _lhsIoptions _lhsIsyn
-        (T_Rule_vOut31 _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput) <- return (inv_Rule_s32 sem arg)
+        let arg31 = T_Rule_vIn31 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsImergeMap _lhsInt _lhsIoptions _lhsIsyn
+        (T_Rule_vOut31 _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput) <- return (inv_Rule_s32 sem arg31)
         return (Syn_Rule _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
    )
 
@@ -1715,8 +1715,8 @@ wrap_Rules :: T_Rules  -> Inh_Rules  -> (Syn_Rules )
 wrap_Rules (T_Rules act) (Inh_Rules _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsImergeMap _lhsInt _lhsIoptions _lhsIsyn) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Rules_vIn34 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsImergeMap _lhsInt _lhsIoptions _lhsIsyn
-        (T_Rules_vOut34 _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput) <- return (inv_Rules_s35 sem arg)
+        let arg34 = T_Rules_vIn34 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsImergeMap _lhsInt _lhsIoptions _lhsIsyn
+        (T_Rules_vOut34 _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput) <- return (inv_Rules_s35 sem arg34)
         return (Syn_Rules _lhsOerrors _lhsOinstVars _lhsOlocVars _lhsOoutput)
    )
 
@@ -1890,8 +1890,8 @@ wrap_TypeSig :: T_TypeSig  -> Inh_TypeSig  -> (Syn_TypeSig )
 wrap_TypeSig (T_TypeSig act) (Inh_TypeSig ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_TypeSig_vIn37 
-        (T_TypeSig_vOut37 _lhsOoutput) <- return (inv_TypeSig_s38 sem arg)
+        let arg37 = T_TypeSig_vIn37 
+        (T_TypeSig_vOut37 _lhsOoutput) <- return (inv_TypeSig_s38 sem arg37)
         return (Syn_TypeSig _lhsOoutput)
    )
 
@@ -1940,8 +1940,8 @@ wrap_TypeSigs :: T_TypeSigs  -> Inh_TypeSigs  -> (Syn_TypeSigs )
 wrap_TypeSigs (T_TypeSigs act) (Inh_TypeSigs ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_TypeSigs_vIn40 
-        (T_TypeSigs_vOut40 _lhsOoutput) <- return (inv_TypeSigs_s41 sem arg)
+        let arg40 = T_TypeSigs_vIn40 
+        (T_TypeSigs_vOut40 _lhsOoutput) <- return (inv_TypeSigs_s41 sem arg40)
         return (Syn_TypeSigs _lhsOoutput)
    )
 

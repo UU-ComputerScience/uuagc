@@ -2,19 +2,19 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Visage where
-{-# LINE 2 "./src-ag/Expression.ag" #-}
+{-# LINE 2 "src-ag/Expression.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import HsToken
 {-# LINE 10 "dist/build/Visage.hs" #-}
 
-{-# LINE 2 "./src-ag/VisagePatterns.ag" #-}
+{-# LINE 2 "src-ag/VisagePatterns.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import CommonTypes
 {-# LINE 16 "dist/build/Visage.hs" #-}
 
-{-# LINE 2 "./src-ag/VisageSyntax.ag" #-}
+{-# LINE 2 "src-ag/VisageSyntax.ag" #-}
 
 import CommonTypes
 import UU.Pretty
@@ -23,7 +23,7 @@ import VisagePatterns
 import Expression
 {-# LINE 25 "dist/build/Visage.hs" #-}
 
-{-# LINE 6 "./src-ag/Visage.ag" #-}
+{-# LINE 6 "src-ag/Visage.ag" #-}
 
 import UU.Scanner.Position(Pos(..))
 import CommonTypes
@@ -38,7 +38,7 @@ import TokenDef
 {-# LINE 39 "dist/build/Visage.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
-{-# LINE 19 "./src-ag/Visage.ag" #-}
+{-# LINE 19 "src-ag/Visage.ag" #-}
 
 convert :: String -> String
 convert [] = []
@@ -73,8 +73,8 @@ wrap_Expression :: T_Expression  -> Inh_Expression  -> (Syn_Expression )
 wrap_Expression (T_Expression act) (Inh_Expression ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Expression_vIn1 
-        (T_Expression_vOut1 _lhsOaterm) <- return (inv_Expression_s2 sem arg)
+        let arg1 = T_Expression_vIn1 
+        (T_Expression_vOut1 _lhsOaterm) <- return (inv_Expression_s2 sem arg1)
         return (Syn_Expression _lhsOaterm)
    )
 
@@ -107,9 +107,9 @@ sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st2) where
          in __result_ )
      in C_Expression_s2 v1
    {-# INLINE rule0 #-}
-   {-# LINE 103 "./src-ag/Visage.ag" #-}
+   {-# LINE 103 "src-ag/Visage.ag" #-}
    rule0 = \ pos_ tks_ ->
-                              {-# LINE 103 "./src-ag/Visage.ag" #-}
+                              {-# LINE 103 "src-ag/Visage.ag" #-}
                               AAppl "Expression" [AString (sQ (showAGPos pos_)), AString (sQ (unlines . showTokens . tokensToStrings $ tks_))]
                               {-# LINE 115 "dist/build/Visage.hs"#-}
 
@@ -122,8 +122,8 @@ wrap_VisageChild :: T_VisageChild  -> Inh_VisageChild  -> (Syn_VisageChild )
 wrap_VisageChild (T_VisageChild act) (Inh_VisageChild ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_VisageChild_vIn4 
-        (T_VisageChild_vOut4 _lhsOaterm) <- return (inv_VisageChild_s5 sem arg)
+        let arg4 = T_VisageChild_vIn4 
+        (T_VisageChild_vOut4 _lhsOaterm) <- return (inv_VisageChild_s5 sem arg4)
         return (Syn_VisageChild _lhsOaterm)
    )
 
@@ -159,18 +159,18 @@ sem_VisageChild_VChild arg_name_ arg_tp_ arg_inh_ arg_syn_ arg_rules_ = T_Visage
          in __result_ )
      in C_VisageChild_s5 v4
    {-# INLINE rule1 #-}
-   {-# LINE 85 "./src-ag/Visage.ag" #-}
+   {-# LINE 85 "src-ag/Visage.ag" #-}
    rule1 = \ ((_rulesIaterms) :: [ATerm]) inh_ name_ syn_ tp_ ->
-                               {-# LINE 85 "./src-ag/Visage.ag" #-}
+                               {-# LINE 85 "src-ag/Visage.ag" #-}
                                AAppl "Child" [AString (sQ (getName name_)), AString (sQ (show tp_)),
                                               AString (sQ (showMap inh_)),
                                               AString (sQ (showMap syn_)),
                                               AAppl "Rules" _rulesIaterms]
                                {-# LINE 170 "dist/build/Visage.hs"#-}
    {-# INLINE rule2 #-}
-   {-# LINE 89 "./src-ag/Visage.ag" #-}
+   {-# LINE 89 "src-ag/Visage.ag" #-}
    rule2 = \  (_ :: ()) ->
-                                 {-# LINE 89 "./src-ag/Visage.ag" #-}
+                                 {-# LINE 89 "src-ag/Visage.ag" #-}
                                  False
                                  {-# LINE 176 "dist/build/Visage.hs"#-}
 
@@ -183,8 +183,8 @@ wrap_VisageChildren :: T_VisageChildren  -> Inh_VisageChildren  -> (Syn_VisageCh
 wrap_VisageChildren (T_VisageChildren act) (Inh_VisageChildren ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_VisageChildren_vIn7 
-        (T_VisageChildren_vOut7 _lhsOaterms) <- return (inv_VisageChildren_s8 sem arg)
+        let arg7 = T_VisageChildren_vIn7 
+        (T_VisageChildren_vOut7 _lhsOaterms) <- return (inv_VisageChildren_s8 sem arg7)
         return (Syn_VisageChildren _lhsOaterms)
    )
 
@@ -221,9 +221,9 @@ sem_VisageChildren_Cons arg_hd_ arg_tl_ = T_VisageChildren (return st8) where
          in __result_ )
      in C_VisageChildren_s8 v7
    {-# INLINE rule3 #-}
-   {-# LINE 80 "./src-ag/Visage.ag" #-}
+   {-# LINE 80 "src-ag/Visage.ag" #-}
    rule3 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
-                               {-# LINE 80 "./src-ag/Visage.ag" #-}
+                               {-# LINE 80 "src-ag/Visage.ag" #-}
                                _hdIaterm : _tlIaterms
                                {-# LINE 229 "dist/build/Visage.hs"#-}
 {-# NOINLINE sem_VisageChildren_Nil #-}
@@ -239,9 +239,9 @@ sem_VisageChildren_Nil  = T_VisageChildren (return st8) where
          in __result_ )
      in C_VisageChildren_s8 v7
    {-# INLINE rule4 #-}
-   {-# LINE 81 "./src-ag/Visage.ag" #-}
+   {-# LINE 81 "src-ag/Visage.ag" #-}
    rule4 = \  (_ :: ()) ->
-                               {-# LINE 81 "./src-ag/Visage.ag" #-}
+                               {-# LINE 81 "src-ag/Visage.ag" #-}
                                []
                                {-# LINE 247 "dist/build/Visage.hs"#-}
 
@@ -254,8 +254,8 @@ wrap_VisageGrammar :: T_VisageGrammar  -> Inh_VisageGrammar  -> (Syn_VisageGramm
 wrap_VisageGrammar (T_VisageGrammar act) (Inh_VisageGrammar ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_VisageGrammar_vIn10 
-        (T_VisageGrammar_vOut10 _lhsOaterm) <- return (inv_VisageGrammar_s11 sem arg)
+        let arg10 = T_VisageGrammar_vIn10 
+        (T_VisageGrammar_vOut10 _lhsOaterm) <- return (inv_VisageGrammar_s11 sem arg10)
         return (Syn_VisageGrammar _lhsOaterm)
    )
 
@@ -290,9 +290,9 @@ sem_VisageGrammar_VGrammar arg_nonts_ = T_VisageGrammar (return st11) where
          in __result_ )
      in C_VisageGrammar_s11 v10
    {-# INLINE rule5 #-}
-   {-# LINE 54 "./src-ag/Visage.ag" #-}
+   {-# LINE 54 "src-ag/Visage.ag" #-}
    rule5 = \ ((_nontsIaterms) :: [ATerm]) ->
-                               {-# LINE 54 "./src-ag/Visage.ag" #-}
+                               {-# LINE 54 "src-ag/Visage.ag" #-}
                                AAppl "Productions" _nontsIaterms
                                {-# LINE 298 "dist/build/Visage.hs"#-}
 
@@ -305,8 +305,8 @@ wrap_VisageNonterminal :: T_VisageNonterminal  -> Inh_VisageNonterminal  -> (Syn
 wrap_VisageNonterminal (T_VisageNonterminal act) (Inh_VisageNonterminal ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_VisageNonterminal_vIn13 
-        (T_VisageNonterminal_vOut13 _lhsOaterm) <- return (inv_VisageNonterminal_s14 sem arg)
+        let arg13 = T_VisageNonterminal_vIn13 
+        (T_VisageNonterminal_vOut13 _lhsOaterm) <- return (inv_VisageNonterminal_s14 sem arg13)
         return (Syn_VisageNonterminal _lhsOaterm)
    )
 
@@ -341,9 +341,9 @@ sem_VisageNonterminal_VNonterminal arg_nt_ arg_inh_ arg_syn_ arg_alts_ = T_Visag
          in __result_ )
      in C_VisageNonterminal_s14 v13
    {-# INLINE rule6 #-}
-   {-# LINE 63 "./src-ag/Visage.ag" #-}
+   {-# LINE 63 "src-ag/Visage.ag" #-}
    rule6 = \ ((_altsIaterms) :: [ATerm]) inh_ nt_ syn_ ->
-                                {-# LINE 63 "./src-ag/Visage.ag" #-}
+                                {-# LINE 63 "src-ag/Visage.ag" #-}
                                 AAppl "Production" [AString (sQ (getName nt_)), AString (sQ(showMap inh_)),
                                                    AString (sQ(showMap syn_)), AAppl "Alternatives" _altsIaterms]
                                 {-# LINE 350 "dist/build/Visage.hs"#-}
@@ -357,8 +357,8 @@ wrap_VisageNonterminals :: T_VisageNonterminals  -> Inh_VisageNonterminals  -> (
 wrap_VisageNonterminals (T_VisageNonterminals act) (Inh_VisageNonterminals ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_VisageNonterminals_vIn16 
-        (T_VisageNonterminals_vOut16 _lhsOaterms) <- return (inv_VisageNonterminals_s17 sem arg)
+        let arg16 = T_VisageNonterminals_vIn16 
+        (T_VisageNonterminals_vOut16 _lhsOaterms) <- return (inv_VisageNonterminals_s17 sem arg16)
         return (Syn_VisageNonterminals _lhsOaterms)
    )
 
@@ -395,9 +395,9 @@ sem_VisageNonterminals_Cons arg_hd_ arg_tl_ = T_VisageNonterminals (return st17)
          in __result_ )
      in C_VisageNonterminals_s17 v16
    {-# INLINE rule7 #-}
-   {-# LINE 58 "./src-ag/Visage.ag" #-}
+   {-# LINE 58 "src-ag/Visage.ag" #-}
    rule7 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
-                               {-# LINE 58 "./src-ag/Visage.ag" #-}
+                               {-# LINE 58 "src-ag/Visage.ag" #-}
                                _hdIaterm : _tlIaterms
                                {-# LINE 403 "dist/build/Visage.hs"#-}
 {-# NOINLINE sem_VisageNonterminals_Nil #-}
@@ -413,9 +413,9 @@ sem_VisageNonterminals_Nil  = T_VisageNonterminals (return st17) where
          in __result_ )
      in C_VisageNonterminals_s17 v16
    {-# INLINE rule8 #-}
-   {-# LINE 59 "./src-ag/Visage.ag" #-}
+   {-# LINE 59 "src-ag/Visage.ag" #-}
    rule8 = \  (_ :: ()) ->
-                               {-# LINE 59 "./src-ag/Visage.ag" #-}
+                               {-# LINE 59 "src-ag/Visage.ag" #-}
                                []
                                {-# LINE 421 "dist/build/Visage.hs"#-}
 
@@ -428,8 +428,8 @@ wrap_VisagePattern :: T_VisagePattern  -> Inh_VisagePattern  -> (Syn_VisagePatte
 wrap_VisagePattern (T_VisagePattern act) (Inh_VisagePattern ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_VisagePattern_vIn19 
-        (T_VisagePattern_vOut19 _lhsOaterm) <- return (inv_VisagePattern_s20 sem arg)
+        let arg19 = T_VisagePattern_vIn19 
+        (T_VisagePattern_vOut19 _lhsOaterm) <- return (inv_VisagePattern_s20 sem arg19)
         return (Syn_VisagePattern _lhsOaterm)
    )
 
@@ -468,9 +468,9 @@ sem_VisagePattern_VConstr arg_name_ arg_pats_ = T_VisagePattern (return st20) wh
          in __result_ )
      in C_VisagePattern_s20 v19
    {-# INLINE rule9 #-}
-   {-# LINE 112 "./src-ag/Visage.ag" #-}
+   {-# LINE 112 "src-ag/Visage.ag" #-}
    rule9 = \ ((_patsIaterms) :: [ATerm]) name_ ->
-                               {-# LINE 112 "./src-ag/Visage.ag" #-}
+                               {-# LINE 112 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Constr" [AString (sQ (showAGPos (getPos name_))),
                                                 AString (sQ (getName name_)),
                                                 AAppl "Patterns" _patsIaterms]]
@@ -490,9 +490,9 @@ sem_VisagePattern_VProduct arg_pos_ arg_pats_ = T_VisagePattern (return st20) wh
          in __result_ )
      in C_VisagePattern_s20 v19
    {-# INLINE rule10 #-}
-   {-# LINE 115 "./src-ag/Visage.ag" #-}
+   {-# LINE 115 "src-ag/Visage.ag" #-}
    rule10 = \ ((_patsIaterms) :: [ATerm]) pos_ ->
-                               {-# LINE 115 "./src-ag/Visage.ag" #-}
+                               {-# LINE 115 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Product" [AString (sQ (showAGPos pos_)),
                                                                  AAppl "Patterns" _patsIaterms]]
                                {-# LINE 499 "dist/build/Visage.hs"#-}
@@ -509,9 +509,9 @@ sem_VisagePattern_VVar arg_field_ arg_attr_ = T_VisagePattern (return st20) wher
          in __result_ )
      in C_VisagePattern_s20 v19
    {-# INLINE rule11 #-}
-   {-# LINE 117 "./src-ag/Visage.ag" #-}
+   {-# LINE 117 "src-ag/Visage.ag" #-}
    rule11 = \ attr_ field_ ->
-                               {-# LINE 117 "./src-ag/Visage.ag" #-}
+                               {-# LINE 117 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Var" [AString (sQ (showAGPos (getPos field_))),
                                                              AString (sQ (getName field_ ++ "." ++ getName attr_))]]
                                {-# LINE 518 "dist/build/Visage.hs"#-}
@@ -530,9 +530,9 @@ sem_VisagePattern_VAlias arg_field_ arg_attr_ arg_pat_ = T_VisagePattern (return
          in __result_ )
      in C_VisagePattern_s20 v19
    {-# INLINE rule12 #-}
-   {-# LINE 119 "./src-ag/Visage.ag" #-}
+   {-# LINE 119 "src-ag/Visage.ag" #-}
    rule12 = \ ((_patIaterm) :: ATerm) attr_ field_ ->
-                               {-# LINE 119 "./src-ag/Visage.ag" #-}
+                               {-# LINE 119 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Alias" [AString (sQ (showAGPos (getPos field_))),
                                                                AString (sQ (getName field_ ++ "." ++ getName attr_)), _patIaterm]]
                                {-# LINE 539 "dist/build/Visage.hs"#-}
@@ -549,9 +549,9 @@ sem_VisagePattern_VUnderscore arg_pos_ = T_VisagePattern (return st20) where
          in __result_ )
      in C_VisagePattern_s20 v19
    {-# INLINE rule13 #-}
-   {-# LINE 121 "./src-ag/Visage.ag" #-}
+   {-# LINE 121 "src-ag/Visage.ag" #-}
    rule13 = \ pos_ ->
-                               {-# LINE 121 "./src-ag/Visage.ag" #-}
+                               {-# LINE 121 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Underscore" [AString (sQ (showAGPos pos_))]]
                                {-# LINE 557 "dist/build/Visage.hs"#-}
 
@@ -564,8 +564,8 @@ wrap_VisagePatterns :: T_VisagePatterns  -> Inh_VisagePatterns  -> (Syn_VisagePa
 wrap_VisagePatterns (T_VisagePatterns act) (Inh_VisagePatterns ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_VisagePatterns_vIn22 
-        (T_VisagePatterns_vOut22 _lhsOaterms) <- return (inv_VisagePatterns_s23 sem arg)
+        let arg22 = T_VisagePatterns_vIn22 
+        (T_VisagePatterns_vOut22 _lhsOaterms) <- return (inv_VisagePatterns_s23 sem arg22)
         return (Syn_VisagePatterns _lhsOaterms)
    )
 
@@ -602,9 +602,9 @@ sem_VisagePatterns_Cons arg_hd_ arg_tl_ = T_VisagePatterns (return st23) where
          in __result_ )
      in C_VisagePatterns_s23 v22
    {-# INLINE rule14 #-}
-   {-# LINE 107 "./src-ag/Visage.ag" #-}
+   {-# LINE 107 "src-ag/Visage.ag" #-}
    rule14 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
-                               {-# LINE 107 "./src-ag/Visage.ag" #-}
+                               {-# LINE 107 "src-ag/Visage.ag" #-}
                                _hdIaterm : _tlIaterms
                                {-# LINE 610 "dist/build/Visage.hs"#-}
 {-# NOINLINE sem_VisagePatterns_Nil #-}
@@ -620,9 +620,9 @@ sem_VisagePatterns_Nil  = T_VisagePatterns (return st23) where
          in __result_ )
      in C_VisagePatterns_s23 v22
    {-# INLINE rule15 #-}
-   {-# LINE 108 "./src-ag/Visage.ag" #-}
+   {-# LINE 108 "src-ag/Visage.ag" #-}
    rule15 = \  (_ :: ()) ->
-                               {-# LINE 108 "./src-ag/Visage.ag" #-}
+                               {-# LINE 108 "src-ag/Visage.ag" #-}
                                []
                                {-# LINE 628 "dist/build/Visage.hs"#-}
 
@@ -635,8 +635,8 @@ wrap_VisageProduction :: T_VisageProduction  -> Inh_VisageProduction  -> (Syn_Vi
 wrap_VisageProduction (T_VisageProduction act) (Inh_VisageProduction ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_VisageProduction_vIn25 
-        (T_VisageProduction_vOut25 _lhsOaterm) <- return (inv_VisageProduction_s26 sem arg)
+        let arg25 = T_VisageProduction_vIn25 
+        (T_VisageProduction_vOut25 _lhsOaterm) <- return (inv_VisageProduction_s26 sem arg25)
         return (Syn_VisageProduction _lhsOaterm)
    )
 
@@ -677,23 +677,23 @@ sem_VisageProduction_VProduction arg_con_ arg_children_ arg_rules_ arg_locrules_
          in __result_ )
      in C_VisageProduction_s26 v25
    {-# INLINE rule16 #-}
-   {-# LINE 73 "./src-ag/Visage.ag" #-}
+   {-# LINE 73 "src-ag/Visage.ag" #-}
    rule16 = \ ((_childrenIaterms) :: [ATerm]) ((_locrulesIaterms) :: [ATerm]) ((_rulesIaterms) :: [ATerm]) con_ ->
-                              {-# LINE 73 "./src-ag/Visage.ag" #-}
+                              {-# LINE 73 "src-ag/Visage.ag" #-}
                               AAppl "Alternative" [AString (sQ (getName con_)), AAppl "Children" _childrenIaterms,
                                                     AAppl "Rules" _rulesIaterms,
                                                     AAppl "LocRules" _locrulesIaterms]
                               {-# LINE 687 "dist/build/Visage.hs"#-}
    {-# INLINE rule17 #-}
-   {-# LINE 76 "./src-ag/Visage.ag" #-}
+   {-# LINE 76 "src-ag/Visage.ag" #-}
    rule17 = \  (_ :: ()) ->
-                                    {-# LINE 76 "./src-ag/Visage.ag" #-}
+                                    {-# LINE 76 "src-ag/Visage.ag" #-}
                                     True
                                     {-# LINE 693 "dist/build/Visage.hs"#-}
    {-# INLINE rule18 #-}
-   {-# LINE 77 "./src-ag/Visage.ag" #-}
+   {-# LINE 77 "src-ag/Visage.ag" #-}
    rule18 = \  (_ :: ()) ->
-                                    {-# LINE 77 "./src-ag/Visage.ag" #-}
+                                    {-# LINE 77 "src-ag/Visage.ag" #-}
                                     False
                                     {-# LINE 699 "dist/build/Visage.hs"#-}
 
@@ -706,8 +706,8 @@ wrap_VisageProductions :: T_VisageProductions  -> Inh_VisageProductions  -> (Syn
 wrap_VisageProductions (T_VisageProductions act) (Inh_VisageProductions ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_VisageProductions_vIn28 
-        (T_VisageProductions_vOut28 _lhsOaterms) <- return (inv_VisageProductions_s29 sem arg)
+        let arg28 = T_VisageProductions_vIn28 
+        (T_VisageProductions_vOut28 _lhsOaterms) <- return (inv_VisageProductions_s29 sem arg28)
         return (Syn_VisageProductions _lhsOaterms)
    )
 
@@ -744,9 +744,9 @@ sem_VisageProductions_Cons arg_hd_ arg_tl_ = T_VisageProductions (return st29) w
          in __result_ )
      in C_VisageProductions_s29 v28
    {-# INLINE rule19 #-}
-   {-# LINE 68 "./src-ag/Visage.ag" #-}
+   {-# LINE 68 "src-ag/Visage.ag" #-}
    rule19 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
-                               {-# LINE 68 "./src-ag/Visage.ag" #-}
+                               {-# LINE 68 "src-ag/Visage.ag" #-}
                                _hdIaterm : _tlIaterms
                                {-# LINE 752 "dist/build/Visage.hs"#-}
 {-# NOINLINE sem_VisageProductions_Nil #-}
@@ -762,9 +762,9 @@ sem_VisageProductions_Nil  = T_VisageProductions (return st29) where
          in __result_ )
      in C_VisageProductions_s29 v28
    {-# INLINE rule20 #-}
-   {-# LINE 69 "./src-ag/Visage.ag" #-}
+   {-# LINE 69 "src-ag/Visage.ag" #-}
    rule20 = \  (_ :: ()) ->
-                               {-# LINE 69 "./src-ag/Visage.ag" #-}
+                               {-# LINE 69 "src-ag/Visage.ag" #-}
                                []
                                {-# LINE 770 "dist/build/Visage.hs"#-}
 
@@ -777,8 +777,8 @@ wrap_VisageRule :: T_VisageRule  -> Inh_VisageRule  -> (Syn_VisageRule )
 wrap_VisageRule (T_VisageRule act) (Inh_VisageRule _lhsIisLoc) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_VisageRule_vIn31 _lhsIisLoc
-        (T_VisageRule_vOut31 _lhsOaterm) <- return (inv_VisageRule_s32 sem arg)
+        let arg31 = T_VisageRule_vIn31 _lhsIisLoc
+        (T_VisageRule_vOut31 _lhsOaterm) <- return (inv_VisageRule_s32 sem arg31)
         return (Syn_VisageRule _lhsOaterm)
    )
 
@@ -815,9 +815,9 @@ sem_VisageRule_VRule _ arg_attr_ arg_pat_ arg_rhs_ arg_owrt_ = T_VisageRule (ret
          in __result_ )
      in C_VisageRule_s32 v31
    {-# INLINE rule21 #-}
-   {-# LINE 97 "./src-ag/Visage.ag" #-}
+   {-# LINE 97 "src-ag/Visage.ag" #-}
    rule21 = \ ((_lhsIisLoc) :: Bool) ((_patIaterm) :: ATerm) ((_rhsIaterm) :: ATerm) attr_ owrt_ ->
-                               {-# LINE 97 "./src-ag/Visage.ag" #-}
+                               {-# LINE 97 "src-ag/Visage.ag" #-}
                                AAppl (if _lhsIisLoc then "LocRule" else "Rule")
                                      ([AString (sQ (getName attr_)), _patIaterm, _rhsIaterm] ++ if _lhsIisLoc then [AString (sQ (show owrt_))] else [])
                                {-# LINE 824 "dist/build/Visage.hs"#-}
@@ -831,8 +831,8 @@ wrap_VisageRules :: T_VisageRules  -> Inh_VisageRules  -> (Syn_VisageRules )
 wrap_VisageRules (T_VisageRules act) (Inh_VisageRules _lhsIisLoc) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_VisageRules_vIn34 _lhsIisLoc
-        (T_VisageRules_vOut34 _lhsOaterms) <- return (inv_VisageRules_s35 sem arg)
+        let arg34 = T_VisageRules_vIn34 _lhsIisLoc
+        (T_VisageRules_vOut34 _lhsOaterms) <- return (inv_VisageRules_s35 sem arg34)
         return (Syn_VisageRules _lhsOaterms)
    )
 
@@ -871,9 +871,9 @@ sem_VisageRules_Cons arg_hd_ arg_tl_ = T_VisageRules (return st35) where
          in __result_ )
      in C_VisageRules_s35 v34
    {-# INLINE rule22 #-}
-   {-# LINE 92 "./src-ag/Visage.ag" #-}
+   {-# LINE 92 "src-ag/Visage.ag" #-}
    rule22 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
-                               {-# LINE 92 "./src-ag/Visage.ag" #-}
+                               {-# LINE 92 "src-ag/Visage.ag" #-}
                                _hdIaterm : _tlIaterms
                                {-# LINE 879 "dist/build/Visage.hs"#-}
    {-# INLINE rule23 #-}
@@ -895,8 +895,8 @@ sem_VisageRules_Nil  = T_VisageRules (return st35) where
          in __result_ )
      in C_VisageRules_s35 v34
    {-# INLINE rule25 #-}
-   {-# LINE 93 "./src-ag/Visage.ag" #-}
+   {-# LINE 93 "src-ag/Visage.ag" #-}
    rule25 = \  (_ :: ()) ->
-                               {-# LINE 93 "./src-ag/Visage.ag" #-}
+                               {-# LINE 93 "src-ag/Visage.ag" #-}
                                []
                                {-# LINE 903 "dist/build/Visage.hs"#-}

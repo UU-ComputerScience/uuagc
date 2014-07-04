@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/ExecutionPlan.ag)
+-- UUAGC 0.9.51 (src-ag/ExecutionPlan.ag)
 module ExecutionPlan where
-{-# LINE 2 "./src-ag/ExecutionPlan.ag" #-}
+{-# LINE 2 "src-ag/ExecutionPlan.ag" #-}
 
 -- VisitSyntax.ag imports
 import Patterns    (Pattern(..),Patterns)
@@ -48,14 +48,14 @@ type EChildren = [EChild]
          child params         : {[Identifier]}
          child classCtxs      : {ClassContext}
          child initial        : {StateIdentifier}
-         child initialv       : {Maybe VisitIdentifier}
+         child initialv       : {[VisitIdentifier]}
          child nextVisits     : {Map StateIdentifier StateCtx}
          child prevVisits     : {Map StateIdentifier StateCtx}
          child prods          : EProductions 
          child recursive      : {Bool}
          child hoInfo         : {HigherOrderInfo}
 -}
-data ENonterminal = ENonterminal (NontermIdent) (([Identifier])) (ClassContext) (StateIdentifier) ((Maybe VisitIdentifier)) ((Map StateIdentifier StateCtx)) ((Map StateIdentifier StateCtx)) (EProductions) (Bool) (HigherOrderInfo)
+data ENonterminal = ENonterminal (NontermIdent) (([Identifier])) (ClassContext) (StateIdentifier) (([VisitIdentifier])) ((Map StateIdentifier StateCtx)) ((Map StateIdentifier StateCtx)) (EProductions) (Bool) (HigherOrderInfo)
 -- ENonterminals -----------------------------------------------
 {-
    alternatives:

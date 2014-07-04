@@ -2,14 +2,14 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module CodeSyntaxDump where
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
+{-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 11 "dist/build/CodeSyntaxDump.hs" #-}
 
-{-# LINE 2 "./src-ag/CodeSyntax.ag" #-}
+{-# LINE 2 "src-ag/CodeSyntax.ag" #-}
 
 import Patterns
 import CommonTypes
@@ -17,7 +17,7 @@ import Data.Map(Map)
 import Data.Set(Set)
 {-# LINE 19 "dist/build/CodeSyntaxDump.hs" #-}
 
-{-# LINE 5 "./src-ag/CodeSyntaxDump.ag" #-}
+{-# LINE 5 "src-ag/CodeSyntaxDump.ag" #-}
 
 import Data.List
 import qualified Data.Map as Map
@@ -29,7 +29,7 @@ import CodeSyntax
 {-# LINE 30 "dist/build/CodeSyntaxDump.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
-{-# LINE 15 "./src-ag/CodeSyntaxDump.ag" #-}
+{-# LINE 15 "src-ag/CodeSyntaxDump.ag" #-}
 
 ppChild :: (Identifier,Type,ChildKind) -> PP_Doc
 ppChild (nm,tp,_)
@@ -66,8 +66,8 @@ wrap_CGrammar :: T_CGrammar  -> Inh_CGrammar  -> (Syn_CGrammar )
 wrap_CGrammar (T_CGrammar act) (Inh_CGrammar ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CGrammar_vIn1 
-        (T_CGrammar_vOut1 _lhsOpp) <- return (inv_CGrammar_s2 sem arg)
+        let arg1 = T_CGrammar_vIn1 
+        (T_CGrammar_vOut1 _lhsOpp) <- return (inv_CGrammar_s2 sem arg1)
         return (Syn_CGrammar _lhsOpp)
    )
 
@@ -102,9 +102,9 @@ sem_CGrammar_CGrammar arg_typeSyns_ arg_derivings_ _ arg_nonts_ _ _ _ _ _ _ _ = 
          in __result_ )
      in C_CGrammar_s2 v1
    {-# INLINE rule0 #-}
-   {-# LINE 47 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 47 "src-ag/CodeSyntaxDump.ag" #-}
    rule0 = \ ((_nontsIppL) :: [PP_Doc]) derivings_ typeSyns_ ->
-                                              {-# LINE 47 "./src-ag/CodeSyntaxDump.ag" #-}
+                                              {-# LINE 47 "src-ag/CodeSyntaxDump.ag" #-}
                                               ppNestInfo ["CGrammar","CGrammar"] []
                                                          [ ppF "typeSyns"  $ ppAssocL typeSyns_
                                                          , ppF "derivings" $ ppMap $ derivings_
@@ -121,8 +121,8 @@ wrap_CInterface :: T_CInterface  -> Inh_CInterface  -> (Syn_CInterface )
 wrap_CInterface (T_CInterface act) (Inh_CInterface ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CInterface_vIn4 
-        (T_CInterface_vOut4 _lhsOpp) <- return (inv_CInterface_s5 sem arg)
+        let arg4 = T_CInterface_vIn4 
+        (T_CInterface_vOut4 _lhsOpp) <- return (inv_CInterface_s5 sem arg4)
         return (Syn_CInterface _lhsOpp)
    )
 
@@ -157,9 +157,9 @@ sem_CInterface_CInterface arg_seg_ = T_CInterface (return st5) where
          in __result_ )
      in C_CInterface_s5 v4
    {-# INLINE rule1 #-}
-   {-# LINE 57 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 57 "src-ag/CodeSyntaxDump.ag" #-}
    rule1 = \ ((_segIppL) :: [PP_Doc]) ->
-                                              {-# LINE 57 "./src-ag/CodeSyntaxDump.ag" #-}
+                                              {-# LINE 57 "src-ag/CodeSyntaxDump.ag" #-}
                                               ppNestInfo ["CInterface","CInterface"] [] [ppF "seg" $ ppVList _segIppL] []
                                               {-# LINE 165 "dist/build/CodeSyntaxDump.hs"#-}
 
@@ -172,8 +172,8 @@ wrap_CNonterminal :: T_CNonterminal  -> Inh_CNonterminal  -> (Syn_CNonterminal )
 wrap_CNonterminal (T_CNonterminal act) (Inh_CNonterminal ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CNonterminal_vIn7 
-        (T_CNonterminal_vOut7 _lhsOpp) <- return (inv_CNonterminal_s8 sem arg)
+        let arg7 = T_CNonterminal_vIn7 
+        (T_CNonterminal_vOut7 _lhsOpp) <- return (inv_CNonterminal_s8 sem arg7)
         return (Syn_CNonterminal _lhsOpp)
    )
 
@@ -210,9 +210,9 @@ sem_CNonterminal_CNonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ a
          in __result_ )
      in C_CNonterminal_s8 v7
    {-# INLINE rule2 #-}
-   {-# LINE 54 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 54 "src-ag/CodeSyntaxDump.ag" #-}
    rule2 = \ ((_interIpp) :: PP_Doc) ((_prodsIppL) :: [PP_Doc]) inh_ nt_ params_ syn_ ->
-                                                              {-# LINE 54 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                              {-# LINE 54 "src-ag/CodeSyntaxDump.ag" #-}
                                                               ppNestInfo ["CNonterminal","CNonterminal"] (pp nt_ : map pp params_) [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "prods" $ ppVList _prodsIppL, ppF "inter" _interIpp] []
                                                               {-# LINE 218 "dist/build/CodeSyntaxDump.hs"#-}
 
@@ -225,8 +225,8 @@ wrap_CNonterminals :: T_CNonterminals  -> Inh_CNonterminals  -> (Syn_CNontermina
 wrap_CNonterminals (T_CNonterminals act) (Inh_CNonterminals ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CNonterminals_vIn10 
-        (T_CNonterminals_vOut10 _lhsOpp _lhsOppL) <- return (inv_CNonterminals_s11 sem arg)
+        let arg10 = T_CNonterminals_vIn10 
+        (T_CNonterminals_vOut10 _lhsOpp _lhsOppL) <- return (inv_CNonterminals_s11 sem arg10)
         return (Syn_CNonterminals _lhsOpp _lhsOppL)
    )
 
@@ -265,9 +265,9 @@ sem_CNonterminals_Cons arg_hd_ arg_tl_ = T_CNonterminals (return st11) where
          in __result_ )
      in C_CNonterminals_s11 v10
    {-# INLINE rule3 #-}
-   {-# LINE 102 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 102 "src-ag/CodeSyntaxDump.ag" #-}
    rule3 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
-                                                                                  {-# LINE 102 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                                                  {-# LINE 102 "src-ag/CodeSyntaxDump.ag" #-}
                                                                                   _hdIpp : _tlIppL
                                                                                   {-# LINE 273 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule4 #-}
@@ -288,9 +288,9 @@ sem_CNonterminals_Nil  = T_CNonterminals (return st11) where
          in __result_ )
      in C_CNonterminals_s11 v10
    {-# INLINE rule5 #-}
-   {-# LINE 103 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 103 "src-ag/CodeSyntaxDump.ag" #-}
    rule5 = \  (_ :: ()) ->
-                                                                                  {-# LINE 103 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                                                  {-# LINE 103 "src-ag/CodeSyntaxDump.ag" #-}
                                                                                   []
                                                                                   {-# LINE 296 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule6 #-}
@@ -306,8 +306,8 @@ wrap_CProduction :: T_CProduction  -> Inh_CProduction  -> (Syn_CProduction )
 wrap_CProduction (T_CProduction act) (Inh_CProduction ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CProduction_vIn13 
-        (T_CProduction_vOut13 _lhsOpp) <- return (inv_CProduction_s14 sem arg)
+        let arg13 = T_CProduction_vIn13 
+        (T_CProduction_vOut13 _lhsOpp) <- return (inv_CProduction_s14 sem arg13)
         return (Syn_CProduction _lhsOpp)
    )
 
@@ -342,9 +342,9 @@ sem_CProduction_CProduction arg_con_ arg_visits_ arg_children_ arg_terminals_ = 
          in __result_ )
      in C_CProduction_s14 v13
    {-# INLINE rule7 #-}
-   {-# LINE 63 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 63 "src-ag/CodeSyntaxDump.ag" #-}
    rule7 = \ ((_visitsIppL) :: [PP_Doc]) children_ con_ terminals_ ->
-                                              {-# LINE 63 "./src-ag/CodeSyntaxDump.ag" #-}
+                                              {-# LINE 63 "src-ag/CodeSyntaxDump.ag" #-}
                                               ppNestInfo ["CProduction","CProduction"] [pp con_] [ppF "visits" $ ppVList _visitsIppL, ppF "children" $ ppVList (map ppChild children_),ppF "terminals" $ ppVList (map ppShow terminals_)] []
                                               {-# LINE 350 "dist/build/CodeSyntaxDump.hs"#-}
 
@@ -357,8 +357,8 @@ wrap_CProductions :: T_CProductions  -> Inh_CProductions  -> (Syn_CProductions )
 wrap_CProductions (T_CProductions act) (Inh_CProductions ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CProductions_vIn16 
-        (T_CProductions_vOut16 _lhsOpp _lhsOppL) <- return (inv_CProductions_s17 sem arg)
+        let arg16 = T_CProductions_vIn16 
+        (T_CProductions_vOut16 _lhsOpp _lhsOppL) <- return (inv_CProductions_s17 sem arg16)
         return (Syn_CProductions _lhsOpp _lhsOppL)
    )
 
@@ -397,9 +397,9 @@ sem_CProductions_Cons arg_hd_ arg_tl_ = T_CProductions (return st17) where
          in __result_ )
      in C_CProductions_s17 v16
    {-# INLINE rule8 #-}
-   {-# LINE 94 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 94 "src-ag/CodeSyntaxDump.ag" #-}
    rule8 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
-                                                                                  {-# LINE 94 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                                                  {-# LINE 94 "src-ag/CodeSyntaxDump.ag" #-}
                                                                                   _hdIpp : _tlIppL
                                                                                   {-# LINE 405 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule9 #-}
@@ -420,9 +420,9 @@ sem_CProductions_Nil  = T_CProductions (return st17) where
          in __result_ )
      in C_CProductions_s17 v16
    {-# INLINE rule10 #-}
-   {-# LINE 95 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 95 "src-ag/CodeSyntaxDump.ag" #-}
    rule10 = \  (_ :: ()) ->
-                                                                                  {-# LINE 95 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                                                  {-# LINE 95 "src-ag/CodeSyntaxDump.ag" #-}
                                                                                   []
                                                                                   {-# LINE 428 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule11 #-}
@@ -438,8 +438,8 @@ wrap_CRule :: T_CRule  -> Inh_CRule  -> (Syn_CRule )
 wrap_CRule (T_CRule act) (Inh_CRule ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CRule_vIn19 
-        (T_CRule_vOut19 _lhsOpp) <- return (inv_CRule_s20 sem arg)
+        let arg19 = T_CRule_vIn19 
+        (T_CRule_vOut19 _lhsOpp) <- return (inv_CRule_s20 sem arg19)
         return (Syn_CRule _lhsOpp)
    )
 
@@ -475,9 +475,9 @@ sem_CRule_CRule arg_name_ arg_isIn_ arg_hasCode_ arg_nt_ arg_con_ arg_field_ arg
          in __result_ )
      in C_CRule_s20 v19
    {-# INLINE rule12 #-}
-   {-# LINE 69 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 69 "src-ag/CodeSyntaxDump.ag" #-}
    rule12 = \ ((_patternIpp) :: PP_Doc) childnt_ con_ defines_ field_ hasCode_ isIn_ name_ nt_ origin_ owrt_ rhs_ tp_ ->
-                                                              {-# LINE 69 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                              {-# LINE 69 "src-ag/CodeSyntaxDump.ag" #-}
                                                               ppNestInfo ["CRule","CRule"] [pp name_] [ppF "isIn" $ ppBool isIn_, ppF "hasCode" $ ppBool hasCode_, ppF "nt" $ pp nt_, ppF "con" $ pp con_, ppF "field" $ pp field_, ppF "childnt" $ ppMaybeShow childnt_, ppF "tp" $ ppMaybeShow tp_, ppF "pattern" $ if isIn_ then pp "<no pat because In>" else _patternIpp, ppF "rhs" $ ppStrings rhs_, ppF "defines" $ ppVertexMap defines_, ppF "owrt" $ ppBool owrt_, ppF "origin" $ pp origin_] []
                                                               {-# LINE 483 "dist/build/CodeSyntaxDump.hs"#-}
 {-# NOINLINE sem_CRule_CChildVisit #-}
@@ -493,9 +493,9 @@ sem_CRule_CChildVisit arg_name_ arg_nt_ arg_nr_ arg_inh_ arg_syn_ arg_isLast_ = 
          in __result_ )
      in C_CRule_s20 v19
    {-# INLINE rule13 #-}
-   {-# LINE 70 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 70 "src-ag/CodeSyntaxDump.ag" #-}
    rule13 = \ inh_ isLast_ name_ nr_ nt_ syn_ ->
-                                              {-# LINE 70 "./src-ag/CodeSyntaxDump.ag" #-}
+                                              {-# LINE 70 "src-ag/CodeSyntaxDump.ag" #-}
                                               ppNestInfo ["CRule","CChildVisit"] [pp name_] [ppF "nt" $ pp nt_, ppF "nr" $ ppShow nr_, ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "last" $ ppBool isLast_] []
                                               {-# LINE 501 "dist/build/CodeSyntaxDump.hs"#-}
 
@@ -508,8 +508,8 @@ wrap_CSegment :: T_CSegment  -> Inh_CSegment  -> (Syn_CSegment )
 wrap_CSegment (T_CSegment act) (Inh_CSegment ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CSegment_vIn22 
-        (T_CSegment_vOut22 _lhsOpp) <- return (inv_CSegment_s23 sem arg)
+        let arg22 = T_CSegment_vIn22 
+        (T_CSegment_vOut22 _lhsOpp) <- return (inv_CSegment_s23 sem arg22)
         return (Syn_CSegment _lhsOpp)
    )
 
@@ -542,9 +542,9 @@ sem_CSegment_CSegment arg_inh_ arg_syn_ = T_CSegment (return st23) where
          in __result_ )
      in C_CSegment_s23 v22
    {-# INLINE rule14 #-}
-   {-# LINE 60 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 60 "src-ag/CodeSyntaxDump.ag" #-}
    rule14 = \ inh_ syn_ ->
-                                              {-# LINE 60 "./src-ag/CodeSyntaxDump.ag" #-}
+                                              {-# LINE 60 "src-ag/CodeSyntaxDump.ag" #-}
                                               ppNestInfo ["CSegment","CSegment"] [] [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_] []
                                               {-# LINE 550 "dist/build/CodeSyntaxDump.hs"#-}
 
@@ -557,8 +557,8 @@ wrap_CSegments :: T_CSegments  -> Inh_CSegments  -> (Syn_CSegments )
 wrap_CSegments (T_CSegments act) (Inh_CSegments ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CSegments_vIn25 
-        (T_CSegments_vOut25 _lhsOpp _lhsOppL) <- return (inv_CSegments_s26 sem arg)
+        let arg25 = T_CSegments_vIn25 
+        (T_CSegments_vOut25 _lhsOpp _lhsOppL) <- return (inv_CSegments_s26 sem arg25)
         return (Syn_CSegments _lhsOpp _lhsOppL)
    )
 
@@ -597,9 +597,9 @@ sem_CSegments_Cons arg_hd_ arg_tl_ = T_CSegments (return st26) where
          in __result_ )
      in C_CSegments_s26 v25
    {-# INLINE rule15 #-}
-   {-# LINE 98 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 98 "src-ag/CodeSyntaxDump.ag" #-}
    rule15 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
-                                                                                  {-# LINE 98 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                                                  {-# LINE 98 "src-ag/CodeSyntaxDump.ag" #-}
                                                                                   _hdIpp : _tlIppL
                                                                                   {-# LINE 605 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule16 #-}
@@ -620,9 +620,9 @@ sem_CSegments_Nil  = T_CSegments (return st26) where
          in __result_ )
      in C_CSegments_s26 v25
    {-# INLINE rule17 #-}
-   {-# LINE 99 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 99 "src-ag/CodeSyntaxDump.ag" #-}
    rule17 = \  (_ :: ()) ->
-                                                                                  {-# LINE 99 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                                                  {-# LINE 99 "src-ag/CodeSyntaxDump.ag" #-}
                                                                                   []
                                                                                   {-# LINE 628 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule18 #-}
@@ -638,8 +638,8 @@ wrap_CVisit :: T_CVisit  -> Inh_CVisit  -> (Syn_CVisit )
 wrap_CVisit (T_CVisit act) (Inh_CVisit ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CVisit_vIn28 
-        (T_CVisit_vOut28 _lhsOpp) <- return (inv_CVisit_s29 sem arg)
+        let arg28 = T_CVisit_vIn28 
+        (T_CVisit_vOut28 _lhsOpp) <- return (inv_CVisit_s29 sem arg28)
         return (Syn_CVisit _lhsOpp)
    )
 
@@ -676,9 +676,9 @@ sem_CVisit_CVisit arg_inh_ arg_syn_ arg_vss_ arg_intra_ arg_ordered_ = T_CVisit 
          in __result_ )
      in C_CVisit_s29 v28
    {-# INLINE rule19 #-}
-   {-# LINE 66 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 66 "src-ag/CodeSyntaxDump.ag" #-}
    rule19 = \ ((_intraIppL) :: [PP_Doc]) ((_vssIppL) :: [PP_Doc]) inh_ ordered_ syn_ ->
-                                              {-# LINE 66 "./src-ag/CodeSyntaxDump.ag" #-}
+                                              {-# LINE 66 "src-ag/CodeSyntaxDump.ag" #-}
                                               ppNestInfo ["CVisit","CVisit"] [] [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "sequence" $ ppVList _vssIppL, ppF "intra" $ ppVList _intraIppL, ppF "ordered" $ ppBool ordered_] []
                                               {-# LINE 684 "dist/build/CodeSyntaxDump.hs"#-}
 
@@ -691,8 +691,8 @@ wrap_CVisits :: T_CVisits  -> Inh_CVisits  -> (Syn_CVisits )
 wrap_CVisits (T_CVisits act) (Inh_CVisits ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CVisits_vIn31 
-        (T_CVisits_vOut31 _lhsOpp _lhsOppL) <- return (inv_CVisits_s32 sem arg)
+        let arg31 = T_CVisits_vIn31 
+        (T_CVisits_vOut31 _lhsOpp _lhsOppL) <- return (inv_CVisits_s32 sem arg31)
         return (Syn_CVisits _lhsOpp _lhsOppL)
    )
 
@@ -731,9 +731,9 @@ sem_CVisits_Cons arg_hd_ arg_tl_ = T_CVisits (return st32) where
          in __result_ )
      in C_CVisits_s32 v31
    {-# INLINE rule20 #-}
-   {-# LINE 90 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 90 "src-ag/CodeSyntaxDump.ag" #-}
    rule20 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
-                                                                                  {-# LINE 90 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                                                  {-# LINE 90 "src-ag/CodeSyntaxDump.ag" #-}
                                                                                   _hdIpp : _tlIppL
                                                                                   {-# LINE 739 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule21 #-}
@@ -754,9 +754,9 @@ sem_CVisits_Nil  = T_CVisits (return st32) where
          in __result_ )
      in C_CVisits_s32 v31
    {-# INLINE rule22 #-}
-   {-# LINE 91 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 91 "src-ag/CodeSyntaxDump.ag" #-}
    rule22 = \  (_ :: ()) ->
-                                                                                  {-# LINE 91 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                                                  {-# LINE 91 "src-ag/CodeSyntaxDump.ag" #-}
                                                                                   []
                                                                                   {-# LINE 762 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule23 #-}
@@ -772,8 +772,8 @@ wrap_Pattern :: T_Pattern  -> Inh_Pattern  -> (Syn_Pattern )
 wrap_Pattern (T_Pattern act) (Inh_Pattern ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Pattern_vIn34 
-        (T_Pattern_vOut34 _lhsOcopy _lhsOpp) <- return (inv_Pattern_s35 sem arg)
+        let arg34 = T_Pattern_vIn34 
+        (T_Pattern_vOut34 _lhsOcopy _lhsOpp) <- return (inv_Pattern_s35 sem arg34)
         return (Syn_Pattern _lhsOcopy _lhsOpp)
    )
 
@@ -815,9 +815,9 @@ sem_Pattern_Constr arg_name_ arg_pats_ = T_Pattern (return st35) where
          in __result_ )
      in C_Pattern_s35 v34
    {-# INLINE rule24 #-}
-   {-# LINE 73 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 73 "src-ag/CodeSyntaxDump.ag" #-}
    rule24 = \ ((_patsIppL) :: [PP_Doc]) name_ ->
-                                                              {-# LINE 73 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                              {-# LINE 73 "src-ag/CodeSyntaxDump.ag" #-}
                                                               ppNestInfo ["Pattern","Constr"] [pp name_] [ppF "pats" $ ppVList _patsIppL] []
                                                               {-# LINE 823 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule25 #-}
@@ -844,9 +844,9 @@ sem_Pattern_Product arg_pos_ arg_pats_ = T_Pattern (return st35) where
          in __result_ )
      in C_Pattern_s35 v34
    {-# INLINE rule27 #-}
-   {-# LINE 74 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 74 "src-ag/CodeSyntaxDump.ag" #-}
    rule27 = \ ((_patsIppL) :: [PP_Doc]) pos_ ->
-                                                              {-# LINE 74 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                              {-# LINE 74 "src-ag/CodeSyntaxDump.ag" #-}
                                                               ppNestInfo ["Pattern","Product"] [ppShow pos_] [ppF "pats" $ ppVList _patsIppL] []
                                                               {-# LINE 852 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule28 #-}
@@ -873,9 +873,9 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st35) where
          in __result_ )
      in C_Pattern_s35 v34
    {-# INLINE rule30 #-}
-   {-# LINE 75 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 75 "src-ag/CodeSyntaxDump.ag" #-}
    rule30 = \ ((_patIpp) :: PP_Doc) attr_ field_ ->
-                                                              {-# LINE 75 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                              {-# LINE 75 "src-ag/CodeSyntaxDump.ag" #-}
                                                               ppNestInfo ["Pattern","Alias"] [pp field_, pp attr_] [ppF "pat" $ _patIpp] []
                                                               {-# LINE 881 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule31 #-}
@@ -926,9 +926,9 @@ sem_Pattern_Underscore arg_pos_ = T_Pattern (return st35) where
          in __result_ )
      in C_Pattern_s35 v34
    {-# INLINE rule36 #-}
-   {-# LINE 76 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 76 "src-ag/CodeSyntaxDump.ag" #-}
    rule36 = \ pos_ ->
-                                                      {-# LINE 76 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                      {-# LINE 76 "src-ag/CodeSyntaxDump.ag" #-}
                                                       ppNestInfo ["Pattern","Underscore"] [ppShow pos_] [] []
                                                       {-# LINE 934 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule37 #-}
@@ -947,8 +947,8 @@ wrap_Patterns :: T_Patterns  -> Inh_Patterns  -> (Syn_Patterns )
 wrap_Patterns (T_Patterns act) (Inh_Patterns ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Patterns_vIn37 
-        (T_Patterns_vOut37 _lhsOcopy _lhsOpp _lhsOppL) <- return (inv_Patterns_s38 sem arg)
+        let arg37 = T_Patterns_vIn37 
+        (T_Patterns_vOut37 _lhsOcopy _lhsOpp _lhsOppL) <- return (inv_Patterns_s38 sem arg37)
         return (Syn_Patterns _lhsOcopy _lhsOpp _lhsOppL)
    )
 
@@ -990,9 +990,9 @@ sem_Patterns_Cons arg_hd_ arg_tl_ = T_Patterns (return st38) where
          in __result_ )
      in C_Patterns_s38 v37
    {-# INLINE rule39 #-}
-   {-# LINE 82 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 82 "src-ag/CodeSyntaxDump.ag" #-}
    rule39 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
-                                                                                  {-# LINE 82 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                                                  {-# LINE 82 "src-ag/CodeSyntaxDump.ag" #-}
                                                                                   _hdIpp : _tlIppL
                                                                                   {-# LINE 998 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule40 #-}
@@ -1022,9 +1022,9 @@ sem_Patterns_Nil  = T_Patterns (return st38) where
          in __result_ )
      in C_Patterns_s38 v37
    {-# INLINE rule43 #-}
-   {-# LINE 83 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 83 "src-ag/CodeSyntaxDump.ag" #-}
    rule43 = \  (_ :: ()) ->
-                                                                                  {-# LINE 83 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                                                  {-# LINE 83 "src-ag/CodeSyntaxDump.ag" #-}
                                                                                   []
                                                                                   {-# LINE 1030 "dist/build/CodeSyntaxDump.hs"#-}
    {-# INLINE rule44 #-}
@@ -1046,8 +1046,8 @@ wrap_Sequence :: T_Sequence  -> Inh_Sequence  -> (Syn_Sequence )
 wrap_Sequence (T_Sequence act) (Inh_Sequence ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Sequence_vIn40 
-        (T_Sequence_vOut40 _lhsOppL) <- return (inv_Sequence_s41 sem arg)
+        let arg40 = T_Sequence_vIn40 
+        (T_Sequence_vOut40 _lhsOppL) <- return (inv_Sequence_s41 sem arg40)
         return (Syn_Sequence _lhsOppL)
    )
 
@@ -1084,9 +1084,9 @@ sem_Sequence_Cons arg_hd_ arg_tl_ = T_Sequence (return st41) where
          in __result_ )
      in C_Sequence_s41 v40
    {-# INLINE rule47 #-}
-   {-# LINE 86 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 86 "src-ag/CodeSyntaxDump.ag" #-}
    rule47 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
-                                                                                  {-# LINE 86 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                                                  {-# LINE 86 "src-ag/CodeSyntaxDump.ag" #-}
                                                                                   _hdIpp : _tlIppL
                                                                                   {-# LINE 1092 "dist/build/CodeSyntaxDump.hs"#-}
 {-# NOINLINE sem_Sequence_Nil #-}
@@ -1102,8 +1102,8 @@ sem_Sequence_Nil  = T_Sequence (return st41) where
          in __result_ )
      in C_Sequence_s41 v40
    {-# INLINE rule48 #-}
-   {-# LINE 87 "./src-ag/CodeSyntaxDump.ag" #-}
+   {-# LINE 87 "src-ag/CodeSyntaxDump.ag" #-}
    rule48 = \  (_ :: ()) ->
-                                                                                  {-# LINE 87 "./src-ag/CodeSyntaxDump.ag" #-}
+                                                                                  {-# LINE 87 "src-ag/CodeSyntaxDump.ag" #-}
                                                                                   []
                                                                                   {-# LINE 1110 "dist/build/CodeSyntaxDump.hs"#-}

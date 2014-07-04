@@ -2,13 +2,13 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module SemHsTokens where
-{-# LINE 2 "./src-ag/HsToken.ag" #-}
+{-# LINE 2 "src-ag/HsToken.ag" #-}
 
 import CommonTypes
 import UU.Scanner.Position(Pos)
 {-# LINE 10 "dist/build/SemHsTokens.hs" #-}
 
-{-# LINE 4 "./src-ag/SemHsTokens.ag" #-}
+{-# LINE 4 "src-ag/SemHsTokens.ag" #-}
 
 import qualified Data.Sequence as Seq
 import Data.Sequence(Seq,empty,singleton,(><))
@@ -21,7 +21,7 @@ import ErrorMessages
 {-# LINE 22 "dist/build/SemHsTokens.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
-{-# LINE 58 "./src-ag/SemHsTokens.ag" #-}
+{-# LINE 58 "src-ag/SemHsTokens.ag" #-}
 
 isNTname allnts (Just (NT nt _ _)) = nt `elem` allnts
 isNTname allnts _                  = False
@@ -35,8 +35,8 @@ wrap_HsToken :: T_HsToken  -> Inh_HsToken  -> (Syn_HsToken )
 wrap_HsToken (T_HsToken act) (Inh_HsToken _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIfieldnames _lhsInt _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_HsToken_vIn1 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIfieldnames _lhsInt _lhsIoptions
-        (T_HsToken_vOut1 _lhsOerrors _lhsOoutput _lhsOtok _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals) <- return (inv_HsToken_s2 sem arg)
+        let arg1 = T_HsToken_vIn1 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIfieldnames _lhsInt _lhsIoptions
+        (T_HsToken_vOut1 _lhsOerrors _lhsOoutput _lhsOtok _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals) <- return (inv_HsToken_s2 sem arg1)
         return (Syn_HsToken _lhsOerrors _lhsOoutput _lhsOtok _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
    )
 
@@ -87,21 +87,21 @@ sem_HsToken_AGLocal arg_var_ arg_pos_ arg_rdesc_ = T_HsToken (return st2) where
          in __result_ )
      in C_HsToken_s2 v1
    {-# INLINE rule0 #-}
-   {-# LINE 66 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 66 "src-ag/SemHsTokens.ag" #-}
    rule0 = \ pos_ rdesc_ var_ ->
-                                {-# LINE 66 "./src-ag/SemHsTokens.ag" #-}
+                                {-# LINE 66 "src-ag/SemHsTokens.ag" #-}
                                 AGLocal var_ pos_ rdesc_
                                 {-# LINE 95 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule1 #-}
-   {-# LINE 67 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 67 "src-ag/SemHsTokens.ag" #-}
    rule1 = \ pos_ rdesc_ var_ ->
-                                {-# LINE 67 "./src-ag/SemHsTokens.ag" #-}
+                                {-# LINE 67 "src-ag/SemHsTokens.ag" #-}
                                 AGField _LOC var_ pos_ rdesc_
                                 {-# LINE 101 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule2 #-}
-   {-# LINE 69 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 69 "src-ag/SemHsTokens.ag" #-}
    rule2 = \ ((_lhsIallfields) :: [(Identifier,Type,ChildKind)]) ((_lhsIallnts) :: [Identifier]) ((_lhsIattrs) :: [(Identifier,Identifier)]) ((_lhsIcon) :: Identifier) ((_lhsIfieldnames) :: [Identifier]) ((_lhsInt) :: Identifier) ((_lhsIoptions) :: Options) _tkAsField _tkAsLocal pos_ var_ ->
-                       {-# LINE 69 "./src-ag/SemHsTokens.ag" #-}
+                       {-# LINE 69 "src-ag/SemHsTokens.ag" #-}
                        if var_ `elem` _lhsIfieldnames
                        then if  isNTname _lhsIallnts (lookup var_ (map (\(n,t,_) -> (n,t)) _lhsIallfields))
                             then (Seq.singleton(ChildAsLocal _lhsInt _lhsIcon var_), _tkAsLocal    ,(pos_,fieldname var_), []    )
@@ -111,9 +111,9 @@ sem_HsToken_AGLocal arg_var_ arg_pos_ arg_rdesc_ = T_HsToken (return st2) where
                             else (Seq.singleton(UndefLocal _lhsInt _lhsIcon var_), _tkAsField    , (pos_,locname _lhsIoptions var_), []    )
                        {-# LINE 113 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule3 #-}
-   {-# LINE 104 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 104 "src-ag/SemHsTokens.ag" #-}
    rule3 = \ ((_lhsIfieldnames) :: [Identifier]) var_ ->
-                               {-# LINE 104 "./src-ag/SemHsTokens.ag" #-}
+                               {-# LINE 104 "src-ag/SemHsTokens.ag" #-}
                                if var_ `elem` _lhsIfieldnames
                                 then Seq.singleton var_
                                 else Seq.empty
@@ -157,9 +157,9 @@ sem_HsToken_AGField arg_field_ arg_attr_ arg_pos_ arg_rdesc_ = T_HsToken (return
          in __result_ )
      in C_HsToken_s2 v1
    {-# INLINE rule9 #-}
-   {-# LINE 78 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 78 "src-ag/SemHsTokens.ag" #-}
    rule9 = \ ((_lhsIattrs) :: [(Identifier,Identifier)]) ((_lhsIcon) :: Identifier) ((_lhsIfieldnames) :: [Identifier]) ((_lhsInt) :: Identifier) attr_ field_ ->
-                             {-# LINE 78 "./src-ag/SemHsTokens.ag" #-}
+                             {-# LINE 78 "src-ag/SemHsTokens.ag" #-}
                              if (field_,attr_) `elem` _lhsIattrs
                              then Seq.empty
                              else if not(field_ `elem` (_LHS : _LOC: _lhsIfieldnames))
@@ -167,25 +167,25 @@ sem_HsToken_AGField arg_field_ arg_attr_ arg_pos_ arg_rdesc_ = T_HsToken (return
                                   else Seq.singleton (UndefAttr _lhsInt _lhsIcon field_ attr_ False)
                              {-# LINE 169 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule10 #-}
-   {-# LINE 93 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 93 "src-ag/SemHsTokens.ag" #-}
    rule10 = \ attr_ field_ ->
-                  {-# LINE 93 "./src-ag/SemHsTokens.ag" #-}
+                  {-# LINE 93 "src-ag/SemHsTokens.ag" #-}
                   if field_ == _LOC
                   then ([], [attr_])
                   else ([(field_,attr_)], [])
                   {-# LINE 177 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule11 #-}
-   {-# LINE 123 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 123 "src-ag/SemHsTokens.ag" #-}
    rule11 = \ attr_ field_ rdesc_ ->
-                        {-# LINE 123 "./src-ag/SemHsTokens.ag" #-}
+                        {-# LINE 123 "src-ag/SemHsTokens.ag" #-}
                         case rdesc_ of
                           Just d  -> \x -> "(trace " ++ show (d ++ " -> " ++ show field_ ++ "." ++ show attr_) ++ " (" ++ x ++ "))"
                           Nothing -> id
                         {-# LINE 185 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule12 #-}
-   {-# LINE 126 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 126 "src-ag/SemHsTokens.ag" #-}
    rule12 = \ _addTrace ((_lhsIoptions) :: Options) attr_ field_ pos_ ->
-                   {-# LINE 126 "./src-ag/SemHsTokens.ag" #-}
+                   {-# LINE 126 "src-ag/SemHsTokens.ag" #-}
                    (pos_, _addTrace     $ attrname _lhsIoptions True field_ attr_)
                    {-# LINE 191 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule13 #-}
@@ -221,9 +221,9 @@ sem_HsToken_HsToken arg_value_ arg_pos_ = T_HsToken (return st2) where
          in __result_ )
      in C_HsToken_s2 v1
    {-# INLINE rule16 #-}
-   {-# LINE 128 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 128 "src-ag/SemHsTokens.ag" #-}
    rule16 = \ pos_ value_ ->
-                         {-# LINE 128 "./src-ag/SemHsTokens.ag" #-}
+                         {-# LINE 128 "src-ag/SemHsTokens.ag" #-}
                          (pos_, value_)
                          {-# LINE 229 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule17 #-}
@@ -268,9 +268,9 @@ sem_HsToken_CharToken arg_value_ arg_pos_ = T_HsToken (return st2) where
          in __result_ )
      in C_HsToken_s2 v1
    {-# INLINE rule23 #-}
-   {-# LINE 130 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 130 "src-ag/SemHsTokens.ag" #-}
    rule23 = \ pos_ value_ ->
-                           {-# LINE 130 "./src-ag/SemHsTokens.ag" #-}
+                           {-# LINE 130 "src-ag/SemHsTokens.ag" #-}
                            (pos_, if null value_
                                      then ""
                                      else showCharShort (head value_)
@@ -318,9 +318,9 @@ sem_HsToken_StrToken arg_value_ arg_pos_ = T_HsToken (return st2) where
          in __result_ )
      in C_HsToken_s2 v1
    {-# INLINE rule30 #-}
-   {-# LINE 135 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 135 "src-ag/SemHsTokens.ag" #-}
    rule30 = \ pos_ value_ ->
-                           {-# LINE 135 "./src-ag/SemHsTokens.ag" #-}
+                           {-# LINE 135 "src-ag/SemHsTokens.ag" #-}
                            (pos_, showStrShort value_)
                            {-# LINE 326 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule31 #-}
@@ -365,16 +365,16 @@ sem_HsToken_Err arg_mesg_ arg_pos_ = T_HsToken (return st2) where
          in __result_ )
      in C_HsToken_s2 v1
    {-# INLINE rule37 #-}
-   {-# LINE 51 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 51 "src-ag/SemHsTokens.ag" #-}
    rule37 = \ mesg_ pos_ ->
-                       {-# LINE 51 "./src-ag/SemHsTokens.ag" #-}
+                       {-# LINE 51 "src-ag/SemHsTokens.ag" #-}
                        let m = text mesg_
                        in Seq.singleton (CustomError False pos_ m)
                        {-# LINE 374 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule38 #-}
-   {-# LINE 136 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 136 "src-ag/SemHsTokens.ag" #-}
    rule38 = \ pos_ ->
-                           {-# LINE 136 "./src-ag/SemHsTokens.ag" #-}
+                           {-# LINE 136 "src-ag/SemHsTokens.ag" #-}
                            (pos_, "")
                            {-# LINE 380 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule39 #-}
@@ -402,8 +402,8 @@ wrap_HsTokens :: T_HsTokens  -> Inh_HsTokens  -> (Syn_HsTokens )
 wrap_HsTokens (T_HsTokens act) (Inh_HsTokens _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIfieldnames _lhsInt _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_HsTokens_vIn4 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIfieldnames _lhsInt _lhsIoptions
-        (T_HsTokens_vOut4 _lhsOerrors _lhsOoutput _lhsOtks _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals) <- return (inv_HsTokens_s5 sem arg)
+        let arg4 = T_HsTokens_vIn4 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIfieldnames _lhsInt _lhsIoptions
+        (T_HsTokens_vOut4 _lhsOerrors _lhsOoutput _lhsOtks _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals) <- return (inv_HsTokens_s5 sem arg4)
         return (Syn_HsTokens _lhsOerrors _lhsOoutput _lhsOtks _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
    )
 
@@ -465,9 +465,9 @@ sem_HsTokens_Cons arg_hd_ arg_tl_ = T_HsTokens (return st5) where
          in __result_ )
      in C_HsTokens_s5 v4
    {-# INLINE rule44 #-}
-   {-# LINE 118 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 118 "src-ag/SemHsTokens.ag" #-}
    rule44 = \ ((_hdItok) :: (Pos,String)) ((_tlItks) :: [(Pos,String)]) ->
-                     {-# LINE 118 "./src-ag/SemHsTokens.ag" #-}
+                     {-# LINE 118 "src-ag/SemHsTokens.ag" #-}
                      _hdItok : _tlItks
                      {-# LINE 473 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule45 #-}
@@ -554,9 +554,9 @@ sem_HsTokens_Nil  = T_HsTokens (return st5) where
          in __result_ )
      in C_HsTokens_s5 v4
    {-# INLINE rule65 #-}
-   {-# LINE 119 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 119 "src-ag/SemHsTokens.ag" #-}
    rule65 = \  (_ :: ()) ->
-                     {-# LINE 119 "./src-ag/SemHsTokens.ag" #-}
+                     {-# LINE 119 "src-ag/SemHsTokens.ag" #-}
                      []
                      {-# LINE 562 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule66 #-}
@@ -587,8 +587,8 @@ wrap_HsTokensRoot :: T_HsTokensRoot  -> Inh_HsTokensRoot  -> (Syn_HsTokensRoot )
 wrap_HsTokensRoot (T_HsTokensRoot act) (Inh_HsTokensRoot _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsInt _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_HsTokensRoot_vIn7 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsInt _lhsIoptions
-        (T_HsTokensRoot_vOut7 _lhsOerrors _lhsOoutput _lhsOtextLines _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals) <- return (inv_HsTokensRoot_s8 sem arg)
+        let arg7 = T_HsTokensRoot_vIn7 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsInt _lhsIoptions
+        (T_HsTokensRoot_vOut7 _lhsOerrors _lhsOoutput _lhsOtextLines _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals) <- return (inv_HsTokensRoot_s8 sem arg7)
         return (Syn_HsTokensRoot _lhsOerrors _lhsOoutput _lhsOtextLines _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
    )
 
@@ -640,21 +640,21 @@ sem_HsTokensRoot_HsTokensRoot arg_tokens_ = T_HsTokensRoot (return st8) where
          in __result_ )
      in C_HsTokensRoot_s8 v7
    {-# INLINE rule72 #-}
-   {-# LINE 39 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 39 "src-ag/SemHsTokens.ag" #-}
    rule72 = \ ((_lhsIallfields) :: [(Identifier,Type,ChildKind)]) ->
-                                       {-# LINE 39 "./src-ag/SemHsTokens.ag" #-}
+                                       {-# LINE 39 "src-ag/SemHsTokens.ag" #-}
                                        map (\(n,_,_) -> n) _lhsIallfields
                                        {-# LINE 648 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule73 #-}
-   {-# LINE 108 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 108 "src-ag/SemHsTokens.ag" #-}
    rule73 = \ ((_tokensIusedFields) :: Seq Identifier) ->
-                                    {-# LINE 108 "./src-ag/SemHsTokens.ag" #-}
+                                    {-# LINE 108 "src-ag/SemHsTokens.ag" #-}
                                     toList _tokensIusedFields
                                     {-# LINE 654 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule74 #-}
-   {-# LINE 115 "./src-ag/SemHsTokens.ag" #-}
+   {-# LINE 115 "src-ag/SemHsTokens.ag" #-}
    rule74 = \ ((_tokensItks) :: [(Pos,String)]) ->
-                                   {-# LINE 115 "./src-ag/SemHsTokens.ag" #-}
+                                   {-# LINE 115 "src-ag/SemHsTokens.ag" #-}
                                    showTokens _tokensItks
                                    {-# LINE 660 "dist/build/SemHsTokens.hs"#-}
    {-# INLINE rule75 #-}

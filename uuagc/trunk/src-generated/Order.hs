@@ -2,7 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Order where
-{-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
+{-# LINE 2 "src-ag/AbstractSyntax.ag" #-}
 
 -- AbstractSyntax.ag imports
 import Data.Set(Set)
@@ -14,20 +14,20 @@ import CommonTypes
 import ErrorMessages
 {-# LINE 16 "dist/build/Order.hs" #-}
 
-{-# LINE 2 "./src-ag/Expression.ag" #-}
+{-# LINE 2 "src-ag/Expression.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import HsToken
 {-# LINE 22 "dist/build/Order.hs" #-}
 
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
+{-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 29 "dist/build/Order.hs" #-}
 
-{-# LINE 10 "./src-ag/Order.ag" #-}
+{-# LINE 10 "src-ag/Order.ag" #-}
 
 -- From uuagc
 import CommonTypes
@@ -65,7 +65,7 @@ import Data.Maybe
 {-# LINE 66 "dist/build/Order.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
-{-# LINE 46 "./src-ag/Order.ag" #-}
+{-# LINE 46 "src-ag/Order.ag" #-}
 
 -- Terminates with an error if the key is not in the map
 findWithErr1 :: (Ord k, Show k) => String -> k -> Map k a -> a
@@ -77,26 +77,26 @@ findWithErr2 k m
   = Map.findWithDefault (error ("findWithErr2: key " ++ show k ++ " not in map: " ++ show m)) k m
 {-# LINE 79 "dist/build/Order.hs" #-}
 
-{-# LINE 71 "./src-ag/Order.ag" #-}
+{-# LINE 71 "src-ag/Order.ag" #-}
 
 startsWith :: String -> String -> Bool
 startsWith k h = k == take (length k) h
 {-# LINE 85 "dist/build/Order.hs" #-}
 
-{-# LINE 138 "./src-ag/Order.ag" #-}
+{-# LINE 138 "src-ag/Order.ag" #-}
 
 getNtName :: Type -> NontermIdent
 getNtName (NT nt _ _) = nt
 getNtName _           = nullIdent
 {-# LINE 92 "dist/build/Order.hs" #-}
 
-{-# LINE 166 "./src-ag/Order.ag" #-}
+{-# LINE 166 "src-ag/Order.ag" #-}
 
 data AltAttr = AltAttr Identifier Identifier Bool
                deriving (Eq, Ord, Show)
 {-# LINE 98 "dist/build/Order.hs" #-}
 
-{-# LINE 239 "./src-ag/Order.ag" #-}
+{-# LINE 239 "src-ag/Order.ag" #-}
 
 substSelf nt tp
   = case tp of
@@ -107,7 +107,7 @@ haskellTupel :: [Type] -> Maybe Type
 haskellTupel ts =  Just ( Haskell ( '(' : (concat (intersperse "," (map show ts))) ++ ")" ))
 {-# LINE 109 "dist/build/Order.hs" #-}
 
-{-# LINE 692 "./src-ag/Order.ag" #-}
+{-# LINE 692 "src-ag/Order.ag" #-}
 
 swap (a,b) = (b,a)
 
@@ -235,8 +235,8 @@ wrap_Child :: T_Child  -> Inh_Child  -> (Syn_Child )
 wrap_Child (T_Child act) (Inh_Child _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIo_unbox _lhsIsyn _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Child_vIn1 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIo_unbox _lhsIsyn _lhsIsynMap
-        (T_Child_vOut1 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfield _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOnts _lhsOsinglevisits _lhsOterminals) <- return (inv_Child_s2 sem arg)
+        let arg1 = T_Child_vIn1 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIo_unbox _lhsIsyn _lhsIsynMap
+        (T_Child_vOut1 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfield _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOnts _lhsOsinglevisits _lhsOterminals) <- return (inv_Child_s2 sem arg1)
         return (Syn_Child _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfield _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOnts _lhsOsinglevisits _lhsOterminals)
    )
 
@@ -294,100 +294,100 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
          in __result_ )
      in C_Child_s2 v1
    {-# INLINE rule0 #-}
-   {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 19 "src-ag/DistChildAttr.ag" #-}
    rule0 = \ name_ tp_ ->
-                       {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
+                       {-# LINE 19 "src-ag/DistChildAttr.ag" #-}
                        case tp_ of
                          NT nt _ _ -> nt
                          Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
                          Haskell t -> identifier ""
                        {-# LINE 305 "dist/build/Order.hs"#-}
    {-# INLINE rule1 #-}
-   {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
    rule1 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
-                      {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
+                      {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIinhMap
                       {-# LINE 311 "dist/build/Order.hs"#-}
    {-# INLINE rule2 #-}
-   {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
    rule2 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
-                      {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
+                      {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIsynMap
                       {-# LINE 317 "dist/build/Order.hs"#-}
    {-# INLINE rule3 #-}
-   {-# LINE 180 "./src-ag/Order.ag" #-}
+   {-# LINE 180 "src-ag/Order.ag" #-}
    rule3 = \ _syn tp_ ->
-                                {-# LINE 180 "./src-ag/Order.ag" #-}
+                                {-# LINE 180 "src-ag/Order.ag" #-}
                                 case tp_ of
                                   NT nt _ _ -> Map.null _syn
                                   _         -> True
                                 {-# LINE 325 "dist/build/Order.hs"#-}
    {-# INLINE rule4 #-}
-   {-# LINE 183 "./src-ag/Order.ag" #-}
+   {-# LINE 183 "src-ag/Order.ag" #-}
    rule4 = \ _maptolocal _syn name_ ->
-                                 {-# LINE 183 "./src-ag/Order.ag" #-}
+                                 {-# LINE 183 "src-ag/Order.ag" #-}
                                  if  _maptolocal
                                      then [ AltAttr _LOC name_ True ]
                                      else [ AltAttr name_ syn True | syn <- Map.keys _syn     ]
                                  {-# LINE 333 "dist/build/Order.hs"#-}
    {-# INLINE rule5 #-}
-   {-# LINE 198 "./src-ag/Order.ag" #-}
+   {-# LINE 198 "src-ag/Order.ag" #-}
    rule5 = \ name_ tp_ ->
-                        {-# LINE 198 "./src-ag/Order.ag" #-}
+                        {-# LINE 198 "src-ag/Order.ag" #-}
                         Seq.singleton (name_,getNtName tp_)
                         {-# LINE 339 "dist/build/Order.hs"#-}
    {-# INLINE rule6 #-}
-   {-# LINE 199 "./src-ag/Order.ag" #-}
+   {-# LINE 199 "src-ag/Order.ag" #-}
    rule6 = \ _inh name_ ->
-                         {-# LINE 199 "./src-ag/Order.ag" #-}
+                         {-# LINE 199 "src-ag/Order.ag" #-}
                          Seq.singleton (name_,_inh    )
                          {-# LINE 345 "dist/build/Order.hs"#-}
    {-# INLINE rule7 #-}
-   {-# LINE 215 "./src-ag/Order.ag" #-}
+   {-# LINE 215 "src-ag/Order.ag" #-}
    rule7 = \ ((_lhsIcon) :: Identifier) ((_lhsInt) :: Identifier) _maptolocal _syn name_ tp_ ->
-                              {-# LINE 215 "./src-ag/Order.ag" #-}
+                              {-# LINE 215 "src-ag/Order.ag" #-}
                               if  _maptolocal
                                   then Seq.singleton (cRuleTerminal name_ _lhsInt _lhsIcon tp_)
                                   else Seq.fromList [ cRuleRhsSyn syn _lhsInt _lhsIcon tp name_ (getNtName tp_) | (syn,tp) <- Map.assocs _syn    ]
                               {-# LINE 353 "dist/build/Order.hs"#-}
    {-# INLINE rule8 #-}
-   {-# LINE 347 "./src-ag/Order.ag" #-}
+   {-# LINE 347 "src-ag/Order.ag" #-}
    rule8 = \ _syn name_ ->
-                                       {-# LINE 347 "./src-ag/Order.ag" #-}
+                                       {-# LINE 347 "src-ag/Order.ag" #-}
                                        Map.singleton name_ _syn
                                        {-# LINE 359 "dist/build/Order.hs"#-}
    {-# INLINE rule9 #-}
-   {-# LINE 348 "./src-ag/Order.ag" #-}
+   {-# LINE 348 "src-ag/Order.ag" #-}
    rule9 = \ _inh name_ ->
-                                       {-# LINE 348 "./src-ag/Order.ag" #-}
+                                       {-# LINE 348 "src-ag/Order.ag" #-}
                                        Map.singleton name_ _inh
                                        {-# LINE 365 "dist/build/Order.hs"#-}
    {-# INLINE rule10 #-}
-   {-# LINE 618 "./src-ag/Order.ag" #-}
+   {-# LINE 618 "src-ag/Order.ag" #-}
    rule10 = \ _inh _maptolocal _syn name_ tp_ ->
-                                 {-# LINE 618 "./src-ag/Order.ag" #-}
+                                 {-# LINE 618 "src-ag/Order.ag" #-}
                                  if  _maptolocal
                                      then []
                                      else [CChildVisit name_ (getNtName tp_) 0 _inh     _syn     True]
                                  {-# LINE 373 "dist/build/Order.hs"#-}
    {-# INLINE rule11 #-}
-   {-# LINE 643 "./src-ag/Order.ag" #-}
+   {-# LINE 643 "src-ag/Order.ag" #-}
    rule11 = \ _maptolocal name_ ->
-                            {-# LINE 643 "./src-ag/Order.ag" #-}
+                            {-# LINE 643 "src-ag/Order.ag" #-}
                             if _maptolocal
                             then [name_]
                             else []
                             {-# LINE 381 "dist/build/Order.hs"#-}
    {-# INLINE rule12 #-}
-   {-# LINE 672 "./src-ag/Order.ag" #-}
+   {-# LINE 672 "src-ag/Order.ag" #-}
    rule12 = \ _inh _syn name_ ->
-                             {-# LINE 672 "./src-ag/Order.ag" #-}
+                             {-# LINE 672 "src-ag/Order.ag" #-}
                              [(name_, _inh    , _syn    )]
                              {-# LINE 387 "dist/build/Order.hs"#-}
    {-# INLINE rule13 #-}
-   {-# LINE 676 "./src-ag/Order.ag" #-}
+   {-# LINE 676 "src-ag/Order.ag" #-}
    rule13 = \ kind_ name_ tp_ ->
-                        {-# LINE 676 "./src-ag/Order.ag" #-}
+                        {-# LINE 676 "src-ag/Order.ag" #-}
                         (name_, tp_, kind_)
                         {-# LINE 393 "dist/build/Order.hs"#-}
    {-# INLINE rule14 #-}
@@ -406,8 +406,8 @@ wrap_Children :: T_Children  -> Inh_Children  -> (Syn_Children )
 wrap_Children (T_Children act) (Inh_Children _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIo_unbox _lhsIsyn _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Children_vIn4 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIo_unbox _lhsIsyn _lhsIsynMap
-        (T_Children_vOut4 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOnts _lhsOsinglevisits _lhsOterminals) <- return (inv_Children_s5 sem arg)
+        let arg4 = T_Children_vIn4 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIo_unbox _lhsIsyn _lhsIsynMap
+        (T_Children_vOut4 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOnts _lhsOsinglevisits _lhsOterminals) <- return (inv_Children_s5 sem arg4)
         return (Syn_Children _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOnts _lhsOsinglevisits _lhsOterminals)
    )
 
@@ -486,9 +486,9 @@ sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st5) where
          in __result_ )
      in C_Children_s5 v4
    {-# INLINE rule16 #-}
-   {-# LINE 679 "./src-ag/Order.ag" #-}
+   {-# LINE 679 "src-ag/Order.ag" #-}
    rule16 = \ ((_hdIfield) :: (Identifier,Type,ChildKind)) ((_tlIfields) :: [(Identifier,Type,ChildKind)]) ->
-                         {-# LINE 679 "./src-ag/Order.ag" #-}
+                         {-# LINE 679 "src-ag/Order.ag" #-}
                          _hdIfield : _tlIfields
                          {-# LINE 494 "dist/build/Order.hs"#-}
    {-# INLINE rule17 #-}
@@ -620,9 +620,9 @@ sem_Children_Nil  = T_Children (return st5) where
          in __result_ )
      in C_Children_s5 v4
    {-# INLINE rule49 #-}
-   {-# LINE 680 "./src-ag/Order.ag" #-}
+   {-# LINE 680 "src-ag/Order.ag" #-}
    rule49 = \  (_ :: ()) ->
-                         {-# LINE 680 "./src-ag/Order.ag" #-}
+                         {-# LINE 680 "src-ag/Order.ag" #-}
                          []
                          {-# LINE 628 "dist/build/Order.hs"#-}
    {-# INLINE rule50 #-}
@@ -665,8 +665,8 @@ wrap_Expression :: T_Expression  -> Inh_Expression  -> (Syn_Expression )
 wrap_Expression (T_Expression act) (Inh_Expression _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsImergeMap _lhsInt _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Expression_vIn7 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsImergeMap _lhsInt _lhsIoptions
-        (T_Expression_vOut7 _lhsOallRhsVars _lhsOcopy _lhsOerrors _lhsOtextLines _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals) <- return (inv_Expression_s8 sem arg)
+        let arg7 = T_Expression_vIn7 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsImergeMap _lhsInt _lhsIoptions
+        (T_Expression_vOut7 _lhsOallRhsVars _lhsOcopy _lhsOerrors _lhsOtextLines _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals) <- return (inv_Expression_s8 sem arg7)
         return (Syn_Expression _lhsOallRhsVars _lhsOcopy _lhsOerrors _lhsOtextLines _lhsOusedAttrs _lhsOusedFields _lhsOusedLocals)
    )
 
@@ -713,9 +713,9 @@ sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st8) where
          in __result_ )
      in C_Expression_s8 v7
    {-# INLINE rule60 #-}
-   {-# LINE 469 "./src-ag/Order.ag" #-}
+   {-# LINE 469 "src-ag/Order.ag" #-}
    rule60 = \ ((_lhsIallfields) :: [(Identifier,Type,ChildKind)]) ((_lhsIallnts) :: [Identifier]) ((_lhsIattrs) :: [(Identifier,Identifier)]) ((_lhsIcon) :: Identifier) ((_lhsImergeMap) :: Map Identifier (Identifier,[Identifier])) ((_lhsInt) :: Identifier) ((_lhsIoptions) :: Options) tks_ ->
-                                {-# LINE 469 "./src-ag/Order.ag" #-}
+                                {-# LINE 469 "src-ag/Order.ag" #-}
                                 let mergedChildren = [ x | (_,xs) <- Map.elems _lhsImergeMap, x <- xs ]
                                     attrsIn = filter (\(fld,_) -> not (fld `elem` mergedChildren)) _lhsIattrs
                                     inherited = Inh_HsTokensRoot
@@ -740,15 +740,15 @@ sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st8) where
                                             in (textLines,usedAttrs',usedLocals,usedFields)
                                 {-# LINE 742 "dist/build/Order.hs"#-}
    {-# INLINE rule61 #-}
-   {-# LINE 492 "./src-ag/Order.ag" #-}
+   {-# LINE 492 "src-ag/Order.ag" #-}
    rule61 = \  (_ :: ()) ->
-                               {-# LINE 492 "./src-ag/Order.ag" #-}
+                               {-# LINE 492 "src-ag/Order.ag" #-}
                                Seq.empty
                                {-# LINE 748 "dist/build/Order.hs"#-}
    {-# INLINE rule62 #-}
-   {-# LINE 493 "./src-ag/Order.ag" #-}
+   {-# LINE 493 "src-ag/Order.ag" #-}
    rule62 = \ _usedAttrs _usedFields _usedLocals ->
-                                   {-# LINE 493 "./src-ag/Order.ag" #-}
+                                   {-# LINE 493 "src-ag/Order.ag" #-}
                                    Set.fromList _usedAttrs
                                    `Set.union`
                                    Set.fromList [ (_LOC, l) | l <- _usedLocals    ]
@@ -783,8 +783,8 @@ wrap_Grammar :: T_Grammar  -> Inh_Grammar  -> (Syn_Grammar )
 wrap_Grammar (T_Grammar act) (Inh_Grammar _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Grammar_vIn10 _lhsIoptions
-        (T_Grammar_vOut10 _lhsOerrors _lhsOnAutoRules _lhsOnExplicitRules _lhsOoutput) <- return (inv_Grammar_s11 sem arg)
+        let arg10 = T_Grammar_vIn10 _lhsIoptions
+        (T_Grammar_vOut10 _lhsOerrors _lhsOnAutoRules _lhsOnExplicitRules _lhsOoutput) <- return (inv_Grammar_s11 sem arg10)
         return (Syn_Grammar _lhsOerrors _lhsOnAutoRules _lhsOnExplicitRules _lhsOoutput)
    )
 
@@ -861,169 +861,169 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ arg_
          in __result_ )
      in C_Grammar_s11 v10
    {-# INLINE rule69 #-}
-   {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 15 "src-ag/DistChildAttr.ag" #-}
    rule69 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
-                             {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
+                             {-# LINE 15 "src-ag/DistChildAttr.ag" #-}
                              _nontsIinhMap'
                              {-# LINE 869 "dist/build/Order.hs"#-}
    {-# INLINE rule70 #-}
-   {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
    rule70 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
-                             {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
+                             {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
                              _nontsIsynMap'
                              {-# LINE 875 "dist/build/Order.hs"#-}
    {-# INLINE rule71 #-}
-   {-# LINE 123 "./src-ag/Order.ag" #-}
+   {-# LINE 123 "src-ag/Order.ag" #-}
    rule71 = \ _cyclesErrors ((_lhsIoptions) :: Options) ->
-                                    {-# LINE 123 "./src-ag/Order.ag" #-}
+                                    {-# LINE 123 "src-ag/Order.ag" #-}
                                     visit     _lhsIoptions && null _cyclesErrors
                                     {-# LINE 881 "dist/build/Order.hs"#-}
    {-# INLINE rule72 #-}
-   {-# LINE 124 "./src-ag/Order.ag" #-}
+   {-# LINE 124 "src-ag/Order.ag" #-}
    rule72 = \ ((_lhsIoptions) :: Options) ->
-                                    {-# LINE 124 "./src-ag/Order.ag" #-}
+                                    {-# LINE 124 "src-ag/Order.ag" #-}
                                     folds     _lhsIoptions
                                     {-# LINE 887 "dist/build/Order.hs"#-}
    {-# INLINE rule73 #-}
-   {-# LINE 125 "./src-ag/Order.ag" #-}
+   {-# LINE 125 "src-ag/Order.ag" #-}
    rule73 = \ ((_lhsIoptions) :: Options) ->
-                                    {-# LINE 125 "./src-ag/Order.ag" #-}
+                                    {-# LINE 125 "src-ag/Order.ag" #-}
                                     dataTypes _lhsIoptions
                                     {-# LINE 893 "dist/build/Order.hs"#-}
    {-# INLINE rule74 #-}
-   {-# LINE 126 "./src-ag/Order.ag" #-}
+   {-# LINE 126 "src-ag/Order.ag" #-}
    rule74 = \ ((_lhsIoptions) :: Options) ->
-                                    {-# LINE 126 "./src-ag/Order.ag" #-}
+                                    {-# LINE 126 "src-ag/Order.ag" #-}
                                     typeSigs  _lhsIoptions
                                     {-# LINE 899 "dist/build/Order.hs"#-}
    {-# INLINE rule75 #-}
-   {-# LINE 127 "./src-ag/Order.ag" #-}
+   {-# LINE 127 "src-ag/Order.ag" #-}
    rule75 = \ ((_lhsIoptions) :: Options) ->
-                                    {-# LINE 127 "./src-ag/Order.ag" #-}
+                                    {-# LINE 127 "src-ag/Order.ag" #-}
                                     semfuns   _lhsIoptions
                                     {-# LINE 905 "dist/build/Order.hs"#-}
    {-# INLINE rule76 #-}
-   {-# LINE 128 "./src-ag/Order.ag" #-}
+   {-# LINE 128 "src-ag/Order.ag" #-}
    rule76 = \ ((_lhsIoptions) :: Options) ->
-                                    {-# LINE 128 "./src-ag/Order.ag" #-}
+                                    {-# LINE 128 "src-ag/Order.ag" #-}
                                     rename    _lhsIoptions
                                     {-# LINE 911 "dist/build/Order.hs"#-}
    {-# INLINE rule77 #-}
-   {-# LINE 129 "./src-ag/Order.ag" #-}
+   {-# LINE 129 "src-ag/Order.ag" #-}
    rule77 = \ ((_lhsIoptions) :: Options) ->
-                                    {-# LINE 129 "./src-ag/Order.ag" #-}
+                                    {-# LINE 129 "src-ag/Order.ag" #-}
                                     newtypes  _lhsIoptions
                                     {-# LINE 917 "dist/build/Order.hs"#-}
    {-# INLINE rule78 #-}
-   {-# LINE 130 "./src-ag/Order.ag" #-}
+   {-# LINE 130 "src-ag/Order.ag" #-}
    rule78 = \ ((_lhsIoptions) :: Options) ->
-                                      {-# LINE 130 "./src-ag/Order.ag" #-}
+                                      {-# LINE 130 "src-ag/Order.ag" #-}
                                       visit   _lhsIoptions
                                       {-# LINE 923 "dist/build/Order.hs"#-}
    {-# INLINE rule79 #-}
-   {-# LINE 131 "./src-ag/Order.ag" #-}
+   {-# LINE 131 "src-ag/Order.ag" #-}
    rule79 = \ ((_lhsIoptions) :: Options) ->
-                                    {-# LINE 131 "./src-ag/Order.ag" #-}
+                                    {-# LINE 131 "src-ag/Order.ag" #-}
                                     unbox     _lhsIoptions
                                     {-# LINE 929 "dist/build/Order.hs"#-}
    {-# INLINE rule80 #-}
-   {-# LINE 132 "./src-ag/Order.ag" #-}
+   {-# LINE 132 "src-ag/Order.ag" #-}
    rule80 = \ ((_lhsIoptions) :: Options) ->
-                                    {-# LINE 132 "./src-ag/Order.ag" #-}
+                                    {-# LINE 132 "src-ag/Order.ag" #-}
                                     cases     _lhsIoptions
                                     {-# LINE 935 "dist/build/Order.hs"#-}
    {-# INLINE rule81 #-}
-   {-# LINE 133 "./src-ag/Order.ag" #-}
+   {-# LINE 133 "src-ag/Order.ag" #-}
    rule81 = \ ((_lhsIoptions) :: Options) ->
-                                    {-# LINE 133 "./src-ag/Order.ag" #-}
+                                    {-# LINE 133 "src-ag/Order.ag" #-}
                                     prefix    _lhsIoptions
                                     {-# LINE 941 "dist/build/Order.hs"#-}
    {-# INLINE rule82 #-}
-   {-# LINE 262 "./src-ag/Order.ag" #-}
+   {-# LINE 262 "src-ag/Order.ag" #-}
    rule82 = \  (_ :: ()) ->
-                               {-# LINE 262 "./src-ag/Order.ag" #-}
+                               {-# LINE 262 "src-ag/Order.ag" #-}
                                0
                                {-# LINE 947 "dist/build/Order.hs"#-}
    {-# INLINE rule83 #-}
-   {-# LINE 288 "./src-ag/Order.ag" #-}
+   {-# LINE 288 "src-ag/Order.ag" #-}
    rule83 = \ manualAttrOrderMap_ ->
-                                 {-# LINE 288 "./src-ag/Order.ag" #-}
+                                 {-# LINE 288 "src-ag/Order.ag" #-}
                                  manualAttrOrderMap_
                                  {-# LINE 953 "dist/build/Order.hs"#-}
    {-# INLINE rule84 #-}
-   {-# LINE 417 "./src-ag/Order.ag" #-}
+   {-# LINE 417 "src-ag/Order.ag" #-}
    rule84 = \ aroundsMap_ ->
-                                 {-# LINE 417 "./src-ag/Order.ag" #-}
+                                 {-# LINE 417 "src-ag/Order.ag" #-}
                                  aroundsMap_
                                  {-# LINE 959 "dist/build/Order.hs"#-}
    {-# INLINE rule85 #-}
-   {-# LINE 508 "./src-ag/Order.ag" #-}
+   {-# LINE 508 "src-ag/Order.ag" #-}
    rule85 = \  (_ :: ()) ->
-                             {-# LINE 508 "./src-ag/Order.ag" #-}
+                             {-# LINE 508 "src-ag/Order.ag" #-}
                              0
                              {-# LINE 965 "dist/build/Order.hs"#-}
    {-# INLINE rule86 #-}
-   {-# LINE 546 "./src-ag/Order.ag" #-}
+   {-# LINE 546 "src-ag/Order.ag" #-}
    rule86 = \ ((_nontsIrules) :: Seq (Vertex,CRule)) ((_nontsIvcount) :: Int) ->
-                              {-# LINE 546 "./src-ag/Order.ag" #-}
+                              {-# LINE 546 "src-ag/Order.ag" #-}
                               Array.array (0,_nontsIvcount-1) (toList _nontsIrules)
                               {-# LINE 971 "dist/build/Order.hs"#-}
    {-# INLINE rule87 #-}
-   {-# LINE 547 "./src-ag/Order.ag" #-}
+   {-# LINE 547 "src-ag/Order.ag" #-}
    rule87 = \ ((_nontsIacount) :: Int) ((_nontsIntattrs) :: Seq (Vertex,NTAttr)) ->
-                              {-# LINE 547 "./src-ag/Order.ag" #-}
+                              {-# LINE 547 "src-ag/Order.ag" #-}
                               Array.array (0,_nontsIacount-1) (toList _nontsIntattrs)
                               {-# LINE 977 "dist/build/Order.hs"#-}
    {-# INLINE rule88 #-}
-   {-# LINE 548 "./src-ag/Order.ag" #-}
+   {-# LINE 548 "src-ag/Order.ag" #-}
    rule88 = \ ((_nontsIntattrs) :: Seq (Vertex,NTAttr)) ->
-                               {-# LINE 548 "./src-ag/Order.ag" #-}
+                               {-# LINE 548 "src-ag/Order.ag" #-}
                                Map.fromList (map swap (toList _nontsIntattrs))
                                {-# LINE 983 "dist/build/Order.hs"#-}
    {-# INLINE rule89 #-}
-   {-# LINE 549 "./src-ag/Order.ag" #-}
+   {-# LINE 549 "src-ag/Order.ag" #-}
    rule89 = \ _attrVertex ((_nontsIrules) :: Seq (Vertex,CRule)) ->
-                              {-# LINE 549 "./src-ag/Order.ag" #-}
+                              {-# LINE 549 "src-ag/Order.ag" #-}
                               [ (s, maybe (-1) (\v -> findWithErr1 "Grammar.tdpToTds" v _attrVertex) (ntattr cr))
                               | (s,cr) <- toList _nontsIrules]
                               {-# LINE 990 "dist/build/Order.hs"#-}
    {-# INLINE rule90 #-}
-   {-# LINE 551 "./src-ag/Order.ag" #-}
+   {-# LINE 551 "src-ag/Order.ag" #-}
    rule90 = \ _tdpToTds ->
-                               {-# LINE 551 "./src-ag/Order.ag" #-}
+                               {-# LINE 551 "src-ag/Order.ag" #-}
                                let  eq (_,v) (_,v') = v == v'
                                     conv ((s,v):svs)  | v == -1 = Nothing
                                                       | otherwise = Just (v,s:map fst svs)
                                in mapMaybe conv (eqClasses eq _tdpToTds)
                                {-# LINE 999 "dist/build/Order.hs"#-}
    {-# INLINE rule91 #-}
-   {-# LINE 555 "./src-ag/Order.ag" #-}
+   {-# LINE 555 "src-ag/Order.ag" #-}
    rule91 = \ ((_nontsIadditionalDep) :: Seq Edge) ((_nontsIdirectDep) :: Seq Edge) ->
-                              {-# LINE 555 "./src-ag/Order.ag" #-}
+                              {-# LINE 555 "src-ag/Order.ag" #-}
                               toList (_nontsIdirectDep Seq.>< _nontsIadditionalDep)
                               {-# LINE 1005 "dist/build/Order.hs"#-}
    {-# INLINE rule92 #-}
-   {-# LINE 556 "./src-ag/Order.ag" #-}
+   {-# LINE 556 "src-ag/Order.ag" #-}
    rule92 = \ ((_nontsIinstDep) :: Seq Edge) ->
-                              {-# LINE 556 "./src-ag/Order.ag" #-}
+                              {-# LINE 556 "src-ag/Order.ag" #-}
                               toList _nontsIinstDep
                               {-# LINE 1011 "dist/build/Order.hs"#-}
    {-# INLINE rule93 #-}
-   {-# LINE 557 "./src-ag/Order.ag" #-}
+   {-# LINE 557 "src-ag/Order.ag" #-}
    rule93 = \ ((_nontsIaroundDep) :: Seq Edge) ->
-                              {-# LINE 557 "./src-ag/Order.ag" #-}
+                              {-# LINE 557 "src-ag/Order.ag" #-}
                               toList _nontsIaroundDep
                               {-# LINE 1017 "dist/build/Order.hs"#-}
    {-# INLINE rule94 #-}
-   {-# LINE 558 "./src-ag/Order.ag" #-}
+   {-# LINE 558 "src-ag/Order.ag" #-}
    rule94 = \ ((_nontsImergeDep) :: Seq Edge) ->
-                              {-# LINE 558 "./src-ag/Order.ag" #-}
+                              {-# LINE 558 "src-ag/Order.ag" #-}
                               toList _nontsImergeDep
                               {-# LINE 1023 "dist/build/Order.hs"#-}
    {-# INLINE rule95 #-}
-   {-# LINE 559 "./src-ag/Order.ag" #-}
+   {-# LINE 559 "src-ag/Order.ag" #-}
    rule95 = \ _attrTable ((_nontsIacount) :: Int) ((_nontsIaranges) :: Seq (Int,Int,Int)) ((_nontsInonts) :: [(NontermIdent,[ConstructorIdent])]) ((_nontsIvcount) :: Int) _ruleTable _tdpToTds _tdsToTdp wrappers_ ->
-                              {-# LINE 559 "./src-ag/Order.ag" #-}
+                              {-# LINE 559 "src-ag/Order.ag" #-}
                               let def [] = -1
                                   def (v:vs) = v
                                in Info { tdsToTdp   = Array.array (0,_nontsIacount-1) _tdsToTdp
@@ -1036,9 +1036,9 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ arg_
                                        }
                               {-# LINE 1038 "dist/build/Order.hs"#-}
    {-# INLINE rule96 #-}
-   {-# LINE 571 "./src-ag/Order.ag" #-}
+   {-# LINE 571 "src-ag/Order.ag" #-}
    rule96 = \ _aroundDep _attrTable _directDep _info _instDep ((_lhsIoptions) :: Options) _mergeDep _ruleTable ->
-                                {-# LINE 571 "./src-ag/Order.ag" #-}
+                                {-# LINE 571 "src-ag/Order.ag" #-}
                                 case computeSequential _info _directDep (_instDep ++ _aroundDep ++ _mergeDep    ) of
                                              CycleFree    cim cvm   -> ( cim
                                                                        , cvm
@@ -1062,34 +1062,34 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ arg_
                                                                        )
                                 {-# LINE 1064 "dist/build/Order.hs"#-}
    {-# INLINE rule97 #-}
-   {-# LINE 592 "./src-ag/Order.ag" #-}
+   {-# LINE 592 "src-ag/Order.ag" #-}
    rule97 = \ _cyclesErrors ((_lhsIoptions) :: Options) ((_nontsIerrors) :: Seq Error) ->
-                           {-# LINE 592 "./src-ag/Order.ag" #-}
+                           {-# LINE 592 "src-ag/Order.ag" #-}
                            (if withCycle _lhsIoptions then Seq.fromList _cyclesErrors else Seq.empty)
                             Seq.>< _nontsIerrors
                            {-# LINE 1071 "dist/build/Order.hs"#-}
    {-# INLINE rule98 #-}
-   {-# LINE 624 "./src-ag/Order.ag" #-}
+   {-# LINE 624 "src-ag/Order.ag" #-}
    rule98 = \ _aroundMap _mergeMap ((_nontsIcNonterminals) :: CNonterminals) _o_dovisit contextMap_ derivings_ paramMap_ pragmas_ quantMap_ typeSyns_ wrappers_ ->
-                             {-# LINE 624 "./src-ag/Order.ag" #-}
+                             {-# LINE 624 "src-ag/Order.ag" #-}
                              CGrammar typeSyns_ derivings_ wrappers_ _nontsIcNonterminals pragmas_ paramMap_ contextMap_ quantMap_ _aroundMap     _mergeMap     _o_dovisit
                              {-# LINE 1077 "dist/build/Order.hs"#-}
    {-# INLINE rule99 #-}
-   {-# LINE 637 "./src-ag/Order.ag" #-}
+   {-# LINE 637 "src-ag/Order.ag" #-}
    rule99 = \ aroundsMap_ ->
-                               {-# LINE 637 "./src-ag/Order.ag" #-}
+                               {-# LINE 637 "src-ag/Order.ag" #-}
                                Map.map (Map.map Map.keysSet) aroundsMap_
                                {-# LINE 1083 "dist/build/Order.hs"#-}
    {-# INLINE rule100 #-}
-   {-# LINE 638 "./src-ag/Order.ag" #-}
+   {-# LINE 638 "src-ag/Order.ag" #-}
    rule100 = \ mergeMap_ ->
-                               {-# LINE 638 "./src-ag/Order.ag" #-}
+                               {-# LINE 638 "src-ag/Order.ag" #-}
                                Map.map (Map.map (Map.map (\(nt,srcs,_) -> (nt,srcs)))) mergeMap_
                                {-# LINE 1089 "dist/build/Order.hs"#-}
    {-# INLINE rule101 #-}
-   {-# LINE 655 "./src-ag/Order.ag" #-}
+   {-# LINE 655 "src-ag/Order.ag" #-}
    rule101 = \ ((_nontsInonts) :: [(NontermIdent,[ConstructorIdent])]) ->
-                             {-# LINE 655 "./src-ag/Order.ag" #-}
+                             {-# LINE 655 "src-ag/Order.ag" #-}
                              map fst (_nontsInonts)
                              {-# LINE 1095 "dist/build/Order.hs"#-}
    {-# INLINE rule102 #-}
@@ -1123,8 +1123,8 @@ wrap_Nonterminal :: T_Nonterminal  -> Inh_Nonterminal  -> (Syn_Nonterminal )
 wrap_Nonterminal (T_Nonterminal act) (Inh_Nonterminal _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Nonterminal_vIn13 _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount
-        (T_Nonterminal_vOut13 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminal _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount) <- return (inv_Nonterminal_s14 sem arg)
+        let arg13 = T_Nonterminal_vIn13 _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount
+        (T_Nonterminal_vOut13 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminal _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount) <- return (inv_Nonterminal_s14 sem arg13)
         return (Syn_Nonterminal _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminal _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount)
    )
 
@@ -1217,93 +1217,93 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
          in __result_ )
      in C_Nonterminal_s14 v13
    {-# INLINE rule109 #-}
-   {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 7 "src-ag/DistChildAttr.ag" #-}
    rule109 = \ inh_ nt_ ->
-                                 {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
+                                 {-# LINE 7 "src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ inh_
                                  {-# LINE 1225 "dist/build/Order.hs"#-}
    {-# INLINE rule110 #-}
-   {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
    rule110 = \ nt_ syn_ ->
-                                 {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
+                                 {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ syn_
                                  {-# LINE 1231 "dist/build/Order.hs"#-}
    {-# INLINE rule111 #-}
-   {-# LINE 97 "./src-ag/Order.ag" #-}
+   {-# LINE 97 "src-ag/Order.ag" #-}
    rule111 = \ nt_ ->
-                               {-# LINE 97 "./src-ag/Order.ag" #-}
+                               {-# LINE 97 "src-ag/Order.ag" #-}
                                nt_
                                {-# LINE 1237 "dist/build/Order.hs"#-}
    {-# INLINE rule112 #-}
-   {-# LINE 100 "./src-ag/Order.ag" #-}
+   {-# LINE 100 "src-ag/Order.ag" #-}
    rule112 = \ inh_ ->
-                               {-# LINE 100 "./src-ag/Order.ag" #-}
+                               {-# LINE 100 "src-ag/Order.ag" #-}
                                inh_
                                {-# LINE 1243 "dist/build/Order.hs"#-}
    {-# INLINE rule113 #-}
-   {-# LINE 101 "./src-ag/Order.ag" #-}
+   {-# LINE 101 "src-ag/Order.ag" #-}
    rule113 = \ syn_ ->
-                               {-# LINE 101 "./src-ag/Order.ag" #-}
+                               {-# LINE 101 "src-ag/Order.ag" #-}
                                syn_
                                {-# LINE 1249 "dist/build/Order.hs"#-}
    {-# INLINE rule114 #-}
-   {-# LINE 360 "./src-ag/Order.ag" #-}
+   {-# LINE 360 "src-ag/Order.ag" #-}
    rule114 = \ ((_lhsImergeMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))) nt_ ->
-                                                {-# LINE 360 "./src-ag/Order.ag" #-}
+                                                {-# LINE 360 "src-ag/Order.ag" #-}
                                                 Map.findWithDefault Map.empty nt_ _lhsImergeMap
                                                 {-# LINE 1255 "dist/build/Order.hs"#-}
    {-# INLINE rule115 #-}
-   {-# LINE 413 "./src-ag/Order.ag" #-}
+   {-# LINE 413 "src-ag/Order.ag" #-}
    rule115 = \ ((_lhsIaroundMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) nt_ ->
-                                                 {-# LINE 413 "./src-ag/Order.ag" #-}
+                                                 {-# LINE 413 "src-ag/Order.ag" #-}
                                                  Map.findWithDefault Map.empty nt_ _lhsIaroundMap
                                                  {-# LINE 1261 "dist/build/Order.hs"#-}
    {-# INLINE rule116 #-}
-   {-# LINE 511 "./src-ag/Order.ag" #-}
+   {-# LINE 511 "src-ag/Order.ag" #-}
    rule116 = \ inh_ nt_ syn_ ->
-                                 {-# LINE 511 "./src-ag/Order.ag" #-}
+                                 {-# LINE 511 "src-ag/Order.ag" #-}
                                  [ NTAInh nt_ inh tp | (inh,tp) <- Map.assocs inh_ ]
                                  ++ [NTASyn nt_ syn tp | (syn,tp) <- Map.assocs syn_ ]
                                  {-# LINE 1268 "dist/build/Order.hs"#-}
    {-# INLINE rule117 #-}
-   {-# LINE 513 "./src-ag/Order.ag" #-}
+   {-# LINE 513 "src-ag/Order.ag" #-}
    rule117 = \ ((_lhsIacount) :: Int) _ntattrs ->
-                                {-# LINE 513 "./src-ag/Order.ag" #-}
+                                {-# LINE 513 "src-ag/Order.ag" #-}
                                 Seq.fromList (zip [_lhsIacount ..] _ntattrs)
                                 {-# LINE 1274 "dist/build/Order.hs"#-}
    {-# INLINE rule118 #-}
-   {-# LINE 514 "./src-ag/Order.ag" #-}
+   {-# LINE 514 "src-ag/Order.ag" #-}
    rule118 = \ ((_lhsIacount) :: Int) inh_ syn_ ->
-                                {-# LINE 514 "./src-ag/Order.ag" #-}
+                                {-# LINE 514 "src-ag/Order.ag" #-}
                                 _lhsIacount + Map.size inh_ + Map.size syn_
                                 {-# LINE 1280 "dist/build/Order.hs"#-}
    {-# INLINE rule119 #-}
-   {-# LINE 515 "./src-ag/Order.ag" #-}
+   {-# LINE 515 "src-ag/Order.ag" #-}
    rule119 = \ ((_lhsIacount) :: Int) inh_ syn_ ->
-                                 {-# LINE 515 "./src-ag/Order.ag" #-}
+                                 {-# LINE 515 "src-ag/Order.ag" #-}
                                  Seq.singleton
                                   (_lhsIacount
                                   ,_lhsIacount + Map.size inh_
                                   ,_lhsIacount + Map.size syn_ + Map.size inh_ - 1)
                                  {-# LINE 1289 "dist/build/Order.hs"#-}
    {-# INLINE rule120 #-}
-   {-# LINE 524 "./src-ag/Order.ag" #-}
+   {-# LINE 524 "src-ag/Order.ag" #-}
    rule120 = \ ((_prodsIcons) :: [ConstructorIdent]) nt_ ->
-                                {-# LINE 524 "./src-ag/Order.ag" #-}
+                                {-# LINE 524 "src-ag/Order.ag" #-}
                                 [(nt_,_prodsIcons)]
                                 {-# LINE 1295 "dist/build/Order.hs"#-}
    {-# INLINE rule121 #-}
-   {-# LINE 601 "./src-ag/Order.ag" #-}
+   {-# LINE 601 "src-ag/Order.ag" #-}
    rule121 = \ ((_lhsIcInterfaceMap) :: CInterfaceMap) ((_lhsIo_dovisit) :: Bool) inh_ nt_ syn_ ->
-                                 {-# LINE 601 "./src-ag/Order.ag" #-}
+                                 {-# LINE 601 "src-ag/Order.ag" #-}
                                  if  _lhsIo_dovisit
                                         then findWithErr1 "Nonterminal.cInter" nt_ _lhsIcInterfaceMap
                                         else CInterface [CSegment inh_ syn_]
                                  {-# LINE 1303 "dist/build/Order.hs"#-}
    {-# INLINE rule122 #-}
-   {-# LINE 629 "./src-ag/Order.ag" #-}
+   {-# LINE 629 "src-ag/Order.ag" #-}
    rule122 = \ _cInter ((_prodsIcProductions) :: CProductions) inh_ nt_ params_ syn_ ->
-                                       {-# LINE 629 "./src-ag/Order.ag" #-}
+                                       {-# LINE 629 "src-ag/Order.ag" #-}
                                        CNonterminal nt_ params_ inh_ syn_ _prodsIcProductions _cInter
                                        {-# LINE 1309 "dist/build/Order.hs"#-}
    {-# INLINE rule123 #-}
@@ -1403,8 +1403,8 @@ wrap_Nonterminals :: T_Nonterminals  -> Inh_Nonterminals  -> (Syn_Nonterminals )
 wrap_Nonterminals (T_Nonterminals act) (Inh_Nonterminals _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Nonterminals_vIn16 _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount
-        (T_Nonterminals_vOut16 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount) <- return (inv_Nonterminals_s17 sem arg)
+        let arg16 = T_Nonterminals_vIn16 _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount
+        (T_Nonterminals_vOut16 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount) <- return (inv_Nonterminals_s17 sem arg16)
         return (Syn_Nonterminals _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount)
    )
 
@@ -1517,9 +1517,9 @@ sem_Nonterminals_Cons arg_hd_ arg_tl_ = T_Nonterminals (return st17) where
          in __result_ )
      in C_Nonterminals_s17 v16
    {-# INLINE rule152 #-}
-   {-# LINE 626 "./src-ag/Order.ag" #-}
+   {-# LINE 626 "src-ag/Order.ag" #-}
    rule152 = \ ((_hdIcNonterminal) :: CNonterminal) ((_tlIcNonterminals) :: CNonterminals) ->
-                                 {-# LINE 626 "./src-ag/Order.ag" #-}
+                                 {-# LINE 626 "src-ag/Order.ag" #-}
                                  _hdIcNonterminal : _tlIcNonterminals
                                  {-# LINE 1525 "dist/build/Order.hs"#-}
    {-# INLINE rule153 #-}
@@ -1747,9 +1747,9 @@ sem_Nonterminals_Nil  = T_Nonterminals (return st17) where
          in __result_ )
      in C_Nonterminals_s17 v16
    {-# INLINE rule213 #-}
-   {-# LINE 627 "./src-ag/Order.ag" #-}
+   {-# LINE 627 "src-ag/Order.ag" #-}
    rule213 = \  (_ :: ()) ->
-                                 {-# LINE 627 "./src-ag/Order.ag" #-}
+                                 {-# LINE 627 "src-ag/Order.ag" #-}
                                  []
                                  {-# LINE 1755 "dist/build/Order.hs"#-}
    {-# INLINE rule214 #-}
@@ -1810,8 +1810,8 @@ wrap_Pattern :: T_Pattern  -> Inh_Pattern  -> (Syn_Pattern )
 wrap_Pattern (T_Pattern act) (Inh_Pattern _lhsIallTypeSigs _lhsIaltAttrs _lhsIcon _lhsIinh _lhsInt _lhsIsyn) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Pattern_vIn19 _lhsIallTypeSigs _lhsIaltAttrs _lhsIcon _lhsIinh _lhsInt _lhsIsyn
-        (T_Pattern_vOut19 _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs) <- return (inv_Pattern_s20 sem arg)
+        let arg19 = T_Pattern_vIn19 _lhsIallTypeSigs _lhsIaltAttrs _lhsIcon _lhsIinh _lhsInt _lhsIsyn
+        (T_Pattern_vOut19 _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs) <- return (inv_Pattern_s20 sem arg19)
         return (Syn_Pattern _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs)
    )
 
@@ -2007,29 +2007,29 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st20) where
          in __result_ )
      in C_Pattern_s20 v19
    {-# INLINE rule256 #-}
-   {-# LINE 187 "./src-ag/Order.ag" #-}
+   {-# LINE 187 "src-ag/Order.ag" #-}
    rule256 = \ attr_ field_ ->
-                                {-# LINE 187 "./src-ag/Order.ag" #-}
+                                {-# LINE 187 "src-ag/Order.ag" #-}
                                 [AltAttr field_ attr_ (field_ == _LOC || field_ == _INST)]
                                 {-# LINE 2015 "dist/build/Order.hs"#-}
    {-# INLINE rule257 #-}
-   {-# LINE 253 "./src-ag/Order.ag" #-}
+   {-# LINE 253 "src-ag/Order.ag" #-}
    rule257 = \ attr_ field_ ->
-                                {-# LINE 253 "./src-ag/Order.ag" #-}
+                                {-# LINE 253 "src-ag/Order.ag" #-}
                                 [(field_,attr_,(field_ == _LOC || field_ == _INST))]
                                 {-# LINE 2021 "dist/build/Order.hs"#-}
    {-# INLINE rule258 #-}
-   {-# LINE 685 "./src-ag/Order.ag" #-}
+   {-# LINE 685 "src-ag/Order.ag" #-}
    rule258 = \ attr_ field_ ->
-                               {-# LINE 685 "./src-ag/Order.ag" #-}
+                               {-# LINE 685 "src-ag/Order.ag" #-}
                                if field_ == _LOC
                                   then [attr_]
                                   else []
                                {-# LINE 2029 "dist/build/Order.hs"#-}
    {-# INLINE rule259 #-}
-   {-# LINE 688 "./src-ag/Order.ag" #-}
+   {-# LINE 688 "src-ag/Order.ag" #-}
    rule259 = \ attr_ field_ ->
-                               {-# LINE 688 "./src-ag/Order.ag" #-}
+                               {-# LINE 688 "src-ag/Order.ag" #-}
                                if field_ == _INST
                                   then [attr_]
                                   else []
@@ -2185,8 +2185,8 @@ wrap_Patterns :: T_Patterns  -> Inh_Patterns  -> (Syn_Patterns )
 wrap_Patterns (T_Patterns act) (Inh_Patterns _lhsIallTypeSigs _lhsIaltAttrs _lhsIcon _lhsIinh _lhsInt _lhsIsyn) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Patterns_vIn22 _lhsIallTypeSigs _lhsIaltAttrs _lhsIcon _lhsIinh _lhsInt _lhsIsyn
-        (T_Patterns_vOut22 _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs) <- return (inv_Patterns_s23 sem arg)
+        let arg22 = T_Patterns_vIn22 _lhsIallTypeSigs _lhsIaltAttrs _lhsIcon _lhsIinh _lhsInt _lhsIsyn
+        (T_Patterns_vOut22 _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs) <- return (inv_Patterns_s23 sem arg22)
         return (Syn_Patterns _lhsOcopy _lhsOerrors _lhsOgathAltAttrs _lhsOinstVars _lhsOlocVars _lhsOpatternAttrs)
    )
 
@@ -2356,8 +2356,8 @@ wrap_Production :: T_Production  -> Inh_Production  -> (Syn_Production )
 wrap_Production (T_Production act) (Inh_Production _lhsIallnts _lhsIaroundMap _lhsIcVisitsMap _lhsIinh _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynMap _lhsIvcount) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Production_vIn25 _lhsIallnts _lhsIaroundMap _lhsIcVisitsMap _lhsIinh _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynMap _lhsIvcount
-        (T_Production_vOut25 _lhsOadditionalDep _lhsOaroundDep _lhsOcProduction _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount) <- return (inv_Production_s26 sem arg)
+        let arg25 = T_Production_vIn25 _lhsIallnts _lhsIaroundMap _lhsIcVisitsMap _lhsIinh _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynMap _lhsIvcount
+        (T_Production_vOut25 _lhsOadditionalDep _lhsOaroundDep _lhsOcProduction _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount) <- return (inv_Production_s26 sem arg25)
         return (Syn_Production _lhsOadditionalDep _lhsOaroundDep _lhsOcProduction _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount)
    )
 
@@ -2470,77 +2470,77 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
          in __result_ )
      in C_Production_s26 v25
    {-# INLINE rule315 #-}
-   {-# LINE 93 "./src-ag/Order.ag" #-}
+   {-# LINE 93 "src-ag/Order.ag" #-}
    rule315 = \ con_ ->
-                                  {-# LINE 93 "./src-ag/Order.ag" #-}
+                                  {-# LINE 93 "src-ag/Order.ag" #-}
                                   con_
                                   {-# LINE 2478 "dist/build/Order.hs"#-}
    {-# INLINE rule316 #-}
-   {-# LINE 95 "./src-ag/Order.ag" #-}
+   {-# LINE 95 "src-ag/Order.ag" #-}
    rule316 = \ con_ ->
-                               {-# LINE 95 "./src-ag/Order.ag" #-}
+                               {-# LINE 95 "src-ag/Order.ag" #-}
                                con_
                                {-# LINE 2484 "dist/build/Order.hs"#-}
    {-# INLINE rule317 #-}
-   {-# LINE 175 "./src-ag/Order.ag" #-}
+   {-# LINE 175 "src-ag/Order.ag" #-}
    rule317 = \ ((_childrenIgathAltAttrs) :: [AltAttr]) ((_lhsIinh) :: Attributes) ((_rulesIgathAltAttrs) :: [AltAttr]) ->
-                                       {-# LINE 175 "./src-ag/Order.ag" #-}
+                                       {-# LINE 175 "src-ag/Order.ag" #-}
                                        [ AltAttr _LHS inh True | inh <- Map.keys _lhsIinh ]
                                         ++ _childrenIgathAltAttrs
                                         ++ _rulesIgathAltAttrs
                                        {-# LINE 2492 "dist/build/Order.hs"#-}
    {-# INLINE rule318 #-}
-   {-# LINE 191 "./src-ag/Order.ag" #-}
+   {-# LINE 191 "src-ag/Order.ag" #-}
    rule318 = \ _gathAltAttrs ((_lhsIvcount) :: Int) ->
-                                 {-# LINE 191 "./src-ag/Order.ag" #-}
+                                 {-# LINE 191 "src-ag/Order.ag" #-}
                                  Map.fromList (zip _gathAltAttrs [_lhsIvcount..])
                                  {-# LINE 2498 "dist/build/Order.hs"#-}
    {-# INLINE rule319 #-}
-   {-# LINE 204 "./src-ag/Order.ag" #-}
+   {-# LINE 204 "src-ag/Order.ag" #-}
    rule319 = \ ((_childrenInts) :: Seq (Identifier,NontermIdent)) ->
-                                    {-# LINE 204 "./src-ag/Order.ag" #-}
+                                    {-# LINE 204 "src-ag/Order.ag" #-}
                                     Map.fromList (toList _childrenInts)
                                     {-# LINE 2504 "dist/build/Order.hs"#-}
    {-# INLINE rule320 #-}
-   {-# LINE 205 "./src-ag/Order.ag" #-}
+   {-# LINE 205 "src-ag/Order.ag" #-}
    rule320 = \ ((_childrenIinhs) :: Seq (Identifier,Attributes)) ->
-                                      {-# LINE 205 "./src-ag/Order.ag" #-}
+                                      {-# LINE 205 "src-ag/Order.ag" #-}
                                       Map.fromList (toList _childrenIinhs)
                                       {-# LINE 2510 "dist/build/Order.hs"#-}
    {-# INLINE rule321 #-}
-   {-# LINE 211 "./src-ag/Order.ag" #-}
+   {-# LINE 211 "src-ag/Order.ag" #-}
    rule321 = \ ((_lhsIinh) :: Attributes) ((_lhsInt) :: Identifier) con_ ->
-                                  {-# LINE 211 "./src-ag/Order.ag" #-}
+                                  {-# LINE 211 "src-ag/Order.ag" #-}
                                   [ cRuleLhsInh inh _lhsInt con_ tp | (inh,tp) <- Map.assocs _lhsIinh ]
                                   {-# LINE 2516 "dist/build/Order.hs"#-}
    {-# INLINE rule322 #-}
-   {-# LINE 212 "./src-ag/Order.ag" #-}
+   {-# LINE 212 "src-ag/Order.ag" #-}
    rule322 = \ ((_childrenIgathRules) :: Seq CRule) _inhRules ((_rulesIgathRules) :: Seq CRule) ->
-                                    {-# LINE 212 "./src-ag/Order.ag" #-}
+                                    {-# LINE 212 "src-ag/Order.ag" #-}
                                     _inhRules ++ toList (_childrenIgathRules Seq.>< _rulesIgathRules)
                                     {-# LINE 2522 "dist/build/Order.hs"#-}
    {-# INLINE rule323 #-}
-   {-# LINE 264 "./src-ag/Order.ag" #-}
+   {-# LINE 264 "src-ag/Order.ag" #-}
    rule323 = \ _gathRules ((_lhsIvcount) :: Int) ->
-                               {-# LINE 264 "./src-ag/Order.ag" #-}
+                               {-# LINE 264 "src-ag/Order.ag" #-}
                                Seq.fromList (zip [_lhsIvcount..] _gathRules)
                                {-# LINE 2528 "dist/build/Order.hs"#-}
    {-# INLINE rule324 #-}
-   {-# LINE 265 "./src-ag/Order.ag" #-}
+   {-# LINE 265 "src-ag/Order.ag" #-}
    rule324 = \ _gathRules ((_lhsIvcount) :: Int) ->
-                                 {-# LINE 265 "./src-ag/Order.ag" #-}
+                                 {-# LINE 265 "src-ag/Order.ag" #-}
                                  _lhsIvcount + length _gathRules
                                  {-# LINE 2534 "dist/build/Order.hs"#-}
    {-# INLINE rule325 #-}
-   {-# LINE 293 "./src-ag/Order.ag" #-}
+   {-# LINE 293 "src-ag/Order.ag" #-}
    rule325 = \ ((_lhsImanualAttrDepMap) :: AttrOrderMap) ((_lhsInt) :: Identifier) con_ ->
-            {-# LINE 293 "./src-ag/Order.ag" #-}
+            {-# LINE 293 "src-ag/Order.ag" #-}
             Set.toList $ Map.findWithDefault Set.empty con_ $ Map.findWithDefault Map.empty _lhsInt _lhsImanualAttrDepMap
             {-# LINE 2540 "dist/build/Order.hs"#-}
    {-# INLINE rule326 #-}
-   {-# LINE 296 "./src-ag/Order.ag" #-}
+   {-# LINE 296 "src-ag/Order.ag" #-}
    rule326 = \ _altAttrs _manualDeps ->
-            {-# LINE 296 "./src-ag/Order.ag" #-}
+            {-# LINE 296 "src-ag/Order.ag" #-}
             Seq.fromList [ (vertex True occA, vertex False occB)
                          | Dependency occA occB <- _manualDeps
                          , let vertex inout (OccAttr child nm)
@@ -2551,33 +2551,33 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
                          ]
             {-# LINE 2553 "dist/build/Order.hs"#-}
    {-# INLINE rule327 #-}
-   {-# LINE 342 "./src-ag/Order.ag" #-}
+   {-# LINE 342 "src-ag/Order.ag" #-}
    rule327 = \ ((_childrenIcollectChildrenSyns) :: Map Identifier Attributes ) ->
-                                         {-# LINE 342 "./src-ag/Order.ag" #-}
+                                         {-# LINE 342 "src-ag/Order.ag" #-}
                                          _childrenIcollectChildrenSyns
                                          {-# LINE 2559 "dist/build/Order.hs"#-}
    {-# INLINE rule328 #-}
-   {-# LINE 343 "./src-ag/Order.ag" #-}
+   {-# LINE 343 "src-ag/Order.ag" #-}
    rule328 = \ ((_childrenIcollectChildrenInhs) :: Map Identifier Attributes ) ->
-                                         {-# LINE 343 "./src-ag/Order.ag" #-}
+                                         {-# LINE 343 "src-ag/Order.ag" #-}
                                          _childrenIcollectChildrenInhs
                                          {-# LINE 2565 "dist/build/Order.hs"#-}
    {-# INLINE rule329 #-}
-   {-# LINE 361 "./src-ag/Order.ag" #-}
+   {-# LINE 361 "src-ag/Order.ag" #-}
    rule329 = \ ((_lhsImergeMap) :: Map ConstructorIdent (Map Identifier (Identifier,[Identifier]))) con_ ->
-                                                {-# LINE 361 "./src-ag/Order.ag" #-}
+                                                {-# LINE 361 "src-ag/Order.ag" #-}
                                                 Map.findWithDefault Map.empty con_ _lhsImergeMap
                                                 {-# LINE 2571 "dist/build/Order.hs"#-}
    {-# INLINE rule330 #-}
-   {-# LINE 372 "./src-ag/Order.ag" #-}
+   {-# LINE 372 "src-ag/Order.ag" #-}
    rule330 = \ _mergeDep1 _mergeDep2 ->
-                       {-# LINE 372 "./src-ag/Order.ag" #-}
+                       {-# LINE 372 "src-ag/Order.ag" #-}
                        _mergeDep1     Seq.>< _mergeDep2
                        {-# LINE 2577 "dist/build/Order.hs"#-}
    {-# INLINE rule331 #-}
-   {-# LINE 374 "./src-ag/Order.ag" #-}
+   {-# LINE 374 "src-ag/Order.ag" #-}
    rule331 = \ _altAttrs ((_childrenIcollectChildrenSyns) :: Map Identifier Attributes ) _mergeMap ->
-            {-# LINE 374 "./src-ag/Order.ag" #-}
+            {-# LINE 374 "src-ag/Order.ag" #-}
             Seq.fromList $
                [ (childVert, synVert)
                | childNm <- Map.keys _mergeMap
@@ -2590,9 +2590,9 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
                ]
             {-# LINE 2592 "dist/build/Order.hs"#-}
    {-# INLINE rule332 #-}
-   {-# LINE 385 "./src-ag/Order.ag" #-}
+   {-# LINE 385 "src-ag/Order.ag" #-}
    rule332 = \ _altAttrs ((_childrenIcollectChildrenSyns) :: Map Identifier Attributes ) _mergeMap ->
-            {-# LINE 385 "./src-ag/Order.ag" #-}
+            {-# LINE 385 "src-ag/Order.ag" #-}
             Seq.fromList $
                [ (mergedVert, sourceVert)
                | (childNm, (_,cs)) <- Map.assocs _mergeMap
@@ -2605,15 +2605,15 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
                ]
             {-# LINE 2607 "dist/build/Order.hs"#-}
    {-# INLINE rule333 #-}
-   {-# LINE 414 "./src-ag/Order.ag" #-}
+   {-# LINE 414 "src-ag/Order.ag" #-}
    rule333 = \ ((_lhsIaroundMap) :: Map ConstructorIdent (Map Identifier [Expression])) con_ ->
-                                                 {-# LINE 414 "./src-ag/Order.ag" #-}
+                                                 {-# LINE 414 "src-ag/Order.ag" #-}
                                                  Map.findWithDefault Map.empty con_ _lhsIaroundMap
                                                  {-# LINE 2613 "dist/build/Order.hs"#-}
    {-# INLINE rule334 #-}
-   {-# LINE 422 "./src-ag/Order.ag" #-}
+   {-# LINE 422 "src-ag/Order.ag" #-}
    rule334 = \ _altAttrs _aroundMap ((_childrenIcollectChildrenSyns) :: Map Identifier Attributes ) ->
-           {-# LINE 422 "./src-ag/Order.ag" #-}
+           {-# LINE 422 "src-ag/Order.ag" #-}
            Seq.fromList $
              [ (childVert, synVert)
              | childNm <- Map.keys _aroundMap
@@ -2626,9 +2626,9 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
              ]
            {-# LINE 2628 "dist/build/Order.hs"#-}
    {-# INLINE rule335 #-}
-   {-# LINE 433 "./src-ag/Order.ag" #-}
+   {-# LINE 433 "src-ag/Order.ag" #-}
    rule335 = \ _altAttrs _aroundMap ((_childrenIcollectChildrenInhs) :: Map Identifier Attributes ) ->
-            {-# LINE 433 "./src-ag/Order.ag" #-}
+            {-# LINE 433 "src-ag/Order.ag" #-}
             Seq.fromList $
               [ (childVert, inhVert)
               | childNm <- Map.keys _aroundMap
@@ -2641,33 +2641,33 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
               ]
             {-# LINE 2643 "dist/build/Order.hs"#-}
    {-# INLINE rule336 #-}
-   {-# LINE 443 "./src-ag/Order.ag" #-}
+   {-# LINE 443 "src-ag/Order.ag" #-}
    rule336 = \ _aroundDep1 _aroundDep2 ->
-                       {-# LINE 443 "./src-ag/Order.ag" #-}
+                       {-# LINE 443 "src-ag/Order.ag" #-}
                        _aroundDep1     Seq.>< _aroundDep2
                        {-# LINE 2649 "dist/build/Order.hs"#-}
    {-# INLINE rule337 #-}
-   {-# LINE 527 "./src-ag/Order.ag" #-}
+   {-# LINE 527 "src-ag/Order.ag" #-}
    rule337 = \ con_ ->
-                              {-# LINE 527 "./src-ag/Order.ag" #-}
+                              {-# LINE 527 "src-ag/Order.ag" #-}
                               [con_]
                               {-# LINE 2655 "dist/build/Order.hs"#-}
    {-# INLINE rule338 #-}
-   {-# LINE 534 "./src-ag/Order.ag" #-}
+   {-# LINE 534 "src-ag/Order.ag" #-}
    rule338 = \  (_ :: ()) ->
-                                     {-# LINE 534 "./src-ag/Order.ag" #-}
+                                     {-# LINE 534 "src-ag/Order.ag" #-}
                                      Map.empty
                                      {-# LINE 2661 "dist/build/Order.hs"#-}
    {-# INLINE rule339 #-}
-   {-# LINE 540 "./src-ag/Order.ag" #-}
+   {-# LINE 540 "src-ag/Order.ag" #-}
    rule339 = \ ((_typeSigsItypeSigs) :: Map Identifier Type) ->
-                                      {-# LINE 540 "./src-ag/Order.ag" #-}
+                                      {-# LINE 540 "src-ag/Order.ag" #-}
                                       _typeSigsItypeSigs
                                       {-# LINE 2667 "dist/build/Order.hs"#-}
    {-# INLINE rule340 #-}
-   {-# LINE 608 "./src-ag/Order.ag" #-}
+   {-# LINE 608 "src-ag/Order.ag" #-}
    rule340 = \ ((_childrenIsinglevisits) :: [CRule]) _gathRules ((_lhsIcVisitsMap) :: CVisitsMap) ((_lhsIinh) :: Attributes) ((_lhsInt) :: Identifier) ((_lhsIo_dovisit) :: Bool) ((_lhsIsyn) :: Attributes) con_ ->
-                                {-# LINE 608 "./src-ag/Order.ag" #-}
+                                {-# LINE 608 "src-ag/Order.ag" #-}
                                 if  _lhsIo_dovisit
                                      then let prodsVisitsMap = findWithErr1 "Production.cVisits.nt" _lhsInt _lhsIcVisitsMap
                                               visits = findWithErr1 "Production.cVisits.con" con_ prodsVisitsMap
@@ -2676,36 +2676,36 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
                                            in  [CVisit _lhsIinh _lhsIsyn vss [] False]
                                 {-# LINE 2678 "dist/build/Order.hs"#-}
    {-# INLINE rule341 #-}
-   {-# LINE 634 "./src-ag/Order.ag" #-}
+   {-# LINE 634 "src-ag/Order.ag" #-}
    rule341 = \ _cVisits ((_childrenIfields) :: [(Identifier,Type,ChildKind)]) ((_childrenIterminals) :: [Identifier]) con_ ->
-                                     {-# LINE 634 "./src-ag/Order.ag" #-}
+                                     {-# LINE 634 "src-ag/Order.ag" #-}
                                      CProduction con_ _cVisits _childrenIfields _childrenIterminals
                                      {-# LINE 2684 "dist/build/Order.hs"#-}
    {-# INLINE rule342 #-}
-   {-# LINE 662 "./src-ag/Order.ag" #-}
+   {-# LINE 662 "src-ag/Order.ag" #-}
    rule342 = \ ((_childrenIfields) :: [(Identifier,Type,ChildKind)]) ->
-                                  {-# LINE 662 "./src-ag/Order.ag" #-}
+                                  {-# LINE 662 "src-ag/Order.ag" #-}
                                   _childrenIfields
                                   {-# LINE 2690 "dist/build/Order.hs"#-}
    {-# INLINE rule343 #-}
-   {-# LINE 663 "./src-ag/Order.ag" #-}
+   {-# LINE 663 "src-ag/Order.ag" #-}
    rule343 = \ ((_childrenIattributes) :: [(Identifier,Attributes,Attributes)]) _inhnames ((_rulesIinstVars) :: [Identifier]) ((_rulesIlocVars) :: [Identifier]) ->
-                                   {-# LINE 663 "./src-ag/Order.ag" #-}
+                                   {-# LINE 663 "src-ag/Order.ag" #-}
                                    map ((,) _LOC)  _rulesIlocVars ++
                                    map ((,) _INST) _rulesIinstVars ++
                                    map ((,) _LHS)  _inhnames ++
                                    concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- _childrenIattributes]
                                    {-# LINE 2699 "dist/build/Order.hs"#-}
    {-# INLINE rule344 #-}
-   {-# LINE 667 "./src-ag/Order.ag" #-}
+   {-# LINE 667 "src-ag/Order.ag" #-}
    rule344 = \ ((_lhsIinh) :: Attributes) ->
-                                   {-# LINE 667 "./src-ag/Order.ag" #-}
+                                   {-# LINE 667 "src-ag/Order.ag" #-}
                                    Map.keys _lhsIinh
                                    {-# LINE 2705 "dist/build/Order.hs"#-}
    {-# INLINE rule345 #-}
-   {-# LINE 668 "./src-ag/Order.ag" #-}
+   {-# LINE 668 "src-ag/Order.ag" #-}
    rule345 = \ ((_lhsIsyn) :: Attributes) ->
-                                   {-# LINE 668 "./src-ag/Order.ag" #-}
+                                   {-# LINE 668 "src-ag/Order.ag" #-}
                                    Map.keys _lhsIsyn
                                    {-# LINE 2711 "dist/build/Order.hs"#-}
    {-# INLINE rule346 #-}
@@ -2817,8 +2817,8 @@ wrap_Productions :: T_Productions  -> Inh_Productions  -> (Syn_Productions )
 wrap_Productions (T_Productions act) (Inh_Productions _lhsIallnts _lhsIaroundMap _lhsIcVisitsMap _lhsIinh _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynMap _lhsIvcount) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Productions_vIn28 _lhsIallnts _lhsIaroundMap _lhsIcVisitsMap _lhsIinh _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynMap _lhsIvcount
-        (T_Productions_vOut28 _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount) <- return (inv_Productions_s29 sem arg)
+        let arg28 = T_Productions_vIn28 _lhsIallnts _lhsIaroundMap _lhsIcVisitsMap _lhsIinh _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynMap _lhsIvcount
+        (T_Productions_vOut28 _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount) <- return (inv_Productions_s29 sem arg28)
         return (Syn_Productions _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount)
    )
 
@@ -2921,9 +2921,9 @@ sem_Productions_Cons arg_hd_ arg_tl_ = T_Productions (return st29) where
          in __result_ )
      in C_Productions_s29 v28
    {-# INLINE rule379 #-}
-   {-# LINE 631 "./src-ag/Order.ag" #-}
+   {-# LINE 631 "src-ag/Order.ag" #-}
    rule379 = \ ((_hdIcProduction) :: CProduction) ((_tlIcProductions) :: CProductions) ->
-                                {-# LINE 631 "./src-ag/Order.ag" #-}
+                                {-# LINE 631 "src-ag/Order.ag" #-}
                                 _hdIcProduction : _tlIcProductions
                                 {-# LINE 2929 "dist/build/Order.hs"#-}
    {-# INLINE rule380 #-}
@@ -3126,9 +3126,9 @@ sem_Productions_Nil  = T_Productions (return st29) where
          in __result_ )
      in C_Productions_s29 v28
    {-# INLINE rule435 #-}
-   {-# LINE 632 "./src-ag/Order.ag" #-}
+   {-# LINE 632 "src-ag/Order.ag" #-}
    rule435 = \  (_ :: ()) ->
-                                {-# LINE 632 "./src-ag/Order.ag" #-}
+                                {-# LINE 632 "src-ag/Order.ag" #-}
                                 []
                                 {-# LINE 3134 "dist/build/Order.hs"#-}
    {-# INLINE rule436 #-}
@@ -3174,8 +3174,8 @@ wrap_Rule :: T_Rule  -> Inh_Rule  -> (Syn_Rule )
 wrap_Rule (T_Rule act) (Inh_Rule _lhsIallTypeSigs _lhsIallfields _lhsIallnts _lhsIaltAttrs _lhsIattrs _lhsIchildInhs _lhsIchildNts _lhsIcon _lhsIinh _lhsIinhsOfChildren _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynsOfChildren) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Rule_vIn31 _lhsIallTypeSigs _lhsIallfields _lhsIallnts _lhsIaltAttrs _lhsIattrs _lhsIchildInhs _lhsIchildNts _lhsIcon _lhsIinh _lhsIinhsOfChildren _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynsOfChildren
-        (T_Rule_vOut31 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules) <- return (inv_Rule_s32 sem arg)
+        let arg31 = T_Rule_vIn31 _lhsIallTypeSigs _lhsIallfields _lhsIallnts _lhsIaltAttrs _lhsIattrs _lhsIchildInhs _lhsIchildNts _lhsIcon _lhsIinh _lhsIinhsOfChildren _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynsOfChildren
+        (T_Rule_vOut31 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules) <- return (inv_Rule_s32 sem arg31)
         return (Syn_Rule _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules)
    )
 
@@ -3245,25 +3245,25 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
          in __result_ )
      in C_Rule_s32 v31
    {-# INLINE rule447 #-}
-   {-# LINE 64 "./src-ag/Order.ag" #-}
+   {-# LINE 64 "src-ag/Order.ag" #-}
    rule447 = \ explicit_ ->
-                                 {-# LINE 64 "./src-ag/Order.ag" #-}
+                                 {-# LINE 64 "src-ag/Order.ag" #-}
                                  if explicit_
                                  then 1
                                  else 0
                                  {-# LINE 3255 "dist/build/Order.hs"#-}
    {-# INLINE rule448 #-}
-   {-# LINE 67 "./src-ag/Order.ag" #-}
+   {-# LINE 67 "src-ag/Order.ag" #-}
    rule448 = \ origin_ ->
-                             {-# LINE 67 "./src-ag/Order.ag" #-}
+                             {-# LINE 67 "src-ag/Order.ag" #-}
                              if startsWith "use rule" origin_ || startsWith "copy rule" origin_
                              then 1
                              else 0
                              {-# LINE 3263 "dist/build/Order.hs"#-}
    {-# INLINE rule449 #-}
-   {-# LINE 220 "./src-ag/Order.ag" #-}
+   {-# LINE 220 "src-ag/Order.ag" #-}
    rule449 = \ ((_lhsIallTypeSigs) :: Map Identifier Type) ((_lhsIaltAttrs) :: Map AltAttr Vertex) ((_lhsIchildInhs) :: Map Identifier Attributes) ((_lhsIsyn) :: Attributes) ((_patternIpatternAttrs) :: [(Identifier,Identifier,Bool)]) ->
-                           {-# LINE 220 "./src-ag/Order.ag" #-}
+                           {-# LINE 220 "src-ag/Order.ag" #-}
                            let  tp field attr      | field == _LOC || field == _INST
                                                                     = Map.lookup attr _lhsIallTypeSigs
                                                     | field == _LHS = Map.lookup attr _lhsIsyn
@@ -3278,27 +3278,27 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
                                             ]
                            {-# LINE 3280 "dist/build/Order.hs"#-}
    {-# INLINE rule450 #-}
-   {-# LINE 234 "./src-ag/Order.ag" #-}
+   {-# LINE 234 "src-ag/Order.ag" #-}
    rule450 = \ _defines ((_lhsIchildNts) :: Map Identifier NontermIdent) ((_lhsIcon) :: Identifier) ((_lhsInt) :: Identifier) ((_patternIcopy) :: Pattern) ((_rhsIallRhsVars) :: Set (Identifier,Identifier)) ((_rhsItextLines) :: [String]) explicit_ mbName_ origin_ owrt_ ->
-                              {-# LINE 234 "./src-ag/Order.ag" #-}
+                              {-# LINE 234 "src-ag/Order.ag" #-}
                               let childnt field = Map.lookup field _lhsIchildNts
                               in Seq.fromList [ CRule attr False True _lhsInt _lhsIcon field (childnt field) tp _patternIcopy _rhsItextLines _defines owrt_ origin_ _rhsIallRhsVars explicit_ mbName_
                                               | (field,attr,tp) <- Map.elems _defines
                                               ]
                               {-# LINE 3289 "dist/build/Order.hs"#-}
    {-# INLINE rule451 #-}
-   {-# LINE 273 "./src-ag/Order.ag" #-}
+   {-# LINE 273 "src-ag/Order.ag" #-}
    rule451 = \ _defines ((_lhsIaltAttrs) :: Map AltAttr Vertex) ((_rhsIusedAttrs) :: [(Identifier,Identifier)]) ((_rhsIusedFields) :: [Identifier]) ((_rhsIusedLocals) :: [Identifier]) ->
-                 {-# LINE 273 "./src-ag/Order.ag" #-}
+                 {-# LINE 273 "src-ag/Order.ag" #-}
                  let  defined = Map.keys _defines
                       used =  [ Map.lookup (AltAttr field attr True) _lhsIaltAttrs | (field,attr) <- _rhsIusedAttrs]
                               ++ [ Map.lookup (AltAttr _LOC attr True) _lhsIaltAttrs | attr <- _rhsIusedLocals ++ _rhsIusedFields ]
                  in Seq.fromList [ (x,y) | Just x <- used, y <- defined ]
                  {-# LINE 3298 "dist/build/Order.hs"#-}
    {-# INLINE rule452 #-}
-   {-# LINE 317 "./src-ag/Order.ag" #-}
+   {-# LINE 317 "src-ag/Order.ag" #-}
    rule452 = \ _defines ((_lhsIaltAttrs) :: Map AltAttr Vertex) ((_lhsIsynsOfChildren) :: Map Identifier Attributes) ->
-            {-# LINE 317 "./src-ag/Order.ag" #-}
+            {-# LINE 317 "src-ag/Order.ag" #-}
             Seq.fromList $
               [ (instVert, synVert)
               | (field,instNm,_) <- Map.elems _defines
@@ -3311,9 +3311,9 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
               ]
             {-# LINE 3313 "dist/build/Order.hs"#-}
    {-# INLINE rule453 #-}
-   {-# LINE 328 "./src-ag/Order.ag" #-}
+   {-# LINE 328 "src-ag/Order.ag" #-}
    rule453 = \ _defines ((_lhsIaltAttrs) :: Map AltAttr Vertex) ((_lhsIinhsOfChildren) :: Map Identifier Attributes) ->
-            {-# LINE 328 "./src-ag/Order.ag" #-}
+            {-# LINE 328 "src-ag/Order.ag" #-}
             Seq.fromList $
               [ (instVert, inhVert)
               | (field,instNm,_) <- Map.elems _defines
@@ -3326,9 +3326,9 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
               ]
             {-# LINE 3328 "dist/build/Order.hs"#-}
    {-# INLINE rule454 #-}
-   {-# LINE 338 "./src-ag/Order.ag" #-}
+   {-# LINE 338 "src-ag/Order.ag" #-}
    rule454 = \ _instDep1 _instDep2 ->
-                     {-# LINE 338 "./src-ag/Order.ag" #-}
+                     {-# LINE 338 "src-ag/Order.ag" #-}
                      _instDep1     Seq.>< _instDep2
                      {-# LINE 3334 "dist/build/Order.hs"#-}
    {-# INLINE rule455 #-}
@@ -3395,8 +3395,8 @@ wrap_Rules :: T_Rules  -> Inh_Rules  -> (Syn_Rules )
 wrap_Rules (T_Rules act) (Inh_Rules _lhsIallTypeSigs _lhsIallfields _lhsIallnts _lhsIaltAttrs _lhsIattrs _lhsIchildInhs _lhsIchildNts _lhsIcon _lhsIinh _lhsIinhsOfChildren _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynsOfChildren) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Rules_vIn34 _lhsIallTypeSigs _lhsIallfields _lhsIallnts _lhsIaltAttrs _lhsIattrs _lhsIchildInhs _lhsIchildNts _lhsIcon _lhsIinh _lhsIinhsOfChildren _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynsOfChildren
-        (T_Rules_vOut34 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules) <- return (inv_Rules_s35 sem arg)
+        let arg34 = T_Rules_vIn34 _lhsIallTypeSigs _lhsIallfields _lhsIallnts _lhsIaltAttrs _lhsIattrs _lhsIchildInhs _lhsIchildNts _lhsIcon _lhsIinh _lhsIinhsOfChildren _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynsOfChildren
+        (T_Rules_vOut34 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules) <- return (inv_Rules_s35 sem arg34)
         return (Syn_Rules _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules)
    )
 
@@ -3732,8 +3732,8 @@ wrap_TypeSig :: T_TypeSig  -> Inh_TypeSig  -> (Syn_TypeSig )
 wrap_TypeSig (T_TypeSig act) (Inh_TypeSig _lhsItypeSigs) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_TypeSig_vIn37 _lhsItypeSigs
-        (T_TypeSig_vOut37 _lhsOtypeSigs) <- return (inv_TypeSig_s38 sem arg)
+        let arg37 = T_TypeSig_vIn37 _lhsItypeSigs
+        (T_TypeSig_vOut37 _lhsOtypeSigs) <- return (inv_TypeSig_s38 sem arg37)
         return (Syn_TypeSig _lhsOtypeSigs)
    )
 
@@ -3766,9 +3766,9 @@ sem_TypeSig_TypeSig arg_name_ arg_tp_ = T_TypeSig (return st38) where
          in __result_ )
      in C_TypeSig_s38 v37
    {-# INLINE rule539 #-}
-   {-# LINE 536 "./src-ag/Order.ag" #-}
+   {-# LINE 536 "src-ag/Order.ag" #-}
    rule539 = \ ((_lhsItypeSigs) :: Map Identifier Type) name_ tp_ ->
-                             {-# LINE 536 "./src-ag/Order.ag" #-}
+                             {-# LINE 536 "src-ag/Order.ag" #-}
                              Map.insert name_ tp_ _lhsItypeSigs
                              {-# LINE 3774 "dist/build/Order.hs"#-}
 
@@ -3781,8 +3781,8 @@ wrap_TypeSigs :: T_TypeSigs  -> Inh_TypeSigs  -> (Syn_TypeSigs )
 wrap_TypeSigs (T_TypeSigs act) (Inh_TypeSigs _lhsItypeSigs) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_TypeSigs_vIn40 _lhsItypeSigs
-        (T_TypeSigs_vOut40 _lhsOtypeSigs) <- return (inv_TypeSigs_s41 sem arg)
+        let arg40 = T_TypeSigs_vIn40 _lhsItypeSigs
+        (T_TypeSigs_vOut40 _lhsOtypeSigs) <- return (inv_TypeSigs_s41 sem arg40)
         return (Syn_TypeSigs _lhsOtypeSigs)
    )
 

@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/VisageSyntax.ag)
+-- UUAGC 0.9.51 (src-ag/VisageSyntax.ag)
 module VisageSyntax where
-{-# LINE 2 "./src-ag/VisageSyntax.ag" #-}
+{-# LINE 2 "src-ag/VisageSyntax.ag" #-}
 
 import CommonTypes
 import UU.Pretty

@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/HsToken.ag)
+-- UUAGC 0.9.51 (src-ag/HsToken.ag)
 module HsToken where
-{-# LINE 2 "./src-ag/HsToken.ag" #-}
+{-# LINE 2 "src-ag/HsToken.ag" #-}
 
 import CommonTypes
 import UU.Scanner.Position(Pos)

@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/DeclBlocks.ag)
+-- UUAGC 0.9.51 (src-ag/DeclBlocks.ag)
 module DeclBlocks where
-{-# LINE 2 "./src-ag/DeclBlocks.ag" #-}
+{-# LINE 2 "src-ag/DeclBlocks.ag" #-}
 
 import Code (Decl,Expr)
 {-# LINE 9 "dist/build/DeclBlocks.hs" #-}

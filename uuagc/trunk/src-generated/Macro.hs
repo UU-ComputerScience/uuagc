@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/Macro.ag)
+-- UUAGC 0.9.51 (src-ag/Macro.ag)
 module Macro where
-{-# LINE 4 "./src-ag/Macro.ag" #-}
+{-# LINE 4 "src-ag/Macro.ag" #-}
 
 import CommonTypes
 {-# LINE 9 "dist/build/Macro.hs" #-}

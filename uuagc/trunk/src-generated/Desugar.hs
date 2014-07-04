@@ -3,26 +3,26 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Desugar where
-{-# LINE 2 "./src-ag/HsToken.ag" #-}
+{-# LINE 2 "src-ag/HsToken.ag" #-}
 
 import CommonTypes
 import UU.Scanner.Position(Pos)
 {-# LINE 11 "dist/build/Desugar.hs" #-}
 
-{-# LINE 2 "./src-ag/Expression.ag" #-}
+{-# LINE 2 "src-ag/Expression.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import HsToken
 {-# LINE 17 "dist/build/Desugar.hs" #-}
 
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
+{-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 24 "dist/build/Desugar.hs" #-}
 
-{-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
+{-# LINE 2 "src-ag/AbstractSyntax.ag" #-}
 
 -- AbstractSyntax.ag imports
 import Data.Set(Set)
@@ -34,7 +34,7 @@ import CommonTypes
 import ErrorMessages
 {-# LINE 36 "dist/build/Desugar.hs" #-}
 
-{-# LINE 14 "./src-ag/Desugar.ag" #-}
+{-# LINE 14 "src-ag/Desugar.ag" #-}
 
 import qualified Data.Set as Set
 import qualified Data.Map as Map
@@ -55,13 +55,13 @@ import CommonTypes
 {-# LINE 56 "dist/build/Desugar.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
-{-# LINE 98 "./src-ag/Desugar.ag" #-}
+{-# LINE 98 "src-ag/Desugar.ag" #-}
 
 addl :: Int -> Pos -> Pos
 addl n (Pos l c f) = Pos (l+n) c f
 {-# LINE 63 "dist/build/Desugar.hs" #-}
 
-{-# LINE 133 "./src-ag/Desugar.ag" #-}
+{-# LINE 133 "src-ag/Desugar.ag" #-}
 
 maybeError :: a -> Error -> Maybe a -> (a, Seq Error)
 maybeError def err mb
@@ -76,13 +76,13 @@ findField fld attr list
     f = lookup attr
 {-# LINE 78 "dist/build/Desugar.hs" #-}
 
-{-# LINE 204 "./src-ag/Desugar.ag" #-}
+{-# LINE 204 "src-ag/Desugar.ag" #-}
 
 mergeAttributes :: AttrMap -> AttrMap -> AttrMap
 mergeAttributes = Map.unionWith $ Map.unionWith $ Set.union
 {-# LINE 84 "dist/build/Desugar.hs" #-}
 
-{-# LINE 251 "./src-ag/Desugar.ag" #-}
+{-# LINE 251 "src-ag/Desugar.ag" #-}
 
 desugarExprs :: Options -> NontermIdent -> ConstructorIdent ->
                 [(Identifier, Identifier)] -> [(Identifier, Identifier)] ->
@@ -108,7 +108,7 @@ desugarExpr options nt con childInhs childSyns errs expr
     syn = wrap_Expression sem inh
 {-# LINE 110 "dist/build/Desugar.hs" #-}
 
-{-# LINE 294 "./src-ag/Desugar.ag" #-}
+{-# LINE 294 "src-ag/Desugar.ag" #-}
 
 addLateAttr :: Options -> String -> Attributes
 addLateAttr options mainName
@@ -126,8 +126,8 @@ wrap_Child :: T_Child  -> Inh_Child  -> (Syn_Child )
 wrap_Child !(T_Child act) !(Inh_Child _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Child_vIn0 _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap
-        !(T_Child_vOut0 _lhsOchildInhs _lhsOchildSyns _lhsOoutput) <- return (inv_Child_s0 sem K_Child_v0 arg)
+        let arg0 = T_Child_vIn0 _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap
+        !(T_Child_vOut0 _lhsOchildInhs _lhsOchildSyns _lhsOoutput) <- return (inv_Child_s0 sem K_Child_v0 arg0)
         return (Syn_Child _lhsOchildInhs _lhsOchildSyns _lhsOoutput)
    )
 
@@ -190,42 +190,42 @@ sem_Child_Child !arg_name_ !arg_tp_ !arg_kind_ = T_Child (return st0) where
           in __result_ )
      in C_Child_s0 k0
    {-# NOINLINE[1] rule0 #-}
-   {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 19 "src-ag/DistChildAttr.ag" #-}
    rule0 = \ !name_ !tp_ ->
-                       {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
+                       {-# LINE 19 "src-ag/DistChildAttr.ag" #-}
                        case tp_ of
                          NT nt _ _ -> nt
                          Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
                          Haskell t -> identifier ""
                        {-# LINE 201 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule1 #-}
-   {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
    rule1 = \ !_chnt ((!_lhsIinhMap) :: Map Identifier Attributes) ->
-                      {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
+                      {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIinhMap
                       {-# LINE 207 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule2 #-}
-   {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
    rule2 = \ !_chnt ((!_lhsIsynMap) :: Map Identifier Attributes) ->
-                      {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
+                      {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIsynMap
                       {-# LINE 213 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule3 #-}
-   {-# LINE 130 "./src-ag/Desugar.ag" #-}
+   {-# LINE 130 "src-ag/Desugar.ag" #-}
    rule3 = \ !_inh !name_ ->
-                        {-# LINE 130 "./src-ag/Desugar.ag" #-}
+                        {-# LINE 130 "src-ag/Desugar.ag" #-}
                         [(i, name_) | i <- Map.keys _inh     ]
                         {-# LINE 219 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule4 #-}
-   {-# LINE 131 "./src-ag/Desugar.ag" #-}
+   {-# LINE 131 "src-ag/Desugar.ag" #-}
    rule4 = \ !_syn !name_ ->
-                        {-# LINE 131 "./src-ag/Desugar.ag" #-}
+                        {-# LINE 131 "src-ag/Desugar.ag" #-}
                         [(s, name_) | s <- Map.keys _syn     ]
                         {-# LINE 225 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule5 #-}
-   {-# LINE 315 "./src-ag/Desugar.ag" #-}
+   {-# LINE 315 "src-ag/Desugar.ag" #-}
    rule5 = \ !kind_ !name_ !tp_ ->
-                 {-# LINE 315 "./src-ag/Desugar.ag" #-}
+                 {-# LINE 315 "src-ag/Desugar.ag" #-}
                  Child name_ tp_ kind_
                  {-# LINE 231 "dist/build/Desugar.hs"#-}
 
@@ -238,8 +238,8 @@ wrap_Children :: T_Children  -> Inh_Children  -> (Syn_Children )
 wrap_Children !(T_Children act) !(Inh_Children _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Children_vIn1 _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap
-        !(T_Children_vOut1 _lhsOchildInhs _lhsOchildSyns _lhsOoutput) <- return (inv_Children_s2 sem K_Children_v1 arg)
+        let arg1 = T_Children_vIn1 _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap
+        !(T_Children_vOut1 _lhsOchildInhs _lhsOchildSyns _lhsOoutput) <- return (inv_Children_s2 sem K_Children_v1 arg1)
         return (Syn_Children _lhsOchildInhs _lhsOchildSyns _lhsOoutput)
    )
 
@@ -390,8 +390,8 @@ wrap_Expression :: T_Expression  -> Inh_Expression  -> (Syn_Expression )
 wrap_Expression !(T_Expression act) !(Inh_Expression _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsInt _lhsIoptions _lhsIruleDescr) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Expression_vIn2 _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsInt _lhsIoptions _lhsIruleDescr
-        !(T_Expression_vOut2 _lhsOerrors _lhsOoutput) <- return (inv_Expression_s4 sem arg)
+        let arg2 = T_Expression_vIn2 _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsInt _lhsIoptions _lhsIruleDescr
+        !(T_Expression_vOut2 _lhsOerrors _lhsOoutput) <- return (inv_Expression_s4 sem arg2)
         return (Syn_Expression _lhsOerrors _lhsOoutput)
    )
 
@@ -426,9 +426,9 @@ sem_Expression_Expression !arg_pos_ !arg_tks_ = T_Expression (return st4) where
           in __result_ )
      in C_Expression_s4 v2
    {-# INLINE rule23 #-}
-   {-# LINE 49 "./src-ag/Desugar.ag" #-}
+   {-# LINE 49 "src-ag/Desugar.ag" #-}
    rule23 = \ ((!_lhsIchildInhs) :: [(Identifier, Identifier)]) ((!_lhsIchildSyns) :: [(Identifier, Identifier)]) ((!_lhsIcon) :: ConstructorIdent) ((!_lhsInt) :: NontermIdent) ((!_lhsIoptions) :: Options) ((!_lhsIruleDescr) :: String) !tks_ ->
-                                 {-# LINE 49 "./src-ag/Desugar.ag" #-}
+                                 {-# LINE 49 "src-ag/Desugar.ag" #-}
                                  let inh = Inh_HsTokensRoot { childInhs_Inh_HsTokensRoot     = _lhsIchildInhs
                                                             , childSyns_Inh_HsTokensRoot     = _lhsIchildSyns
                                                             , nt_Inh_HsTokensRoot            = _lhsInt
@@ -441,9 +441,9 @@ sem_Expression_Expression !arg_pos_ !arg_tks_ = T_Expression (return st4) where
                                  in (tks_Syn_HsTokensRoot syn, errors_Syn_HsTokensRoot syn)
                                  {-# LINE 443 "dist/build/Desugar.hs"#-}
    {-# INLINE rule24 #-}
-   {-# LINE 59 "./src-ag/Desugar.ag" #-}
+   {-# LINE 59 "src-ag/Desugar.ag" #-}
    rule24 = \ !_tks' !pos_ ->
-                     {-# LINE 59 "./src-ag/Desugar.ag" #-}
+                     {-# LINE 59 "src-ag/Desugar.ag" #-}
                      Expression pos_ _tks'
                      {-# LINE 449 "dist/build/Desugar.hs"#-}
 
@@ -456,8 +456,8 @@ wrap_Grammar :: T_Grammar  -> Inh_Grammar  -> (Syn_Grammar )
 wrap_Grammar !(T_Grammar act) !(Inh_Grammar _lhsIforcedIrrefutables _lhsImainName _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Grammar_vIn3 _lhsIforcedIrrefutables _lhsImainName _lhsIoptions
-        !(T_Grammar_vOut3 _lhsOallAttributes _lhsOerrors _lhsOoutput) <- return (inv_Grammar_s6 sem arg)
+        let arg3 = T_Grammar_vIn3 _lhsIforcedIrrefutables _lhsImainName _lhsIoptions
+        !(T_Grammar_vOut3 _lhsOallAttributes _lhsOerrors _lhsOoutput) <- return (inv_Grammar_s6 sem arg3)
         return (Syn_Grammar _lhsOallAttributes _lhsOerrors _lhsOoutput)
    )
 
@@ -503,27 +503,27 @@ sem_Grammar_Grammar !arg_typeSyns_ !arg_useMap_ !arg_derivings_ !arg_wrappers_ a
           in __result_ )
      in C_Grammar_s6 v3
    {-# INLINE rule26 #-}
-   {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 15 "src-ag/DistChildAttr.ag" #-}
    rule26 = \ ((!_nontsIinhMap') :: Map Identifier Attributes) ->
-                             {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
+                             {-# LINE 15 "src-ag/DistChildAttr.ag" #-}
                              _nontsIinhMap'
                              {-# LINE 511 "dist/build/Desugar.hs"#-}
    {-# INLINE rule27 #-}
-   {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
    rule27 = \ ((!_nontsIsynMap') :: Map Identifier Attributes) ->
-                             {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
+                             {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
                              _nontsIsynMap'
                              {-# LINE 517 "dist/build/Desugar.hs"#-}
    {-# INLINE rule28 #-}
-   {-# LINE 235 "./src-ag/Desugar.ag" #-}
+   {-# LINE 235 "src-ag/Desugar.ag" #-}
    rule28 = \ !augmentsMap_ ->
-                           {-# LINE 235 "./src-ag/Desugar.ag" #-}
+                           {-# LINE 235 "src-ag/Desugar.ag" #-}
                            augmentsMap_
                            {-# LINE 523 "dist/build/Desugar.hs"#-}
    {-# INLINE rule29 #-}
-   {-# LINE 319 "./src-ag/Desugar.ag" #-}
+   {-# LINE 319 "src-ag/Desugar.ag" #-}
    rule29 = \ ((!_nontsIaugmentsOut) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) ((!_nontsIoutput) :: Nonterminals) !aroundsMap_ !contextMap_ !derivings_ !manualAttrOrderMap_ !mergeMap_ !paramMap_ !pragmas_ !quantMap_ !typeSyns_ !uniqueMap_ !useMap_ !wrappers_ ->
-                     {-# LINE 319 "./src-ag/Desugar.ag" #-}
+                     {-# LINE 319 "src-ag/Desugar.ag" #-}
                      Grammar typeSyns_
                              useMap_
                              derivings_
@@ -564,8 +564,8 @@ wrap_HsToken :: T_HsToken  -> Inh_HsToken  -> (Syn_HsToken )
 wrap_HsToken !(T_HsToken act) !(Inh_HsToken _lhsIaddLines _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsInt _lhsIruleDescr _lhsIuseFieldIdent) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_HsToken_vIn4 _lhsIaddLines _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsInt _lhsIruleDescr _lhsIuseFieldIdent
-        !(T_HsToken_vOut4 _lhsOaddLines _lhsOerrors _lhsOtks) <- return (inv_HsToken_s8 sem K_HsToken_v4 arg)
+        let arg4 = T_HsToken_vIn4 _lhsIaddLines _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsInt _lhsIruleDescr _lhsIuseFieldIdent
+        !(T_HsToken_vOut4 _lhsOaddLines _lhsOerrors _lhsOtks) <- return (inv_HsToken_s8 sem K_HsToken_v4 arg4)
         return (Syn_HsToken _lhsOaddLines _lhsOerrors _lhsOtks)
    )
 
@@ -659,17 +659,17 @@ sem_HsToken_AGLocal !arg_var_ !arg_pos_ _ = T_HsToken (return st8) where
           in __result_ )
      in C_HsToken_s47 v35
    {-# NOINLINE[1] rule36 #-}
-   {-# LINE 74 "./src-ag/Desugar.ag" #-}
+   {-# LINE 74 "src-ag/Desugar.ag" #-}
    rule36 = \ ((!_lhsIaddLines) :: Int) ((!_lhsIuseFieldIdent) :: Bool) ->
-                       {-# LINE 74 "./src-ag/Desugar.ag" #-}
+                       {-# LINE 74 "src-ag/Desugar.ag" #-}
                        if _lhsIuseFieldIdent
                        then _lhsIaddLines + 1
                        else _lhsIaddLines
                        {-# LINE 669 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule37 #-}
-   {-# LINE 77 "./src-ag/Desugar.ag" #-}
+   {-# LINE 77 "src-ag/Desugar.ag" #-}
    rule37 = \ ((!_lhsIaddLines) :: Int) ((!_lhsIruleDescr) :: String) ((!_lhsIuseFieldIdent) :: Bool) !pos_ !var_ ->
-                  {-# LINE 77 "./src-ag/Desugar.ag" #-}
+                  {-# LINE 77 "src-ag/Desugar.ag" #-}
                   AGLocal var_ (addl _lhsIaddLines pos_) (if _lhsIuseFieldIdent then Just _lhsIruleDescr else Nothing)
                   {-# LINE 675 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule38 #-}
@@ -736,35 +736,35 @@ sem_HsToken_AGField !arg_field_ !arg_attr_ !arg_pos_ _ = T_HsToken (return st8) 
           in __result_ )
      in C_HsToken_s47 v35
    {-# NOINLINE[1] rule40 #-}
-   {-# LINE 79 "./src-ag/Desugar.ag" #-}
+   {-# LINE 79 "src-ag/Desugar.ag" #-}
    rule40 = \ ((!_lhsIchildSyns) :: [(Identifier, Identifier)]) !attr_ !field_ ->
-                     {-# LINE 79 "./src-ag/Desugar.ag" #-}
+                     {-# LINE 79 "src-ag/Desugar.ag" #-}
                      findField field_ attr_ _lhsIchildSyns
                      {-# LINE 744 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule41 #-}
-   {-# LINE 81 "./src-ag/Desugar.ag" #-}
+   {-# LINE 81 "src-ag/Desugar.ag" #-}
    rule41 = \ !_mField !field_ ->
-                     {-# LINE 81 "./src-ag/Desugar.ag" #-}
+                     {-# LINE 81 "src-ag/Desugar.ag" #-}
                      maybe field_ id _mField
                      {-# LINE 750 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule42 #-}
-   {-# LINE 82 "./src-ag/Desugar.ag" #-}
+   {-# LINE 82 "src-ag/Desugar.ag" #-}
    rule42 = \ ((!_lhsIcon) :: ConstructorIdent) ((!_lhsInt) :: NontermIdent) !_mField !field_ ->
-                     {-# LINE 82 "./src-ag/Desugar.ag" #-}
+                     {-# LINE 82 "src-ag/Desugar.ag" #-}
                      maybe (Seq.singleton (UndefAttr _lhsInt _lhsIcon field_ (Ident "<ANY>" (getPos field_)) False)) (const Seq.empty) _mField
                      {-# LINE 756 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule43 #-}
-   {-# LINE 84 "./src-ag/Desugar.ag" #-}
+   {-# LINE 84 "src-ag/Desugar.ag" #-}
    rule43 = \ !_field' ((!_lhsIaddLines) :: Int) ((!_lhsIuseFieldIdent) :: Bool) !field_ ->
-                       {-# LINE 84 "./src-ag/Desugar.ag" #-}
+                       {-# LINE 84 "src-ag/Desugar.ag" #-}
                        if _lhsIuseFieldIdent || length (getName field_) < length (getName _field'    )
                        then _lhsIaddLines + 1
                        else _lhsIaddLines
                        {-# LINE 764 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule44 #-}
-   {-# LINE 88 "./src-ag/Desugar.ag" #-}
+   {-# LINE 88 "src-ag/Desugar.ag" #-}
    rule44 = \ !_field' ((!_lhsIaddLines) :: Int) ((!_lhsIruleDescr) :: String) ((!_lhsIuseFieldIdent) :: Bool) !attr_ !pos_ ->
-                  {-# LINE 88 "./src-ag/Desugar.ag" #-}
+                  {-# LINE 88 "src-ag/Desugar.ag" #-}
                   AGField _field'     attr_ (addl _lhsIaddLines pos_) (if _lhsIuseFieldIdent then Just _lhsIruleDescr else Nothing)
                   {-# LINE 770 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule45 #-}
@@ -822,9 +822,9 @@ sem_HsToken_HsToken !arg_value_ !arg_pos_ = T_HsToken (return st8) where
           in __result_ )
      in C_HsToken_s47 v35
    {-# NOINLINE[1] rule46 #-}
-   {-# LINE 90 "./src-ag/Desugar.ag" #-}
+   {-# LINE 90 "src-ag/Desugar.ag" #-}
    rule46 = \ ((!_lhsIaddLines) :: Int) !pos_ !value_ ->
-                  {-# LINE 90 "./src-ag/Desugar.ag" #-}
+                  {-# LINE 90 "src-ag/Desugar.ag" #-}
                   HsToken value_ (addl _lhsIaddLines pos_)
                   {-# LINE 830 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule47 #-}
@@ -888,9 +888,9 @@ sem_HsToken_CharToken !arg_value_ !arg_pos_ = T_HsToken (return st8) where
           in __result_ )
      in C_HsToken_s47 v35
    {-# NOINLINE[1] rule50 #-}
-   {-# LINE 92 "./src-ag/Desugar.ag" #-}
+   {-# LINE 92 "src-ag/Desugar.ag" #-}
    rule50 = \ ((!_lhsIaddLines) :: Int) !pos_ !value_ ->
-                  {-# LINE 92 "./src-ag/Desugar.ag" #-}
+                  {-# LINE 92 "src-ag/Desugar.ag" #-}
                   CharToken value_ (addl _lhsIaddLines pos_)
                   {-# LINE 896 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule51 #-}
@@ -954,9 +954,9 @@ sem_HsToken_StrToken !arg_value_ !arg_pos_ = T_HsToken (return st8) where
           in __result_ )
      in C_HsToken_s47 v35
    {-# NOINLINE[1] rule54 #-}
-   {-# LINE 94 "./src-ag/Desugar.ag" #-}
+   {-# LINE 94 "src-ag/Desugar.ag" #-}
    rule54 = \ ((!_lhsIaddLines) :: Int) !pos_ !value_ ->
-                  {-# LINE 94 "./src-ag/Desugar.ag" #-}
+                  {-# LINE 94 "src-ag/Desugar.ag" #-}
                   StrToken value_ (addl _lhsIaddLines pos_)
                   {-# LINE 962 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule55 #-}
@@ -1020,9 +1020,9 @@ sem_HsToken_Err !arg_mesg_ !arg_pos_ = T_HsToken (return st8) where
           in __result_ )
      in C_HsToken_s47 v35
    {-# NOINLINE[1] rule58 #-}
-   {-# LINE 96 "./src-ag/Desugar.ag" #-}
+   {-# LINE 96 "src-ag/Desugar.ag" #-}
    rule58 = \ ((!_lhsIaddLines) :: Int) !mesg_ !pos_ ->
-                  {-# LINE 96 "./src-ag/Desugar.ag" #-}
+                  {-# LINE 96 "src-ag/Desugar.ag" #-}
                   Err mesg_ (addl _lhsIaddLines pos_)
                   {-# LINE 1028 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule59 #-}
@@ -1044,8 +1044,8 @@ wrap_HsTokens :: T_HsTokens  -> Inh_HsTokens  -> (Syn_HsTokens )
 wrap_HsTokens !(T_HsTokens act) !(Inh_HsTokens _lhsIaddLines _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsInt _lhsIruleDescr _lhsIuseFieldIdent) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_HsTokens_vIn5 _lhsIaddLines _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsInt _lhsIruleDescr _lhsIuseFieldIdent
-        !(T_HsTokens_vOut5 _lhsOaddLines _lhsOerrors _lhsOtks) <- return (inv_HsTokens_s10 sem K_HsTokens_v5 arg)
+        let arg5 = T_HsTokens_vIn5 _lhsIaddLines _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsInt _lhsIruleDescr _lhsIuseFieldIdent
+        !(T_HsTokens_vOut5 _lhsOaddLines _lhsOerrors _lhsOtks) <- return (inv_HsTokens_s10 sem K_HsTokens_v5 arg5)
         return (Syn_HsTokens _lhsOaddLines _lhsOerrors _lhsOtks)
    )
 
@@ -1306,8 +1306,8 @@ wrap_HsTokensRoot :: T_HsTokensRoot  -> Inh_HsTokensRoot  -> (Syn_HsTokensRoot )
 wrap_HsTokensRoot !(T_HsTokensRoot act) !(Inh_HsTokensRoot _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsInt _lhsIruleDescr _lhsIuseFieldIdent) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_HsTokensRoot_vIn6 _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsInt _lhsIruleDescr _lhsIuseFieldIdent
-        !(T_HsTokensRoot_vOut6 _lhsOerrors _lhsOtks) <- return (inv_HsTokensRoot_s12 sem arg)
+        let arg6 = T_HsTokensRoot_vIn6 _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsInt _lhsIruleDescr _lhsIuseFieldIdent
+        !(T_HsTokensRoot_vOut6 _lhsOerrors _lhsOtks) <- return (inv_HsTokensRoot_s12 sem arg6)
         return (Syn_HsTokensRoot _lhsOerrors _lhsOtks)
    )
 
@@ -1350,9 +1350,9 @@ sem_HsTokensRoot_HsTokensRoot arg_tokens_ = T_HsTokensRoot (return st12) where
           in __result_ )
      in C_HsTokensRoot_s12 v6
    {-# INLINE rule84 #-}
-   {-# LINE 67 "./src-ag/Desugar.ag" #-}
+   {-# LINE 67 "src-ag/Desugar.ag" #-}
    rule84 = \  (_ :: ()) ->
-                          {-# LINE 67 "./src-ag/Desugar.ag" #-}
+                          {-# LINE 67 "src-ag/Desugar.ag" #-}
                           0
                           {-# LINE 1358 "dist/build/Desugar.hs"#-}
    {-# INLINE rule85 #-}
@@ -1386,8 +1386,8 @@ wrap_Nonterminal :: T_Nonterminal  -> Inh_Nonterminal  -> (Syn_Nonterminal )
 wrap_Nonterminal !(T_Nonterminal act) !(Inh_Nonterminal _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Nonterminal_vIn7 _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap
-        !(T_Nonterminal_vOut7 _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap') <- return (inv_Nonterminal_s14 sem K_Nonterminal_v7 arg)
+        let arg7 = T_Nonterminal_vIn7 _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap
+        !(T_Nonterminal_vOut7 _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap') <- return (inv_Nonterminal_s14 sem K_Nonterminal_v7 arg7)
         return (Syn_Nonterminal _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap')
    )
 
@@ -1492,45 +1492,45 @@ sem_Nonterminal_Nonterminal !arg_nt_ !arg_params_ !arg_inh_ !arg_syn_ arg_prods_
           in __result_ )
      in C_Nonterminal_s46 v33
    {-# NOINLINE[1] rule93 #-}
-   {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 7 "src-ag/DistChildAttr.ag" #-}
    rule93 = \ !inh_ !nt_ ->
-                                 {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
+                                 {-# LINE 7 "src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ inh_
                                  {-# LINE 1500 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule94 #-}
-   {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
    rule94 = \ !nt_ !syn_ ->
-                                 {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
+                                 {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ syn_
                                  {-# LINE 1506 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule95 #-}
-   {-# LINE 157 "./src-ag/Desugar.ag" #-}
+   {-# LINE 157 "src-ag/Desugar.ag" #-}
    rule95 = \ !nt_ ->
-                   {-# LINE 157 "./src-ag/Desugar.ag" #-}
+                   {-# LINE 157 "src-ag/Desugar.ag" #-}
                    nt_
                    {-# LINE 1512 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule96 #-}
-   {-# LINE 239 "./src-ag/Desugar.ag" #-}
+   {-# LINE 239 "src-ag/Desugar.ag" #-}
    rule96 = \ ((!_lhsIaugmentsIn) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) !nt_ ->
-                         {-# LINE 239 "./src-ag/Desugar.ag" #-}
+                         {-# LINE 239 "src-ag/Desugar.ag" #-}
                          Map.findWithDefault Map.empty nt_ _lhsIaugmentsIn
                          {-# LINE 1518 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule97 #-}
-   {-# LINE 240 "./src-ag/Desugar.ag" #-}
+   {-# LINE 240 "src-ag/Desugar.ag" #-}
    rule97 = \ ((!_prodsIaugmentsOut) :: Map ConstructorIdent (Map Identifier [Expression])) !nt_ ->
-                          {-# LINE 240 "./src-ag/Desugar.ag" #-}
+                          {-# LINE 240 "src-ag/Desugar.ag" #-}
                           Map.singleton nt_ _prodsIaugmentsOut
                           {-# LINE 1524 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule98 #-}
-   {-# LINE 292 "./src-ag/Desugar.ag" #-}
+   {-# LINE 292 "src-ag/Desugar.ag" #-}
    rule98 = \ ((!_lhsImainName) :: String) ((!_lhsIoptions) :: Options) ->
-                   {-# LINE 292 "./src-ag/Desugar.ag" #-}
+                   {-# LINE 292 "src-ag/Desugar.ag" #-}
                    addLateAttr _lhsIoptions _lhsImainName
                    {-# LINE 1530 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule99 #-}
-   {-# LINE 308 "./src-ag/Desugar.ag" #-}
+   {-# LINE 308 "src-ag/Desugar.ag" #-}
    rule99 = \ !_extraInh ((!_prodsIoutput) :: Productions) !inh_ !nt_ !params_ !syn_ ->
-                 {-# LINE 308 "./src-ag/Desugar.ag" #-}
+                 {-# LINE 308 "src-ag/Desugar.ag" #-}
                  Nonterminal
                    nt_ params_
                    (_extraInh     `Map.union` inh_)
@@ -1571,8 +1571,8 @@ wrap_Nonterminals :: T_Nonterminals  -> Inh_Nonterminals  -> (Syn_Nonterminals )
 wrap_Nonterminals !(T_Nonterminals act) !(Inh_Nonterminals _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Nonterminals_vIn8 _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap
-        !(T_Nonterminals_vOut8 _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap') <- return (inv_Nonterminals_s16 sem K_Nonterminals_v8 arg)
+        let arg8 = T_Nonterminals_vIn8 _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsIoptions _lhsIsynMap
+        !(T_Nonterminals_vOut8 _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap') <- return (inv_Nonterminals_s16 sem K_Nonterminals_v8 arg8)
         return (Syn_Nonterminals _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOinhMap' _lhsOoutput _lhsOsynMap')
    )
 
@@ -1828,8 +1828,8 @@ wrap_Pattern :: T_Pattern  -> Inh_Pattern  -> (Syn_Pattern )
 wrap_Pattern !(T_Pattern act) !(Inh_Pattern _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsIdefs _lhsIforcedIrrefutables _lhsInt) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Pattern_vIn9 _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsIdefs _lhsIforcedIrrefutables _lhsInt
-        !(T_Pattern_vOut9 _lhsOallAttributes _lhsOcopy _lhsOdefsCollect _lhsOerrors _lhsOoutput) <- return (inv_Pattern_s18 sem K_Pattern_v9 arg)
+        let arg9 = T_Pattern_vIn9 _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsIdefs _lhsIforcedIrrefutables _lhsInt
+        !(T_Pattern_vOut9 _lhsOallAttributes _lhsOcopy _lhsOdefsCollect _lhsOerrors _lhsOoutput) <- return (inv_Pattern_s18 sem K_Pattern_v9 arg9)
         return (Syn_Pattern _lhsOallAttributes _lhsOcopy _lhsOdefsCollect _lhsOerrors _lhsOoutput)
    )
 
@@ -2461,16 +2461,16 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st18) wher
           in __result_ )
      in C_Pattern_s58 v56
    {-# NOINLINE rule162 #-}
-   {-# LINE 110 "./src-ag/Desugar.ag" #-}
+   {-# LINE 110 "src-ag/Desugar.ag" #-}
    rule162 = \ ((!_lhsIchildInhs) :: [(Identifier, Identifier)]) ((!_lhsIcon) :: ConstructorIdent) ((!_lhsInt) :: NontermIdent) !attr_ !field_ ->
-                                 {-# LINE 110 "./src-ag/Desugar.ag" #-}
+                                 {-# LINE 110 "src-ag/Desugar.ag" #-}
                                  maybeError field_ (UndefAttr _lhsInt _lhsIcon (Ident "<ANY>" (getPos field_)) attr_ True) $
                                    findField field_ attr_ _lhsIchildInhs
                                  {-# LINE 2470 "dist/build/Desugar.hs"#-}
    {-# NOINLINE rule163 #-}
-   {-# LINE 112 "./src-ag/Desugar.ag" #-}
+   {-# LINE 112 "src-ag/Desugar.ag" #-}
    rule163 = \ !_field' ((!_lhsIcon) :: ConstructorIdent) ((!_lhsIdefs) :: Set (Identifier, Identifier)) ((!_lhsInt) :: NontermIdent) !attr_ !field_ ->
-                   {-# LINE 112 "./src-ag/Desugar.ag" #-}
+                   {-# LINE 112 "src-ag/Desugar.ag" #-}
                    if _field'     == field_
                    then Seq.empty
                    else if (_field'    , attr_) `Set.member` _lhsIdefs
@@ -2478,39 +2478,39 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st18) wher
                         else Seq.empty
                    {-# LINE 2480 "dist/build/Desugar.hs"#-}
    {-# NOINLINE rule164 #-}
-   {-# LINE 117 "./src-ag/Desugar.ag" #-}
+   {-# LINE 117 "src-ag/Desugar.ag" #-}
    rule164 = \ !_err1 !_err2 ((!_patIerrors) :: Seq Error) ->
-                     {-# LINE 117 "./src-ag/Desugar.ag" #-}
+                     {-# LINE 117 "src-ag/Desugar.ag" #-}
                      _err1     Seq.>< _err2     Seq.>< _patIerrors
                      {-# LINE 2486 "dist/build/Desugar.hs"#-}
    {-# NOINLINE rule165 #-}
-   {-# LINE 118 "./src-ag/Desugar.ag" #-}
+   {-# LINE 118 "src-ag/Desugar.ag" #-}
    rule165 = \ !_field' ((!_patIoutput) :: Pattern) !attr_ ->
-                     {-# LINE 118 "./src-ag/Desugar.ag" #-}
+                     {-# LINE 118 "src-ag/Desugar.ag" #-}
                      Alias _field'     attr_ _patIoutput
                      {-# LINE 2492 "dist/build/Desugar.hs"#-}
    {-# NOINLINE rule166 #-}
-   {-# LINE 182 "./src-ag/Desugar.ag" #-}
+   {-# LINE 182 "src-ag/Desugar.ag" #-}
    rule166 = \ !attr_ !field_ ->
-                  {-# LINE 182 "./src-ag/Desugar.ag" #-}
+                  {-# LINE 182 "src-ag/Desugar.ag" #-}
                   Set.singleton (field_, attr_)
                   {-# LINE 2498 "dist/build/Desugar.hs"#-}
    {-# NOINLINE rule167 #-}
-   {-# LINE 183 "./src-ag/Desugar.ag" #-}
+   {-# LINE 183 "src-ag/Desugar.ag" #-}
    rule167 = \ !_def ((!_patIdefsCollect) :: Set (Identifier, Identifier)) ->
-                          {-# LINE 183 "./src-ag/Desugar.ag" #-}
+                          {-# LINE 183 "src-ag/Desugar.ag" #-}
                           _def     `Set.union` _patIdefsCollect
                           {-# LINE 2504 "dist/build/Desugar.hs"#-}
    {-# NOINLINE rule168 #-}
-   {-# LINE 200 "./src-ag/Desugar.ag" #-}
+   {-# LINE 200 "src-ag/Desugar.ag" #-}
    rule168 = \ ((!_lhsIcon) :: ConstructorIdent) ((!_lhsInt) :: NontermIdent) ((!_patIallAttributes) :: AttrMap) !attr_ !field_ ->
-                            {-# LINE 200 "./src-ag/Desugar.ag" #-}
+                            {-# LINE 200 "src-ag/Desugar.ag" #-}
                             (Map.singleton _lhsInt $ Map.singleton _lhsIcon $ Set.singleton (field_, attr_)) `mergeAttributes` _patIallAttributes
                             {-# LINE 2510 "dist/build/Desugar.hs"#-}
    {-# NOINLINE rule169 #-}
-   {-# LINE 219 "./src-ag/Desugar.ag" #-}
+   {-# LINE 219 "src-ag/Desugar.ag" #-}
    rule169 = \ ((!_lhsIcon) :: ConstructorIdent) ((!_lhsIforcedIrrefutables) :: AttrMap) ((!_lhsInt) :: NontermIdent) !_output !attr_ !field_ ->
-                     {-# LINE 219 "./src-ag/Desugar.ag" #-}
+                     {-# LINE 219 "src-ag/Desugar.ag" #-}
                      if Set.member (field_, attr_) $ Map.findWithDefault Set.empty _lhsIcon $ Map.findWithDefault Map.empty _lhsInt $ _lhsIforcedIrrefutables
                      then Irrefutable _output
                      else _output
@@ -2693,9 +2693,9 @@ sem_Pattern_Irrefutable arg_pat_ = T_Pattern (return st18) where
           in __result_ )
      in C_Pattern_s58 v56
    {-# NOINLINE rule178 #-}
-   {-# LINE 202 "./src-ag/Desugar.ag" #-}
+   {-# LINE 202 "src-ag/Desugar.ag" #-}
    rule178 = \  (_ :: ()) ->
-                            {-# LINE 202 "./src-ag/Desugar.ag" #-}
+                            {-# LINE 202 "src-ag/Desugar.ag" #-}
                             Map.empty
                             {-# LINE 2701 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule179 #-}
@@ -2879,8 +2879,8 @@ wrap_Patterns :: T_Patterns  -> Inh_Patterns  -> (Syn_Patterns )
 wrap_Patterns !(T_Patterns act) !(Inh_Patterns _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsIdefs _lhsIforcedIrrefutables _lhsInt) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Patterns_vIn10 _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsIdefs _lhsIforcedIrrefutables _lhsInt
-        !(T_Patterns_vOut10 _lhsOallAttributes _lhsOcopy _lhsOdefsCollect _lhsOerrors _lhsOoutput) <- return (inv_Patterns_s20 sem K_Patterns_v10 arg)
+        let arg10 = T_Patterns_vIn10 _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsIdefs _lhsIforcedIrrefutables _lhsInt
+        !(T_Patterns_vOut10 _lhsOallAttributes _lhsOcopy _lhsOdefsCollect _lhsOerrors _lhsOoutput) <- return (inv_Patterns_s20 sem K_Patterns_v10 arg10)
         return (Syn_Patterns _lhsOallAttributes _lhsOcopy _lhsOdefsCollect _lhsOerrors _lhsOoutput)
    )
 
@@ -3342,8 +3342,8 @@ wrap_Production :: T_Production  -> Inh_Production  -> (Syn_Production )
 wrap_Production !(T_Production act) !(Inh_Production _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsInt _lhsIoptions _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Production_vIn11 _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsInt _lhsIoptions _lhsIsynMap
-        !(T_Production_vOut11 _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOoutput) <- return (inv_Production_s22 sem K_Production_v11 arg)
+        let arg11 = T_Production_vIn11 _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsInt _lhsIoptions _lhsIsynMap
+        !(T_Production_vOut11 _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOoutput) <- return (inv_Production_s22 sem K_Production_v11 arg11)
         return (Syn_Production _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOoutput)
    )
 
@@ -3496,39 +3496,39 @@ sem_Production_Production !arg_con_ !arg_params_ !arg_constraints_ arg_children_
           in __result_ )
      in C_Production_s52 v44
    {-# NOINLINE[1] rule224 #-}
-   {-# LINE 161 "./src-ag/Desugar.ag" #-}
+   {-# LINE 161 "src-ag/Desugar.ag" #-}
    rule224 = \ !con_ ->
-                    {-# LINE 161 "./src-ag/Desugar.ag" #-}
+                    {-# LINE 161 "src-ag/Desugar.ag" #-}
                     con_
                     {-# LINE 3504 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule225 #-}
-   {-# LINE 188 "./src-ag/Desugar.ag" #-}
+   {-# LINE 188 "src-ag/Desugar.ag" #-}
    rule225 = \ ((!_rulesIdefsCollect) :: Set (Identifier, Identifier)) ->
-                     {-# LINE 188 "./src-ag/Desugar.ag" #-}
+                     {-# LINE 188 "src-ag/Desugar.ag" #-}
                      _rulesIdefsCollect
                      {-# LINE 3510 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule226 #-}
-   {-# LINE 244 "./src-ag/Desugar.ag" #-}
+   {-# LINE 244 "src-ag/Desugar.ag" #-}
    rule226 = \ ((!_lhsIaugmentsIn) :: Map ConstructorIdent (Map Identifier [Expression])) !con_ ->
-                         {-# LINE 244 "./src-ag/Desugar.ag" #-}
+                         {-# LINE 244 "src-ag/Desugar.ag" #-}
                          Map.findWithDefault Map.empty con_ _lhsIaugmentsIn
                          {-# LINE 3516 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule227 #-}
-   {-# LINE 245 "./src-ag/Desugar.ag" #-}
+   {-# LINE 245 "src-ag/Desugar.ag" #-}
    rule227 = \ !_augmentsOut1 !con_ ->
-                          {-# LINE 245 "./src-ag/Desugar.ag" #-}
+                          {-# LINE 245 "src-ag/Desugar.ag" #-}
                           Map.singleton con_ _augmentsOut1
                           {-# LINE 3522 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule228 #-}
-   {-# LINE 247 "./src-ag/Desugar.ag" #-}
+   {-# LINE 247 "src-ag/Desugar.ag" #-}
    rule228 = \ !_augmentsIn ((!_childrenIchildInhs) :: [(Identifier, Identifier)]) ((!_childrenIchildSyns) :: [(Identifier, Identifier)]) ((!_lhsInt) :: NontermIdent) ((!_lhsIoptions) :: Options) !con_ ->
-                                              {-# LINE 247 "./src-ag/Desugar.ag" #-}
+                                              {-# LINE 247 "src-ag/Desugar.ag" #-}
                                               Map.mapAccum (desugarExprs _lhsIoptions _lhsInt con_ _childrenIchildInhs _childrenIchildSyns) Seq.empty _augmentsIn
                                               {-# LINE 3528 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule229 #-}
-   {-# LINE 283 "./src-ag/Desugar.ag" #-}
+   {-# LINE 283 "src-ag/Desugar.ag" #-}
    rule229 = \ !_augmentErrs ((!_rulesIerrors) :: Seq Error) ->
-                     {-# LINE 283 "./src-ag/Desugar.ag" #-}
+                     {-# LINE 283 "src-ag/Desugar.ag" #-}
                      _rulesIerrors Seq.>< _augmentErrs
                      {-# LINE 3534 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule230 #-}
@@ -3574,8 +3574,8 @@ wrap_Productions :: T_Productions  -> Inh_Productions  -> (Syn_Productions )
 wrap_Productions !(T_Productions act) !(Inh_Productions _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsInt _lhsIoptions _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Productions_vIn12 _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsInt _lhsIoptions _lhsIsynMap
-        !(T_Productions_vOut12 _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOoutput) <- return (inv_Productions_s24 sem K_Productions_v12 arg)
+        let arg12 = T_Productions_vIn12 _lhsIaugmentsIn _lhsIforcedIrrefutables _lhsIinhMap _lhsImainName _lhsInt _lhsIoptions _lhsIsynMap
+        !(T_Productions_vOut12 _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOoutput) <- return (inv_Productions_s24 sem K_Productions_v12 arg12)
         return (Syn_Productions _lhsOallAttributes _lhsOaugmentsOut _lhsOerrors _lhsOoutput)
    )
 
@@ -3852,8 +3852,8 @@ wrap_Rule :: T_Rule  -> Inh_Rule  -> (Syn_Rule )
 wrap_Rule !(T_Rule act) !(Inh_Rule _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsIdefs _lhsIforcedIrrefutables _lhsInt _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Rule_vIn13 _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsIdefs _lhsIforcedIrrefutables _lhsInt _lhsIoptions
-        !(T_Rule_vOut13 _lhsOallAttributes _lhsOdefsCollect _lhsOerrors _lhsOoutput) <- return (inv_Rule_s26 sem K_Rule_v13 arg)
+        let arg13 = T_Rule_vIn13 _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsIdefs _lhsIforcedIrrefutables _lhsInt _lhsIoptions
+        !(T_Rule_vOut13 _lhsOallAttributes _lhsOdefsCollect _lhsOerrors _lhsOoutput) <- return (inv_Rule_s26 sem K_Rule_v13 arg13)
         return (Syn_Rule _lhsOallAttributes _lhsOdefsCollect _lhsOerrors _lhsOoutput)
    )
 
@@ -3995,9 +3995,9 @@ sem_Rule_Rule !arg_mbName_ arg_pattern_ arg_rhs_ !arg_owrt_ !arg_origin_ !arg_ex
           in __result_ )
      in C_Rule_s57 v54
    {-# NOINLINE[1] rule267 #-}
-   {-# LINE 172 "./src-ag/Desugar.ag" #-}
+   {-# LINE 172 "src-ag/Desugar.ag" #-}
    rule267 = \ ((!_lhsIcon) :: ConstructorIdent) ((!_lhsInt) :: NontermIdent) ((!_patternIdefsCollect) :: Set (Identifier, Identifier)) ->
-                        {-# LINE 172 "./src-ag/Desugar.ag" #-}
+                        {-# LINE 172 "src-ag/Desugar.ag" #-}
                         show _lhsInt ++ " :: " ++ show _lhsIcon ++ " :: " ++ (concat $ intersperse "," $ map (\(f,a) -> show f ++ "." ++ show a) $ Set.toList _patternIdefsCollect)
                         {-# LINE 4003 "dist/build/Desugar.hs"#-}
    {-# NOINLINE[1] rule268 #-}
@@ -4058,8 +4058,8 @@ wrap_Rules :: T_Rules  -> Inh_Rules  -> (Syn_Rules )
 wrap_Rules !(T_Rules act) !(Inh_Rules _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsIdefs _lhsIforcedIrrefutables _lhsInt _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_Rules_vIn14 _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsIdefs _lhsIforcedIrrefutables _lhsInt _lhsIoptions
-        !(T_Rules_vOut14 _lhsOallAttributes _lhsOdefsCollect _lhsOerrors _lhsOoutput) <- return (inv_Rules_s28 sem K_Rules_v14 arg)
+        let arg14 = T_Rules_vIn14 _lhsIchildInhs _lhsIchildSyns _lhsIcon _lhsIdefs _lhsIforcedIrrefutables _lhsInt _lhsIoptions
+        !(T_Rules_vOut14 _lhsOallAttributes _lhsOdefsCollect _lhsOerrors _lhsOoutput) <- return (inv_Rules_s28 sem K_Rules_v14 arg14)
         return (Syn_Rules _lhsOallAttributes _lhsOdefsCollect _lhsOerrors _lhsOoutput)
    )
 
@@ -4353,8 +4353,8 @@ wrap_TypeSig :: T_TypeSig  -> Inh_TypeSig  -> (Syn_TypeSig )
 wrap_TypeSig !(T_TypeSig act) !(Inh_TypeSig ) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_TypeSig_vIn15 
-        !(T_TypeSig_vOut15 _lhsOoutput) <- return (inv_TypeSig_s30 sem arg)
+        let arg15 = T_TypeSig_vIn15 
+        !(T_TypeSig_vOut15 _lhsOoutput) <- return (inv_TypeSig_s30 sem arg15)
         return (Syn_TypeSig _lhsOoutput)
    )
 
@@ -4403,8 +4403,8 @@ wrap_TypeSigs :: T_TypeSigs  -> Inh_TypeSigs  -> (Syn_TypeSigs )
 wrap_TypeSigs !(T_TypeSigs act) !(Inh_TypeSigs ) =
    Control.Monad.Identity.runIdentity (
      do !sem <- act
-        let arg = T_TypeSigs_vIn16 
-        !(T_TypeSigs_vOut16 _lhsOoutput) <- return (inv_TypeSigs_s32 sem arg)
+        let arg16 = T_TypeSigs_vIn16 
+        !(T_TypeSigs_vOut16 _lhsOoutput) <- return (inv_TypeSigs_s32 sem arg16)
         return (Syn_TypeSigs _lhsOoutput)
    )
 
