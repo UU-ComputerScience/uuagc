@@ -137,17 +137,19 @@ compile flags input output
                                Seq.>< Pass1a.errors_Syn_Grammar output1a
                                Seq.>< Pass2.errors_Syn_Grammar  output2
                                Seq.>< Pass2a.errors_Syn_Grammar output2a)
-          furtherErrors    = if loag flags' || kennedyWarren flags'
-                             then let errs3a = Pass3a.errors_Syn_Grammar output3a
-                                  in if Seq.null errs3a
-                                     then if ocaml flags'
-                                          then toList ( Pass4c.errors_Syn_ExecutionPlan output4c )
-                                          else if clean flags'
-                                               then toList ( Pass4d.errors_Syn_ExecutionPlan output4d )
-                                               else toList ( Pass4b.errors_Syn_ExecutionPlan output4b )
-                                     else toList errs3a
-                             else toList ( Pass3.errors_Syn_Grammar  output3
-                                  Seq.>< Pass4.errors_Syn_CGrammar output4)
+          furtherErrors    = if loag flags'
+                             then toList (Pass3b.errors_Syn_Grammar output3b)
+                             else if kennedyWarren flags'
+                                  then let errs3a = Pass3a.errors_Syn_Grammar output3a
+                                       in if Seq.null errs3a
+                                          then if ocaml flags'
+                                               then toList ( Pass4c.errors_Syn_ExecutionPlan output4c )
+                                               else if clean flags'
+                                                    then toList ( Pass4d.errors_Syn_ExecutionPlan output4d )
+                                                    else toList ( Pass4b.errors_Syn_ExecutionPlan output4b )
+                                          else toList errs3a
+                                  else toList ( Pass3.errors_Syn_Grammar  output3
+                                                Seq.>< Pass4.errors_Syn_CGrammar output4)
 
           errorList        = if null parseErrorList
                              then mainErrors
