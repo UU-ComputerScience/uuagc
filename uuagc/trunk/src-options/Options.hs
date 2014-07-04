@@ -367,11 +367,11 @@ loagOpt mstr opts =
         Just "0"    -> opts'
         Just _      -> opts' {minvisits = True}
 
- where  opts'=opts{loag = True, visit = False, withCycle = False, aoag = False}
+ where  opts'=opts{loag = True, visit = True}
 
 aoagOpt :: Options -> Options
 aoagOpt opts = 
-    opts{loag = True, visit = False, withCycle = False, aoag = True}
+    opts{loag = True, visit = True, aoag = True}
 
 --Options -> String -> [String]
 moduleOpt :: Maybe String -> Options -> Options
