@@ -9,6 +9,8 @@ cd dist
 tar xvzf uuagc-*.tar.gz
 cd uuagc-*
 mkdir src-generated
+mkdir src-generated/LOAG
 cd ..
 cp build/*.hs uuagc-*/src-generated/
+cp build/LOAG/*.hs uuagc-*/src-generated/LOAG/
 tar cvzf uuagc-*.tar.gz uuagc-*/
