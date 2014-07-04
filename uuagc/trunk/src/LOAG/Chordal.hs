@@ -91,9 +91,6 @@ scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn opts = do
                     putStrLn "--- Minimising #Visit"
                 optimise sat varMap opts nbounds nts interfaces 
                 (ids',edp',interfaces') <- loagRes sat varMap dps
-                let cycles = length $ maxSCCs edp'
-                when (cycles > 0) $ 
-                    error ("Bad LOAG scheduling: " ++ show cycles ++ " cycles")
                 let visC@newct = getVisCount nts interfaces'
                 when minvisit $ do
                     putStrLn ("--- #Visits (max,sum,avg) " ++(show oldct)
