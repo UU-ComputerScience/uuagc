@@ -27,7 +27,6 @@ import AbstractSyntax
 import qualified LOAG.AOAG as   AOAG
 import LOAG.Common
 import LOAG.Chordal
-import LOAG.Optimise
 import LOAG.Rep
 import LOAG.Graphs
 import CodeSyntax
@@ -44,7 +43,6 @@ import           System.IO.Unsafe
 fst' (a,_,_) = a
 snd' (_,b,_) = b
 trd' (_,_,c) = c
-
 }
 
 ATTR Grammar [ | | 
@@ -67,11 +65,8 @@ SEM Grammar | Grammar
                                 then AOAG.schedule @smf.self @self @loc.ag @nonts.ads
                                 else @loc.loagRes
                         else Right (Nothing,Map.empty,[])
-    loc.loagRes = 
-        let opts | minvisits @lhs.options = [MinVisits]
-                 | otherwise              = []
-            putStrLn s = when (verbose @lhs.options) (IO.putStrLn s)
-          in Right $ unsafePerformIO $ scheduleLOAG @loc.ag putStrLn opts
+    loc.loagRes = let putStrLn s = when (verbose @lhs.options) (IO.putStrLn s)
+                  in  Right $ unsafePerformIO $ scheduleLOAG @loc.ag putStrLn @lhs.options
     loc.ag = repToAg @smf.self @self
 
     nonts.res_ads = either (const []) trd' @loc.schedRes

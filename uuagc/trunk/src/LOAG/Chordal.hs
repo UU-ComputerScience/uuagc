@@ -1,10 +1,14 @@
+{-# LANGUAGE CPP #-}
 
 module LOAG.Chordal where
+
+#ifdef WITH_LOAG
 
 import LOAG.Common
 import LOAG.Graphs
 import LOAG.Optimise
 import LOAG.Solver.MiniSat
+import Options
 
 import              Control.Monad (unless, forM, when, foldM)
 import              Control.Monad.ST
@@ -72,8 +76,10 @@ addsNt g = foldl addNt g
 addNt g (v,n@(v2,c)) = IM.adjust (n:)          v
                      $ IM.adjust ((v,varnot c):)  v2 g
 
-scheduleLOAG :: Ag -> (String -> IO ()) -> Opts -> IO LOAGRes
+scheduleLOAG :: Ag -> (String -> IO ()) -> Options -> IO LOAGRes
 scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn opts = do
+    let optim | minvisits opts = [MinVisits] -- todo: allow specification of more optimisations
+              | otherwise      = []
     putStrLn "--- Starting ---"
     sat <- newSolvable 
     varMap <- noNtCycles sat nts putStrLn
@@ -87,12 +93,12 @@ scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn opts = do
       else do   putStrLn "--- Constructing Interfaces ---"
                 (ids,edp,interfaces) <- loagRes sat varMap dps
                 let oldct = getVisCount nts interfaces
-                when minvisit $ 
+                when (minvisits opts) $ 
                     putStrLn "--- Minimising #Visit"
-                optimise sat varMap opts nbounds nts interfaces 
+                optimise sat varMap optim nbounds nts interfaces 
                 (ids',edp',interfaces') <- loagRes sat varMap dps
                 let visC@newct = getVisCount nts interfaces'
-                when minvisit $ do
+                when (minvisits opts) $ do
                     putStrLn ("--- #Visits (max,sum,avg) " ++(show oldct)
                                 ++" --> " ++(show newct))
                 putStrLn "--- Code Generation ---"
@@ -101,7 +107,6 @@ scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn opts = do
             (ids,edp) <- mkGraphs sat varMap dps
             interfaces <- mkInterfaces ids
             return (ids,edp,interfaces)
-        minvisit = MinVisits `elem` opts
         prs =  [ p | (Nt _ _ _ _ _ ps) <- nts, p <- ps]
         mkInterfaces ids = return $ runST $ do
                 schedA <- newArray nbounds Nothing
@@ -250,3 +255,8 @@ noPrCycles sat prods varMap putStrLn = do
                dps = [ (e,NSib VarTrue) | e <- es ]
 
 
+#else
+
+scheduleLOAG = error "You need to install uuagc with the -fwith-loag flag in order to use the --loag option."
+
+#endif
