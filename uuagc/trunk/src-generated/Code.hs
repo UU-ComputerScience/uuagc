@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/Code.ag)
+-- UUAGC 0.9.51 (src-ag/Code.ag)
 module Code where
-{-# LINE 2 "./src-ag/Code.ag" #-}
+{-# LINE 2 "src-ag/Code.ag" #-}
 
 import Patterns
 import Data.Set(Set)
@@ -10,7 +10,7 @@ import qualified Data.Set as Set
 import Data.Map(Map)
 import qualified Data.Map as Map
 {-# LINE 13 "dist/build/Code.hs" #-}
-{-# LINE 146 "./src-ag/Code.ag" #-}
+{-# LINE 146 "src-ag/Code.ag" #-}
 
 -- Unboxed tuples
 --   unbox  Whether unboxed tuples are wanted or not

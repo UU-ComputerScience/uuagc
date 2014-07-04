@@ -2,7 +2,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module PrintErrorMessages where
-{-# LINE 2 "./src-ag/ErrorMessages.ag" #-}
+{-# LINE 2 "src-ag/ErrorMessages.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import Pretty
@@ -10,7 +10,7 @@ import CodeSyntax
 import CommonTypes
 {-# LINE 12 "dist/build/PrintErrorMessages.hs" #-}
 
-{-# LINE 4 "./src-ag/PrintErrorMessages.ag" #-}
+{-# LINE 4 "src-ag/PrintErrorMessages.ag" #-}
 
 import UU.Scanner.Position(Pos(..), noPos)
 import ErrorMessages
@@ -20,14 +20,14 @@ import qualified Control.Monad.Error.Class as Err
 {-# LINE 21 "dist/build/PrintErrorMessages.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
-{-# LINE 13 "./src-ag/PrintErrorMessages.ag" #-}
+{-# LINE 13 "src-ag/PrintErrorMessages.ag" #-}
 
 instance Err.Error Error where
   noMsg  = Err.strMsg "error"
   strMsg = CustomError False noPos . pp
 {-# LINE 29 "dist/build/PrintErrorMessages.hs" #-}
 
-{-# LINE 20 "./src-ag/PrintErrorMessages.ag" #-}
+{-# LINE 20 "src-ag/PrintErrorMessages.ag" #-}
 
 isError :: Options -> Error -> Bool
 isError _ (ParserError     _ _ _    ) = True
@@ -71,7 +71,7 @@ cycleIsDangerous opts
   = any ($ opts) [ wignore, bangpats, cases, strictCases, stricterCases, strictSems, withCycle ]
 {-# LINE 73 "dist/build/PrintErrorMessages.hs" #-}
 
-{-# LINE 548 "./src-ag/PrintErrorMessages.ag" #-}
+{-# LINE 548 "src-ag/PrintErrorMessages.ag" #-}
 
 toWidth :: Int -> String -> String
 toWidth n xs | k<n       = xs ++ replicate (n-k) ' '
@@ -117,7 +117,7 @@ ppAttrUse :: Identifier -> Identifier -> PP_Doc
 ppAttrUse f a = "@" >|< ppAttr f a
 {-# LINE 119 "dist/build/PrintErrorMessages.hs" #-}
 
-{-# LINE 594 "./src-ag/PrintErrorMessages.ag" #-}
+{-# LINE 594 "src-ag/PrintErrorMessages.ag" #-}
 
 infixr 5 +#+
 (+#+) :: String -> String -> String
@@ -189,8 +189,8 @@ wrap_Error :: T_Error  -> Inh_Error  -> (Syn_Error )
 wrap_Error (T_Error act) (Inh_Error _lhsIoptions _lhsIverbose) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Error_vIn1 _lhsIoptions _lhsIverbose
-        (T_Error_vOut1 _lhsOme _lhsOpp) <- return (inv_Error_s2 sem arg)
+        let arg1 = T_Error_vIn1 _lhsIoptions _lhsIverbose
+        (T_Error_vOut1 _lhsOme _lhsOpp) <- return (inv_Error_s2 sem arg1)
         return (Syn_Error _lhsOme _lhsOpp)
    )
 
@@ -260,9 +260,9 @@ sem_Error_ParserError arg_pos_ arg_problem_ arg_action_ = T_Error (return st2) w
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule0 #-}
-   {-# LINE 87 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 87 "src-ag/PrintErrorMessages.ag" #-}
    rule0 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me action_ pos_ problem_ ->
-                               {-# LINE 87 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 87 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg = text ("parser expecting " ++ problem_)
                                    pat  = text ""
                                    help = text ""
@@ -291,9 +291,9 @@ sem_Error_HsParseError arg_pos_ arg_msg_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule3 #-}
-   {-# LINE 93 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 93 "src-ag/PrintErrorMessages.ag" #-}
    rule3 = \ ((_lhsIverbose) :: Bool) msg_ pos_ ->
-                               {-# LINE 93 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 93 "src-ag/PrintErrorMessages.ag" #-}
                                ppError True pos_ (text msg_) (text "") (text "") (text "Correct the syntax of the Haskell code.") _lhsIverbose
                                {-# LINE 299 "dist/build/PrintErrorMessages.hs"#-}
    {-# INLINE rule4 #-}
@@ -318,9 +318,9 @@ sem_Error_DupAlt arg_nt_ arg_con_ arg_occ1_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule6 #-}
-   {-# LINE 95 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 95 "src-ag/PrintErrorMessages.ag" #-}
    rule6 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ nt_ occ1_ ->
-                               {-# LINE 95 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 95 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Repeated definition for alternative", getName con_
                                                  ,"of nonterminal", getName nt_, "."
                                                  ] >-<
@@ -362,9 +362,9 @@ sem_Error_DupSynonym arg_nt_ arg_occ1_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule9 #-}
-   {-# LINE 117 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 117 "src-ag/PrintErrorMessages.ag" #-}
    rule9 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me nt_ occ1_ ->
-                               {-# LINE 117 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 117 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Definition of type synonym", getName nt_, "clashes with another"
                                                  ,"type synonym."
                                                  ] >-<
@@ -404,9 +404,9 @@ sem_Error_DupSet arg_name_ arg_occ1_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule12 #-}
-   {-# LINE 134 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 134 "src-ag/PrintErrorMessages.ag" #-}
    rule12 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me name_ occ1_ ->
-                               {-# LINE 134 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 134 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Definition of nonterminal set", getName name_, "clashes with another"
                                                  ,"set, a type synonym or a data definition."
                                                  ] >-<
@@ -445,9 +445,9 @@ sem_Error_DupInhAttr arg_nt_ arg_attr_ arg_occ1_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule15 #-}
-   {-# LINE 150 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 150 "src-ag/PrintErrorMessages.ag" #-}
    rule15 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ nt_ occ1_ ->
-                               {-# LINE 150 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 150 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Repeated declaration of inherited attribute", getName attr_
                                                  , "of nonterminal", getName nt_, "."
                                                  ] >-<
@@ -487,9 +487,9 @@ sem_Error_DupSynAttr arg_nt_ arg_attr_ arg_occ1_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule18 #-}
-   {-# LINE 169 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 169 "src-ag/PrintErrorMessages.ag" #-}
    rule18 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ nt_ occ1_ ->
-                               {-# LINE 169 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 169 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Repeated declaration of synthesized attribute", getName attr_
                                                  , "of nonterminal", getName nt_, "."
                                                  ] >-<
@@ -529,9 +529,9 @@ sem_Error_DupChild arg_nt_ arg_con_ arg_name_ arg_occ1_ = T_Error (return st2) w
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule21 #-}
-   {-# LINE 188 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 188 "src-ag/PrintErrorMessages.ag" #-}
    rule21 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ name_ nt_ occ1_ ->
-                               {-# LINE 188 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 188 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Repeated declaration for field", getName name_, "of alternative"
                                                  ,getName con_, "of nonterminal", getName nt_, "."
                                                  ] >-<
@@ -572,9 +572,9 @@ sem_Error_DupRule arg_nt_ arg_con_ arg_field_ arg_attr_ arg_occ1_ = T_Error (ret
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule24 #-}
-   {-# LINE 208 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 208 "src-ag/PrintErrorMessages.ag" #-}
    rule24 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ field_ nt_ occ1_ ->
-                               {-# LINE 208 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 208 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["At constructor",getName con_, "of nonterminal", getName nt_, "there are two or more rules for"
                                                  ,showAttrDef field_ attr_,"."
                                                  ]  >-<
@@ -613,9 +613,9 @@ sem_Error_DupRuleName arg_nt_ arg_con_ arg_nm_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule27 #-}
-   {-# LINE 226 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 226 "src-ag/PrintErrorMessages.ag" #-}
    rule27 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ nm_ nt_ ->
-                               {-# LINE 226 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 226 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["At constructor",getName con_, "of nonterminal", getName nt_, "there are two or more rule names for"
                                                  ,show nm_,"."
                                                  ]
@@ -651,9 +651,9 @@ sem_Error_DupSig arg_nt_ arg_con_ arg_attr_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule30 #-}
-   {-# LINE 241 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 241 "src-ag/PrintErrorMessages.ag" #-}
    rule30 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ nt_ ->
-                               {-# LINE 241 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 241 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["At constructor",getName con_, "of nonterminal", getName nt_, "there are two or more typesignatures for"
                                                  ,showAttrDef _LOC attr_,"."
                                                  ]  >-<
@@ -691,9 +691,9 @@ sem_Error_UndefNont arg_nt_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule33 #-}
-   {-# LINE 258 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 258 "src-ag/PrintErrorMessages.ag" #-}
    rule33 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me nt_ ->
-                               {-# LINE 258 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 258 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Nonterminal", getName nt_, "is not defined."
                                                  ]
                                    pat   = "DATA" >#< getName nt_ >#< "..."
@@ -725,9 +725,9 @@ sem_Error_UndefAlt arg_nt_ arg_con_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule36 #-}
-   {-# LINE 268 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 268 "src-ag/PrintErrorMessages.ag" #-}
    rule36 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ nt_ ->
-                               {-# LINE 268 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 268 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Constructor", getName con_, "of nonterminal" ,getName nt_, "is  not defined."
                                                  ]
                                    pat   =   "DATA" >#< getName nt_
@@ -761,9 +761,9 @@ sem_Error_UndefChild arg_nt_ arg_con_ arg_name_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule39 #-}
-   {-# LINE 280 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 280 "src-ag/PrintErrorMessages.ag" #-}
    rule39 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ name_ nt_ ->
-                               {-# LINE 280 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 280 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Constructor", getName con_, "of nonterminal" ,getName nt_
                                                  , "does not have a nontrivial field named", getName name_ , "."
                                                  ]
@@ -800,9 +800,9 @@ sem_Error_MissingRule arg_nt_ arg_con_ arg_field_ arg_attr_ = T_Error (return st
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule42 #-}
-   {-# LINE 295 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 295 "src-ag/PrintErrorMessages.ag" #-}
    rule42 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ field_ nt_ ->
-                               {-# LINE 295 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 295 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Missing rule for", showAttrDef field_ attr_ , "in alternative"
                                                  , getName con_ , "of nonterminal",getName nt_ ,"."
                                                  ]
@@ -837,9 +837,9 @@ sem_Error_MissingNamedRule arg_nt_ arg_con_ arg_name_ = T_Error (return st2) whe
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule45 #-}
-   {-# LINE 308 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 308 "src-ag/PrintErrorMessages.ag" #-}
    rule45 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ name_ nt_ ->
-                                  {-# LINE 308 "./src-ag/PrintErrorMessages.ag" #-}
+                                  {-# LINE 308 "src-ag/PrintErrorMessages.ag" #-}
                                   let mesg  = wfill ["Missing rule name ", show name_ , "in alternative"
                                                     , getName con_ , "of nonterminal",getName nt_ ,"."
                                                     ]
@@ -873,9 +873,9 @@ sem_Error_SuperfluousRule arg_nt_ arg_con_ arg_field_ arg_attr_ = T_Error (retur
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule48 #-}
-   {-# LINE 320 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 320 "src-ag/PrintErrorMessages.ag" #-}
    rule48 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ field_ nt_ ->
-                               {-# LINE 320 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 320 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Rule for non-existing", showAttrDef field_ attr_ , "at alternative"
                                                  , getName con_ , "of nonterminal",getName nt_, "."
                                                  ]
@@ -910,9 +910,9 @@ sem_Error_UndefLocal arg_nt_ arg_con_ arg_var_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule51 #-}
-   {-# LINE 334 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 334 "src-ag/PrintErrorMessages.ag" #-}
    rule51 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ nt_ var_ ->
-                               {-# LINE 334 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 334 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Undefined local variable or field",getName var_, "at constructor"
                                                  , getName con_ , "of nonterminal",getName nt_, "."
                                                  ]
@@ -949,9 +949,9 @@ sem_Error_ChildAsLocal arg_nt_ arg_con_ arg_var_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule54 #-}
-   {-# LINE 349 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 349 "src-ag/PrintErrorMessages.ag" #-}
    rule54 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me con_ nt_ var_ ->
-                               {-# LINE 349 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 349 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Nontrivial field ",getName var_, "is used as local at constructor"
                                                  , getName con_ , "of nonterminal",getName nt_, "."
                                                  ]
@@ -987,9 +987,9 @@ sem_Error_UndefAttr arg_nt_ arg_con_ arg_field_ arg_attr_ arg_isOut_ = T_Error (
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule57 #-}
-   {-# LINE 363 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 363 "src-ag/PrintErrorMessages.ag" #-}
    rule57 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ field_ isOut_ nt_ ->
-                               {-# LINE 363 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 363 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Undefined"
                                                  , if isOut_
                                                    then showAttrDef field_ attr_
@@ -1030,9 +1030,9 @@ sem_Error_Cyclic arg_nt_ arg_mbCon_ arg_verts_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule60 #-}
-   {-# LINE 391 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 391 "src-ag/PrintErrorMessages.ag" #-}
    rule60 = \ ((_lhsIoptions) :: Options) _me mbCon_ nt_ verts_ ->
-                               {-# LINE 391 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 391 "src-ag/PrintErrorMessages.ag" #-}
                                let pos  = getPos nt_
                                    mesg = text "Circular dependency for nonterminal" >#< getName nt_
                                           >#< ( case mbCon_ of
@@ -1070,9 +1070,9 @@ sem_Error_CyclicSet arg_name_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule63 #-}
-   {-# LINE 382 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 382 "src-ag/PrintErrorMessages.ag" #-}
    rule63 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me name_ ->
-                               {-# LINE 382 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 382 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Cyclic definition for nonterminal set", getName name_]
                                    pat   = "SET" >#< getName name_ >#< "=" >#< "..." >#< getName name_ >#< "..."
                                    help =  wfill ["The defintion for a nonterminal set named" , getName name_
@@ -1104,9 +1104,9 @@ sem_Error_CustomError arg_isWarning_ arg_pos_ arg_mesg_ = T_Error (return st2) w
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule66 #-}
-   {-# LINE 406 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 406 "src-ag/PrintErrorMessages.ag" #-}
    rule66 = \ ((_lhsIoptions) :: Options) _me mesg_ pos_ ->
-                               {-# LINE 406 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 406 "src-ag/PrintErrorMessages.ag" #-}
                                let pat   =  text "unknown"
                                    help = wfill ["not available."]
                                    act  = wfill ["unknown"]
@@ -1134,9 +1134,9 @@ sem_Error_LocalCirc arg_nt_ arg_con_ arg_attr_ arg_o_visit_ arg_path_ = T_Error 
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule69 #-}
-   {-# LINE 411 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 411 "src-ag/PrintErrorMessages.ag" #-}
    rule69 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ nt_ o_visit_ path_ ->
-                               {-# LINE 411 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 411 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Circular dependency for local attribute", getName attr_
                                                  , "of alternative", getName con_, "of nonterminal", getName nt_]
                                    pat   = "SEM" >#< getName nt_
@@ -1171,9 +1171,9 @@ sem_Error_InstCirc arg_nt_ arg_con_ arg_attr_ arg_o_visit_ arg_path_ = T_Error (
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule72 #-}
-   {-# LINE 423 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 423 "src-ag/PrintErrorMessages.ag" #-}
    rule72 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ nt_ o_visit_ path_ ->
-                               {-# LINE 423 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 423 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Circular dependency for inst attribute", getName attr_
                                                  , "of alternative", getName con_, "of nonterminal", getName nt_]
                                    pat   = "SEM" >#< getName nt_
@@ -1208,9 +1208,9 @@ sem_Error_DirectCirc arg_nt_ arg_o_visit_ arg_cyclic_ = T_Error (return st2) whe
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule75 #-}
-   {-# LINE 435 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 435 "src-ag/PrintErrorMessages.ag" #-}
    rule75 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me cyclic_ nt_ o_visit_ ->
-                               {-# LINE 435 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 435 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["In nonterminal", getName nt_, "synthesized and inherited attributes are mutually dependent" ]
                                            >-< vlist (map showEdge cyclic_)
                                    pat   = text ""
@@ -1241,9 +1241,9 @@ sem_Error_InducedCirc arg_nt_ arg_cinter_ arg_cyclic_ = T_Error (return st2) whe
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule78 #-}
-   {-# LINE 443 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 443 "src-ag/PrintErrorMessages.ag" #-}
    rule78 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me cinter_ cyclic_ nt_ ->
-                               {-# LINE 443 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 443 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["After scheduling, in nonterminal", getName nt_, "synthesized and inherited attributes have an INDUCED mutual dependency" ]
                                            >-< vlist (map showEdge cyclic_)
                                    pat   = text ""
@@ -1275,9 +1275,9 @@ sem_Error_MissingTypeSig arg_nt_ arg_con_ arg_attr_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule81 #-}
-   {-# LINE 452 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 452 "src-ag/PrintErrorMessages.ag" #-}
    rule81 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ nt_ ->
-                               {-# LINE 452 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 452 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg = wfill ["Type signature needed, but not found for", showAttrDef _LOC attr_ , "in alternative"
                                                  , getName con_ , "of nonterminal",getName nt_ ,"."
                                                  ]>-<
@@ -1314,9 +1314,9 @@ sem_Error_MissingInstSig arg_nt_ arg_con_ arg_attr_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule84 #-}
-   {-# LINE 466 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 466 "src-ag/PrintErrorMessages.ag" #-}
    rule84 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ nt_ ->
-                               {-# LINE 466 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 466 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg = wfill ["Type signature needed, but not found for", showAttrDef _INST attr_ , "in alternative"
                                                  , getName con_ , "of nonterminal",getName nt_ ,"."
                                                  ]>-<
@@ -1353,9 +1353,9 @@ sem_Error_DupUnique arg_nt_ arg_con_ arg_attr_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule87 #-}
-   {-# LINE 496 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 496 "src-ag/PrintErrorMessages.ag" #-}
    rule87 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ con_ nt_ ->
-                               {-# LINE 496 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 496 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["At constructor",getName con_, "of nonterminal", getName nt_, "there are two or more unique-attribute signatures for"
                                                  ,showAttrDef _LOC attr_,"."
                                                  ]  >-<
@@ -1393,9 +1393,9 @@ sem_Error_MissingUnique arg_nt_ arg_attr_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule90 #-}
-   {-# LINE 480 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 480 "src-ag/PrintErrorMessages.ag" #-}
    rule90 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ nt_ ->
-                               {-# LINE 480 "./src-ag/PrintErrorMessages.ag" #-}
+                               {-# LINE 480 "src-ag/PrintErrorMessages.ag" #-}
                                let mesg  = wfill ["Missing unique counter (chained attribute)"
                                                  , getName attr_
                                                  , "at nonterminal"
@@ -1433,9 +1433,9 @@ sem_Error_MissingSyn arg_nt_ arg_attr_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule93 #-}
-   {-# LINE 513 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 513 "src-ag/PrintErrorMessages.ag" #-}
    rule93 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me attr_ nt_ ->
-                              {-# LINE 513 "./src-ag/PrintErrorMessages.ag" #-}
+                              {-# LINE 513 "src-ag/PrintErrorMessages.ag" #-}
                               let mesg  = wfill ["Missing synthesized attribute"
                                                 , getName attr_
                                                 , "at nonterminal"
@@ -1473,9 +1473,9 @@ sem_Error_IncompatibleVisitKind arg_child_ arg_vis_ arg_from_ arg_to_ = T_Error 
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule96 #-}
-   {-# LINE 529 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 529 "src-ag/PrintErrorMessages.ag" #-}
    rule96 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me child_ from_ to_ vis_ ->
-                              {-# LINE 529 "./src-ag/PrintErrorMessages.ag" #-}
+                              {-# LINE 529 "src-ag/PrintErrorMessages.ag" #-}
                               let mesg  = "visit" >#< vis_ >#< "of child" >#< child_ >#< " with kind" >#< show to_ >#< " cannot be called from a visit with kind " >#< show from_
                                   pat   = empty
                                   help  = empty
@@ -1504,9 +1504,9 @@ sem_Error_IncompatibleRuleKind arg_rule_ arg_kind_ = T_Error (return st2) where
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule99 #-}
-   {-# LINE 535 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 535 "src-ag/PrintErrorMessages.ag" #-}
    rule99 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me kind_ rule_ ->
-                              {-# LINE 535 "./src-ag/PrintErrorMessages.ag" #-}
+                              {-# LINE 535 "src-ag/PrintErrorMessages.ag" #-}
                               let mesg  = "rule" >#< rule_ >#< "cannot be called from a visit with kind " >#< show kind_
                                   pat   = empty
                                   help  = empty
@@ -1535,9 +1535,9 @@ sem_Error_IncompatibleAttachKind arg_child_ arg_kind_ = T_Error (return st2) whe
          in __result_ )
      in C_Error_s2 v1
    {-# INLINE rule102 #-}
-   {-# LINE 542 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 542 "src-ag/PrintErrorMessages.ag" #-}
    rule102 = \ ((_lhsIoptions) :: Options) ((_lhsIverbose) :: Bool) _me child_ kind_ ->
-                              {-# LINE 542 "./src-ag/PrintErrorMessages.ag" #-}
+                              {-# LINE 542 "src-ag/PrintErrorMessages.ag" #-}
                               let mesg  = "child" >#< child_ >#< "cannot be called from a visit with kind " >#< show kind_
                                   pat   = empty
                                   help  = empty
@@ -1560,8 +1560,8 @@ wrap_Errors :: T_Errors  -> Inh_Errors  -> (Syn_Errors )
 wrap_Errors (T_Errors act) (Inh_Errors _lhsIdups _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Errors_vIn4 _lhsIdups _lhsIoptions
-        (T_Errors_vOut4 _lhsOpp) <- return (inv_Errors_s5 sem arg)
+        let arg4 = T_Errors_vIn4 _lhsIdups _lhsIoptions
+        (T_Errors_vOut4 _lhsOpp) <- return (inv_Errors_s5 sem arg4)
         return (Syn_Errors _lhsOpp)
    )
 
@@ -1604,29 +1604,29 @@ sem_Errors_Cons arg_hd_ arg_tl_ = T_Errors (return st5) where
          in __result_ )
      in C_Errors_s5 v4
    {-# INLINE rule105 #-}
-   {-# LINE 76 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 76 "src-ag/PrintErrorMessages.ag" #-}
    rule105 = \ ((_lhsIoptions) :: Options) ->
-                       {-# LINE 76 "./src-ag/PrintErrorMessages.ag" #-}
+                       {-# LINE 76 "src-ag/PrintErrorMessages.ag" #-}
                        verbose _lhsIoptions
                        {-# LINE 1612 "dist/build/PrintErrorMessages.hs"#-}
    {-# INLINE rule106 #-}
-   {-# LINE 77 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 77 "src-ag/PrintErrorMessages.ag" #-}
    rule106 = \ ((_hdIpp) :: PP_Doc) ->
-                      {-# LINE 77 "./src-ag/PrintErrorMessages.ag" #-}
+                      {-# LINE 77 "src-ag/PrintErrorMessages.ag" #-}
                       disp _hdIpp 5000 ""
                       {-# LINE 1618 "dist/build/PrintErrorMessages.hs"#-}
    {-# INLINE rule107 #-}
-   {-# LINE 79 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 79 "src-ag/PrintErrorMessages.ag" #-}
    rule107 = \ ((_hdIpp) :: PP_Doc) ((_lhsIdups) :: [String]) _str ((_tlIpp) :: PP_Doc) ->
-                     {-# LINE 79 "./src-ag/PrintErrorMessages.ag" #-}
+                     {-# LINE 79 "src-ag/PrintErrorMessages.ag" #-}
                      if _str     `elem` _lhsIdups
                      then _tlIpp
                      else _hdIpp >-< _tlIpp
                      {-# LINE 1626 "dist/build/PrintErrorMessages.hs"#-}
    {-# INLINE rule108 #-}
-   {-# LINE 82 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 82 "src-ag/PrintErrorMessages.ag" #-}
    rule108 = \ ((_lhsIdups) :: [String]) _str ->
-                      {-# LINE 82 "./src-ag/PrintErrorMessages.ag" #-}
+                      {-# LINE 82 "src-ag/PrintErrorMessages.ag" #-}
                       _str     : _lhsIdups
                       {-# LINE 1632 "dist/build/PrintErrorMessages.hs"#-}
    {-# INLINE rule109 #-}
@@ -1652,14 +1652,14 @@ sem_Errors_Nil  = T_Errors (return st5) where
          in __result_ )
      in C_Errors_s5 v4
    {-# INLINE rule112 #-}
-   {-# LINE 76 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 76 "src-ag/PrintErrorMessages.ag" #-}
    rule112 = \ ((_lhsIoptions) :: Options) ->
-                       {-# LINE 76 "./src-ag/PrintErrorMessages.ag" #-}
+                       {-# LINE 76 "src-ag/PrintErrorMessages.ag" #-}
                        verbose _lhsIoptions
                        {-# LINE 1660 "dist/build/PrintErrorMessages.hs"#-}
    {-# INLINE rule113 #-}
-   {-# LINE 83 "./src-ag/PrintErrorMessages.ag" #-}
+   {-# LINE 83 "src-ag/PrintErrorMessages.ag" #-}
    rule113 = \  (_ :: ()) ->
-                     {-# LINE 83 "./src-ag/PrintErrorMessages.ag" #-}
+                     {-# LINE 83 "src-ag/PrintErrorMessages.ag" #-}
                      text ""
                      {-# LINE 1666 "dist/build/PrintErrorMessages.hs"#-}

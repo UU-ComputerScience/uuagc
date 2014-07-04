@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/ErrorMessages.ag)
+-- UUAGC 0.9.51 (src-ag/ErrorMessages.ag)
 module ErrorMessages where
-{-# LINE 2 "./src-ag/ErrorMessages.ag" #-}
+{-# LINE 2 "src-ag/ErrorMessages.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import Pretty

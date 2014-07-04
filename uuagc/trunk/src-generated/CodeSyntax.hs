@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/CodeSyntax.ag)
+-- UUAGC 0.9.51 (src-ag/CodeSyntax.ag)
 module CodeSyntax where
-{-# LINE 2 "./src-ag/CodeSyntax.ag" #-}
+{-# LINE 2 "src-ag/CodeSyntax.ag" #-}
 
 import Patterns
 import CommonTypes

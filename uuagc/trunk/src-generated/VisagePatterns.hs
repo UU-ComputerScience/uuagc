@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/VisagePatterns.ag)
+-- UUAGC 0.9.51 (src-ag/VisagePatterns.ag)
 module VisagePatterns where
-{-# LINE 2 "./src-ag/VisagePatterns.ag" #-}
+{-# LINE 2 "src-ag/VisagePatterns.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import CommonTypes

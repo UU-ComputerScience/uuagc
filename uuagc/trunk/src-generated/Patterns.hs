@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/Patterns.ag)
+-- UUAGC 0.9.51 (src-ag/Patterns.ag)
 module Patterns where
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
+{-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)

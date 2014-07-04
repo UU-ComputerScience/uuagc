@@ -2,26 +2,26 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module KWOrder where
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
+{-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 11 "dist/build/KWOrder.hs" #-}
 
-{-# LINE 2 "./src-ag/Expression.ag" #-}
+{-# LINE 2 "src-ag/Expression.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import HsToken
 {-# LINE 17 "dist/build/KWOrder.hs" #-}
 
-{-# LINE 2 "./src-ag/HsToken.ag" #-}
+{-# LINE 2 "src-ag/HsToken.ag" #-}
 
 import CommonTypes
 import UU.Scanner.Position(Pos)
 {-# LINE 23 "dist/build/KWOrder.hs" #-}
 
-{-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
+{-# LINE 2 "src-ag/AbstractSyntax.ag" #-}
 
 -- AbstractSyntax.ag imports
 import Data.Set(Set)
@@ -33,7 +33,7 @@ import CommonTypes
 import ErrorMessages
 {-# LINE 35 "dist/build/KWOrder.hs" #-}
 
-{-# LINE 8 "./src-ag/KWOrder.ag" #-}
+{-# LINE 10 "src-ag/KWOrder.ag" #-}
 
 import AbstractSyntax
 import HsToken
@@ -57,7 +57,7 @@ import Data.Monoid(mappend,mempty)
 {-# LINE 58 "dist/build/KWOrder.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
-{-# LINE 275 "./src-ag/KWOrder.ag" #-}
+{-# LINE 125 "src-ag/KWOrder.ag" #-}
 
 -- a depends on b, thus a is a successor of b
 depToEdge :: Dependency -> Edge
@@ -84,8 +84,8 @@ wrap_Child :: T_Child  -> Inh_Child  -> (Syn_Child )
 wrap_Child (T_Child act) (Inh_Child _lhsIaroundMap _lhsIinhMap _lhsImergeMap _lhsImergedChildren _lhsIoptions _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Child_vIn1 _lhsIaroundMap _lhsIinhMap _lhsImergeMap _lhsImergedChildren _lhsIoptions _lhsIsynMap
-        (T_Child_vOut1 _lhsOechilds _lhsOedges _lhsOnontnames _lhsOrefHoNts _lhsOrefNts _lhsOvertices) <- return (inv_Child_s2 sem arg)
+        let arg1 = T_Child_vIn1 _lhsIaroundMap _lhsIinhMap _lhsImergeMap _lhsImergedChildren _lhsIoptions _lhsIsynMap
+        (T_Child_vOut1 _lhsOechilds _lhsOedges _lhsOnontnames _lhsOrefHoNts _lhsOrefNts _lhsOvertices) <- return (inv_Child_s2 sem arg1)
         return (Syn_Child _lhsOechilds _lhsOedges _lhsOnontnames _lhsOrefHoNts _lhsOrefNts _lhsOvertices)
    )
 
@@ -112,17 +112,17 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
    st2 = let
       v1 :: T_Child_v1 
       v1 = \ (T_Child_vIn1 _lhsIaroundMap _lhsIinhMap _lhsImergeMap _lhsImergedChildren _lhsIoptions _lhsIsynMap) -> ( let
-         _chnt = rule0 arg_name_ arg_tp_
-         _inh = rule1 _chnt _lhsIinhMap
-         _syn = rule2 _chnt _lhsIsynMap
-         _refNts = rule3 arg_tp_
-         _refHoNts = rule4 _isHigherOrder _refNts
-         _isHigherOrder = rule5 arg_kind_
-         _hasArounds = rule6 _lhsIaroundMap arg_name_
-         _merges = rule7 _lhsImergeMap arg_name_
-         _isMerged = rule8 _lhsImergedChildren arg_name_
+         _refNts = rule0 arg_tp_
+         _refHoNts = rule1 _isHigherOrder _refNts
+         _isHigherOrder = rule2 arg_kind_
+         _hasArounds = rule3 _lhsIaroundMap arg_name_
+         _merges = rule4 _lhsImergeMap arg_name_
+         _isMerged = rule5 _lhsImergedChildren arg_name_
          _lhsOechilds :: EChild
-         _lhsOechilds = rule9 _hasArounds _isMerged _merges arg_kind_ arg_name_ arg_tp_
+         _lhsOechilds = rule6 _hasArounds _isMerged _merges arg_kind_ arg_name_ arg_tp_
+         _chnt = rule7 arg_name_ arg_tp_
+         _inh = rule8 _chnt _lhsIinhMap
+         _syn = rule9 _chnt _lhsIsynMap
          _vertex = rule10 arg_name_
          _synvertices = rule11 _syn arg_name_
          _inhvertices = rule12 _inh arg_name_
@@ -145,149 +145,149 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
          in __result_ )
      in C_Child_s2 v1
    {-# INLINE rule0 #-}
-   {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
-   rule0 = \ name_ tp_ ->
-                       {-# LINE 19 "./src-ag/DistChildAttr.ag" #-}
+   {-# LINE 31 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule0 = \ tp_ ->
+                 {-# LINE 31 "src-ag/ExecutionPlanCommon.ag" #-}
+                 case tp_ of
+                   NT nt _ _ -> Set.singleton nt
+                   _         -> mempty
+                 {-# LINE 155 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule1 #-}
+   {-# LINE 34 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule1 = \ _isHigherOrder _refNts ->
+                   {-# LINE 34 "src-ag/ExecutionPlanCommon.ag" #-}
+                   if _isHigherOrder     then _refNts     else mempty
+                   {-# LINE 161 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule2 #-}
+   {-# LINE 35 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule2 = \ kind_ ->
+                        {-# LINE 35 "src-ag/ExecutionPlanCommon.ag" #-}
+                        case kind_ of
+                          ChildSyntax -> False
+                          _           -> True
+                        {-# LINE 169 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule3 #-}
+   {-# LINE 95 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule3 = \ ((_lhsIaroundMap) :: Map Identifier [Expression]) name_ ->
+                     {-# LINE 95 "src-ag/ExecutionPlanCommon.ag" #-}
+                     case Map.lookup name_ _lhsIaroundMap of
+                       Nothing -> False
+                       Just as -> not (null as)
+                     {-# LINE 177 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule4 #-}
+   {-# LINE 123 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule4 = \ ((_lhsImergeMap) :: Map Identifier (Identifier, [Identifier], Expression)) name_ ->
+                   {-# LINE 123 "src-ag/ExecutionPlanCommon.ag" #-}
+                   maybe Nothing (\(_,ms,_) -> Just ms) $ Map.lookup name_ _lhsImergeMap
+                   {-# LINE 183 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule5 #-}
+   {-# LINE 124 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule5 = \ ((_lhsImergedChildren) :: Set Identifier) name_ ->
+                   {-# LINE 124 "src-ag/ExecutionPlanCommon.ag" #-}
+                   name_ `Set.member` _lhsImergedChildren
+                   {-# LINE 189 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule6 #-}
+   {-# LINE 135 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule6 = \ _hasArounds _isMerged _merges kind_ name_ tp_ ->
+                          {-# LINE 135 "src-ag/ExecutionPlanCommon.ag" #-}
+                          case tp_ of
+                            NT _ _ _ -> EChild name_ tp_ kind_ _hasArounds     _merges     _isMerged
+                            _        -> ETerm name_ tp_
+                          {-# LINE 197 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule7 #-}
+   {-# LINE 19 "src-ag/DistChildAttr.ag" #-}
+   rule7 = \ name_ tp_ ->
+                       {-# LINE 19 "src-ag/DistChildAttr.ag" #-}
                        case tp_ of
                          NT nt _ _ -> nt
                          Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
                          Haskell t -> identifier ""
-                       {-# LINE 156 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule1 #-}
-   {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
-   rule1 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
-                      {-# LINE 23 "./src-ag/DistChildAttr.ag" #-}
-                      Map.findWithDefault Map.empty _chnt     _lhsIinhMap
-                      {-# LINE 162 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule2 #-}
-   {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
-   rule2 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
-                      {-# LINE 24 "./src-ag/DistChildAttr.ag" #-}
-                      Map.findWithDefault Map.empty _chnt     _lhsIsynMap
-                      {-# LINE 168 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule3 #-}
-   {-# LINE 74 "./src-ag/KWOrder.ag" #-}
-   rule3 = \ tp_ ->
-                 {-# LINE 74 "./src-ag/KWOrder.ag" #-}
-                 case tp_ of
-                   NT nt _ _ -> Set.singleton nt
-                   _         -> mempty
-                 {-# LINE 176 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule4 #-}
-   {-# LINE 77 "./src-ag/KWOrder.ag" #-}
-   rule4 = \ _isHigherOrder _refNts ->
-                   {-# LINE 77 "./src-ag/KWOrder.ag" #-}
-                   if _isHigherOrder     then _refNts     else mempty
-                   {-# LINE 182 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule5 #-}
-   {-# LINE 78 "./src-ag/KWOrder.ag" #-}
-   rule5 = \ kind_ ->
-                        {-# LINE 78 "./src-ag/KWOrder.ag" #-}
-                        case kind_ of
-                          ChildSyntax -> False
-                          _           -> True
-                        {-# LINE 190 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule6 #-}
-   {-# LINE 108 "./src-ag/KWOrder.ag" #-}
-   rule6 = \ ((_lhsIaroundMap) :: Map Identifier [Expression]) name_ ->
-                     {-# LINE 108 "./src-ag/KWOrder.ag" #-}
-                     case Map.lookup name_ _lhsIaroundMap of
-                       Nothing -> False
-                       Just as -> not (null as)
-                     {-# LINE 198 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule7 #-}
-   {-# LINE 136 "./src-ag/KWOrder.ag" #-}
-   rule7 = \ ((_lhsImergeMap) :: Map Identifier (Identifier, [Identifier], Expression)) name_ ->
-                   {-# LINE 136 "./src-ag/KWOrder.ag" #-}
-                   maybe Nothing (\(_,ms,_) -> Just ms) $ Map.lookup name_ _lhsImergeMap
-                   {-# LINE 204 "dist/build/KWOrder.hs"#-}
+                       {-# LINE 206 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule8 #-}
-   {-# LINE 137 "./src-ag/KWOrder.ag" #-}
-   rule8 = \ ((_lhsImergedChildren) :: Set Identifier) name_ ->
-                   {-# LINE 137 "./src-ag/KWOrder.ag" #-}
-                   name_ `Set.member` _lhsImergedChildren
-                   {-# LINE 210 "dist/build/KWOrder.hs"#-}
+   {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
+   rule8 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
+                      {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
+                      Map.findWithDefault Map.empty _chnt     _lhsIinhMap
+                      {-# LINE 212 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule9 #-}
-   {-# LINE 178 "./src-ag/KWOrder.ag" #-}
-   rule9 = \ _hasArounds _isMerged _merges kind_ name_ tp_ ->
-                          {-# LINE 178 "./src-ag/KWOrder.ag" #-}
-                          case tp_ of
-                            NT _ _ _ -> EChild name_ tp_ kind_ _hasArounds     _merges     _isMerged
-                            _        -> ETerm name_ tp_
-                          {-# LINE 218 "dist/build/KWOrder.hs"#-}
+   {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
+   rule9 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
+                      {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
+                      Map.findWithDefault Map.empty _chnt     _lhsIsynMap
+                      {-# LINE 218 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule10 #-}
-   {-# LINE 215 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 65 "src-ag/KWOrder.ag" #-}
    rule10 = \ name_ ->
-                               {-# LINE 215 "./src-ag/KWOrder.ag" #-}
+                               {-# LINE 65 "src-ag/KWOrder.ag" #-}
                                VChild name_
                                {-# LINE 224 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule11 #-}
-   {-# LINE 216 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 66 "src-ag/KWOrder.ag" #-}
    rule11 = \ _syn name_ ->
-                               {-# LINE 216 "./src-ag/KWOrder.ag" #-}
+                               {-# LINE 66 "src-ag/KWOrder.ag" #-}
                                map (VAttr Syn name_) . Map.keys $ _syn
                                {-# LINE 230 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule12 #-}
-   {-# LINE 217 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 67 "src-ag/KWOrder.ag" #-}
    rule12 = \ _inh name_ ->
-                               {-# LINE 217 "./src-ag/KWOrder.ag" #-}
+                               {-# LINE 67 "src-ag/KWOrder.ag" #-}
                                map (VAttr Inh name_) . Map.keys $ _inh
                                {-# LINE 236 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule13 #-}
-   {-# LINE 218 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 68 "src-ag/KWOrder.ag" #-}
    rule13 = \ _inhvertices _synvertices _vertex tp_ ->
-                               {-# LINE 218 "./src-ag/KWOrder.ag" #-}
+                               {-# LINE 68 "src-ag/KWOrder.ag" #-}
                                case tp_ of
                                   NT _ _ _ -> Set.insert _vertex     $ Set.fromList (_synvertices     ++ _inhvertices    )
                                   _        -> Set.empty
                                {-# LINE 244 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule14 #-}
-   {-# LINE 248 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 98 "src-ag/KWOrder.ag" #-}
    rule14 = \ tp_ ->
-                            {-# LINE 248 "./src-ag/KWOrder.ag" #-}
+                            {-# LINE 98 "src-ag/KWOrder.ag" #-}
                             case tp_ of
                               NT _ _ defor -> defor
                               _            -> False
                             {-# LINE 252 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule15 #-}
-   {-# LINE 251 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 101 "src-ag/KWOrder.ag" #-}
    rule15 = \ _childIsDeforested ((_lhsIoptions) :: Options) _vertex kind_ ->
-                           {-# LINE 251 "./src-ag/KWOrder.ag" #-}
+                           {-# LINE 101 "src-ag/KWOrder.ag" #-}
                            case kind_ of
                              ChildAttr | lateHigherOrderBinding _lhsIoptions && not _childIsDeforested
                                           -> [(_vertex    , VAttr Inh _LHS idLateBindingAttr)]
                              _            -> []
                            {-# LINE 261 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule16 #-}
-   {-# LINE 255 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 105 "src-ag/KWOrder.ag" #-}
    rule16 = \ _hasArounds _vertex name_ ->
-                           {-# LINE 255 "./src-ag/KWOrder.ag" #-}
+                           {-# LINE 105 "src-ag/KWOrder.ag" #-}
                            if _hasArounds
                            then [(_vertex    , VAttr Syn _LOC (Ident (getName name_ ++ "_around") (getPos name_)))]
                            else []
                            {-# LINE 269 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule17 #-}
-   {-# LINE 261 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 111 "src-ag/KWOrder.ag" #-}
    rule17 = \ _higherOrderEdges ->
-                            {-# LINE 261 "./src-ag/KWOrder.ag" #-}
+                            {-# LINE 111 "src-ag/KWOrder.ag" #-}
                             _higherOrderEdges
                             {-# LINE 275 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule18 #-}
-   {-# LINE 262 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 112 "src-ag/KWOrder.ag" #-}
    rule18 = \ _synvertices _vertex ->
-                            {-# LINE 262 "./src-ag/KWOrder.ag" #-}
+                            {-# LINE 112 "src-ag/KWOrder.ag" #-}
                             map (flip (,) _vertex    ) _synvertices
                             {-# LINE 281 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule19 #-}
-   {-# LINE 263 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 113 "src-ag/KWOrder.ag" #-}
    rule19 = \ _edgesin _edgesout ->
-                            {-# LINE 263 "./src-ag/KWOrder.ag" #-}
+                            {-# LINE 113 "src-ag/KWOrder.ag" #-}
                             Set.fromList (_edgesout     ++ _edgesin    )
                             {-# LINE 287 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule20 #-}
-   {-# LINE 301 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 151 "src-ag/KWOrder.ag" #-}
    rule20 = \ name_ tp_ ->
-                             {-# LINE 301 "./src-ag/KWOrder.ag" #-}
+                             {-# LINE 151 "src-ag/KWOrder.ag" #-}
                              case tp_ of
                                NT nont _ _ -> [(name_, nont)]
                                _           -> []
@@ -308,8 +308,8 @@ wrap_Children :: T_Children  -> Inh_Children  -> (Syn_Children )
 wrap_Children (T_Children act) (Inh_Children _lhsIaroundMap _lhsIinhMap _lhsImergeMap _lhsImergedChildren _lhsIoptions _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Children_vIn4 _lhsIaroundMap _lhsIinhMap _lhsImergeMap _lhsImergedChildren _lhsIoptions _lhsIsynMap
-        (T_Children_vOut4 _lhsOechilds _lhsOedges _lhsOnontnames _lhsOrefHoNts _lhsOrefNts _lhsOvertices) <- return (inv_Children_s5 sem arg)
+        let arg4 = T_Children_vIn4 _lhsIaroundMap _lhsIinhMap _lhsImergeMap _lhsImergedChildren _lhsIoptions _lhsIsynMap
+        (T_Children_vOut4 _lhsOechilds _lhsOedges _lhsOnontnames _lhsOrefHoNts _lhsOrefNts _lhsOvertices) <- return (inv_Children_s5 sem arg4)
         return (Syn_Children _lhsOechilds _lhsOedges _lhsOnontnames _lhsOrefHoNts _lhsOrefNts _lhsOvertices)
    )
 
@@ -471,8 +471,8 @@ wrap_Expression :: T_Expression  -> Inh_Expression  -> (Syn_Expression )
 wrap_Expression (T_Expression act) (Inh_Expression ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Expression_vIn7 
-        (T_Expression_vOut7 _lhsOcopy _lhsOvertices) <- return (inv_Expression_s8 sem arg)
+        let arg7 = T_Expression_vIn7 
+        (T_Expression_vOut7 _lhsOcopy _lhsOvertices) <- return (inv_Expression_s8 sem arg7)
         return (Syn_Expression _lhsOcopy _lhsOvertices)
    )
 
@@ -508,9 +508,9 @@ sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st8) where
          in __result_ )
      in C_Expression_s8 v7
    {-# INLINE rule47 #-}
-   {-# LINE 200 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 50 "src-ag/KWOrder.ag" #-}
    rule47 = \ tks_ ->
-                                 {-# LINE 200 "./src-ag/KWOrder.ag" #-}
+                                 {-# LINE 50 "src-ag/KWOrder.ag" #-}
                                  Set.unions $ map (\tok -> vertices_Syn_HsToken
                                               (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) tks_
                                  {-# LINE 517 "dist/build/KWOrder.hs"#-}
@@ -530,8 +530,8 @@ wrap_Grammar :: T_Grammar  -> Inh_Grammar  -> (Syn_Grammar )
 wrap_Grammar (T_Grammar act) (Inh_Grammar _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Grammar_vIn10 _lhsIoptions
-        (T_Grammar_vOut10 _lhsOdepgraphs _lhsOerrors _lhsOinhmap _lhsOlocalSigMap _lhsOoutput _lhsOsynmap _lhsOvisitgraph) <- return (inv_Grammar_s11 sem arg)
+        let arg10 = T_Grammar_vIn10 _lhsIoptions
+        (T_Grammar_vOut10 _lhsOdepgraphs _lhsOerrors _lhsOinhmap _lhsOlocalSigMap _lhsOoutput _lhsOsynmap _lhsOvisitgraph) <- return (inv_Grammar_s11 sem arg10)
         return (Syn_Grammar _lhsOdepgraphs _lhsOerrors _lhsOinhmap _lhsOlocalSigMap _lhsOoutput _lhsOsynmap _lhsOvisitgraph)
    )
 
@@ -560,15 +560,15 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ _ ar
       v10 = \ (T_Grammar_vIn10 _lhsIoptions) -> ( let
          _nontsX26 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_nonts_))
          (T_Nonterminals_vOut25 _nontsIdepinfo _nontsIinhMap' _nontsIinhmap _nontsIlocalSigMap _nontsIntDeps _nontsIntHoDeps _nontsIrulenumber _nontsIsynMap' _nontsIsynmap) = inv_Nonterminals_s26 _nontsX26 (T_Nonterminals_vIn25 _nontsOaroundMap _nontsOclassContexts _nontsOclosedHoNtDeps _nontsOclosedHoNtRevDeps _nontsOclosedNtDeps _nontsOinhMap _nontsOmanualDeps _nontsOmergeMap _nontsOoptions _nontsOrulenumber _nontsOsynMap)
-         _nontsOinhMap = rule50 _nontsIinhMap'
-         _nontsOsynMap = rule51 _nontsIsynMap'
-         _nontsOrulenumber = rule52  ()
-         _closedNtDeps = rule53 _nontsIntDeps
-         _closedHoNtDeps = rule54 _nontsIntHoDeps
-         _closedHoNtRevDeps = rule55 _closedHoNtDeps
-         _nontsOaroundMap = rule56 arg_aroundsMap_
-         _nontsOmergeMap = rule57 arg_mergeMap_
-         _nontsOclassContexts = rule58 arg_contextMap_
+         _closedNtDeps = rule50 _nontsIntDeps
+         _closedHoNtDeps = rule51 _nontsIntHoDeps
+         _closedHoNtRevDeps = rule52 _closedHoNtDeps
+         _nontsOclassContexts = rule53 arg_contextMap_
+         _nontsOaroundMap = rule54 arg_aroundsMap_
+         _nontsOmergeMap = rule55 arg_mergeMap_
+         _nontsOrulenumber = rule56  ()
+         _nontsOinhMap = rule57 _nontsIinhMap'
+         _nontsOsynMap = rule58 _nontsIsynMap'
          _nontsOmanualDeps = rule59 arg_manualAttrOrderMap_
          _lhsOoutput :: ExecutionPlan
          _lhsOdepgraphs :: PP_Doc
@@ -589,69 +589,69 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ _ ar
          in __result_ )
      in C_Grammar_s11 v10
    {-# INLINE rule50 #-}
-   {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
-   rule50 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
-                             {-# LINE 15 "./src-ag/DistChildAttr.ag" #-}
-                             _nontsIinhMap'
-                             {-# LINE 597 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule51 #-}
-   {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
-   rule51 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
-                             {-# LINE 16 "./src-ag/DistChildAttr.ag" #-}
-                             _nontsIsynMap'
-                             {-# LINE 603 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule52 #-}
-   {-# LINE 44 "./src-ag/KWOrder.ag" #-}
-   rule52 = \  (_ :: ()) ->
-                                  {-# LINE 44 "./src-ag/KWOrder.ag" #-}
-                                  0
-                                  {-# LINE 609 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule53 #-}
-   {-# LINE 83 "./src-ag/KWOrder.ag" #-}
-   rule53 = \ ((_nontsIntDeps) :: Map NontermIdent (Set NontermIdent)) ->
-                            {-# LINE 83 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 40 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule50 = \ ((_nontsIntDeps) :: Map NontermIdent (Set NontermIdent)) ->
+                            {-# LINE 40 "src-ag/ExecutionPlanCommon.ag" #-}
                             closeMap _nontsIntDeps
-                            {-# LINE 615 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule54 #-}
-   {-# LINE 84 "./src-ag/KWOrder.ag" #-}
-   rule54 = \ ((_nontsIntHoDeps) :: Map NontermIdent (Set NontermIdent)) ->
-                            {-# LINE 84 "./src-ag/KWOrder.ag" #-}
+                            {-# LINE 597 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule51 #-}
+   {-# LINE 41 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule51 = \ ((_nontsIntHoDeps) :: Map NontermIdent (Set NontermIdent)) ->
+                            {-# LINE 41 "src-ag/ExecutionPlanCommon.ag" #-}
                             closeMap _nontsIntHoDeps
-                            {-# LINE 621 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule55 #-}
-   {-# LINE 85 "./src-ag/KWOrder.ag" #-}
-   rule55 = \ _closedHoNtDeps ->
-                            {-# LINE 85 "./src-ag/KWOrder.ag" #-}
+                            {-# LINE 603 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule52 #-}
+   {-# LINE 42 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule52 = \ _closedHoNtDeps ->
+                            {-# LINE 42 "src-ag/ExecutionPlanCommon.ag" #-}
                             revDeps _closedHoNtDeps
-                            {-# LINE 627 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule56 #-}
-   {-# LINE 105 "./src-ag/KWOrder.ag" #-}
-   rule56 = \ aroundsMap_ ->
-                      {-# LINE 105 "./src-ag/KWOrder.ag" #-}
-                      aroundsMap_
-                      {-# LINE 633 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule57 #-}
-   {-# LINE 130 "./src-ag/KWOrder.ag" #-}
-   rule57 = \ mergeMap_ ->
-                     {-# LINE 130 "./src-ag/KWOrder.ag" #-}
-                     mergeMap_
-                     {-# LINE 639 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule58 #-}
-   {-# LINE 146 "./src-ag/KWOrder.ag" #-}
-   rule58 = \ contextMap_ ->
-                          {-# LINE 146 "./src-ag/KWOrder.ag" #-}
+                            {-# LINE 609 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule53 #-}
+   {-# LINE 51 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule53 = \ contextMap_ ->
+                          {-# LINE 51 "src-ag/ExecutionPlanCommon.ag" #-}
                           contextMap_
-                          {-# LINE 645 "dist/build/KWOrder.hs"#-}
+                          {-# LINE 615 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule54 #-}
+   {-# LINE 92 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule54 = \ aroundsMap_ ->
+                      {-# LINE 92 "src-ag/ExecutionPlanCommon.ag" #-}
+                      aroundsMap_
+                      {-# LINE 621 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule55 #-}
+   {-# LINE 117 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule55 = \ mergeMap_ ->
+                     {-# LINE 117 "src-ag/ExecutionPlanCommon.ag" #-}
+                     mergeMap_
+                     {-# LINE 627 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule56 #-}
+   {-# LINE 9 "src-ag/ExecutionPlanPre.ag" #-}
+   rule56 = \  (_ :: ()) ->
+                                  {-# LINE 9 "src-ag/ExecutionPlanPre.ag" #-}
+                                  0
+                                  {-# LINE 633 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule57 #-}
+   {-# LINE 15 "src-ag/DistChildAttr.ag" #-}
+   rule57 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
+                             {-# LINE 15 "src-ag/DistChildAttr.ag" #-}
+                             _nontsIinhMap'
+                             {-# LINE 639 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule58 #-}
+   {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
+   rule58 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
+                             {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
+                             _nontsIsynMap'
+                             {-# LINE 645 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule59 #-}
-   {-# LINE 269 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 119 "src-ag/KWOrder.ag" #-}
    rule59 = \ manualAttrOrderMap_ ->
-                                                   {-# LINE 269 "./src-ag/KWOrder.ag" #-}
+                                                   {-# LINE 119 "src-ag/KWOrder.ag" #-}
                                                    manualAttrOrderMap_
                                                    {-# LINE 651 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule60 #-}
-   {-# LINE 360 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 210 "src-ag/KWOrder.ag" #-}
    rule60 = \ ((_lhsIoptions) :: Options) ((_nontsIdepinfo) :: [NontDependencyInformation]) derivings_ typeSyns_ wrappers_ ->
-                    {-# LINE 360 "./src-ag/KWOrder.ag" #-}
+                    {-# LINE 210 "src-ag/KWOrder.ag" #-}
                     let lazyPlan = kennedyWarrenLazy _lhsIoptions wrappers_ _nontsIdepinfo typeSyns_ derivings_
                     in if visit _lhsIoptions && withCycle _lhsIoptions
                        then case kennedyWarrenOrder _lhsIoptions wrappers_ _nontsIdepinfo typeSyns_ derivings_ of
@@ -690,8 +690,8 @@ wrap_HsToken :: T_HsToken  -> Inh_HsToken  -> (Syn_HsToken )
 wrap_HsToken (T_HsToken act) (Inh_HsToken ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_HsToken_vIn13 
-        (T_HsToken_vOut13 _lhsOvertices) <- return (inv_HsToken_s14 sem arg)
+        let arg13 = T_HsToken_vIn13 
+        (T_HsToken_vOut13 _lhsOvertices) <- return (inv_HsToken_s14 sem arg13)
         return (Syn_HsToken _lhsOvertices)
    )
 
@@ -729,9 +729,9 @@ sem_HsToken_AGLocal arg_var_ _ _ = T_HsToken (return st14) where
          in __result_ )
      in C_HsToken_s14 v13
    {-# INLINE rule68 #-}
-   {-# LINE 193 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 43 "src-ag/KWOrder.ag" #-}
    rule68 = \ var_ ->
-                              {-# LINE 193 "./src-ag/KWOrder.ag" #-}
+                              {-# LINE 43 "src-ag/KWOrder.ag" #-}
                               Set.singleton $ VChild var_
                               {-# LINE 737 "dist/build/KWOrder.hs"#-}
 {-# NOINLINE sem_HsToken_AGField #-}
@@ -747,9 +747,9 @@ sem_HsToken_AGField arg_field_ arg_attr_ _ _ = T_HsToken (return st14) where
          in __result_ )
      in C_HsToken_s14 v13
    {-# INLINE rule69 #-}
-   {-# LINE 194 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 44 "src-ag/KWOrder.ag" #-}
    rule69 = \ attr_ field_ ->
-                              {-# LINE 194 "./src-ag/KWOrder.ag" #-}
+                              {-# LINE 44 "src-ag/KWOrder.ag" #-}
                               Set.singleton $ VAttr (if      field_ == _LHS then Inh
                                                      else if field_ == _LOC then Loc
                                                      else                        Syn) field_ attr_
@@ -824,8 +824,8 @@ wrap_HsTokens :: T_HsTokens  -> Inh_HsTokens  -> (Syn_HsTokens )
 wrap_HsTokens (T_HsTokens act) (Inh_HsTokens ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_HsTokens_vIn16 
-        (T_HsTokens_vOut16 ) <- return (inv_HsTokens_s17 sem arg)
+        let arg16 = T_HsTokens_vIn16 
+        (T_HsTokens_vOut16 ) <- return (inv_HsTokens_s17 sem arg16)
         return (Syn_HsTokens )
    )
 
@@ -879,8 +879,8 @@ wrap_HsTokensRoot :: T_HsTokensRoot  -> Inh_HsTokensRoot  -> (Syn_HsTokensRoot )
 wrap_HsTokensRoot (T_HsTokensRoot act) (Inh_HsTokensRoot ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_HsTokensRoot_vIn19 
-        (T_HsTokensRoot_vOut19 ) <- return (inv_HsTokensRoot_s20 sem arg)
+        let arg19 = T_HsTokensRoot_vIn19 
+        (T_HsTokensRoot_vOut19 ) <- return (inv_HsTokensRoot_s20 sem arg19)
         return (Syn_HsTokensRoot )
    )
 
@@ -922,8 +922,8 @@ wrap_Nonterminal :: T_Nonterminal  -> Inh_Nonterminal  -> (Syn_Nonterminal )
 wrap_Nonterminal (T_Nonterminal act) (Inh_Nonterminal _lhsIaroundMap _lhsIclassContexts _lhsIclosedHoNtDeps _lhsIclosedHoNtRevDeps _lhsIclosedNtDeps _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Nonterminal_vIn22 _lhsIaroundMap _lhsIclassContexts _lhsIclosedHoNtDeps _lhsIclosedHoNtRevDeps _lhsIclosedNtDeps _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap
-        (T_Nonterminal_vOut22 _lhsOdepinfo _lhsOinhMap' _lhsOinhmap _lhsOlocalSigMap _lhsOntDeps _lhsOntHoDeps _lhsOrulenumber _lhsOsynMap' _lhsOsynmap) <- return (inv_Nonterminal_s23 sem arg)
+        let arg22 = T_Nonterminal_vIn22 _lhsIaroundMap _lhsIclassContexts _lhsIclosedHoNtDeps _lhsIclosedHoNtRevDeps _lhsIclosedNtDeps _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap
+        (T_Nonterminal_vOut22 _lhsOdepinfo _lhsOinhMap' _lhsOinhmap _lhsOlocalSigMap _lhsOntDeps _lhsOntHoDeps _lhsOrulenumber _lhsOsynMap' _lhsOsynmap) <- return (inv_Nonterminal_s23 sem arg22)
         return (Syn_Nonterminal _lhsOdepinfo _lhsOinhMap' _lhsOinhmap _lhsOlocalSigMap _lhsOntDeps _lhsOntHoDeps _lhsOrulenumber _lhsOsynMap' _lhsOsynmap)
    )
 
@@ -952,36 +952,36 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
       v22 = \ (T_Nonterminal_vIn22 _lhsIaroundMap _lhsIclassContexts _lhsIclosedHoNtDeps _lhsIclosedHoNtRevDeps _lhsIclosedNtDeps _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap) -> ( let
          _prodsX38 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_))
          (T_Productions_vOut37 _prodsIdepgraph _prodsIlocalSigMap _prodsIrefHoNts _prodsIrefNts _prodsIrulenumber) = inv_Productions_s38 _prodsX38 (T_Productions_vIn37 _prodsOaroundMap _prodsOinhMap _prodsOmanualDeps _prodsOmergeMap _prodsOoptions _prodsOrulenumber _prodsOsynMap)
-         _lhsOinhMap' :: Map Identifier Attributes
-         _lhsOinhMap' = rule74 arg_inh_ arg_nt_
-         _lhsOsynMap' :: Map Identifier Attributes
-         _lhsOsynMap' = rule75 arg_nt_ arg_syn_
          _lhsOntDeps :: Map NontermIdent (Set NontermIdent)
-         _lhsOntDeps = rule76 _prodsIrefNts arg_nt_
+         _lhsOntDeps = rule74 _prodsIrefNts arg_nt_
          _lhsOntHoDeps :: Map NontermIdent (Set NontermIdent)
-         _lhsOntHoDeps = rule77 _prodsIrefHoNts arg_nt_
-         _closedNtDeps = rule78 _lhsIclosedNtDeps arg_nt_
-         _closedHoNtDeps = rule79 _lhsIclosedHoNtDeps arg_nt_
-         _closedHoNtRevDeps = rule80 _lhsIclosedHoNtRevDeps arg_nt_
-         _recursive = rule81 _closedNtDeps arg_nt_
-         _nontrivAcyc = rule82 _closedHoNtDeps arg_nt_
-         _hoInfo = rule83 _closedHoNtDeps _closedHoNtRevDeps _nontrivAcyc
-         _aroundMap = rule84 _lhsIaroundMap arg_nt_
-         _mergeMap = rule85 _lhsImergeMap arg_nt_
-         _classContexts = rule86 _lhsIclassContexts arg_nt_
-         _prodsOmanualDeps = rule87 _lhsImanualDeps arg_nt_
-         _synvertices = rule88 arg_nt_ arg_syn_
-         _inhvertices = rule89 arg_inh_ arg_nt_
-         _vertices = rule90 _inhvertices _synvertices
-         _nontgraph = rule91 _vertices
-         _lhsOdepinfo :: NontDependencyInformation
-         _lhsOdepinfo = rule92 _classContexts _hoInfo _nontgraph _prodsIdepgraph _recursive arg_inh_ arg_nt_ arg_params_ arg_syn_
+         _lhsOntHoDeps = rule75 _prodsIrefHoNts arg_nt_
+         _closedNtDeps = rule76 _lhsIclosedNtDeps arg_nt_
+         _closedHoNtDeps = rule77 _lhsIclosedHoNtDeps arg_nt_
+         _closedHoNtRevDeps = rule78 _lhsIclosedHoNtRevDeps arg_nt_
+         _recursive = rule79 _closedNtDeps arg_nt_
+         _nontrivAcyc = rule80 _closedHoNtDeps arg_nt_
+         _hoInfo = rule81 _closedHoNtDeps _closedHoNtRevDeps _nontrivAcyc
+         _classContexts = rule82 _lhsIclassContexts arg_nt_
+         _aroundMap = rule83 _lhsIaroundMap arg_nt_
+         _mergeMap = rule84 _lhsImergeMap arg_nt_
          _lhsOinhmap :: Map.Map NontermIdent Attributes
-         _lhsOinhmap = rule93 arg_inh_ arg_nt_
+         _lhsOinhmap = rule85 arg_inh_ arg_nt_
          _lhsOsynmap :: Map.Map NontermIdent Attributes
-         _lhsOsynmap = rule94 arg_nt_ arg_syn_
+         _lhsOsynmap = rule86 arg_nt_ arg_syn_
          _lhsOlocalSigMap :: Map.Map NontermIdent (Map.Map ConstructorIdent (Map.Map Identifier Type))
-         _lhsOlocalSigMap = rule95 _prodsIlocalSigMap arg_nt_
+         _lhsOlocalSigMap = rule87 _prodsIlocalSigMap arg_nt_
+         _lhsOinhMap' :: Map Identifier Attributes
+         _lhsOinhMap' = rule88 arg_inh_ arg_nt_
+         _lhsOsynMap' :: Map Identifier Attributes
+         _lhsOsynMap' = rule89 arg_nt_ arg_syn_
+         _prodsOmanualDeps = rule90 _lhsImanualDeps arg_nt_
+         _synvertices = rule91 arg_nt_ arg_syn_
+         _inhvertices = rule92 arg_inh_ arg_nt_
+         _vertices = rule93 _inhvertices _synvertices
+         _nontgraph = rule94 _vertices
+         _lhsOdepinfo :: NontDependencyInformation
+         _lhsOdepinfo = rule95 _classContexts _hoInfo _nontgraph _prodsIdepgraph _recursive arg_inh_ arg_nt_ arg_params_ arg_syn_
          _lhsOrulenumber :: Int
          _lhsOrulenumber = rule96 _prodsIrulenumber
          _prodsOaroundMap = rule97 _aroundMap
@@ -994,121 +994,139 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
          in __result_ )
      in C_Nonterminal_s23 v22
    {-# INLINE rule74 #-}
-   {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
-   rule74 = \ inh_ nt_ ->
-                                 {-# LINE 7 "./src-ag/DistChildAttr.ag" #-}
-                                 Map.singleton nt_ inh_
-                                 {-# LINE 1002 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule75 #-}
-   {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
-   rule75 = \ nt_ syn_ ->
-                                 {-# LINE 8 "./src-ag/DistChildAttr.ag" #-}
-                                 Map.singleton nt_ syn_
-                                 {-# LINE 1008 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule76 #-}
-   {-# LINE 59 "./src-ag/KWOrder.ag" #-}
-   rule76 = \ ((_prodsIrefNts) :: Set NontermIdent) nt_ ->
-                            {-# LINE 59 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 16 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule74 = \ ((_prodsIrefNts) :: Set NontermIdent) nt_ ->
+                            {-# LINE 16 "src-ag/ExecutionPlanCommon.ag" #-}
                             Map.singleton nt_ _prodsIrefNts
+                            {-# LINE 1002 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule75 #-}
+   {-# LINE 17 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule75 = \ ((_prodsIrefHoNts) :: Set NontermIdent) nt_ ->
+                            {-# LINE 17 "src-ag/ExecutionPlanCommon.ag" #-}
+                            Map.singleton nt_ _prodsIrefHoNts
+                            {-# LINE 1008 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule76 #-}
+   {-# LINE 19 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule76 = \ ((_lhsIclosedNtDeps) :: Map NontermIdent (Set NontermIdent)) nt_ ->
+                            {-# LINE 19 "src-ag/ExecutionPlanCommon.ag" #-}
+                            Map.findWithDefault Set.empty nt_ _lhsIclosedNtDeps
                             {-# LINE 1014 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule77 #-}
-   {-# LINE 60 "./src-ag/KWOrder.ag" #-}
-   rule77 = \ ((_prodsIrefHoNts) :: Set NontermIdent) nt_ ->
-                            {-# LINE 60 "./src-ag/KWOrder.ag" #-}
-                            Map.singleton nt_ _prodsIrefHoNts
+   {-# LINE 20 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule77 = \ ((_lhsIclosedHoNtDeps) :: Map NontermIdent (Set NontermIdent)) nt_ ->
+                            {-# LINE 20 "src-ag/ExecutionPlanCommon.ag" #-}
+                            Map.findWithDefault Set.empty nt_ _lhsIclosedHoNtDeps
                             {-# LINE 1020 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule78 #-}
-   {-# LINE 62 "./src-ag/KWOrder.ag" #-}
-   rule78 = \ ((_lhsIclosedNtDeps) :: Map NontermIdent (Set NontermIdent)) nt_ ->
-                            {-# LINE 62 "./src-ag/KWOrder.ag" #-}
-                            Map.findWithDefault Set.empty nt_ _lhsIclosedNtDeps
+   {-# LINE 21 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule78 = \ ((_lhsIclosedHoNtRevDeps) :: Map NontermIdent (Set NontermIdent)) nt_ ->
+                            {-# LINE 21 "src-ag/ExecutionPlanCommon.ag" #-}
+                            Map.findWithDefault Set.empty nt_ _lhsIclosedHoNtRevDeps
                             {-# LINE 1026 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule79 #-}
-   {-# LINE 63 "./src-ag/KWOrder.ag" #-}
-   rule79 = \ ((_lhsIclosedHoNtDeps) :: Map NontermIdent (Set NontermIdent)) nt_ ->
-                            {-# LINE 63 "./src-ag/KWOrder.ag" #-}
-                            Map.findWithDefault Set.empty nt_ _lhsIclosedHoNtDeps
+   {-# LINE 23 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule79 = \ _closedNtDeps nt_ ->
+                            {-# LINE 23 "src-ag/ExecutionPlanCommon.ag" #-}
+                            nt_ `Set.member` _closedNtDeps
                             {-# LINE 1032 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule80 #-}
-   {-# LINE 64 "./src-ag/KWOrder.ag" #-}
-   rule80 = \ ((_lhsIclosedHoNtRevDeps) :: Map NontermIdent (Set NontermIdent)) nt_ ->
-                            {-# LINE 64 "./src-ag/KWOrder.ag" #-}
-                            Map.findWithDefault Set.empty nt_ _lhsIclosedHoNtRevDeps
+   {-# LINE 24 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule80 = \ _closedHoNtDeps nt_ ->
+                            {-# LINE 24 "src-ag/ExecutionPlanCommon.ag" #-}
+                            nt_ `Set.member` _closedHoNtDeps
                             {-# LINE 1038 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule81 #-}
-   {-# LINE 66 "./src-ag/KWOrder.ag" #-}
-   rule81 = \ _closedNtDeps nt_ ->
-                            {-# LINE 66 "./src-ag/KWOrder.ag" #-}
-                            nt_ `Set.member` _closedNtDeps
-                            {-# LINE 1044 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule82 #-}
-   {-# LINE 67 "./src-ag/KWOrder.ag" #-}
-   rule82 = \ _closedHoNtDeps nt_ ->
-                            {-# LINE 67 "./src-ag/KWOrder.ag" #-}
-                            nt_ `Set.member` _closedHoNtDeps
-                            {-# LINE 1050 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule83 #-}
-   {-# LINE 68 "./src-ag/KWOrder.ag" #-}
-   rule83 = \ _closedHoNtDeps _closedHoNtRevDeps _nontrivAcyc ->
-                            {-# LINE 68 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 25 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule81 = \ _closedHoNtDeps _closedHoNtRevDeps _nontrivAcyc ->
+                            {-# LINE 25 "src-ag/ExecutionPlanCommon.ag" #-}
                             HigherOrderInfo { hoNtDeps            = _closedHoNtDeps
                                             , hoNtRevDeps         = _closedHoNtRevDeps
                                             , hoAcyclic           = _nontrivAcyc
                                             }
-                            {-# LINE 1059 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule84 #-}
-   {-# LINE 101 "./src-ag/KWOrder.ag" #-}
-   rule84 = \ ((_lhsIaroundMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) nt_ ->
-                                                 {-# LINE 101 "./src-ag/KWOrder.ag" #-}
-                                                 Map.findWithDefault Map.empty nt_ _lhsIaroundMap
-                                                 {-# LINE 1065 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule85 #-}
-   {-# LINE 126 "./src-ag/KWOrder.ag" #-}
-   rule85 = \ ((_lhsImergeMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))) nt_ ->
-                                                {-# LINE 126 "./src-ag/KWOrder.ag" #-}
-                                                Map.findWithDefault Map.empty nt_ _lhsImergeMap
-                                                {-# LINE 1071 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule86 #-}
-   {-# LINE 149 "./src-ag/KWOrder.ag" #-}
-   rule86 = \ ((_lhsIclassContexts) :: ContextMap) nt_ ->
-                        {-# LINE 149 "./src-ag/KWOrder.ag" #-}
+                            {-# LINE 1047 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule82 #-}
+   {-# LINE 54 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule82 = \ ((_lhsIclassContexts) :: ContextMap) nt_ ->
+                        {-# LINE 54 "src-ag/ExecutionPlanCommon.ag" #-}
                         Map.findWithDefault [] nt_ _lhsIclassContexts
-                        {-# LINE 1077 "dist/build/KWOrder.hs"#-}
+                        {-# LINE 1053 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule83 #-}
+   {-# LINE 88 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule83 = \ ((_lhsIaroundMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) nt_ ->
+                                                 {-# LINE 88 "src-ag/ExecutionPlanCommon.ag" #-}
+                                                 Map.findWithDefault Map.empty nt_ _lhsIaroundMap
+                                                 {-# LINE 1059 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule84 #-}
+   {-# LINE 113 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule84 = \ ((_lhsImergeMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))) nt_ ->
+                                                {-# LINE 113 "src-ag/ExecutionPlanCommon.ag" #-}
+                                                Map.findWithDefault Map.empty nt_ _lhsImergeMap
+                                                {-# LINE 1065 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule85 #-}
+   {-# LINE 149 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule85 = \ inh_ nt_ ->
+                               {-# LINE 149 "src-ag/ExecutionPlanCommon.ag" #-}
+                               Map.singleton nt_ inh_
+                               {-# LINE 1071 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule86 #-}
+   {-# LINE 150 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule86 = \ nt_ syn_ ->
+                               {-# LINE 150 "src-ag/ExecutionPlanCommon.ag" #-}
+                               Map.singleton nt_ syn_
+                               {-# LINE 1077 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule87 #-}
-   {-# LINE 270 "./src-ag/KWOrder.ag" #-}
-   rule87 = \ ((_lhsImanualDeps) :: AttrOrderMap) nt_ ->
-                                                   {-# LINE 270 "./src-ag/KWOrder.ag" #-}
-                                                   Map.findWithDefault Map.empty nt_ _lhsImanualDeps
+   {-# LINE 159 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule87 = \ ((_prodsIlocalSigMap) :: Map.Map ConstructorIdent (Map.Map Identifier Type)) nt_ ->
+                                                   {-# LINE 159 "src-ag/ExecutionPlanCommon.ag" #-}
+                                                   Map.singleton nt_ _prodsIlocalSigMap
                                                    {-# LINE 1083 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule88 #-}
-   {-# LINE 325 "./src-ag/KWOrder.ag" #-}
-   rule88 = \ nt_ syn_ ->
-                                     {-# LINE 325 "./src-ag/KWOrder.ag" #-}
-                                     map (VAttr Syn nt_) . Map.keys $ syn_
-                                     {-# LINE 1089 "dist/build/KWOrder.hs"#-}
+   {-# LINE 7 "src-ag/DistChildAttr.ag" #-}
+   rule88 = \ inh_ nt_ ->
+                                 {-# LINE 7 "src-ag/DistChildAttr.ag" #-}
+                                 Map.singleton nt_ inh_
+                                 {-# LINE 1089 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule89 #-}
-   {-# LINE 326 "./src-ag/KWOrder.ag" #-}
-   rule89 = \ inh_ nt_ ->
-                                     {-# LINE 326 "./src-ag/KWOrder.ag" #-}
-                                     map (VAttr Inh nt_) . Map.keys $ inh_
-                                     {-# LINE 1095 "dist/build/KWOrder.hs"#-}
+   {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
+   rule89 = \ nt_ syn_ ->
+                                 {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
+                                 Map.singleton nt_ syn_
+                                 {-# LINE 1095 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule90 #-}
-   {-# LINE 327 "./src-ag/KWOrder.ag" #-}
-   rule90 = \ _inhvertices _synvertices ->
-                                     {-# LINE 327 "./src-ag/KWOrder.ag" #-}
-                                     _synvertices     ++ _inhvertices
-                                     {-# LINE 1101 "dist/build/KWOrder.hs"#-}
+   {-# LINE 120 "src-ag/KWOrder.ag" #-}
+   rule90 = \ ((_lhsImanualDeps) :: AttrOrderMap) nt_ ->
+                                                   {-# LINE 120 "src-ag/KWOrder.ag" #-}
+                                                   Map.findWithDefault Map.empty nt_ _lhsImanualDeps
+                                                   {-# LINE 1101 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule91 #-}
-   {-# LINE 331 "./src-ag/KWOrder.ag" #-}
-   rule91 = \ _vertices ->
-                                   {-# LINE 331 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 175 "src-ag/KWOrder.ag" #-}
+   rule91 = \ nt_ syn_ ->
+                                     {-# LINE 175 "src-ag/KWOrder.ag" #-}
+                                     map (VAttr Syn nt_) . Map.keys $ syn_
+                                     {-# LINE 1107 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule92 #-}
+   {-# LINE 176 "src-ag/KWOrder.ag" #-}
+   rule92 = \ inh_ nt_ ->
+                                     {-# LINE 176 "src-ag/KWOrder.ag" #-}
+                                     map (VAttr Inh nt_) . Map.keys $ inh_
+                                     {-# LINE 1113 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule93 #-}
+   {-# LINE 177 "src-ag/KWOrder.ag" #-}
+   rule93 = \ _inhvertices _synvertices ->
+                                     {-# LINE 177 "src-ag/KWOrder.ag" #-}
+                                     _synvertices     ++ _inhvertices
+                                     {-# LINE 1119 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule94 #-}
+   {-# LINE 181 "src-ag/KWOrder.ag" #-}
+   rule94 = \ _vertices ->
+                                   {-# LINE 181 "src-ag/KWOrder.ag" #-}
                                    NontDependencyGraph { ndgVertices = _vertices
                                                        , ndgEdges    = [] }
-                                   {-# LINE 1108 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule92 #-}
-   {-# LINE 339 "./src-ag/KWOrder.ag" #-}
-   rule92 = \ _classContexts _hoInfo _nontgraph ((_prodsIdepgraph) :: [ProdDependencyGraph]) _recursive inh_ nt_ params_ syn_ ->
-                                 {-# LINE 339 "./src-ag/KWOrder.ag" #-}
+                                   {-# LINE 1126 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule95 #-}
+   {-# LINE 189 "src-ag/KWOrder.ag" #-}
+   rule95 = \ _classContexts _hoInfo _nontgraph ((_prodsIdepgraph) :: [ProdDependencyGraph]) _recursive inh_ nt_ params_ syn_ ->
+                                 {-# LINE 189 "src-ag/KWOrder.ag" #-}
                                  NontDependencyInformation { ndiNonterminal = nt_
                                                            , ndiParams      = params_
                                                            , ndiInh         = Map.keys inh_
@@ -1119,25 +1137,7 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
                                                            , ndiHoInfo      = _hoInfo
                                                            , ndiClassCtxs   = _classContexts
                                                            }
-                                 {-# LINE 1123 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule93 #-}
-   {-# LINE 377 "./src-ag/KWOrder.ag" #-}
-   rule93 = \ inh_ nt_ ->
-                               {-# LINE 377 "./src-ag/KWOrder.ag" #-}
-                               Map.singleton nt_ inh_
-                               {-# LINE 1129 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule94 #-}
-   {-# LINE 378 "./src-ag/KWOrder.ag" #-}
-   rule94 = \ nt_ syn_ ->
-                               {-# LINE 378 "./src-ag/KWOrder.ag" #-}
-                               Map.singleton nt_ syn_
-                               {-# LINE 1135 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule95 #-}
-   {-# LINE 387 "./src-ag/KWOrder.ag" #-}
-   rule95 = \ ((_prodsIlocalSigMap) :: Map.Map ConstructorIdent (Map.Map Identifier Type)) nt_ ->
-                                                   {-# LINE 387 "./src-ag/KWOrder.ag" #-}
-                                                   Map.singleton nt_ _prodsIlocalSigMap
-                                                   {-# LINE 1141 "dist/build/KWOrder.hs"#-}
+                                 {-# LINE 1141 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule96 #-}
    rule96 = \ ((_prodsIrulenumber) :: Int) ->
      _prodsIrulenumber
@@ -1169,8 +1169,8 @@ wrap_Nonterminals :: T_Nonterminals  -> Inh_Nonterminals  -> (Syn_Nonterminals )
 wrap_Nonterminals (T_Nonterminals act) (Inh_Nonterminals _lhsIaroundMap _lhsIclassContexts _lhsIclosedHoNtDeps _lhsIclosedHoNtRevDeps _lhsIclosedNtDeps _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Nonterminals_vIn25 _lhsIaroundMap _lhsIclassContexts _lhsIclosedHoNtDeps _lhsIclosedHoNtRevDeps _lhsIclosedNtDeps _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap
-        (T_Nonterminals_vOut25 _lhsOdepinfo _lhsOinhMap' _lhsOinhmap _lhsOlocalSigMap _lhsOntDeps _lhsOntHoDeps _lhsOrulenumber _lhsOsynMap' _lhsOsynmap) <- return (inv_Nonterminals_s26 sem arg)
+        let arg25 = T_Nonterminals_vIn25 _lhsIaroundMap _lhsIclassContexts _lhsIclosedHoNtDeps _lhsIclosedHoNtRevDeps _lhsIclosedNtDeps _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap
+        (T_Nonterminals_vOut25 _lhsOdepinfo _lhsOinhMap' _lhsOinhmap _lhsOlocalSigMap _lhsOntDeps _lhsOntHoDeps _lhsOrulenumber _lhsOsynMap' _lhsOsynmap) <- return (inv_Nonterminals_s26 sem arg25)
         return (Syn_Nonterminals _lhsOdepinfo _lhsOinhMap' _lhsOinhmap _lhsOlocalSigMap _lhsOntDeps _lhsOntHoDeps _lhsOrulenumber _lhsOsynMap' _lhsOsynmap)
    )
 
@@ -1402,8 +1402,8 @@ wrap_Pattern :: T_Pattern  -> Inh_Pattern  -> (Syn_Pattern )
 wrap_Pattern (T_Pattern act) (Inh_Pattern ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Pattern_vIn28 
-        (T_Pattern_vOut28 _lhsOcopy _lhsOvertices) <- return (inv_Pattern_s29 sem arg)
+        let arg28 = T_Pattern_vIn28 
+        (T_Pattern_vOut28 _lhsOcopy _lhsOvertices) <- return (inv_Pattern_s29 sem arg28)
         return (Syn_Pattern _lhsOcopy _lhsOvertices)
    )
 
@@ -1498,18 +1498,18 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st29) where
          in __result_ )
      in C_Pattern_s29 v28
    {-# INLINE rule149 #-}
-   {-# LINE 205 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 55 "src-ag/KWOrder.ag" #-}
    rule149 = \ attr_ field_ ->
-                            {-# LINE 205 "./src-ag/KWOrder.ag" #-}
+                            {-# LINE 55 "src-ag/KWOrder.ag" #-}
                             if                  field_ == _INST then VChild attr_
                             else VAttr (if      field_ == _LHS  then Syn
                                         else if field_ == _LOC  then Loc
                                         else                         Inh) field_ attr_
                             {-# LINE 1509 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule150 #-}
-   {-# LINE 209 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 59 "src-ag/KWOrder.ag" #-}
    rule150 = \ ((_patIvertices) :: Set.Set Vertex) _vertex ->
-                            {-# LINE 209 "./src-ag/KWOrder.ag" #-}
+                            {-# LINE 59 "src-ag/KWOrder.ag" #-}
                             Set.insert _vertex     _patIvertices
                             {-# LINE 1515 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule151 #-}
@@ -1578,8 +1578,8 @@ wrap_Patterns :: T_Patterns  -> Inh_Patterns  -> (Syn_Patterns )
 wrap_Patterns (T_Patterns act) (Inh_Patterns ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Patterns_vIn31 
-        (T_Patterns_vOut31 _lhsOcopy _lhsOvertices) <- return (inv_Patterns_s32 sem arg)
+        let arg31 = T_Patterns_vIn31 
+        (T_Patterns_vOut31 _lhsOcopy _lhsOvertices) <- return (inv_Patterns_s32 sem arg31)
         return (Syn_Patterns _lhsOcopy _lhsOvertices)
    )
 
@@ -1661,8 +1661,8 @@ wrap_Production :: T_Production  -> Inh_Production  -> (Syn_Production )
 wrap_Production (T_Production act) (Inh_Production _lhsIaroundMap _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Production_vIn34 _lhsIaroundMap _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap
-        (T_Production_vOut34 _lhsOdepgraph _lhsOlocalSigMap _lhsOrefHoNts _lhsOrefNts _lhsOrulenumber) <- return (inv_Production_s35 sem arg)
+        let arg34 = T_Production_vIn34 _lhsIaroundMap _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap
+        (T_Production_vOut34 _lhsOdepgraph _lhsOlocalSigMap _lhsOrefHoNts _lhsOrefNts _lhsOrulenumber) <- return (inv_Production_s35 sem arg34)
         return (Syn_Production _lhsOdepgraph _lhsOlocalSigMap _lhsOrefHoNts _lhsOrefNts _lhsOrulenumber)
    )
 
@@ -1698,14 +1698,14 @@ sem_Production_Production arg_con_ arg_params_ arg_constraints_ arg_children_ ar
          _aroundMap = rule165 _lhsIaroundMap arg_con_
          _mergeMap = rule166 _lhsImergeMap arg_con_
          _mergedChildren = rule167 _mergeMap
-         _vertices = rule168 _childrenIvertices _rulesIvertices
-         _manualDeps = rule169 _lhsImanualDeps arg_con_
-         _manualEdges = rule170 _manualDeps
-         _edges = rule171 _childrenIedges _rulesIedges
-         _lhsOdepgraph :: ProdDependencyGraph
-         _lhsOdepgraph = rule172 _childrenIechilds _childrenInontnames _edges _rulesIerules _vertices arg_con_ arg_constraints_ arg_params_
          _lhsOlocalSigMap :: Map.Map ConstructorIdent (Map.Map Identifier Type)
-         _lhsOlocalSigMap = rule173 _typeSigsIlocalSigMap arg_con_
+         _lhsOlocalSigMap = rule168 _typeSigsIlocalSigMap arg_con_
+         _vertices = rule169 _childrenIvertices _rulesIvertices
+         _manualDeps = rule170 _lhsImanualDeps arg_con_
+         _manualEdges = rule171 _manualDeps
+         _edges = rule172 _childrenIedges _rulesIedges
+         _lhsOdepgraph :: ProdDependencyGraph
+         _lhsOdepgraph = rule173 _childrenIechilds _childrenInontnames _edges _rulesIerules _vertices arg_con_ arg_constraints_ arg_params_
          _lhsOrefHoNts :: Set NontermIdent
          _lhsOrefHoNts = rule174 _childrenIrefHoNts
          _lhsOrefNts :: Set NontermIdent
@@ -1723,51 +1723,57 @@ sem_Production_Production arg_con_ arg_params_ arg_constraints_ arg_children_ ar
          in __result_ )
      in C_Production_s35 v34
    {-# INLINE rule165 #-}
-   {-# LINE 102 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 89 "src-ag/ExecutionPlanCommon.ag" #-}
    rule165 = \ ((_lhsIaroundMap) :: Map ConstructorIdent (Map Identifier [Expression])) con_ ->
-                                                 {-# LINE 102 "./src-ag/KWOrder.ag" #-}
+                                                 {-# LINE 89 "src-ag/ExecutionPlanCommon.ag" #-}
                                                  Map.findWithDefault Map.empty con_ _lhsIaroundMap
                                                  {-# LINE 1731 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule166 #-}
-   {-# LINE 127 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 114 "src-ag/ExecutionPlanCommon.ag" #-}
    rule166 = \ ((_lhsImergeMap) :: Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression))) con_ ->
-                                                {-# LINE 127 "./src-ag/KWOrder.ag" #-}
+                                                {-# LINE 114 "src-ag/ExecutionPlanCommon.ag" #-}
                                                 Map.findWithDefault Map.empty con_ _lhsImergeMap
                                                 {-# LINE 1737 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule167 #-}
-   {-# LINE 133 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 120 "src-ag/ExecutionPlanCommon.ag" #-}
    rule167 = \ _mergeMap ->
-                         {-# LINE 133 "./src-ag/KWOrder.ag" #-}
+                         {-# LINE 120 "src-ag/ExecutionPlanCommon.ag" #-}
                          Set.unions [ Set.fromList ms | (_,ms,_) <- Map.elems _mergeMap     ]
                          {-# LINE 1743 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule168 #-}
-   {-# LINE 229 "./src-ag/KWOrder.ag" #-}
-   rule168 = \ ((_childrenIvertices) :: Set.Set Vertex) ((_rulesIvertices) :: Set.Set Vertex) ->
-                                 {-# LINE 229 "./src-ag/KWOrder.ag" #-}
-                                 _rulesIvertices `Set.union` _childrenIvertices
-                                 {-# LINE 1749 "dist/build/KWOrder.hs"#-}
+   {-# LINE 160 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule168 = \ ((_typeSigsIlocalSigMap) :: Map Identifier Type) con_ ->
+                                                   {-# LINE 160 "src-ag/ExecutionPlanCommon.ag" #-}
+                                                   Map.singleton con_ _typeSigsIlocalSigMap
+                                                   {-# LINE 1749 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule169 #-}
-   {-# LINE 272 "./src-ag/KWOrder.ag" #-}
-   rule169 = \ ((_lhsImanualDeps) :: Map ConstructorIdent (Set Dependency)) con_ ->
-                       {-# LINE 272 "./src-ag/KWOrder.ag" #-}
-                       Map.findWithDefault Set.empty con_ _lhsImanualDeps
-                       {-# LINE 1755 "dist/build/KWOrder.hs"#-}
+   {-# LINE 79 "src-ag/KWOrder.ag" #-}
+   rule169 = \ ((_childrenIvertices) :: Set.Set Vertex) ((_rulesIvertices) :: Set.Set Vertex) ->
+                                 {-# LINE 79 "src-ag/KWOrder.ag" #-}
+                                 _rulesIvertices `Set.union` _childrenIvertices
+                                 {-# LINE 1755 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule170 #-}
-   {-# LINE 273 "./src-ag/KWOrder.ag" #-}
-   rule170 = \ _manualDeps ->
-                       {-# LINE 273 "./src-ag/KWOrder.ag" #-}
-                       Set.map depToEdge _manualDeps
+   {-# LINE 122 "src-ag/KWOrder.ag" #-}
+   rule170 = \ ((_lhsImanualDeps) :: Map ConstructorIdent (Set Dependency)) con_ ->
+                       {-# LINE 122 "src-ag/KWOrder.ag" #-}
+                       Map.findWithDefault Set.empty con_ _lhsImanualDeps
                        {-# LINE 1761 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule171 #-}
-   {-# LINE 295 "./src-ag/KWOrder.ag" #-}
-   rule171 = \ ((_childrenIedges) :: Set.Set Edge) ((_rulesIedges) :: Set.Set Edge) ->
-                              {-# LINE 295 "./src-ag/KWOrder.ag" #-}
-                              _rulesIedges `Set.union` _childrenIedges
-                              {-# LINE 1767 "dist/build/KWOrder.hs"#-}
+   {-# LINE 123 "src-ag/KWOrder.ag" #-}
+   rule171 = \ _manualDeps ->
+                       {-# LINE 123 "src-ag/KWOrder.ag" #-}
+                       Set.map depToEdge _manualDeps
+                       {-# LINE 1767 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule172 #-}
-   {-# LINE 310 "./src-ag/KWOrder.ag" #-}
-   rule172 = \ ((_childrenIechilds) :: EChildren) ((_childrenInontnames) :: [(Identifier, Identifier)]) _edges ((_rulesIerules) :: ERules) _vertices con_ constraints_ params_ ->
-                                  {-# LINE 310 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 145 "src-ag/KWOrder.ag" #-}
+   rule172 = \ ((_childrenIedges) :: Set.Set Edge) ((_rulesIedges) :: Set.Set Edge) ->
+                              {-# LINE 145 "src-ag/KWOrder.ag" #-}
+                              _rulesIedges `Set.union` _childrenIedges
+                              {-# LINE 1773 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule173 #-}
+   {-# LINE 160 "src-ag/KWOrder.ag" #-}
+   rule173 = \ ((_childrenIechilds) :: EChildren) ((_childrenInontnames) :: [(Identifier, Identifier)]) _edges ((_rulesIerules) :: ERules) _vertices con_ constraints_ params_ ->
+                                  {-# LINE 160 "src-ag/KWOrder.ag" #-}
                                   ProdDependencyGraph { pdgVertices    = Set.toList _vertices
                                                       , pdgEdges       = Set.toList _edges
                                                       , pdgRules       = _rulesIerules
@@ -1776,13 +1782,7 @@ sem_Production_Production arg_con_ arg_params_ arg_constraints_ arg_children_ ar
                                                       , pdgChildMap    = _childrenInontnames
                                                       , pdgConstraints = constraints_
                                                       , pdgParams      = params_ }
-                                  {-# LINE 1780 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule173 #-}
-   {-# LINE 388 "./src-ag/KWOrder.ag" #-}
-   rule173 = \ ((_typeSigsIlocalSigMap) :: Map Identifier Type) con_ ->
-                                                   {-# LINE 388 "./src-ag/KWOrder.ag" #-}
-                                                   Map.singleton con_ _typeSigsIlocalSigMap
-                                                   {-# LINE 1786 "dist/build/KWOrder.hs"#-}
+                                  {-# LINE 1786 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule174 #-}
    rule174 = \ ((_childrenIrefHoNts) :: Set NontermIdent) ->
      _childrenIrefHoNts
@@ -1823,8 +1823,8 @@ wrap_Productions :: T_Productions  -> Inh_Productions  -> (Syn_Productions )
 wrap_Productions (T_Productions act) (Inh_Productions _lhsIaroundMap _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Productions_vIn37 _lhsIaroundMap _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap
-        (T_Productions_vOut37 _lhsOdepgraph _lhsOlocalSigMap _lhsOrefHoNts _lhsOrefNts _lhsOrulenumber) <- return (inv_Productions_s38 sem arg)
+        let arg37 = T_Productions_vIn37 _lhsIaroundMap _lhsIinhMap _lhsImanualDeps _lhsImergeMap _lhsIoptions _lhsIrulenumber _lhsIsynMap
+        (T_Productions_vOut37 _lhsOdepgraph _lhsOlocalSigMap _lhsOrefHoNts _lhsOrefNts _lhsOrulenumber) <- return (inv_Productions_s38 sem arg37)
         return (Syn_Productions _lhsOdepgraph _lhsOlocalSigMap _lhsOrefHoNts _lhsOrefNts _lhsOrulenumber)
    )
 
@@ -1984,8 +1984,8 @@ wrap_Rule :: T_Rule  -> Inh_Rule  -> (Syn_Rule )
 wrap_Rule (T_Rule act) (Inh_Rule _lhsIrulenumber) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Rule_vIn40 _lhsIrulenumber
-        (T_Rule_vOut40 _lhsOedges _lhsOerules _lhsOrulenumber _lhsOvertices) <- return (inv_Rule_s41 sem arg)
+        let arg40 = T_Rule_vIn40 _lhsIrulenumber
+        (T_Rule_vOut40 _lhsOedges _lhsOerules _lhsOrulenumber _lhsOvertices) <- return (inv_Rule_s41 sem arg40)
         return (Syn_Rule _lhsOedges _lhsOerules _lhsOrulenumber _lhsOvertices)
    )
 
@@ -2016,11 +2016,11 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
          _rhsX8 = Control.Monad.Identity.runIdentity (attach_T_Expression (arg_rhs_))
          (T_Pattern_vOut28 _patternIcopy _patternIvertices) = inv_Pattern_s29 _patternX29 (T_Pattern_vIn28 )
          (T_Expression_vOut7 _rhsIcopy _rhsIvertices) = inv_Expression_s8 _rhsX8 (T_Expression_vIn7 )
-         _lhsOrulenumber :: Int
-         _lhsOrulenumber = rule208 _lhsIrulenumber
-         _rulename = rule209 _lhsIrulenumber arg_mbName_
          _lhsOerules :: ERule
-         _lhsOerules = rule210 _patternIcopy _rhsIcopy _rulename arg_explicit_ arg_mbError_ arg_origin_ arg_owrt_ arg_pure_
+         _lhsOerules = rule208 _patternIcopy _rhsIcopy _rulename arg_explicit_ arg_mbError_ arg_origin_ arg_owrt_ arg_pure_
+         _lhsOrulenumber :: Int
+         _lhsOrulenumber = rule209 _lhsIrulenumber
+         _rulename = rule210 _lhsIrulenumber arg_mbName_
          _vertex = rule211 _rulename
          _lhsOvertices :: Set.Set Vertex
          _lhsOvertices = rule212 _patternIvertices _rhsIvertices _vertex
@@ -2032,21 +2032,9 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
          in __result_ )
      in C_Rule_s41 v40
    {-# INLINE rule208 #-}
-   {-# LINE 47 "./src-ag/KWOrder.ag" #-}
-   rule208 = \ ((_lhsIrulenumber) :: Int) ->
-                             {-# LINE 47 "./src-ag/KWOrder.ag" #-}
-                             _lhsIrulenumber + 1
-                             {-# LINE 2040 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule209 #-}
-   {-# LINE 48 "./src-ag/KWOrder.ag" #-}
-   rule209 = \ ((_lhsIrulenumber) :: Int) mbName_ ->
-                             {-# LINE 48 "./src-ag/KWOrder.ag" #-}
-                             maybe (identifier $ "rule" ++ show _lhsIrulenumber) id mbName_
-                             {-# LINE 2046 "dist/build/KWOrder.hs"#-}
-   {-# INLINE rule210 #-}
-   {-# LINE 160 "./src-ag/KWOrder.ag" #-}
-   rule210 = \ ((_patternIcopy) :: Pattern) ((_rhsIcopy) :: Expression) _rulename explicit_ mbError_ origin_ owrt_ pure_ ->
-                        {-# LINE 160 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 65 "src-ag/ExecutionPlanCommon.ag" #-}
+   rule208 = \ ((_patternIcopy) :: Pattern) ((_rhsIcopy) :: Expression) _rulename explicit_ mbError_ origin_ owrt_ pure_ ->
+                        {-# LINE 65 "src-ag/ExecutionPlanCommon.ag" #-}
                         ERule _rulename
                               _patternIcopy
                               _rhsIcopy
@@ -2055,35 +2043,47 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
                               explicit_
                               pure_
                               mbError_
-                        {-# LINE 2059 "dist/build/KWOrder.hs"#-}
+                        {-# LINE 2047 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule209 #-}
+   {-# LINE 12 "src-ag/ExecutionPlanPre.ag" #-}
+   rule209 = \ ((_lhsIrulenumber) :: Int) ->
+                             {-# LINE 12 "src-ag/ExecutionPlanPre.ag" #-}
+                             _lhsIrulenumber + 1
+                             {-# LINE 2053 "dist/build/KWOrder.hs"#-}
+   {-# INLINE rule210 #-}
+   {-# LINE 13 "src-ag/ExecutionPlanPre.ag" #-}
+   rule210 = \ ((_lhsIrulenumber) :: Int) mbName_ ->
+                             {-# LINE 13 "src-ag/ExecutionPlanPre.ag" #-}
+                             maybe (identifier $ "rule" ++ show _lhsIrulenumber) id mbName_
+                             {-# LINE 2059 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule211 #-}
-   {-# LINE 224 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 74 "src-ag/KWOrder.ag" #-}
    rule211 = \ _rulename ->
-                           {-# LINE 224 "./src-ag/KWOrder.ag" #-}
+                           {-# LINE 74 "src-ag/KWOrder.ag" #-}
                            VRule _rulename
                            {-# LINE 2065 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule212 #-}
-   {-# LINE 225 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 75 "src-ag/KWOrder.ag" #-}
    rule212 = \ ((_patternIvertices) :: Set.Set Vertex) ((_rhsIvertices) :: Set.Set Vertex) _vertex ->
-                           {-# LINE 225 "./src-ag/KWOrder.ag" #-}
+                           {-# LINE 75 "src-ag/KWOrder.ag" #-}
                            Set.insert _vertex     $ _patternIvertices `Set.union` _rhsIvertices
                            {-# LINE 2071 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule213 #-}
-   {-# LINE 237 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 87 "src-ag/KWOrder.ag" #-}
    rule213 = \ ((_rhsIvertices) :: Set.Set Vertex) _vertex ->
-                           {-# LINE 237 "./src-ag/KWOrder.ag" #-}
+                           {-# LINE 87 "src-ag/KWOrder.ag" #-}
                            map ((,) _vertex    ) (Set.toList _rhsIvertices)
                            {-# LINE 2077 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule214 #-}
-   {-# LINE 238 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 88 "src-ag/KWOrder.ag" #-}
    rule214 = \ ((_patternIvertices) :: Set.Set Vertex) _vertex ->
-                           {-# LINE 238 "./src-ag/KWOrder.ag" #-}
+                           {-# LINE 88 "src-ag/KWOrder.ag" #-}
                            map (flip (,) _vertex    ) (Set.toList _patternIvertices)
                            {-# LINE 2083 "dist/build/KWOrder.hs"#-}
    {-# INLINE rule215 #-}
-   {-# LINE 239 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 89 "src-ag/KWOrder.ag" #-}
    rule215 = \ _edgesin _edgesout ->
-                           {-# LINE 239 "./src-ag/KWOrder.ag" #-}
+                           {-# LINE 89 "src-ag/KWOrder.ag" #-}
                            Set.fromList $ _edgesout     ++ _edgesin
                            {-# LINE 2089 "dist/build/KWOrder.hs"#-}
 
@@ -2096,8 +2096,8 @@ wrap_Rules :: T_Rules  -> Inh_Rules  -> (Syn_Rules )
 wrap_Rules (T_Rules act) (Inh_Rules _lhsIrulenumber) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Rules_vIn43 _lhsIrulenumber
-        (T_Rules_vOut43 _lhsOedges _lhsOerules _lhsOrulenumber _lhsOvertices) <- return (inv_Rules_s44 sem arg)
+        let arg43 = T_Rules_vIn43 _lhsIrulenumber
+        (T_Rules_vOut43 _lhsOedges _lhsOerules _lhsOrulenumber _lhsOvertices) <- return (inv_Rules_s44 sem arg43)
         return (Syn_Rules _lhsOedges _lhsOerules _lhsOrulenumber _lhsOvertices)
    )
 
@@ -2199,8 +2199,8 @@ wrap_TypeSig :: T_TypeSig  -> Inh_TypeSig  -> (Syn_TypeSig )
 wrap_TypeSig (T_TypeSig act) (Inh_TypeSig ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_TypeSig_vIn46 
-        (T_TypeSig_vOut46 _lhsOlocalSigMap) <- return (inv_TypeSig_s47 sem arg)
+        let arg46 = T_TypeSig_vIn46 
+        (T_TypeSig_vOut46 _lhsOlocalSigMap) <- return (inv_TypeSig_s47 sem arg46)
         return (Syn_TypeSig _lhsOlocalSigMap)
    )
 
@@ -2233,9 +2233,9 @@ sem_TypeSig_TypeSig arg_name_ arg_tp_ = T_TypeSig (return st47) where
          in __result_ )
      in C_TypeSig_s47 v46
    {-# INLINE rule226 #-}
-   {-# LINE 389 "./src-ag/KWOrder.ag" #-}
+   {-# LINE 161 "src-ag/ExecutionPlanCommon.ag" #-}
    rule226 = \ name_ tp_ ->
-                                                   {-# LINE 389 "./src-ag/KWOrder.ag" #-}
+                                                   {-# LINE 161 "src-ag/ExecutionPlanCommon.ag" #-}
                                                    Map.singleton name_ tp_
                                                    {-# LINE 2241 "dist/build/KWOrder.hs"#-}
 
@@ -2248,8 +2248,8 @@ wrap_TypeSigs :: T_TypeSigs  -> Inh_TypeSigs  -> (Syn_TypeSigs )
 wrap_TypeSigs (T_TypeSigs act) (Inh_TypeSigs ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_TypeSigs_vIn49 
-        (T_TypeSigs_vOut49 _lhsOlocalSigMap) <- return (inv_TypeSigs_s50 sem arg)
+        let arg49 = T_TypeSigs_vIn49 
+        (T_TypeSigs_vOut49 _lhsOlocalSigMap) <- return (inv_TypeSigs_s50 sem arg49)
         return (Syn_TypeSigs _lhsOlocalSigMap)
    )
 

@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/ConcreteSyntax.ag)
+-- UUAGC 0.9.51 (src-ag/ConcreteSyntax.ag)
 module ConcreteSyntax where
-{-# LINE 2 "./src-ag/ConcreteSyntax.ag" #-}
+{-# LINE 2 "src-ag/ConcreteSyntax.ag" #-}
 
 import UU.Scanner.Position (Pos)
 import Patterns   (Pattern)

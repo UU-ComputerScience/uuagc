@@ -1,8 +1,8 @@
 
 
--- UUAGC 0.9.50 (src-ag/AbstractSyntax.ag)
+-- UUAGC 0.9.51 (src-ag/AbstractSyntax.ag)
 module AbstractSyntax where
-{-# LINE 2 "./src-ag/AbstractSyntax.ag" #-}
+{-# LINE 2 "src-ag/AbstractSyntax.ag" #-}
 
 -- AbstractSyntax.ag imports
 import Data.Set(Set)

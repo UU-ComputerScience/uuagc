@@ -2,19 +2,19 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module PrintVisitCode where
-{-# LINE 2 "./src-ag/DeclBlocks.ag" #-}
+{-# LINE 2 "src-ag/DeclBlocks.ag" #-}
 
 import Code (Decl,Expr)
 {-# LINE 9 "dist/build/PrintVisitCode.hs" #-}
 
-{-# LINE 2 "./src-ag/Patterns.ag" #-}
+{-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
 {-# LINE 16 "dist/build/PrintVisitCode.hs" #-}
 
-{-# LINE 2 "./src-ag/CodeSyntax.ag" #-}
+{-# LINE 2 "src-ag/CodeSyntax.ag" #-}
 
 import Patterns
 import CommonTypes
@@ -22,7 +22,7 @@ import Data.Map(Map)
 import Data.Set(Set)
 {-# LINE 24 "dist/build/PrintVisitCode.hs" #-}
 
-{-# LINE 10 "./src-ag/PrintVisitCode.ag" #-}
+{-# LINE 10 "src-ag/PrintVisitCode.ag" #-}
 
 import CommonTypes
 import SequentialTypes
@@ -46,7 +46,7 @@ import Data.Maybe(fromJust,isJust)
 {-# LINE 47 "dist/build/PrintVisitCode.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
-{-# LINE 32 "./src-ag/PrintVisitCode.ag" #-}
+{-# LINE 32 "src-ag/PrintVisitCode.ag" #-}
 
 type PP_Docs = [PP_Doc]
 
@@ -69,8 +69,8 @@ wrap_CGrammar :: T_CGrammar  -> Inh_CGrammar  -> (Syn_CGrammar )
 wrap_CGrammar (T_CGrammar act) (Inh_CGrammar _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CGrammar_vIn1 _lhsIoptions
-        (T_CGrammar_vOut1 _lhsOoutput) <- return (inv_CGrammar_s2 sem arg)
+        let arg1 = T_CGrammar_vIn1 _lhsIoptions
+        (T_CGrammar_vOut1 _lhsOoutput) <- return (inv_CGrammar_s2 sem arg1)
         return (Syn_CGrammar _lhsOoutput)
    )
 
@@ -105,9 +105,9 @@ sem_CGrammar_CGrammar _ _ _ arg_nonts_ _ _ _ _ _ _ _ = T_CGrammar (return st2) w
          in __result_ )
      in C_CGrammar_s2 v1
    {-# INLINE rule0 #-}
-   {-# LINE 53 "./src-ag/PrintVisitCode.ag" #-}
+   {-# LINE 53 "src-ag/PrintVisitCode.ag" #-}
    rule0 = \  (_ :: ()) ->
-                     {-# LINE 53 "./src-ag/PrintVisitCode.ag" #-}
+                     {-# LINE 53 "src-ag/PrintVisitCode.ag" #-}
                      []
                      {-# LINE 113 "dist/build/PrintVisitCode.hs"#-}
 
@@ -120,8 +120,8 @@ wrap_CInterface :: T_CInterface  -> Inh_CInterface  -> (Syn_CInterface )
 wrap_CInterface (T_CInterface act) (Inh_CInterface ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CInterface_vIn4 
-        (T_CInterface_vOut4 ) <- return (inv_CInterface_s5 sem arg)
+        let arg4 = T_CInterface_vIn4 
+        (T_CInterface_vOut4 ) <- return (inv_CInterface_s5 sem arg4)
         return (Syn_CInterface )
    )
 
@@ -163,8 +163,8 @@ wrap_CNonterminal :: T_CNonterminal  -> Inh_CNonterminal  -> (Syn_CNonterminal )
 wrap_CNonterminal (T_CNonterminal act) (Inh_CNonterminal ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CNonterminal_vIn7 
-        (T_CNonterminal_vOut7 ) <- return (inv_CNonterminal_s8 sem arg)
+        let arg7 = T_CNonterminal_vIn7 
+        (T_CNonterminal_vOut7 ) <- return (inv_CNonterminal_s8 sem arg7)
         return (Syn_CNonterminal )
    )
 
@@ -208,8 +208,8 @@ wrap_CNonterminals :: T_CNonterminals  -> Inh_CNonterminals  -> (Syn_CNontermina
 wrap_CNonterminals (T_CNonterminals act) (Inh_CNonterminals ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CNonterminals_vIn10 
-        (T_CNonterminals_vOut10 ) <- return (inv_CNonterminals_s11 sem arg)
+        let arg10 = T_CNonterminals_vIn10 
+        (T_CNonterminals_vOut10 ) <- return (inv_CNonterminals_s11 sem arg10)
         return (Syn_CNonterminals )
    )
 
@@ -263,8 +263,8 @@ wrap_CProduction :: T_CProduction  -> Inh_CProduction  -> (Syn_CProduction )
 wrap_CProduction (T_CProduction act) (Inh_CProduction ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CProduction_vIn13 
-        (T_CProduction_vOut13 ) <- return (inv_CProduction_s14 sem arg)
+        let arg13 = T_CProduction_vIn13 
+        (T_CProduction_vOut13 ) <- return (inv_CProduction_s14 sem arg13)
         return (Syn_CProduction )
    )
 
@@ -306,8 +306,8 @@ wrap_CProductions :: T_CProductions  -> Inh_CProductions  -> (Syn_CProductions )
 wrap_CProductions (T_CProductions act) (Inh_CProductions ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CProductions_vIn16 
-        (T_CProductions_vOut16 ) <- return (inv_CProductions_s17 sem arg)
+        let arg16 = T_CProductions_vIn16 
+        (T_CProductions_vOut16 ) <- return (inv_CProductions_s17 sem arg16)
         return (Syn_CProductions )
    )
 
@@ -361,8 +361,8 @@ wrap_CRule :: T_CRule  -> Inh_CRule  -> (Syn_CRule )
 wrap_CRule (T_CRule act) (Inh_CRule ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CRule_vIn19 
-        (T_CRule_vOut19 ) <- return (inv_CRule_s20 sem arg)
+        let arg19 = T_CRule_vIn19 
+        (T_CRule_vOut19 ) <- return (inv_CRule_s20 sem arg19)
         return (Syn_CRule )
    )
 
@@ -415,8 +415,8 @@ wrap_CSegment :: T_CSegment  -> Inh_CSegment  -> (Syn_CSegment )
 wrap_CSegment (T_CSegment act) (Inh_CSegment ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CSegment_vIn22 
-        (T_CSegment_vOut22 ) <- return (inv_CSegment_s23 sem arg)
+        let arg22 = T_CSegment_vIn22 
+        (T_CSegment_vOut22 ) <- return (inv_CSegment_s23 sem arg22)
         return (Syn_CSegment )
    )
 
@@ -456,8 +456,8 @@ wrap_CSegments :: T_CSegments  -> Inh_CSegments  -> (Syn_CSegments )
 wrap_CSegments (T_CSegments act) (Inh_CSegments ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CSegments_vIn25 
-        (T_CSegments_vOut25 ) <- return (inv_CSegments_s26 sem arg)
+        let arg25 = T_CSegments_vIn25 
+        (T_CSegments_vOut25 ) <- return (inv_CSegments_s26 sem arg25)
         return (Syn_CSegments )
    )
 
@@ -511,8 +511,8 @@ wrap_CVisit :: T_CVisit  -> Inh_CVisit  -> (Syn_CVisit )
 wrap_CVisit (T_CVisit act) (Inh_CVisit ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CVisit_vIn28 
-        (T_CVisit_vOut28 ) <- return (inv_CVisit_s29 sem arg)
+        let arg28 = T_CVisit_vIn28 
+        (T_CVisit_vOut28 ) <- return (inv_CVisit_s29 sem arg28)
         return (Syn_CVisit )
    )
 
@@ -556,8 +556,8 @@ wrap_CVisits :: T_CVisits  -> Inh_CVisits  -> (Syn_CVisits )
 wrap_CVisits (T_CVisits act) (Inh_CVisits ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_CVisits_vIn31 
-        (T_CVisits_vOut31 ) <- return (inv_CVisits_s32 sem arg)
+        let arg31 = T_CVisits_vIn31 
+        (T_CVisits_vOut31 ) <- return (inv_CVisits_s32 sem arg31)
         return (Syn_CVisits )
    )
 
@@ -611,8 +611,8 @@ wrap_DeclBlocks :: T_DeclBlocks  -> Inh_DeclBlocks  -> (Syn_DeclBlocks )
 wrap_DeclBlocks (T_DeclBlocks act) (Inh_DeclBlocks ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_DeclBlocks_vIn34 
-        (T_DeclBlocks_vOut34 ) <- return (inv_DeclBlocks_s35 sem arg)
+        let arg34 = T_DeclBlocks_vIn34 
+        (T_DeclBlocks_vOut34 ) <- return (inv_DeclBlocks_s35 sem arg34)
         return (Syn_DeclBlocks )
    )
 
@@ -665,8 +665,8 @@ wrap_DeclBlocksRoot :: T_DeclBlocksRoot  -> Inh_DeclBlocksRoot  -> (Syn_DeclBloc
 wrap_DeclBlocksRoot (T_DeclBlocksRoot act) (Inh_DeclBlocksRoot ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_DeclBlocksRoot_vIn37 
-        (T_DeclBlocksRoot_vOut37 ) <- return (inv_DeclBlocksRoot_s38 sem arg)
+        let arg37 = T_DeclBlocksRoot_vIn37 
+        (T_DeclBlocksRoot_vOut37 ) <- return (inv_DeclBlocksRoot_s38 sem arg37)
         return (Syn_DeclBlocksRoot )
    )
 
@@ -708,8 +708,8 @@ wrap_Pattern :: T_Pattern  -> Inh_Pattern  -> (Syn_Pattern )
 wrap_Pattern (T_Pattern act) (Inh_Pattern ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Pattern_vIn40 
-        (T_Pattern_vOut40 _lhsOcopy) <- return (inv_Pattern_s41 sem arg)
+        let arg40 = T_Pattern_vIn40 
+        (T_Pattern_vOut40 _lhsOcopy) <- return (inv_Pattern_s41 sem arg40)
         return (Syn_Pattern _lhsOcopy)
    )
 
@@ -846,8 +846,8 @@ wrap_Patterns :: T_Patterns  -> Inh_Patterns  -> (Syn_Patterns )
 wrap_Patterns (T_Patterns act) (Inh_Patterns ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Patterns_vIn43 
-        (T_Patterns_vOut43 _lhsOcopy) <- return (inv_Patterns_s44 sem arg)
+        let arg43 = T_Patterns_vIn43 
+        (T_Patterns_vOut43 _lhsOcopy) <- return (inv_Patterns_s44 sem arg43)
         return (Syn_Patterns _lhsOcopy)
    )
 
@@ -919,8 +919,8 @@ wrap_Sequence :: T_Sequence  -> Inh_Sequence  -> (Syn_Sequence )
 wrap_Sequence (T_Sequence act) (Inh_Sequence ) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
-        let arg = T_Sequence_vIn46 
-        (T_Sequence_vOut46 ) <- return (inv_Sequence_s47 sem arg)
+        let arg46 = T_Sequence_vIn46 
+        (T_Sequence_vOut46 ) <- return (inv_Sequence_s47 sem arg46)
         return (Syn_Sequence )
    )
 
