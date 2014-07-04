@@ -56,7 +56,7 @@ SEM Grammar | Grammar
     lhs.errors = either Seq.singleton (const Seq.empty) @loc.schedRes
     lhs.ads    = case either (const []) trd' @loc.schedRes of
                     []  -> Nothing 
-                    ads -> Just $ ppAds @nonts.pmp ads 
+                    ads -> Just $ ppAds @lhs.options @nonts.pmp ads 
     lhs.output = ExecutionPlan @nonts.enonts @typeSyns @wrappers @derivings
 
     nonts.sched   = either (const Map.empty) snd' @loc.schedRes
@@ -109,14 +109,16 @@ edgeToDep pmp (f,t) =
             = (findWithErr pmp "edgeToDep" f, 
                findWithErr pmp "edgeToDep" t) 
 
-ppAds :: PMP -> [Edge] -> PP_Doc
-ppAds pmp = foldr ((>-<) . ppEdge pmp) empty
+ppAds :: Options -> PMP -> [Edge] -> PP_Doc
+ppAds opts pmp = foldr ((>-<) . ppEdge opts pmp) empty
 
-ppEdge :: PMP -> Edge -> PP_Doc
-ppEdge pmp (f,t) = 
-    text "SEM " >|< text (show ty) >|< " | " >|< text p >|< "   "
+ppEdge :: Options -> PMP -> Edge -> PP_Doc
+ppEdge opts pmp (f,t) = 
+    text sem    >#< text (show ty) >|< " | " >|< text p >|< "   "
                 >|< ppOcc pmp f >|< text " < " >|< ppOcc pmp t
  where (MyOccurrence ((ty,p),_) _) = pmp Map.! f
+       sem | lcKeywords opts = "sem"
+           | otherwise       = "SEM"
    
 ppOcc :: PMP -> Vertex -> PP_Doc
 ppOcc pmp v = text f >|< text "." >|< fst a
