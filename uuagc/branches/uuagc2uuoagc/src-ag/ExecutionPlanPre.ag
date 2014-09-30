@@ -1,0 +1,15 @@
+-------------------------------------------------------------------------------
+--         Give unique names to rules
+-------------------------------------------------------------------------------
+ATTR Nonterminal Nonterminals
+     Production Productions
+     Rule Rules  [ | rulenumber : Int | ]
+
+SEM  Grammar
+  |  Grammar nonts.rulenumber = 0
+
+SEM  Rule
+  |  Rule lhs.rulenumber = @lhs.rulenumber + 1
+     	  loc.rulename   = maybe (identifier $ "rule" ++ show @lhs.rulenumber) id @mbName
+
+

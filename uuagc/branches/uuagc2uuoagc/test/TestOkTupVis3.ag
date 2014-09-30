@@ -1,0 +1,35 @@
+-- A grammar that requires two visits, and an attribute w that is needed in both passes
+-- and three local attributes p and q and r, 
+--    q is needed only in visit 0
+--    p is needed in visit 0 and in visit 1
+--    r is needed only in visit 1
+
+-- As in the previous example, the tuple is evaluated twice in visit 0, whereas only once would suffice.
+-- It is evaluated a third time in visit 1, appearantly to calculate r.
+-- Although p is needed again in visit 1, it is not passed as an intra-parameter as in the previous example.
+-- This is probably because it is calcualted again together with r.
+
+DATA Root
+   | Root  a : Aap
+
+DATA Aap
+	| Een   t : Int
+	| Twee  u : Aap
+
+
+ATTR Aap [ x : Int | y : Int |  z : Int   w : Int ]
+
+
+SEM Root
+  | Root  a.x = @a.y + @a.w
+          a.y = 7
+          
+SEM Aap
+  | Een  lhs.y = @t          + @loc.p + @loc.q
+         lhs.z = @t + @lhs.x + @loc.p + @loc.r
+         lhs.w = 3
+         loc.p : Int
+         (loc.p,loc.q,loc.r) = (8,9,10)
+         
+  | Twee lhs.y = 7
+         lhs.z = @u.w   

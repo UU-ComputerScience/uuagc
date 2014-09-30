@@ -1,0 +1,41 @@
+-- tests inherited attributes
+-- tests local attributes
+-- tests copy rules
+
+DATA root | Root
+  root : tree
+
+DATA tree
+  | Bin   left,right : tree
+  | Leaf  val : int
+
+ATTR root tree
+  [ | | sum USE {+} {0} : int ]
+
+ATTR tree [ depth : int | | ]
+
+SEM root | Root
+  loc.depth = 0
+
+SEM tree | Bin
+  loc.depth = @lhs.depth + 1
+
+SEM tree | Leaf
+  lhs.sum = @val * @lhs.depth
+
+WRAPPER root
+
+toplevel {
+let test =
+  let l  = tree_Leaf 1 in
+  let r  = tree_Leaf 2 in
+  let b1 = tree_Bin l r in
+  let b2 = tree_Bin b1 b1 in
+  let t = root_Root b2 in
+  let inh = () in
+  let sem = sem_root t in
+  let syn = wrap_root sem inh in
+  let s   = syn.sum_syn_root in
+  let _   = Printf.printf "result: %d" s in
+  ()
+}

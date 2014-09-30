@@ -1,0 +1,12 @@
+prod Section : Doc
+attrs
+  inh left : String
+  syn left : String
+children
+  term title : String
+  nonterm body : Docs
+    attrs
+      inh left : String
+      syn left : String
+flows
+  title -> lhs.out.left

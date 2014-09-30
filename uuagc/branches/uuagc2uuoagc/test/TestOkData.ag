@@ -1,0 +1,5 @@
+DATA D
+  | C1
+  | C2  fld : Int
+  | C3  fld : {Int}
+  | C4  fld : D

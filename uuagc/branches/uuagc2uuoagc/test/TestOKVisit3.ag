@@ -1,0 +1,20 @@
+-- A grammar that requires 2 visits, and that involves a SELF attribute, 
+-- that for the Twee case relies on the SELF rule
+
+DATA Root
+   | Root  a : Aap
+
+DATA Aap
+	| Een   t : Int
+	| Twee  u : Int
+
+
+ATTR Aap [ x : Int | y : Int  |  s : SELF ]
+
+
+SEM Root
+  | Root  a.x = @a.y
+          a.y = 7
+          
+SEM Aap
+  | Een  lhs.s = Aap_Een (@t + @lhs.x)

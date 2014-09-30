@@ -1,0 +1,37 @@
+\begin{picture}(0,0)%
+\includegraphics{All47.pdftex}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(7467,5068)(530,-4682)
+\put(3057,-2578){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}Section}%
+}}}}
+\put(3174,-182){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}Cons}%
+}}}}
+\put(4868,-1176){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}tl}%
+}}}}
+\put(1304,-1147){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}hd}%
+}}}}
+\put(4635,-3601){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}body}%
+}}}}
+\put(6593,-2549){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}Pcdata}%
+}}}}
+\put(6651,-182){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}Nil}%
+}}}}
+\put(6972,-416){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,.84,0}""}%
+}}}}
+\put(2853,226){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,.82,0}level}%
+}}}}
+\put(3495,256){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,.84,0}html}%
+}}}}
+\put(3145,-2987){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,.56}+1}%
+}}}}
+\put(2356,226){\makebox(0,0)[lb]{\smash{{\SetFigFont{11}{13.2}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,.56}count}%
+}}}}
+\end{picture}%

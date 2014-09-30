@@ -1,0 +1,42 @@
+imports
+{
+import CommonTypes
+import UU.Pretty
+import AbstractSyntax
+import VisagePatterns
+import Expression
+}
+
+DATA VisageGrammar      | VGrammar nonts : VisageNonterminals
+
+TYPE VisageNonterminals  = [VisageNonterminal]
+
+TYPE VisageProductions = [VisageProduction]
+
+TYPE VisageChildren     = [VisageChild]
+
+TYPE VisageRules        = [VisageRule]
+
+DATA VisageNonterminal   | VNonterminal nt   : {NontermIdent}
+                                        inh  : {Attributes}
+                                        syn  : {Attributes}
+                                        alts : VisageProductions
+
+DATA VisageProduction  | VProduction   con      : {ConstructorIdent}
+                                       children : VisageChildren
+                                       rules    : VisageRules
+                                       locrules : VisageRules
+
+
+DATA VisageChild        | VChild   name  : {Identifier}
+                                   tp    : {Type}
+                                   inh   : {Attributes}
+                                   syn   : {Attributes}
+                                   rules : VisageRules
+
+DATA VisageRule         | VRule    fieldattrs : {[(Identifier,Identifier)]}
+                                   attr       : {Identifier}
+                                   pat        : VisagePattern
+                                   rhs        : Expression
+                                   owrt       : {Bool}
+

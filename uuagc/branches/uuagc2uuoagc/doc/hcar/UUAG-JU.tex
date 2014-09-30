@@ -1,0 +1,45 @@
+% UUAG-JU.tex
+\begin{hcarentry}[updated]{UUAG}
+\label{uuag}
+\report{Jeroen Bransen}%11/13
+\status{stable, maintained}
+\participants{ST Group of Utrecht University}
+\makeheader
+
+UUAG is the \emph{Utrecht University Attribute Grammar} system. It is a preprocessor for Haskell
+that makes it easy to write \emph{catamorphisms}, i.e., functions that do to any data type what
+\emph{foldr} does to lists. Tree walks are defined using the intuitive concepts of
+\emph{inherited} and \emph{synthesized attributes}, while keeping the full expressive power
+of Haskell. The generated tree walks are \emph{efficient} in both space and time.
+
+An AG program is a collection of rules, which are pure Haskell functions between attributes.
+Idiomatic tree computations are neatly expressed in terms of copy, default, and collection rules.
+Attributes themselves can masquerade as subtrees and be analyzed accordingly (higher-order attribute). The order in which to visit the tree is derived automatically from the attribute computations. The tree walk is a single traversal from the perspective of the programmer.
+
+Nonterminals (data types), productions (data constructors), attributes, and rules for attributes can be specified separately, and are woven and ordered automatically. These aspect-oriented programming features make AGs convenient to use in large projects.
+
+The system is in use by a variety of large and small projects, such as the Utrecht Haskell Compiler UHC~\cref{uhc}, the editor Proxima for structured documents (\url{http://www.haskell.org/communities/05-2010/html/report.html#sect6.4.5}), the Helium compiler (\url{http://www.haskell.org/communities/05-2009/html/report.html#sect2.3}), the Generic Haskell compiler, UUAG itself, and many master student projects.
+The current version is 0.9.50.2 (May 2014), is extensively tested, and is available on Hackage. There is also a Cabal plugin for easy use of AG files in Haskell projects.
+
+We are currently working on the following enhancements:
+\begin{description}
+\item[Evaluation scheduling.]
+  We are running a project to improve the scheduling algorithms for AGs. The currently implemented algorithms for scheduling AG computations do not fully satisfy our needs; the code we write goes beyond the class of OAGs, but the algorithm by Kennedy and Warren (1976) results in an undesired increase of generated code due to non-linear evaluation orders. However, because we know that our code belongs to the class of linear orderable AGs, we would like to find and algorithm that can find this linear order, and thus lies in between the two existing approaches. We have created a backtracking algorithm for this and are currently implementing this in the UUAG.
+
+Another approach to this scheduling problem that we are currently investigating is the use of SAT-solvers. The scheduling problem can be reduced to a SAT-formula and efficiently solved by existing solvers. The advantage is that this opens up possibilities for the user to influence the resulting schedule, for example by providing a cost-function that should be minimized. This is also ongoing research but the first results in this area look promising.
+
+\item[Incremental evaluation.]
+  We are currently also running a Ph.D.\ project that investigates incremental evaluation of
+  AGs. In this ongoing work we hope to improve the UUAG compiler by adding support for
+  incremental evaluation, for example by statically generating different evaluation orders
+  based on changes in the input.
+\end{description}
+
+\FurtherReading
+\begin{compactitem}
+\item
+  \url{http://www.cs.uu.nl/wiki/bin/view/HUT/AttributeGrammarSystem}
+\item
+  \url{http://hackage.haskell.org/package/uuagc}
+\end{compactitem}
+\end{hcarentry}

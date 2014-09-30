@@ -1,0 +1,11 @@
+-- Should result in an error
+DATA Aap
+  | A n1 : Noot
+      n2 : Noot
+      n3 : Noot
+
+DATA Noot
+  | B
+
+SEM Aap
+  | A  first.y = 4

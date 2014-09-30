@@ -1,0 +1,16 @@
+-- an attribute is defined generically for two types Aap and Noot, who happen to have the same alternative Een
+-- in v.0.9.1 this is an error: a SEM-definition doesn't allow Set names
+-- in v.0.9.3 it is allowed
+
+DATA Aap
+	| Een  a : {Int}
+
+DATA Noot
+	| Een b : {Int}
+
+SET Both = Aap Noot 
+
+ATTR Both [ | | y : {Int} ]
+
+SEM Both
+	| Een  lhs.y = 3

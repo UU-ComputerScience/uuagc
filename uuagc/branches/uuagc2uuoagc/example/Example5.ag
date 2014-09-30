@@ -1,0 +1,73 @@
+-- UUAGC Example 5: Two-pass traversals
+--
+-- first preprocess with:   uuagc -dcfswH Example5.ag
+-- then compile with:       ghc Example5.hs
+-- finally run with:        ./Example5
+
+data Root
+   | Root  tree  :: Tree
+
+data Tree
+   | Node  left  :: Tree
+           right :: Tree
+   | Tip   value :: Int
+
+-- A set declaration is a way to abbreviate sets of datatypes.
+-- The name can be used instead of an explicit enumeration of the set
+-- in other deriving, attr and sem declarations.
+
+set Every = Root Tree
+
+deriving Every : Show
+
+-- We re-introduce synthesized attribute "sum" here for datatype Tree (see Example1).
+-- Notice that Tree has two synthesized attributes:
+--  * sum: Int            (which is obviously declared)
+--  * transformed: Tree   (because Tree is part of the Every set, and self in instantiated to Tree)
+
+attr Every
+   syn transformed :: self
+
+attr Tree
+   inh replacement :: Int
+   syn sum         :: Int
+
+sem Tree
+  | Tip   lhs.transformed = Tip @lhs.replacement
+          lhs.sum         = @value
+  | Node  lhs.sum         = @left.sum + @right.sum
+
+
+-- In Example4 we initialized the replacement value with "37".
+-- But nothing prevents us from letting the replacement value depend
+-- on other synthesized attributes, such as the sum.
+
+sem Root
+  | Root  tree.replacement = @tree.sum
+
+-- In effect, we now have defined a two-pass tree traversal.
+-- In the first pass, the sum of all values is calculated.
+-- In the second pass, the transformed tree is build, using the sum as the replacement value.
+-- combined, we have synthesized a tree of the same shape as the original,
+-- where every value is replaced by the sum of all values.
+-- The nice thing is that you need hardly be aware that this is actually a
+-- two-pass traversal.
+-- You can freely use synthesized attributes to define inherited attributes,
+-- that may in turn be needed to define other synthesized attributes.
+-- Your only concern should only be that the dependency is not circular,
+-- but whether one, two, or six passes are necessary is automatically determined.
+
+{
+main :: IO ()
+main = print (show result)
+
+testRoot :: Root
+testRoot = Root (Node (Tip 1) (Node (Tip 2) (Tip 3)))
+
+test :: T_Root
+test = sem_Root testRoot
+
+result :: Root
+result = transformed_Syn_Root (wrap_Root test Inh_Root)
+}
+-- output of the program will be "Node (Tip 6) (Node (Tip 6) (Tip 6))"

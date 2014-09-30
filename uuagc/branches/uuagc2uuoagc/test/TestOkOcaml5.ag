@@ -1,0 +1,38 @@
+-- tests repmin (dual visits)
+
+DATA root | Root
+  root : tree
+
+DATA tree
+  | Bin   left,right : tree
+  | Leaf  val : int
+
+ATTR tree
+  [ g_min : int | | l_min USE {min} {0} : int ]
+
+ATTR root tree [ | | res : SELF ]
+
+SEM root | Root
+  root.g_min = @root.l_min
+
+SEM tree | Leaf
+  lhs.l_min = @val
+  loc.res   = tree_Leaf @lhs.g_min
+
+WRAPPER root
+
+toplevel {
+let test =
+  let l  = tree_Leaf 100 in
+  let r  = tree_Leaf 2 in
+  let a  = tree_Leaf 40 in
+  let b1 = tree_Bin l a in
+  let b2 = tree_Bin b1 r in
+  let t = root_Root b2 in
+  let inh = () in
+  let sem = sem_root t in
+  let syn = wrap_root sem inh in
+  let x   = syn.res_syn_root in
+  if x == x then () else ();
+  print_endline "done"
+}

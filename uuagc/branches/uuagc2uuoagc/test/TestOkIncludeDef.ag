@@ -1,0 +1,7 @@
+DATA MyData | MyData str : {String}
+
+ATTR MyData [ | | att : String ]
+
+SEM MyData | MyData lhs.att = @str
+
+

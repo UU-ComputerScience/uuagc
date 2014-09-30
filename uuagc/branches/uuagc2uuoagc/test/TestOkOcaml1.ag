@@ -1,0 +1,29 @@
+-- Tests mutual recursion (multiple data types)
+DATA root | Root
+  root : tree
+
+DATA tree
+  | Bin   left,right : tree
+  | Leaf  val : int
+
+ATTR root tree
+  [ | | sum USE {+} {0} : int ]
+
+SEM tree | Leaf
+  lhs.sum = @val
+
+WRAPPER root
+
+toplevel {
+let test =
+  let l = tree_Leaf 1 in
+  let r = tree_Leaf 2 in
+  let b = tree_Bin l r in
+  let t = root_Root b in
+  let inh = () in
+  let sem = sem_root t in
+  let syn = wrap_root sem inh in
+  let s   = syn.sum_syn_root in
+  let _   = Printf.printf "result: %d" s in
+  ()
+}

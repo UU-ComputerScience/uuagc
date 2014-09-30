@@ -1,0 +1,8 @@
+
+DATA D | C1   x : {int}
+       | C2   k : D
+
+ATTR D [ | | z : {int} ]
+
+SEM D
+  | C1  lhs.z = @x
