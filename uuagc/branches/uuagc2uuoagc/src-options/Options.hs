@@ -150,6 +150,7 @@ allOptions =
   , MyOpt []        ["latehigherorderbinding"]  (NoArg lateHigherOrderBindingOpt)  (boolOpt lateHigherOrderBinding) "Generate an attribute and wrapper for late binding of higher-order attributes"
   , MyOpt []        ["noincludes"]              (NoArg noIncludesOpt)              (boolOpt noIncludes)             "Ignore include directives in .ag files"
   , MyOpt []        ["quiet"]                   (NoArg beQuietOpt)                 (boolOpt beQuiet)                "Dont print some compilation information"
+  , MyOpt []        ["dumpexecutionplan"]       (NoArg dumpExecOpt)              (boolOpt dumpExec)               "Dump execution plan"
   ]
 
 -- For compatibility
@@ -231,6 +232,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , noOptimizations :: Bool
                       , reference :: Bool
                       , noIncludes :: Bool
+                      , dumpExec :: Bool
                       , outputStr :: String -> IO ()
                       , failWithCode :: Int -> IO ()
                       , mainFilename :: Maybe String
@@ -330,6 +332,7 @@ noOptions = Options { moduleName    = NoName
                     , noOptimizations = False
                     , reference       = False
                     , noIncludes      = False
+                    , dumpExec        = False
                     , outputStr       = hPutStr stderr
                     , failWithCode    = exitWith . ExitFailure
                     , mainFilename    = Nothing
@@ -382,7 +385,7 @@ moduleOptGet opts nm = case moduleName opts of
   Name s -> [nm++"="++s]
   Default -> [nm]
 
-dataOpt, dataRecOpt, strictDataOpt, strictWrapOpt, cataOpt, semfunsOpt, signaturesOpt, prettyOpt,renameOpt, wrappersOpt, modcopyOpt, newtypesOpt, nestOpt, smacroOpt, verboseOpt, helpOpt, versionOpt, selfOpt, cycleOpt, visitOpt, seqOpt, unboxOpt, bangpatsOpt, casesOpt, strictCasesOpt, stricterCasesOpt, strictSemOpt, localCpsOpt, splitSemsOpt, werrorsOpt, wignoreOpt, dumpgrammarOpt, dumpcgrammarOpt, genTracesOpt, genUseTracesOpt, genCostCentresOpt, sepSemModsOpt, genFileDepsOpt, genLinePragmasOpt, genVisageOpt, genAspectAGOpt, dummyTokenVisitOpt, tupleAsDummyTokenOpt, stateAsDummyTokenOpt, strictDummyTokenOpt, noPerRuleTypeSigsOpt, noPerStateTypeSigsOpt, noEagerBlackholingOpt, noPerRuleCostCentresOpt, noPerVisitCostCentresOpt, helpInliningOpt, noInlinePragmasOpt, aggressiveInlinePragmasOpt, lateHigherOrderBindingOpt, monadicWrappersOpt, referenceOpt, genAttrListOpt, lcKeywordsOpt, doubleColonsOpt, haskellSyntaxOpt, monadicOpt, parallelOpt, ocamlOpt, cleanOpt, visitorsOutputOpt, breadthfirstOpt, breadthfirstStrictOpt, parseHsRhsOpt, parseHsTpOpt, parseHsBlockOpt, parseHsOpt, kennedyWarrenOpt, noOptimizeOpt, allOpt, optimizeOpt, noIncludesOpt, beQuietOpt, condDisableOptimizations :: Options -> Options
+dataOpt, dataRecOpt, strictDataOpt, strictWrapOpt, cataOpt, semfunsOpt, signaturesOpt, prettyOpt,renameOpt, wrappersOpt, modcopyOpt, newtypesOpt, nestOpt, smacroOpt, verboseOpt, helpOpt, versionOpt, selfOpt, cycleOpt, visitOpt, seqOpt, unboxOpt, bangpatsOpt, casesOpt, strictCasesOpt, stricterCasesOpt, strictSemOpt, localCpsOpt, splitSemsOpt, werrorsOpt, wignoreOpt, dumpgrammarOpt, dumpcgrammarOpt, genTracesOpt, genUseTracesOpt, genCostCentresOpt, sepSemModsOpt, genFileDepsOpt, genLinePragmasOpt, genVisageOpt, genAspectAGOpt, dummyTokenVisitOpt, tupleAsDummyTokenOpt, stateAsDummyTokenOpt, strictDummyTokenOpt, noPerRuleTypeSigsOpt, noPerStateTypeSigsOpt, noEagerBlackholingOpt, noPerRuleCostCentresOpt, noPerVisitCostCentresOpt, helpInliningOpt, noInlinePragmasOpt, aggressiveInlinePragmasOpt, lateHigherOrderBindingOpt, monadicWrappersOpt, referenceOpt, genAttrListOpt, lcKeywordsOpt, doubleColonsOpt, haskellSyntaxOpt, monadicOpt, parallelOpt, ocamlOpt, cleanOpt, visitorsOutputOpt, breadthfirstOpt, breadthfirstStrictOpt, parseHsRhsOpt, parseHsTpOpt, parseHsBlockOpt, parseHsOpt, kennedyWarrenOpt, noOptimizeOpt, allOpt, optimizeOpt, noIncludesOpt, dumpExecOpt, beQuietOpt, condDisableOptimizations :: Options -> Options
 
 dataOpt         opts = opts{dataTypes    = True}
 dataRecOpt      opts = opts{dataRecords  = True}
@@ -504,6 +507,7 @@ searchPathOptGet opts nm = if null (searchPath opts)
 allOpt = moduleOpt Nothing . dataOpt . cataOpt . semfunsOpt . signaturesOpt . prettyOpt . renameOpt . dataRecOpt
 optimizeOpt   = visitOpt . casesOpt
 noIncludesOpt opts = opts { noIncludes = True }
+dumpExecOpt opts = opts { dumpExec = True }
 beQuietOpt opts = opts { beQuiet = True }
 
 condDisableOptimizations opts

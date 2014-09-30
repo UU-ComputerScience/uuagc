@@ -116,5 +116,6 @@ library
     , LOAG.Order
     , LOAG.Rep
     , LOAG.Result
+    , DumpExecutionPlan
    if flag(with-loag)
       other-modules: LOAG.Solver.MiniSat, LOAG.Optimise
