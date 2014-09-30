@@ -1,0 +1,17 @@
+\begin{picture}(0,0)%
+\includegraphics{B50.pdftex}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(8181,6460)(844,-5654)
+\put(5311,-1816){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,.56}tail}%
+}}}}
+\put(4906,-1681){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,.56}hd}%
+}}}}
+\end{picture}%

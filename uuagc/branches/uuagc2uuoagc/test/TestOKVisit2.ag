@@ -1,0 +1,21 @@
+-- A grammar that requires 2 visits, and that involves a SELF attribute, that is however explicitly defined
+
+DATA Root
+   | Root  a : Aap
+
+DATA Aap
+	| Een   t : Int
+	| Twee  u : Int
+
+
+ATTR Aap [ x : Int | y : Int  |  s : SELF ]
+
+
+SEM Root
+  | Root  a.x = @a.y
+          a.y = 7
+          
+SEM Aap
+  | Een  lhs.s = Aap_Een (@t + @lhs.x)
+  | Twee loc.s = Aap_Twee @u
+         lhs.s = @s

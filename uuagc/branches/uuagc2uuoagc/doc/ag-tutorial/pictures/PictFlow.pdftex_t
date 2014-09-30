@@ -1,0 +1,43 @@
+\begin{picture}(0,0)%
+\includegraphics{PictFlow.pdftex}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(5893,2600)(1891,-2556)
+\put(5761,-2086){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,.69,0}level}%
+}}}}
+\put(4141,-196){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,.69,0}level}%
+}}}}
+\put(3466,-196){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,1}count}%
+}}}}
+\put(5716,-151){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,.84,0}html}%
+}}}}
+\put(5041,-151){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,1}count}%
+}}}}
+\put(4006,-2086){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,.84,0}html}%
+}}}}
+\put(2521,-2086){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,.69,0}level}%
+}}}}
+\put(3061,-1501){\makebox(0,0)[lb]{\smash{{\SetFigFont{20}{24.0}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}hd}%
+}}}}
+\put(1891,-2086){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,1}count}%
+}}}}
+\put(3331,-2086){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,1}count}%
+}}}}
+\put(6571,-2086){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,1}count}%
+}}}}
+\put(7246,-2086){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,.84,0}html}%
+}}}}
+\put(6391,-1546){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}tl}%
+}}}}
+\put(4591,-736){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{1,0,0}Cons}%
+}}}}
+\put(5086,-2086){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,1}count}%
+}}}}
+\end{picture}%

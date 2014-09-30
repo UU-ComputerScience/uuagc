@@ -1,0 +1,36 @@
+DATA Tree 
+   | Leaf int : {Int}
+   | Bin  lt  : Tree
+          rt  : Tree
+
+ATTR Tree [||min:Int]
+
+SEM Tree 
+  | Leaf lhs.min = @int
+  | Bin  lhs.min = @lt.min `min` @rt.min
+
+ATTR Tree [rmin:Int||]
+
+SEM Tree
+  | Bin  lt.rmin = @lhs.rmin
+         rt.rmin = @lhs.rmin
+
+DATA Root
+  | Root tree:Tree
+
+SEM Root
+  | Root tree.rmin = @tree.min 
+
+ATTR Root Tree [||tree:Tree]
+ATTR Root [||min:Int]
+
+SEM Tree
+  | Leaf lhs.tree = Tree_Leaf @lhs.rmin
+  | Bin  lhs.tree = Tree_Bin  @lt.tree @rt.tree
+
+SEM Root
+  | Root lhs.tree = @tree.tree
+
+DERIVING Tree:Show
+
+INCLUDE "RepMax.ag"

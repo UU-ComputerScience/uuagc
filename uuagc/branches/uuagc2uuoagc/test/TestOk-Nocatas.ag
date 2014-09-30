@@ -1,0 +1,13 @@
+MODULE {TestOkNocatas} {} {}
+
+DATA D1 | C1
+DATA D2 | C2
+DATA D3 | C3
+
+NOCATAS D2
+
+{
+x,y :: ()
+x = sem_D1 D1_C1
+y = sem_D3 D3_C3 
+}

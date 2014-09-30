@@ -1,0 +1,18 @@
+cabal-version: >=1.6
+build-type: Custom
+name: pictgen
+version: 1.0
+license: LGPL
+maintainer: Arie Middelkoop <ariem@cs.uu.nl>
+homepage: http://www.cs.uu.nl/wiki/HUT/WebHome
+description: AG picture generation
+category: Development
+stability: Experimental
+copyright: Arie Middelkoop
+extra-source-files: uuagc_options, PictGen.ag
+
+executable pictgen
+  build-depends: base >= 4, base < 5, uulib, uuagc >= 0.9.26
+  build-depends: containers >= 0.3
+  main-is: PictGen.hs
+  hs-source-dirs: src

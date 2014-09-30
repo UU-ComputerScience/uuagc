@@ -1,0 +1,25 @@
+\begin{picture}(0,0)%
+\includegraphics{B49.pdftex}%
+\end{picture}%
+\setlength{\unitlength}{4144sp}%
+%
+\begingroup\makeatletter\ifx\SetFigFont\undefined%
+\gdef\SetFigFont#1#2#3#4#5{%
+  \reset@font\fontsize{#1}{#2pt}%
+  \fontfamily{#3}\fontseries{#4}\fontshape{#5}%
+  \selectfont}%
+\fi\endgroup%
+\begin{picture}(8181,6460)(844,-5654)
+\put(4906,-1681){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,.56}hd}%
+}}}}
+\put(5311,-1816){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,.56}tail}%
+}}}}
+\put(6346,-3346){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,.56}hd}%
+}}}}
+\put(3916,-3526){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,.56}tail}%
+}}}}
+\put(3511,-3391){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,.56}hd}%
+}}}}
+\put(6751,-3481){\makebox(0,0)[lb]{\smash{{\SetFigFont{17}{20.4}{\rmdefault}{\mddefault}{\itdefault}{\color[rgb]{0,0,.56}tail}%
+}}}}
+\end{picture}%

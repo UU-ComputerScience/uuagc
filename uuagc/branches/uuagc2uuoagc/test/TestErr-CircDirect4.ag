@@ -1,0 +1,33 @@
+-- A simple direct 4-node dependency,
+-- involving downward and upward steps
+
+DATA Root
+   | Start  a: Aap
+   
+DATA Aap
+   | Een    b: Noot  c: Mies 
+   
+DATA Noot   
+   | Uno i: Int
+   
+DATA Mies
+   | Eins j: Int
+   
+ATTR Aap Noot Mies [ x:Int | | y:Int ]
+
+SEM Root
+  | Start  loc.s = @a.y
+           a.x = @loc.s
+  
+SEM Noot
+  | Uno    loc.t = @lhs.x
+           lhs.y = @loc.t
+
+SEM Mies
+  | Eins   lhs.y = @lhs.x
+
+SEM Aap
+  | Een    b.x = @lhs.x
+           loc.t = @b.y
+           c.x   = @loc.t
+           lhs.y = @c.y

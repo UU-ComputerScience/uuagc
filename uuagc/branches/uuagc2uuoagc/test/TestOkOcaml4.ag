@@ -1,0 +1,36 @@
+-- tests different contexts
+-- tests inherited wrapper
+
+DATA root | Root
+  left  : n
+  right : n
+
+DATA n | C
+
+ATTR root [ | x : int | ]
+ATTR n [ a : int  | | b : bool ]
+ATTR n [ c : char | | d : string ]
+
+SEM root | Root
+  lhs.x = if @left.b then @lhs.x + String.length @right.d else 0
+  loc.a = @lhs.x
+  loc.c = 'c'
+
+SEM n | C
+  lhs.b = @lhs.a > 0
+  lhs.d = Char.escaped @lhs.c
+
+WRAPPER root
+
+toplevel {
+let test =
+  let l  = n_C in
+  let r  = n_C in
+  let t = root_Root l r in
+  let inh = { x_inh_root = 1 } in
+  let sem = sem_root t in
+  let syn = wrap_root sem inh in
+  let x   = syn.x_syn_root in
+  let _   = Printf.printf "result: %d" x in
+  ()
+}

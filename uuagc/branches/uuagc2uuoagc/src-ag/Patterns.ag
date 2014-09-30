@@ -1,0 +1,25 @@
+imports
+{
+-- Patterns.ag imports
+import UU.Scanner.Position(Pos)
+import CommonTypes (ConstructorIdent,Identifier)
+}
+
+TYPE Patterns   = [Pattern]
+
+DATA Pattern    | Constr      name  : {ConstructorIdent}
+                              pats  : Patterns
+                | Product     pos   : {Pos}
+                              pats  : Patterns
+                | Alias       field : {Identifier}
+                              attr  : {Identifier}
+                              pat   : Pattern
+                | Irrefutable pat   : Pattern
+                | Underscore  pos   : {Pos}
+
+DERIVING Pattern:Show
+
+ATTR AllPattern [ | | copy : SELF ]
+
+SET AllPattern
+  = Pattern Patterns

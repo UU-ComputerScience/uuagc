@@ -1,0 +1,33 @@
+imports
+{
+import CommonTypes
+import UU.Scanner.Position(Pos)
+}
+
+DATA HsTokensRoot
+   | HsTokensRoot tokens : HsTokens
+
+TYPE HsTokens = [HsToken]
+
+DATA HsToken
+   | AGLocal   var   : {Identifier}    -- either a local or a terminal
+               pos   : {Pos}
+               rdesc : {Maybe String}  -- description of the rule the local reference appears in
+
+   | AGField   field : {Identifier}    -- Misnomer: this is actually a reference to an attribute, not a terminal!
+               attr  : {Identifier}
+               pos   : {Pos}
+               rdesc : {Maybe String}  -- description of the rule the attribute reference appears in
+
+   | HsToken   value : {String}
+               pos   : {Pos}
+   | CharToken value : {String}
+               pos   : {Pos}
+   | StrToken  value : {String}
+               pos   : {Pos}
+   | Err       mesg  : {String}
+               pos   : {Pos}
+
+
+
+DERIVING HsToken : Show

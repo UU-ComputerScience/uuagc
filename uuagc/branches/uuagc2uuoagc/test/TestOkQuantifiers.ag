@@ -1,0 +1,22 @@
+MODULE {TestOkQuantifiers} {} {}
+
+DATA D
+  | C
+
+TYPE L a = [D]
+
+ATTR L
+  [ inp : {a} | | outp : {[a]} ]
+
+SEM L
+  | Cons  loc.x = @lhs.inp
+          lhs.outp = @loc.x : @tl.outp
+  | Nil   lhs.outp = []
+
+WRAPPER L
+
+{
+l = [D_C,D_C,D_C]
+s = wrap_L (sem_L l) (Inh_L { inp_Inh_L = 'x' })
+t = outp_Syn_L s
+}

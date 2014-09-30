@@ -1,0 +1,13 @@
+MODULE {TestOkDupSet} {} {}
+
+DATA D1 | C1
+DATA D2 | C2
+
+SET X1 = D1
+SET X1 : D2
+
+ATTR X1 [ | | x : Int ]
+SEM D1 | C1
+  lhs.x = 3
+SEM D2 | C2
+  lhs.x = 4

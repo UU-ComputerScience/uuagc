@@ -1,0 +1,16 @@
+prod Cons : Docs
+attrs
+  inh left : String
+  syn left : String
+children
+  nonterm hd : Doc
+    attrs
+      inh left : String
+      syn left : String
+  nonterm tl : Docs
+    attrs
+      inh left : String
+      syn left : String
+flows
+  lhs.in.left -> hd.in.left
+  hd.out.left -> tl.in.left upwards

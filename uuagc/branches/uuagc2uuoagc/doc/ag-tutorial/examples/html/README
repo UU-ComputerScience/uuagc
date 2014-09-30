@@ -1,0 +1,19 @@
+Example variants:
+
+the final, full, complete ones, though without indexing functionality:
+- Html3.ag, plain AG
+- Html3HS.ag, AG with Haskell syntax
+
+stripped down version only producing html (0) and levels+counting (1) and TOC (2),
+as in the accompanying slides:
+- Html0HS.ag, AG with Haskell syntax
+- Html1HS.ag, AG with Haskell syntax
+- Html2HS.ag, AG with Haskell syntax
+
+Choose one of the above in the Makefile, say nr Html0HS, then
+	make
+	make test0		# will produce the executable ./html, and the testcase will generate test0.html
+	make distr		# make .tgz distribution
+	make clean
+
+

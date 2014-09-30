@@ -1,0 +1,15 @@
+-- set Noot is defined twice
+
+DATA Aap
+	| Een a : {Int}
+	
+DATA Aap2
+	| Twee b : {Int}
+	
+DATA Aap3
+	| Drie c : {Int}
+	
+	
+SET Noot = Aap Aap2
+
+SET Noot = Aap Aap2 Aap3

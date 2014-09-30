@@ -1,0 +1,25 @@
+-- The simplest induced dependency possible:
+-- in the Root, there are two S->I dependencies y->u and z->v
+-- in the Aap below, there are two alternatives, each having a I->S dependency.
+-- Alternative Een links u->z, alternative Twee links v->y
+-- Together they induce the circularity.
+
+DATA Root
+   | Start  a: Aap
+   
+DATA Aap
+   | Een    i: Int
+   | Twee   j: Int
+   
+ATTR Aap [ u:Int v:Int | | y:Int z:Int]
+
+SEM Root
+  | Start  a.u = @a.y
+           a.v = @a.z
+  
+SEM Aap
+  | Een    lhs.z = @lhs.u
+           lhs.y = @i
+  
+  | Twee   lhs.y = @lhs.v
+           lhs.z = @j
