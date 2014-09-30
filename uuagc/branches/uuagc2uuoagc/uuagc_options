@@ -115,3 +115,6 @@ options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genline
 
 file: "src-ag/InterfacesRules.lag"
 options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
+
+file: "src-ag/DumpExecutionPlan.ag"
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren

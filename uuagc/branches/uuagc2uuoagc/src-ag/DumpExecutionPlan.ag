@@ -1,0 +1,152 @@
+INCLUDE "ExecutionPlan.ag"
+INCLUDE "Patterns.ag"
+INCLUDE "Expression.ag"
+INCLUDE "HsToken.ag"
+
+imports
+{
+import ExecutionPlan
+import Pretty
+import PPUtil
+import Data.Map (Map)
+import qualified Data.Map as Map
+
+}
+
+ATTR ExecutionPlan 
+  [ importBlocks : PP_Doc
+    pragmaBlocks : String
+    textBlocks   : PP_Doc
+    moduleHeader : {String -> String -> String -> Bool -> String}
+    mainFile     : String
+    mainName     : String | | ]
+
+ATTR ExecutionPlan ENonterminals ENonterminal EProductions EProduction
+     EChildren EChild Visits Visit VisitSteps VisitStep Pattern Expression
+     HsToken
+   [ | | result USE {>-<} {empty} : PP_Doc ]
+
+SEM ExecutionPlan | ExecutionPlan
+  lhs.result = @nonts.result
+               >-< text ""
+               >-< text "-- Haskell code"
+               >-< @lhs.textBlocks
+
+SEM ENonterminal | ENonterminal
+  loc.nontype = case lookup @nt @lhs.typeSyns of
+                  Nothing       -> text "nonterminal"
+                  Just (List t) -> text "list" >#< ppType t
+  lhs.result = @loc.nontype >#< pp @nt
+               >-< indent 3 @prods.visitinfo
+               >-< indent 3 @prods.result
+
+ATTR EProductions EProduction
+     [ | | visitinfo USE {const} {undefined} : PP_Doc ]
+ATTR Visits Visit
+     [ | | visitinfo USE {>-<} {empty} : PP_Doc ]
+
+SEM Visit | Visit
+  lhs.visitinfo = text "visit" >#< pp @lhs.visitnum
+                  >-< indent 3 (vlist
+                      [ text "inh" >#< pp i >#< text "::" >#< ppType tp
+                      | i <- Set.toList @inh
+                      , let Just tp = Map.lookup i @lhs.inhmap ])
+                  >-< indent 3 (vlist
+                      [ text "syn" >#< pp i >#< text "::" >#< ppType tp
+                      | i <- Set.toList @syn
+                      , let Just tp = Map.lookup i @lhs.synmap ])
+
+SEM EProduction | EProduction
+  lhs.result = text "alternative" >#< pp @con
+               >-< indent 3 @children.result
+               >-< indent 3 @visits.result
+
+
+SEM EChild | *
+   lhs.result = text "child" >#< pp @name >#< text "::" >#< ppType @tp
+
+SEM Visit | Visit
+  lhs.result = text "visit" >#< pp @lhs.visitnum
+               >-< indent 3 @steps.result
+
+SEM Pattern | Alias
+    lhs.result = pp @field >|< '.' >|< pp @attr
+SEM Pattern | Constr Product Irrefutable Underscore
+    lhs.result = error "Advanced patterns not supported"
+
+SEM HsToken
+  | AGLocal  lhs.result = "@" >|< @var
+  | AGField  lhs.result = '@' >|< @field >|< '.' >|< @attr
+  | HsToken  lhs.result = pp @value
+  | StrToken lhs.result = pp (show @value)
+
+SEM Expression | Expression
+   lhs.result = ppSpaced $ map showHsToken @tks
+
+SEM VisitStep
+  | Sem        lhs.result = Map.findWithDefault empty @name @lhs.rulepp
+  | ChildVisit lhs.result = text "childvisit" >#< @child
+
+ATTR ERules ERule
+    [ | | rulepp USE {`Map.union`} {Map.empty} : {Map Identifier PP_Doc} ]
+
+ATTR VisitSteps VisitStep EChild EChildren Visit Visits
+    [ rulepp : {Map Identifier PP_Doc} | | ]
+
+SEM EProduction | EProduction
+  children.rulepp = @rules.rulepp
+
+SEM ERule | ERule
+  lhs.rulepp = Map.singleton @name $ @pattern.result >#< "=" >#< @rhs.result
+
+{
+ppType :: Type -> PP_Doc
+ppType (Haskell s) = pp '{' >|< text s >|< pp '}'
+ppType (NT i _ _)  = pp i
+ppType Self        = text "self -- todo"
+
+showHsToken :: HsToken -> PP_Doc
+showHsToken = result_Syn_HsToken . flip wrap_HsToken Inh_HsToken . sem_HsToken
+}
+
+ATTR Visits Visit [ visitnum : Int | | ]
+
+SEM Visits | Cons
+  tl.visitnum = @lhs.visitnum + 1
+
+SEM EProduction | EProduction
+  visits.visitnum = 0
+
+
+-------------------------------------------------------------------------------
+--  Type aliasses
+-------------------------------------------------------------------------------
+ATTR ENonterminal ENonterminals [ typeSyns : {TypeSyns}
+                                  derivings : {Derivings} | | ]
+
+SEM ExecutionPlan
+  | ExecutionPlan nonts.typeSyns = @typeSyns
+                  nonts.derivings = @derivings
+
+-------------------------------------------------------------------------------
+--  Types of attributes
+-------------------------------------------------------------------------------
+ATTR ExecutionPlan
+     ENonterminals
+     ENonterminal  [ inhmap : {Map NontermIdent Attributes}
+                     synmap : {Map NontermIdent Attributes} | | ]
+
+ATTR EProductions EProduction
+     ERules ERule
+     Patterns Pattern
+     Visits
+     Visit   [ inhmap : {Attributes}
+               synmap : {Attributes}
+               allInhmap : {Map NontermIdent Attributes}
+               allSynmap : {Map NontermIdent Attributes} | | ]
+
+SEM ENonterminal
+  | ENonterminal (Just prods.inhmap) = Map.lookup @nt @lhs.inhmap
+                 (Just prods.synmap) = Map.lookup @nt @lhs.synmap
+                 prods.allInhmap = @lhs.inhmap
+                 prods.allSynmap = @lhs.synmap
