@@ -290,7 +290,8 @@ SEM HsToken | AGField
                                 (getName @attr, drhs @field)
     
 {
--- | Replace the references to local attributes, by his attrs dependencies
+-- | Replace the references to local attributes, by his attrs dependencies,
+-- |    rendering the local attributes 'transparent'.
 repLocRefs :: SF_P -> SF_P -> SF_P
 repLocRefs lfp sfp =
     Map.map (setConcatMap rep) sfp
