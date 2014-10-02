@@ -62,15 +62,20 @@ SEM EProduction | EProduction
                >-< indent 3 @visits.result
 
 
-SEM EChild | *
-   lhs.result = text "child" >#< pp @name >#< text "::" >#< ppType @tp
+SEM EChild 
+  | *      loc.result = text "child" >#< pp @name >#< text "::" >#< ppType @tp
+  | EChild lhs.result = case @kind of
+                          ChildSyntax -> @loc.result
+                          _ -> empty
 
 SEM Visit | Visit
   lhs.result = text "visit" >#< pp @lhs.visitnum
                >-< indent 3 @steps.result
 
 SEM Pattern | Alias
-    lhs.result = pp @field >|< '.' >|< pp @attr
+    lhs.result = case getName @field of
+                  "inst" -> "loc.inst_" >|< pp @attr
+                  _      -> pp @field >|< '.' >|< pp @attr
 SEM Pattern | Constr Product Irrefutable Underscore
     lhs.result = error "Advanced patterns not supported"
 
@@ -86,6 +91,7 @@ SEM Expression | Expression
 SEM VisitStep
   | Sem        lhs.result = Map.findWithDefault empty @name @lhs.rulepp
   | ChildVisit lhs.result = text "childvisit" >#< @child
+  | ChildIntro lhs.result = Map.findWithDefault empty @child @lhs.intropp
 
 ATTR ERules ERule
     [ | | rulepp USE {`Map.union`} {Map.empty} : {Map Identifier PP_Doc} ]
@@ -94,10 +100,26 @@ ATTR VisitSteps VisitStep EChild EChildren Visit Visits
     [ rulepp : {Map Identifier PP_Doc} | | ]
 
 SEM EProduction | EProduction
-  children.rulepp = @rules.rulepp
+   children.rulepp = @rules.rulepp
 
 SEM ERule | ERule
   lhs.rulepp = Map.singleton @name $ @pattern.result >#< "=" >#< @rhs.result
+
+
+ATTR EChild EChildren
+    [ | | intropp USE {`Map.union`} {Map.empty} : {Map Identifier PP_Doc} ]
+
+ATTR VisitSteps VisitStep EChild EChildren Visit Visits
+    [ intropp : {Map Identifier PP_Doc} | | ]
+
+SEM EProduction | EProduction
+  children.intropp = @children.intropp
+
+SEM EChild | EChild
+  lhs.intropp = case @kind of
+                  ChildAttr -> Map.singleton @name $ "child" >#< @name >#< "::" 
+                               >#< ppType @tp >#< "=" >#< "@loc.inst_" >|< @name
+                  _ -> Map.empty
 
 {
 ppType :: Type -> PP_Doc
