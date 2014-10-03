@@ -204,7 +204,7 @@ SEM FieldAtt | FieldAtt
 -- calculate representation of semantic function 
 -- definitions per non-terminal and from it, calculate E_P
 SEM Grammar | Grammar
-     loc.sfp = repLocRefs @nonts.lfp @nonts.sfp
+     loc.sfp = repLocRefs @nonts.lfp $ addHigherOrders @nonts.lfp @nonts.sfp
 ATTR Nonterminals Nonterminal Productions Production Rules Rule [ || 
     sfp  USE {Map.unionWith (Set.union)} {Map.empty} : SF_P  -- deps of non-locals
     ruleMap USE {Map.union} {Map.empty} : {Map.Map MyOccurrence Identifier} 
@@ -290,7 +290,8 @@ SEM HsToken | AGField
                                 (getName @attr, drhs @field)
     
 {
--- | Replace the references to local attributes, by his attrs dependencies
+-- | Replace the references to local attributes, by his attrs dependencies,
+-- |    rendering the local attributes 'transparent'.
 repLocRefs :: SF_P -> SF_P -> SF_P
 repLocRefs lfp sfp =
     Map.map (setConcatMap rep) sfp
@@ -298,6 +299,17 @@ repLocRefs lfp sfp =
           rep occ | isLoc occ   = setConcatMap rep $ 
                                     findWithErr lfp "repping locals" occ
                   | otherwise   = Set.singleton occ
+
+-- | Add dependencies from a higher order child to all its attributes
+addHigherOrders :: SF_P -> SF_P -> SF_P
+addHigherOrders lfp sfp = 
+   Map.mapWithKey f $ Map.map (setConcatMap (\mo -> f mo (Set.singleton mo))) sfp
+   where f :: MyOccurrence -> Set.Set MyOccurrence -> Set.Set MyOccurrence
+         f mo@(MyOccurrence (p,f) _) deps =
+           let ho = ((p,"inst") >.< (f,AnyDir))
+           in  if ho `Map.member` lfp
+               then ho `Set.insert` deps
+               else deps
 }
 
 
