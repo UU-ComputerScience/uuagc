@@ -295,10 +295,10 @@ getVss (done,intros,rules,vnrs) ps tdp synsO lfp nmpr pmp pmpr fty visMap ruleMa
                                 writeSTRef introed (Set.insert child intros)
                                 let occ = (ps,"inst") >.< (child, AnyDir)
                                     preds = Set.toList $ setConcatMap rep $ 
-                                                        lfp M.! occ
+                                                        lfp Map.! occ
                                     rep :: MyOccurrence -> Set.Set MyOccurrence 
                                     rep occ | isLoc occ   = Set.insert occ $ 
-                                                setConcatMap rep $ lfp M.! occ
+                                                setConcatMap rep $ lfp Map.! occ
                                             | otherwise   = Set.singleton occ
                                 rest <- forM preds 
                                             (visit ref introed ruleref vnrsref)
@@ -311,8 +311,8 @@ getVss (done,intros,rules,vnrs) ps tdp synsO lfp nmpr pmp pmpr fty visMap ruleMa
              where  cvisit= ChildVisit (identifier child) ntid visnr
                     child = snd $ argsOf o
                     ntid  = ((\(NT name _ _ )-> name) . fromMyTy) nt 
-                    visnr = (\x-> visMap IM.! x) (nmpr M.! (nt <.> attr o))
-                    nt    = fty M.! (ps,child)
+                    visnr = (\x-> visMap IMap.! x) (nmpr Map.! (nt <.> attr o))
+                    nt    = fty Map.! (ps,child)
 }
 
 ATTR Nonterminals Nonterminal [ 
