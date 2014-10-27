@@ -107,6 +107,9 @@ type TDPRes  = A.Array Vertex Vertices --M.Map PLabel TDPGraph
 type TDPGraph = (IM.IntMap Vertices, IM.IntMap Vertices) 
 type InterfaceRes = M.Map String (IM.IntMap [Vertex])
 type HOMap   = M.Map PLabel (S.Set FLabel) 
+data CType = T1 | T2 
+           | T3 [Edge] -- completing edges from which to select candidates
+    deriving (Show)
 
 findWithErr :: (Ord k, Show k, Show a) => M.Map k a -> String -> k -> a
 findWithErr m err k = maybe (error err) id $ M.lookup k m

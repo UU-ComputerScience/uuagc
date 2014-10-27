@@ -115,6 +115,5 @@ library
     , LOAG.Graphs
     , LOAG.Order
     , LOAG.Rep
-    , LOAG.Result
    if flag(with-loag)
       other-modules: LOAG.Solver.MiniSat, LOAG.Optimise
