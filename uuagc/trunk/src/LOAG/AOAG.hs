@@ -5,7 +5,6 @@ module LOAG.AOAG where
 import LOAG.Common
 import LOAG.Graphs
 import LOAG.Rep
-import LOAG.Result
 
 import AbstractSyntax
 import CommonTypes
@@ -13,7 +12,6 @@ import Control.Arrow ((&&&), (***))
 import Control.Monad (forM, forM_, MonadPlus(..), when, unless)
 import Control.Monad.ST
 import Control.Monad.Error (ErrorT(..))
-import Control.Monad.Trans (lift, MonadTrans(..))
 import Control.Monad.State (MonadState(..))
 import Data.Maybe (fromMaybe, catMaybes, fromJust, isNothing)
 import Data.List (elemIndex, foldl', delete, (\\), insert, nub)
@@ -39,43 +37,24 @@ data Settings = Settings
                 }
 default_settings = Settings 999 False
 
-type AOAG s a = ResultT (ST s) a
-runAOAG :: (forall s. AOAG s a) -> Either Err.Error a
-runAOAG l = 
-    case runST (runResult l) of
-      Give res          -> Right res
-      Cycle e c T1      -> Left $ t1err
-      Cycle e c T2      -> Left $ t2err
-      Cycle e c (T3 _)  -> Left $ t3err
-      Limit             -> Left $ lerr
-      NotLOAG           -> Left $ naoag
-    where   t1err = Err.CustomError False noPos $ text "Type 1 cycle"
-            t2err = Err.CustomError False noPos $ text "Type 2 cycle"
-            t3err = Err.CustomError False noPos $ text "Type 3 cycle"
-            lerr  = Err.CustomError False noPos $ text "Limit reached!"
-            naoag = Err.CustomError False noPos $ text "Not arranged orderly..."
+type AOAG s a = ST s a
+
 -- | Catch a type 3 cycle-error made by a given constructor
 -- |  two alternatives are given to proceed
-catchType3 :: (Monad m) => 
-                    ResultT m a             -- The monad to catch from
-                 -- If the catch is made
-                 -> (Edge -> Cycle -> [Edge] -> ResultT m a)
-                 -> ResultT m a              
-catchType3 mt3 alt = Result $ do
-    let runM = runResult mt3
-    mt3a <- runM
-    case mt3a of
-        Cycle e c (T3 comp) -> runResult (alt e c comp)
-        otherwise           -> runM
-
 type ADS = [Edge]
-type AOAGRes =  LOAGRes
+type AOAGRes =  Either Error LOAGRes
 -- | Calculate a total order if the semantics given 
 --    originate from a linearly-ordered AG
-schedule :: LOAGRep -> Grammar -> Ag -> [Edge] -> Either Error AOAGRes
+
+type2error,limiterror,aoagerror :: Error
+type2error = Err.CustomError False noPos $ text "Type 2 cycle"
+limiterror = Err.CustomError False noPos $ text "Limit reached"
+aoagerror  = Err.CustomError False noPos $ text "Not an LOAG/AOAG"
+
+schedule :: LOAGRep -> Grammar -> Ag -> [Edge] -> AOAGRes
 schedule sem gram@(Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) 
                 ag@(Ag bounds_s bounds_p de nts) ads 
-    = runAOAG $ aoag default_settings ads
+    = runST $ aoag default_settings ads
  where
     -- get the maps from semantics and translate them to functions    
     nmp  = (nmp_LOAGRep_LOAGRep  sem)     
@@ -113,23 +92,26 @@ schedule sem gram@(Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _)
             run :: AOAG s AOAGRes
             run = induced ads >>= detect
 
-            detect (dp,idp,ids@(idsf,idst)) = do
+            detect (Left err) = return $ Left err
+            detect (Right (dp,idp,ids@(idsf,idst))) = do
                 -- Attribute -> TimeSlot
-                schedA <- lift (mapArray (const Nothing) idsf)
+                schedA <- mapArray (const Nothing) idsf
                 -- map TimeSlot -> [Attribute]
-                schedS <- lift (newSTRef $ 
+                schedS <- newSTRef $ 
                     foldr (\(Nonterminal nt _ _ _ _) -> M.insert (getName nt) 
-                                (IM.singleton 1 [])) M.empty dats)
+                                (IM.singleton 1 [])) M.empty dats
                 fr_ids <- freeze_graph ids
-                threads <- lift (completing fr_ids (schedA, schedS) nts)
+                threads <- completing fr_ids (schedA, schedS) nts
                 let (ivd, comp) = fetchEdges fr_ids threads nts
-                m_edp dp init_ads ivd comp (schedA, schedS) `catchType3` 
-                                find_ads dp idp ids (schedA, schedS)
+                eRoC <- m_edp dp init_ads ivd comp (schedA, schedS)
+                case eRoC of
+                    Left res -> return $ Right res
+                    Right (e,c,T3 cs) -> find_ads dp idp ids (schedA, schedS) e c cs
 
             find_ads :: Graph s -> Graph s -> Graph s -> SchedRef s -> 
-                         Edge -> Cycle -> [Edge] -> AOAG s AOAGRes 
+                         Edge -> Cycle -> [Edge] -> AOAG s AOAGRes
             find_ads dp idp ids sched e cycle comp = do
-                pruner <- lift (newSTRef 999) 
+                pruner <- newSTRef 999
                 explore dp idp ids sched init_ads pruner e cycle comp
  
             explore :: Graph s -> Graph s -> Graph s -> SchedRef s -> 
@@ -141,12 +123,11 @@ schedule sem gram@(Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _)
               explore' :: Graph s -> Graph s -> Graph s -> SchedRef s -> 
                           [Edge] -> [Edge] -> STRef s Int -> 
                             AOAG s AOAGRes
-              explore' _  _   _   _  _   [] _ = Result $ return NotLOAG
-              explore' dp idp ids sched@(schedA,schedS) ads (fd:cs) pruner 
-               = Result $ do
+              explore' _  _   _   _  _   [] _ = return $ Left aoagerror
+              explore' dp idp ids sched@(schedA,schedS) ads (fd:cs) pruner = do
                   p_val <- readSTRef pruner
                   if length ads >= p_val -1
-                   then return Limit
+                   then return $ Left limiterror 
                    else do 
                     idpf_clone <- mapArray id (fst idp)
                     idpt_clone <- mapArray id (snd idp)
@@ -159,131 +140,143 @@ schedule sem gram@(Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _)
                     schedS_c   <- newSTRef schedS_v
                     let sched_c = (schedA_c, schedS_c)
     
-                    let runM = runResult $ reschedule dp idp ids sched 
+                    let runM = reschedule dp idp ids sched 
                                                 (fd:ads) fd pruner
                     let backtrack = explore' dp idp_c ids_c sched_c ads cs 
                                         pruner
                     maoag <- runM
-                    case maoag of
-                      Cycle e c T2        -> runResult backtrack
-                      NotLOAG             -> runResult backtrack
-                      Limit               -> runResult backtrack
-                      Cycle e c (T3 comp) -> error "Uncaught type 3"
-                      Cycle e c T1        -> error "Type 1 error"
-                      Give (tdp1,inf1,ads1) -> 
+                    case maoag of 
+                      Left _                 -> backtrack
+                      Right (tdp1,inf1,ads1) -> 
                             if LOAG.AOAG.min_ads cfg 
                              then do
                               writeSTRef pruner (length ads1)
-                              maoag' <- runResult backtrack
+                              maoag' <- backtrack
                               case maoag' of
-                                Give (tdp2,inf2,ads2)
-                                          -> return $ Give (tdp2,inf2,ads2)
-                                otherwise -> return $ Give (tdp1,inf1,ads1)
-                             else return $ Give (tdp1,inf1,ads1)
+                                Right (tdp2,inf2,ads2)
+                                          -> return $ Right (tdp2,inf2,ads2)
+                                otherwise -> return $ Right (tdp1,inf1,ads1)
+                             else return $ Right (tdp1,inf1,ads1)
 
             -- step 1, 2 and 3
-            induced :: [Edge] -> AOAG s (Graph s, Graph s, Graph s)
+            induced :: [Edge] -> AOAG s (Either Error (Graph s, Graph s, Graph s))
             induced ads = do
-                dpf  <- lift (newArray bounds_p IS.empty)
-                dpt  <- lift (newArray bounds_p IS.empty)
-                idpf <- lift (newArray bounds_p IS.empty)
-                idpt <- lift (newArray bounds_p IS.empty)
-                idsf <- lift (newArray bounds_s IS.empty)
-                idst <- lift (newArray bounds_s IS.empty)
+                dpf  <- newArray bounds_p IS.empty
+                dpt  <- newArray bounds_p IS.empty
+                idpf <- newArray bounds_p IS.empty
+                idpt <- newArray bounds_p IS.empty
+                idsf <- newArray bounds_s IS.empty
+                idst <- newArray bounds_s IS.empty
                 let ids = (idsf,idst)
                 let idp = (idpf,idpt)
                 let dp  = (dpf ,dpt)
                 inducing dp idp ids (de ++ ads) 
 
             inducing :: Graph s -> Graph s -> Graph s -> [Edge] 
-                            -> AOAG s (Graph s, Graph s, Graph s)
+                            -> AOAG s (Either Error (Graph s, Graph s, Graph s))
             inducing dp idp ids es = do
-                mapM_ (addD dp idp ids) es
-                return (dp, idp, ids)
-            addD :: Graph s -> Graph s -> Graph s -> Edge -> AOAG s [Edge]
+                res <- adds (addD dp idp ids) [] es
+                case res of 
+                    Left _ -> return $ Left $ type2error
+                    Right _  -> return $ Right (dp, idp, ids)
+            addD :: Graph s -> Graph s -> Graph s -> Edge -> AOAG s (Either Error [Edge])
             addD dp' idp' ids' e = do
                 resd <- e `insErt` dp'
                 resdp <- e `inserT` idp'
                 case resdp of 
-                  Right es  -> do 
-                    addedExtras <- mapM (addN idp' ids') (e:es)
-                    return $ concat addedExtras
-                  Left c    -> throwCycle e c T2
+                  Right es  -> adds (addN idp' ids') [] (e:es)
+                  Left c    -> return $ Left $ type2error
 
-            addI :: Graph s -> Graph s -> Edge -> AOAG s [Edge]
+            addI :: Graph s -> Graph s -> Edge -> AOAG s (Either Error [Edge])
             addI idp' ids' e = do
                 exists <- member e idp'
                 if not exists then do
                     res <- e `inserT` idp'
                     case res of
-                        Right es -> do
-                            addedExtras <- mapM (addN idp' ids') es
-                            return (concat addedExtras) 
-                        Left c   -> throwCycle e c T2
-                 else return []
-            addN :: Graph s -> Graph s -> Edge -> AOAG s [Edge]
+                        Right es -> adds (addN idp' ids') [] es
+                        Left c   -> return $ Left $ type2error
+                 else return $ Right []
+
+            adds f acc [] = return $ Right acc
+            adds f acc (e:es) = do
+                mes <- f e
+                case mes of 
+                    Left err -> return $ Left err
+                    Right news -> adds f (acc++news) es
+
+            addN :: Graph s -> Graph s -> Edge -> AOAG s (Either Error [Edge])
             addN idp' ids' e = do
                     if (siblings e) then do
                         let s_edge = genEdge e
                         exists <- member s_edge ids'
                         if not exists then do
                             _ <- inserT s_edge ids'
-                            addedEx <- mapM (addI idp' ids') (instEdge s_edge)
-                            return (s_edge : concat addedEx)
-                         else return []
-                     else return []
+                            let es = instEdge s_edge
+                            addedEx <- adds (addI idp' ids') [] es
+                            case addedEx of
+                                Right news -> return $ Right (s_edge : news)
+                                Left err   -> return $ Left err
+                         else return $ Right []
+                     else return $ Right []            
 
             
             -- step 6, 7
             m_edp :: Graph s -> [Edge] -> [Edge] -> [Edge] -> SchedRef s ->
-                        AOAG s AOAGRes 
+                        AOAG s (Either LOAGRes (Edge,Cycle,CType))
             m_edp (dpf, dpt) ads ivd comp sched = do
-                edpf <- lift (mapArray id dpf)
-                edpt <- lift (mapArray id dpt)
+                edpf <- mapArray id dpf
+                edpt <- mapArray id dpt
                 mc   <- addEDs (edpf,edpt) (concatMap instEdge ivd) 
                 case mc of
-                  Just (e, c) -> throwCycle e c (T3 $ concatMap instEdge comp)
+                  Just (e, c) -> return $ Right (e,c,T3 $ concatMap instEdge comp)
                   Nothing     -> do 
-                        tdp  <- lift (freeze edpt)
-                        infs <- lift (readSTRef (snd sched))
-                        return $ (Just tdp,infs,ads)
+                        tdp  <- freeze edpt
+                        infs <- readSTRef (snd sched)
+                        return $ Left (Just tdp,infs,ads)
 
             reschedule :: Graph s -> Graph s -> Graph s -> SchedRef s -> 
                            [Edge] -> Edge -> STRef s Int 
                             -> AOAG s AOAGRes
             reschedule dp idp ids sched@(_,threadRef) ads e pruner = do
                 extra <- addN idp ids e
-                forM_ extra $ swap_ivd ids sched
-                fr_ids <- freeze_graph ids
-                threads <- lift (readSTRef threadRef)
-                let (ivd, comp) = fetchEdges fr_ids threads nts 
-                m_edp dp ads ivd comp sched `catchType3` 
-                    explore dp idp ids sched ads pruner
+                case extra of 
+                    Left err -> return $ Left err
+                    Right extra -> do
+                        forM_ extra $ swap_ivd ids sched
+                        fr_ids <- freeze_graph ids
+                        threads <- readSTRef threadRef
+                        let (ivd, comp) = fetchEdges fr_ids threads nts 
+                        eRoC <- m_edp dp ads ivd comp sched
+                        case eRoC of
+                            Left res -> return $ Right res 
+                            Right (e,c,(T3 cs)) -> explore dp idp ids sched ads pruner e c cs
              where 
               swap_ivd :: Graph s -> SchedRef s -> Edge -> AOAG s ()
               swap_ivd ids@(idsf, idst) sr@(schedA, schedS) (f,t) = do
                 --the edge should point from higher to lower timeslot
-                assigned <- lift (freeze schedA)
+                assigned <- freeze schedA
                 let oldf = maybe (error "unassigned f") id $ assigned A.! f
                     oldt = maybe (error "unassigned t") id $ assigned A.! t
                     dirf = snd $ alab $ nmp M.! f
                     dirt = snd $ alab $ nmp M.! t
                     newf | oldf < oldt = oldt + (if dirf /= dirt then 1 else 0)
                          | otherwise   = oldf
-                    nt   = show $ typeOf $ findWithErr nmp "m_edp" f
+                    nt   = show $ typeOf $ nmp M.! f
 
                 -- the edge was pointing in wrong direction so we moved 
                 -- the attribute to a new interaction, now some of its
                 -- predecessors/ancestors might need to be moved too
                 unless (oldf == newf) $ do
-                    lift (writeArray schedA f (Just newf))
-                    lift (modifySTRef schedS 
-                            (M.adjust (IM.update (Just . delete f) oldf) nt))
-                    lift (modifySTRef schedS 
-                        (M.adjust(IM.alter(Just. maybe [f] (insert f))newf)nt))
-                    predsf <- lift (readArray idst f)
-                    succsf <- lift (readArray idsf f)
-                    mapM_ (swap_ivd ids sr) (
-                        (map (flip (,) f) $ IS.toList predsf) ++ 
-                        (map ((,) f)      $ IS.toList succsf))
+                    writeArray schedA f (Just newf)
+                    modifySTRef schedS 
+                            (M.adjust (IM.update (Just . delete f) oldf) nt)
+                    modifySTRef schedS 
+                        (M.adjust(IM.alter(Just. maybe [f] (insert f))newf)nt)
+                    predsf <- readArray idst f
+                    succsf <- readArray idsf f
+                    let rest = (map (flip (,) f) $ IS.toList predsf) ++ 
+                               (map ((,) f)      $ IS.toList succsf)
+                     in mapM_ (swap_ivd ids sr) rest
+                        
+                        
 
