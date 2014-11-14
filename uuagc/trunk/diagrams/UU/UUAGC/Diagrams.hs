@@ -24,7 +24,7 @@
 -----------------------------------------------------------------------------
 
 module UU.UUAGC.Diagrams
-       (production, child, agrule,
+       (production, child, agrule, indrule,
         shaftL, shaftR, shaftT, shaftB, shaftD,
         (#),
         AGDiagram, AGBackend, Child) where
@@ -61,6 +61,16 @@ agrule sh s1 s2 = connectPerim' (with & headLength .~ (Normalized 0.025) & arrow
   n2 = if t2 then s2 ++ ".syn" else s2 ++ ".inh"
   tb False  = 90 @@ deg
   tb True   = 270 @@ deg
+
+-- | Construct an induced dependency arrow between two attributes, similar to
+--   'agrule' but with an explicit trial.
+indrule :: AGBackend b => String -> String -> AGDiagram b -> AGDiagram b
+indrule s1 s2 = connectPerim' (with & headLength .~ (Normalized 0.025) & arrowShaft .~ shaftB & shaftStyle %~ dashed . opacity 0.5) n1 n2 tb tb where
+  t = "lhs." `isPrefixOf` s1
+  n1 = if t then s1 ++ ".syn" else s1 ++ ".inh"
+  n2 = if t then s2 ++ ".inh" else s2 ++ ".syn"
+  tb = if t then 90 @@ deg else 270 @@ deg
+  dashed  = dashingN [0.01,0.01] 0
 
 shaftL, shaftR, shaftT, shaftB, shaftD :: Trail R2
 
