@@ -98,7 +98,7 @@ node :: AGBackend b =>
 node top inh s syn ch = res # applyAll lines where
   res = toprow
         ===
-        strutY 2
+        (if null ch then mempty else strutY 2)
         ===
         (hcats 1.5 $ map unChild ch) # centerX
   lines = alines ++ chLines
@@ -116,8 +116,8 @@ node top inh s syn ch = res # applyAll lines where
   lhs = beside (negateV unitY) (
           beside unitY
           (circle 0.5 # named name # lc grey)
-          (if top then (text' 0.9 "lhs" === strutY 0.1) else mempty))
-        (strutY 0.1 === text' 0.9 s)
+          (if top then (text' 0.9 s === strutY 0.1) else mempty))
+        (strutY 0.1 === text' 0.9 name)
 
 text' :: AGBackend b =>
          Double -> String -> AGDiagram b
