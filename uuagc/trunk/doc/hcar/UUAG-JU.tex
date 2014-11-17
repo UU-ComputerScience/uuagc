@@ -1,7 +1,7 @@
 % UUAG-JU.tex
-\begin{hcarentry}{UUAG}
+\begin{hcarentry}[updated]{UUAG}
 \label{uuag}
-\report{Jeroen Bransen}%11/13
+\report{Jeroen Bransen}%11/14
 \status{stable, maintained}
 \participants{ST Group of Utrecht University}
 \makeheader
@@ -14,19 +14,37 @@ of Haskell. The generated tree walks are \emph{efficient} in both space and time
 
 An AG program is a collection of rules, which are pure Haskell functions between attributes.
 Idiomatic tree computations are neatly expressed in terms of copy, default, and collection rules.
-Attributes themselves can masquerade as subtrees and be analyzed accordingly (higher-order attribute). The order in which to visit the tree is derived automatically from the attribute computations. The tree walk is a single traversal from the perspective of the programmer.
+Attributes themselves can masquerade as subtrees and be analyzed accordingly (higher-order attribute).
+The order in which to visit the tree is derived automatically from the attribute computations.
+The tree walk is a single traversal from the perspective of the programmer.
 
-Nonterminals (data types), productions (data constructors), attributes, and rules for attributes can be specified separately, and are woven and ordered automatically. These aspect-oriented programming features make AGs convenient to use in large projects.
+Nonterminals (data types), productions (data constructors), attributes, and rules for attributes can
+be specified separately, and are woven and ordered automatically. These aspect-oriented programming
+features make AGs convenient to use in large projects.
 
-The system is in use by a variety of large and small projects, such as the Utrecht Haskell Compiler UHC~\cref{uhc}, the editor Proxima for structured documents (\url{http://www.haskell.org/communities/05-2010/html/report.html#sect6.4.5}), the Helium compiler (\url{http://www.haskell.org/communities/05-2009/html/report.html#sect2.3}), the Generic Haskell compiler, UUAG itself, and many master student projects.
-The current version is 0.9.51 (July 2014), is extensively tested, and is available on Hackage. There is also a Cabal plugin for easy use of AG files in Haskell projects.
+The system is in use by a variety of large and small projects, such as the Utrecht Haskell Compiler
+UHC~\cref{uhc}, the editor Proxima for structured documents (\url{http://www.haskell.org/communities/05-2010/html/report.html#sect6.4.5}),
+the Helium compiler (\url{http://www.haskell.org/communities/05-2009/html/report.html#sect2.3}),
+the Generic Haskell compiler, UUAG itself, and many master student projects.
+The current version is 0.9.51 (July 2014), is extensively tested, and is available on Hackage.
+There is also a Cabal plugin for easy use of AG files in Haskell projects.
 
 We recently implemented the following enhancements:
 \begin{description}
 \item[Evaluation scheduling.]
-  We have done a project to improve the scheduling algorithms for AGs. The previously implemented algorithms for scheduling AG computations did not fully satisfy our needs; the code we write goes beyond the class of OAGs, but the algorithm by Kennedy and Warren (1976) results in an undesired increase of generated code due to non-linear evaluation orders. However, because we know that our code belongs to the class of linear orderable AGs, we wanted to find and algorithm that can find this linear order, and thus lies in between the two existing approaches. We have created a backtracking algorithm for this which is currently implemented in the UUAG (--aoag flag).
-
-Another approach to this scheduling problem that we implemented is the use of SAT-solvers. The scheduling problem can be reduced to a SAT-formula and efficiently solved by existing solvers. The advantage is that this opens up possibilities for the user to influence the resulting schedule, for example by providing a cost-function that should be minimized. We have also implemented this approach in the UUAG which uses Minisat as external SAT-solver (--loag flag).
+  We have done a project to improve the scheduling algorithms for AGs. The previously implemented
+  algorithms for scheduling AG computations did not fully satisfy our needs; the code we write goes
+  beyond the class of OAGs, but the algorithm by Kennedy and Warren (1976) results in an undesired
+  increase of generated code due to non-linear evaluation orders. However, because we know that our
+  code belongs to the class of linear orderable AGs, we wanted to find and algorithm that can find
+  this linear order, and thus lies in between the two existing approaches. We have created a backtracking
+  algorithm for this which is currently implemented in the UUAG (\texttt{--aoag} flag).
+  
+Another approach to this scheduling problem that we implemented is the use of SAT-solvers.
+The scheduling problem can be reduced to a SAT-formula and efficiently solved by existing solvers.
+The advantage is that this opens up possibilities for the user to influence the resulting schedule,
+for example by providing a cost-function that should be minimized. We have also implemented this
+approach in the UUAG which uses Minisat as external SAT-solver (\texttt{--loag} flag).
 \end{description}
 
 We are currently working on the following enhancements:
