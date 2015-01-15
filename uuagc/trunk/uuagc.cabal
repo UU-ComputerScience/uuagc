@@ -17,6 +17,9 @@ tested-with: GHC >= 6.12
 extra-source-files: README
 extra-source-files: uuagc_options
 extra-source-files: src-ag/DistChildAttr.ag
+extra-source-files: src-ag/ExecutionPlanCommon.ag
+extra-source-files: src-ag/ExecutionPlanPre.ag
+extra-source-files: src-ag/LOAG/Prepare.ag
 
 -- This flag will be set by Setup.hs, use
 -- cabal configure --ghc-options="-DEXTERNAL_UUAGC"
