@@ -294,11 +294,12 @@ SEM HsToken | AGField
 -- |    rendering the local attributes 'transparent'.
 repLocRefs :: SF_P -> SF_P -> SF_P
 repLocRefs lfp sfp =
-    Map.map (setConcatMap rep) sfp
-    where rep :: MyOccurrence -> Set.Set MyOccurrence 
-          rep occ | isLoc occ   = setConcatMap rep $ 
-                                    findWithErr lfp "repping locals" occ
-                  | otherwise   = Set.singleton occ
+    Map.map (setConcatMap $ rep Set.empty) sfp
+    where rep :: Set.Set MyOccurrence -> MyOccurrence -> Set.Set MyOccurrence 
+          rep done occ | occ `Set.member` done = Set.empty
+                       | isLoc occ   = setConcatMap (rep $ Set.insert occ done) $ 
+                                       findWithErr lfp "repping locals" occ
+                       | otherwise   = Set.singleton occ
 
 -- | Add dependencies from a higher order child to all its attributes
 addHigherOrders :: SF_P -> SF_P -> SF_P
