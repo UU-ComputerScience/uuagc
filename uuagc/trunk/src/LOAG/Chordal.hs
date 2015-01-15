@@ -164,7 +164,7 @@ noTriangleNt sat g e1@(t1,c1) e2@(t2,c2) =
                     ruleOut c1 c2 c3
                     return [(t1,(t2,c3))]
           [c3] -> ruleOut c1 c2 c3 >> return []
-          _   -> error "multiple edges between two nodes" 
+          _   -> error "multiple edges between two nodes"
       Nothing -> error "pointer outside of graph"
  where 
         ruleOut ea eb ab= do addClause sat [ea, ab, varnot eb]
@@ -203,7 +203,7 @@ noTriangle sat g e1@(t1,c1) e2@(t2,c2) =
                     ruleOut c1 c2 (Any p)
                     return [(t1,(t2,(Any p)))]
           [c3] -> ruleOut c1 c2 c3 >> return [] 
-          _   -> error "multiple edges between two nodes" 
+          _   -> error "multiple edges between two nodes"
       Nothing -> error "pointer outside of graph"
  where  ruleOut ea eb ab= addClauses sat [[ea, ab, neg eb],[neg ea,neg ab,eb]] 
 noNtCycles :: Sat -> [Nt] -> (String -> IO ()) -> IO VarMap 
@@ -218,6 +218,9 @@ noNtCycles sat tps putStrLn = do
             vars <- satValues sat
             putStrLn ("nt : " ++ tid ++ " ... " ++ 
                         show vars ++ " ...")
+            when (not $ S.null $ S.fromList dpf `S.intersection`
+                     S.fromList (map (\(a,b) -> (b,a)) dpt)) $
+               error "Type 2 cycle of length 2"
             ass <- sequence $
                     [ return ((i,s),VarTrue) | ((i,s)) <- dpf ]++
                     [ return ((i,s),VarFalse)| ((s,i)) <- dpt ] 
