@@ -1,0 +1,69 @@
+{-
+Example from Figure 3 of the paper:
+Shin Natori, Katsuhiko Gondow, Takashi Imaizumi, Takeshi Hagiwara, and Takuya Katayama. On Eliminating Type 3 Circularities of Ordered Attribute Grammars. In D. Parigot and M. Mernik, editors, Second Workshop on Attribute Grammars and their Applications, WAGA'99, pages 93-112, Amsterdam, The Netherlands, March 1999. INRIA rocquencourt.
+
+Is orderable with K&W algorithm:
+> $ uuagc -aH --optimize --kennedywarren ANCAG-noLOAG.ag
+> Number of nodes = 9
+> Number of edges = 5
+
+but not with LOAG algorithm:
+
+> $ uuagc -aH --optimize --loag ANCAG-noLOAG.ag
+> uuagc: Not LOAG
+-}
+
+data W | W1 x :: X
+
+data X | X1 l, r :: Y
+
+data Y | Y1 z :: Z
+       | Y2 z :: Z
+
+data Z | Z1
+
+attr W
+  syn ws1 :: Int
+
+attr X
+  inh xi1 :: Int
+  inh xi2 :: Int
+  syn xs1 :: Int
+  syn xs2 :: Int
+
+attr Y
+  inh yi1 :: Int
+  syn ys1 :: Int
+
+attr Z
+  inh zi1 :: Int
+  inh zi2 :: Int
+  syn zs1 :: Int
+  syn zs2 :: Int
+
+sem W | W1
+  x.xi1 = @x.xs2
+  x.xi2 = @x.xs1
+  lhs.ws1 = @x.xs1 + @x.xs2
+
+wrapper W
+
+sem X | X1
+  l.yi1   = @lhs.xi1
+  r.yi1   = @lhs.xi2
+  lhs.xs1 = @l.ys1
+  lhs.xs2 = @r.ys1
+
+sem Y | Y1
+  z.zi1   = 0
+  z.zi2   = @lhs.yi1
+  lhs.ys1 = @z.zs2
+
+sem Y | Y2
+  z.zi1   = @lhs.yi1
+  z.zi2   = 0
+  lhs.ys1 = @z.zs1
+
+sem Z | Z1
+  lhs.zs1 = @lhs.zi2
+  lhs.zs2 = @lhs.zi1
