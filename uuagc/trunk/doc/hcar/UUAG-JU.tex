@@ -26,7 +26,7 @@ The system is in use by a variety of large and small projects, such as the Utrec
 UHC~\cref{uhc}, the editor Proxima for structured documents (\url{http://www.haskell.org/communities/05-2010/html/report.html#sect6.4.5}),
 the Helium compiler (\url{http://www.haskell.org/communities/05-2009/html/report.html#sect2.3}),
 the Generic Haskell compiler, UUAG itself, and many master student projects.
-The current version is 0.9.51 (July 2014), is extensively tested, and is available on Hackage.
+The current version is 0.9.52.1 (January 2015), is extensively tested, and is available on Hackage.
 There is also a Cabal plugin for easy use of AG files in Haskell projects.
 
 We recently implemented the following enhancements:
@@ -47,13 +47,14 @@ for example by providing a cost-function that should be minimized. We have also 
 approach in the UUAG which uses Minisat as external SAT-solver (\texttt{--loag} flag).
 \end{description}
 
-We are currently working on the following enhancements:
+We are have recently worked on the following enhancements:
 \begin{description}
 \item[Incremental evaluation.]
-  We are currently running a Ph.D.\ project that investigates incremental evaluation of
-  AGs. In this ongoing work we hope to improve the UUAG compiler by adding support for
+  We have just finished a Ph.D.\ project that investigated incremental evaluation of
+  AGs. The target of this work was to improve the UUAG compiler by adding support for
   incremental evaluation, for example by statically generating different evaluation orders
-  based on changes in the input.
+  based on changes in the input. The project has lead to several publications, but the
+  result has not yet been implemented into the UUAG compiler.
 \end{description}
 
 \FurtherReading
