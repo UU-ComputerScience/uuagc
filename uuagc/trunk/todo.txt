@@ -1,0 +1,17 @@
+This document describes the known bugs and feature requests for UUAGC that have not been addressed yet. The current version of this document was written by Jeroen Bransen on 17-08-2015.
+
+*** Bugs ***
+- For a rule "at :: self" where the children do not have an "at" attribute and the "lhs.at" is explicitly given by the user, a rule is still constructed leading to an error.
+
+*** Feature requests ***
+
+- The Haskell syntax and the old syntax can co-exist. The parser should accept both (possible
+mixed) without any commandline flags, thereby deprecating the --haskell-syntax flag.
+
+- It should be possible to use the result from an automatically generated use rule in that same node, i.e. "lhs.x = f @loc.x" where @loc.x is the automatically generated use rule.
+
+- The chn keyword constructs a chained attribute that is chained from left-to-right. There should also be the symmetric chnr to chain from right to left.
+
+- Class constraints can now only be given per nonterminal, but sometimes it is desirable to give them per constructor. This should also be possible.
+
+- Type syntax allows to give a name to a monomorphic version of a polymorphic data type such as list. This should also be possible for custom data types, i.e. "type MyType = Tree Int" for a "data Tree a".
