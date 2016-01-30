@@ -1,0 +1,4 @@
+As of 20160130 the pictgen tool in subdir gen has been put in a separate
+repo https://github.com/UU-ComputerScience/ag-pictgen and published on
+hackage under the name ag-pictgen. The Makfile here has not yet been
+updated, nor has subdir gen been removed.
