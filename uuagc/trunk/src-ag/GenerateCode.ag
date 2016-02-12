@@ -369,8 +369,11 @@ SEM  CRule
                               |  (field,attr,tp) <- Map.elems @defines, isJust tp
                               , let tp1 = @loc.evalTp field $ @mkTp (fromJust tp)
                                     tp' = case findOrigType attr @lhs.children of
-                                           Just tp'' -> let tp2 = @loc.evalTp field $ @mkTp tp''
-                                                        in Arr tp2 tp1
+                                           Just tp' -> let tp'' = case tp' of
+                                                                    NT n params b -> NT (Ident ("T_" ++ show n) (getPos n)) params b
+                                                                    _ -> tp'
+                                                           tp2 = @loc.evalTp field $ @mkTp tp''
+                                                       in Arr tp2 tp1
                                            Nothing -> tp1
                                     findOrigType _ [] = Nothing
                                     findOrigType nm ((n,_,kind) : r)

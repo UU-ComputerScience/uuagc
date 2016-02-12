@@ -8,3 +8,35 @@ SEM Koe
        inst.koe = sem_Koe_Koe
        koe.owner = @lhs.owner
        lhs.legs = @koe.legs
+
+
+-- From ruler-core
+{
+type Pos = Int
+
+data Ident
+  = Ident String Pos
+}
+
+DATA Clause
+  | Clause
+      pos     : Pos
+      name    : Ident
+      stmts   : Stmts
+      next    : SemVisit
+
+TYPE Stmts = [Stmt]
+
+-- dummy
+DATA Stmt
+  | Eval
+DATA SemVisit
+  | Visit
+
+
+SEM Clause | Clause
+  inst.stmts : T_Stmts
+  inst.stmts = \stmts -> foldr (\s r -> sem_Stmts_Cons (sem_Stmt s) r) stmts @loc.extraStmts
+
+  loc.extraStmts = [] :: Stmts -- doesn't matter
+
