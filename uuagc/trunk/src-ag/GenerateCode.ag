@@ -215,8 +215,9 @@ SEM  CRule
                                   isVirtual _ [] = False
                                   isVirtual nm ((n,_,kind) : r)
                                     | nm == n   = case kind of
-                                                    ChildAttr -> True
-                                                    _         -> False
+                                                    ChildAttr      -> True
+                                                    ChildReplace _ -> True
+                                                    _              -> False
                                     | otherwise = isVirtual nm r
                                   isMerged = @name `Map.member` @lhs.mergeMap
                                   isMerging = @name `elem` concatMap (\(_,cs) -> cs) (Map.elems @lhs.mergeMap)
