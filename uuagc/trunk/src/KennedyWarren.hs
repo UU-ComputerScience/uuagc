@@ -161,11 +161,11 @@ kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runErrorT $ do
 -- | Pretty print a vertex in GraphViz format
 toGVVertex :: Bool -> Vertex -> ST s PP_Doc
 toGVVertex l (VAttr t a b) = return $ (text $ "attr_" ++ show t ++ "_" ++ show a ++ "_" ++ show b) >#< if l
-	     	      	   	then text ("[shape=box,label=\"" ++ show t ++ " @" ++ show a ++ "." ++ show b ++ "\"]") else empty
+                        then text ("[shape=box,label=\"" ++ show t ++ " @" ++ show a ++ "." ++ show b ++ "\"]") else empty
 toGVVertex l (VChild c)    = return $ (text $ "child_" ++ show c) >#< if l
-	     	      	   	then text ("[shape=ellipse,label=\"Child " ++ show c ++ "\"]") else empty
+                        then text ("[shape=ellipse,label=\"Child " ++ show c ++ "\"]") else empty
 toGVVertex l (VRule r)   = return $ (text $ "rule_"  ++ show r) >#< if l
-	     	      	   	then text ("[shape=diamond,label=\"" ++ show r ++ "\"]") else empty
+                        then text ("[shape=diamond,label=\"" ++ show r ++ "\"]") else empty
 
 -- | Pretty print an edge in GraphViz format
 toGVEdge :: Edge -> ST s PP_Doc
@@ -766,10 +766,10 @@ kennedyWarrenExecutionPlan opts ndis initvs wr typesyns derivings = do
       -- Return execution plan for this production
       return $ EProduction (pdgProduction $ pdgmOrig prod)
                            (pdgParams     $ pdgmOrig prod)
-			   (pdgConstraints $ pdgmOrig prod)
+               (pdgConstraints $ pdgmOrig prod)
                            (pdgRules      $ pdgmOrig prod)
                            (pdgChilds     $ pdgmOrig prod)
-			   visits
+               visits
     -- Find initial state for this nonterminal
     VGNode init <- vgFindInitial $ ndiNonterminal $ ndimOrig ndi
     -- Construct an environment that specifies the next visit of the states that have exactly one

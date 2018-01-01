@@ -564,7 +564,7 @@ showEdgeLong ((inh,syn),path1,path2)
 
 attrText :: Identifier -> Identifier -> String
 attrText inh syn
- = 	if   inh == syn
+ =  if   inh == syn
     then "threaded attribute " ++ getName inh
     else "inherited attribute " ++ getName inh ++ " and synthesized attribute " ++getName syn
 

@@ -34,10 +34,10 @@ import Data.List(intersperse)
 data Doc
   = Emp
   | Emp1
-  | Str			!String					-- basic string
-  | Hor			Doc  !Doc				-- horizontal positioning
-  | Ver			Doc  !Doc				-- vertical positioning
-  | Ind			!Int Doc				-- indent
+  | Str         !String                 -- basic string
+  | Hor         Doc  !Doc               -- horizontal positioning
+  | Ver         Doc  !Doc               -- vertical positioning
+  | Ind         !Int Doc                -- indent
   | Line        (Int -> Doc)            -- line nr
 
 type PP_Doc = Doc

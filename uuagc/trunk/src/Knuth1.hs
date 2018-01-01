@@ -28,8 +28,8 @@ traceST s = trace s (return ())
 -- Vertices
 data AttrType = Inh | Syn | Loc deriving (Eq, Ord, Show)
 data Vertex = VAttr  AttrType Identifier Identifier
-     	    | VChild Identifier
-	    | VRule  Identifier deriving (Eq, Ord)
+            | VChild Identifier
+            | VRule  Identifier deriving (Eq, Ord)
 
 instance Show Vertex where
   show (VAttr ty ch at) = show ty ++ " @" ++ show ch ++ "." ++ show at
@@ -39,7 +39,7 @@ instance Show Vertex where
 -- | Check if a vertex is an attribute
 isVertexAttr :: Vertex -> Bool
 isVertexAttr (VAttr _ _ _) = True
-isVertexAttr _        	   = False
+isVertexAttr _             = False
 
 -- | Get the child name of an attribute
 getAttrChildName :: Vertex -> Identifier
