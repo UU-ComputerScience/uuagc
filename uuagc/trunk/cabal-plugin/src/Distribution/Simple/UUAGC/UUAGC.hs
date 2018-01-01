@@ -152,7 +152,7 @@ getAGFileOptions extra = do
   if usesOptionsFile
        then do r <- parserAG' defUUAGCOptions
                case r of
-                 Left e -> die (show e)
+                 Left e -> dieNoVerbosity (show e)
                  Right a -> return $ cabalOpts ++ a
        else return cabalOpts
 
@@ -251,14 +251,15 @@ commonHook uuagc classesPath pd lbi fl = do
 getAGFileList :: AGFileOptions -> [FilePath]
 getAGFileList = map (normalise . filename)
 
-uuagc :: BuildInfo -> LocalBuildInfo -> PreProcessor
+uuagc :: BuildInfo -> LocalBuildInfo -> ComponentLocalBuildInfo -> PreProcessor
 uuagc = uuagc' (uuagcFromString uuagcn)
 
 uuagc' :: ([String] -> FilePath -> IO (ExitCode, [FilePath]))
         -> BuildInfo
         -> LocalBuildInfo
+        -> ComponentLocalBuildInfo
         -> PreProcessor
-uuagc' uuagc build lbi  =
+uuagc' uuagc build lbi _ =
    PreProcessor {
      platformIndependent = True,
      runPreProcessor = mkSimplePreProcessor $ \ inFile outFile verbosity ->
@@ -279,8 +280,8 @@ uuagc' uuagc build lbi  =
                             ex@(ExitFailure _) -> throwIO ex
                 }
 
-nouuagc :: BuildInfo -> LocalBuildInfo -> PreProcessor
-nouuagc build lbi =
+nouuagc :: BuildInfo -> LocalBuildInfo -> ComponentLocalBuildInfo -> PreProcessor
+nouuagc build lbi _ =
   PreProcessor {
     platformIndependent = True,
     runPreProcessor = mkSimplePreProcessor $ \inFile outFile verbosity -> do

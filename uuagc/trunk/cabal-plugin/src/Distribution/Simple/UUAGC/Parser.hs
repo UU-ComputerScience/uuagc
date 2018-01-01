@@ -13,7 +13,7 @@ import Options
 import System.Console.GetOpt
 import System.IO.Unsafe(unsafeInterleaveIO)
 import System.IO(hPutStr,stderr)
-import Control.Monad.Error
+import Control.Monad.Error.Class
 
 data ParserError = DefParserError String
                  deriving (Show, Eq, Read)
