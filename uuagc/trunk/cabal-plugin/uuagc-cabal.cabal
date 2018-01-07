@@ -6,8 +6,8 @@ license: BSD3
 license-file: LICENSE
 maintainer: Atze Dijkstra (atzedijkstra@gmail.com)
 homepage: https://github.com/UU-ComputerScience/uuagc
-description: Cabal plugin for UUAGC
-synopsis: Cabal plugin for the Universiteit Utrecht Attribute Grammar System
+synopsis: Cabal plugin for UUAGC
+description: Cabal plugin for the Universiteit Utrecht Attribute Grammar System
 category: Development
 stability: Stable
 copyright: Universiteit Utrecht
