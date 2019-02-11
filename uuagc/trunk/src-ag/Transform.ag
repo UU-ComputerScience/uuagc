@@ -325,29 +325,29 @@ SEM AG
                            in   Seq.empty                                                 -- allow duplicate constructors, merging their fields
                              -- Seq.fromList . concat . map f . Map.toList $ @allConstrs  -- forbid duplicate constructors
 
-         loc.errs4       = let  f m s = Map.fold ((><) . snd) s m
-                           in Map.fold f Seq.empty @loc.allRulesErrs
+         loc.errs4       = let  f m s = Map.foldr ((><) . snd) s m
+                           in Map.foldr f Seq.empty @loc.allRulesErrs
 
-         loc.errs5       = let  f m s = Map.fold ((><) . snd) s m
-                           in Map.fold f Seq.empty @loc.allSigsErrs
+         loc.errs5       = let  f m s = Map.foldr ((><) . snd) s m
+                           in Map.foldr f Seq.empty @loc.allSigsErrs
 
-         loc.errs6       = let  f m s = Map.fold ((><) . snd) s m
-                           in Map.fold f Seq.empty @loc.allInstsErrs
+         loc.errs6       = let  f m s = Map.foldr ((><) . snd) s m
+                           in Map.foldr f Seq.empty @loc.allInstsErrs
 
-         loc.errs7       = let  f m s = Map.fold ((><) . snd) s m
-                           in Map.fold f Seq.empty @loc.allUniquesErrs
+         loc.errs7       = let  f m s = Map.foldr ((><) . snd) s m
+                           in Map.foldr f Seq.empty @loc.allUniquesErrs
 
-         loc.errs8       = let  f m s = Map.fold ((><) . snd) s m
-                           in Map.fold f Seq.empty @loc.allAugmentErrs
+         loc.errs8       = let  f m s = Map.foldr ((><) . snd) s m
+                           in Map.foldr f Seq.empty @loc.allAugmentErrs
 
-         loc.errs9       = let  f m s = Map.fold ((><) . snd) s m
-                           in Map.fold f Seq.empty @loc.allAroundsErrs
+         loc.errs9       = let  f m s = Map.foldr ((><) . snd) s m
+                           in Map.foldr f Seq.empty @loc.allAroundsErrs
 
-         loc.errs10      =  let  f m s = Map.fold ((><)) s m
-                            in Map.fold f Seq.empty @loc.allNamesErrs
+         loc.errs10      =  let  f m s = Map.foldr ((><)) s m
+                            in Map.foldr f Seq.empty @loc.allNamesErrs
 
-         loc.errs11      =  let f m s = Map.fold ((><) . snd) s m
-                            in Map.fold f Seq.empty @loc.allMergesErrs
+         loc.errs11      =  let f m s = Map.foldr ((><) . snd) s m
+                            in Map.foldr f Seq.empty @loc.allMergesErrs
 
          lhs.errors      = @elems.errors >< @errs1 >< @errs2 >< @errs3 >< @errs4 >< @errs5 >< @errs6 >< @errs7 >< @errs8 >< @errs9 >< @errs10 >< @errs11
 

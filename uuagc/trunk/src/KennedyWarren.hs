@@ -20,6 +20,7 @@ import Data.Set (Set)
 import qualified Data.Set as Set
 import Data.Map (Map)
 import qualified Data.Map as Map
+import qualified Data.Map.Strict as MapStrict
 import Data.IntMap (IntMap)
 import qualified Data.IntMap as IntMap
 import Data.IntSet (IntSet)
@@ -400,7 +401,7 @@ addChildVisit (VGProd (VGEdge edg, p)) ide (VGEdge vs) = do
   let (VGNode from,vgto) = imLookup vs edges -- from must be equal to the current state
   childvs <- gets vgChildVisits
   let rchildv = imLookup edg childvs
-  vgInST $ modifySTRef rchildv $ Map.insertWith' (++) (ide,p) [vgto]
+  vgInST $ modifySTRef rchildv $ MapStrict.insertWith (++) (ide,p) [vgto]
   ndis <- gets vgNDI
   let rndi = imLookup from ndis
   ndi <- vgInST $ readSTRef rndi
