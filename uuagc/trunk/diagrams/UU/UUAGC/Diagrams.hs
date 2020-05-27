@@ -1,6 +1,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs #-}
 
 -----------------------------------------------------------------------------
 -- |
@@ -32,6 +33,7 @@ module UU.UUAGC.Diagrams
 import Diagrams.Prelude
 import Graphics.SVGFonts (textSVG_, Spacing (..), TextOpts (..), lin2, Mode (..))
 import Data.List (isPrefixOf)
+import System.IO.Unsafe (unsafePerformIO)
 
 -- | Construct a diagram for a full production, given its inherited attributes,
 --   name, synthesized attributes and children
@@ -51,8 +53,8 @@ child i n s = Child $ node False i n s []
 --   the shape of the arrow and can be 'shaftL', 'shaftR', 'shaftT', 'shaftB'
 --   of 'shaftD', or a special trial constructed with the diagrams library.
 agrule :: AGBackend b =>
-          Trail R2 -> String -> String -> AGDiagram b -> AGDiagram b
-agrule sh s1 s2 = connectPerim' (with & headLength .~ (Normalized 0.025) & arrowShaft .~ sh) n1 n2 (tb t1) (tb t2) where
+          Trail V2 Double -> String -> String -> AGDiagram b -> AGDiagram b
+agrule sh s1 s2 = connectPerim' (with & headLength .~ (normalized 0.025) & arrowShaft .~ sh) n1 n2 (tb t1) (tb t2) where
   t1 = "lhs." `isPrefixOf` s1
   t2 = "lhs." `isPrefixOf` s2
   n1 | '.' `notElem` s1 = s1 -- terminal
@@ -65,14 +67,14 @@ agrule sh s1 s2 = connectPerim' (with & headLength .~ (Normalized 0.025) & arrow
 -- | Construct an induced dependency arrow between two attributes, similar to
 --   'agrule' but with an explicit trial.
 indrule :: AGBackend b => String -> String -> AGDiagram b -> AGDiagram b
-indrule s1 s2 = connectPerim' (with & headLength .~ (Normalized 0.025) & arrowShaft .~ shaftB & shaftStyle %~ dashed . opacity 0.5) n1 n2 tb tb where
+indrule s1 s2 = connectPerim' (with & headLength .~ (normalized 0.025) & arrowShaft .~ shaftB & shaftStyle %~ dashed . opacity 0.5) n1 n2 tb tb where
   t = "lhs." `isPrefixOf` s1
   n1 = if t then s1 ++ ".syn" else s1 ++ ".inh"
   n2 = if t then s2 ++ ".inh" else s2 ++ ".syn"
   tb = if t then 90 @@ deg else 270 @@ deg
   dashed  = dashingN [0.01,0.01] 0
 
-shaftL, shaftR, shaftT, shaftB, shaftD :: Trail R2
+shaftL, shaftR, shaftT, shaftB, shaftD :: Trail V2 Double
 
 -- | Line that first moves left and then right
 shaftL = fromSegments [bezier3 (r2 (0.5,0.3)) (r2 (0.5,-0.3)) (r2 (1,0))]
@@ -81,26 +83,26 @@ shaftL = fromSegments [bezier3 (r2 (0.5,0.3)) (r2 (0.5,-0.3)) (r2 (1,0))]
 shaftR = fromSegments [bezier3 (r2 (0.5,-0.3)) (r2 (0.5,0.3)) (r2 (1,0))]
 
 -- | Top half of a circle
-shaftT = arcCW (0 @@ turn) (3/5 @@ turn)
+shaftT = arc xDir (-3/5 @@ turn)
 
 -- | Bottom half of a circle
-shaftB = arc (0 @@ turn) (2/5 @@ turn)
+shaftB = arc xDir (2/5 @@ turn)
 
 -- | Straight line
 shaftD = straightShaft
 
 
 -- A bit ugly, but now user doesn't need to import diagrams package for just the types
-type AGDiagram b = Diagram b R2
-class (Renderable (Path R2) b, Backend b R2) => AGBackend b where
-instance (Renderable (Path R2) b, Backend b R2) => AGBackend b
+type AGDiagram b = QDiagram b V2 Double Any
+class (Renderable (Path V2 Double) b, Backend b (V b) Double) => AGBackend b where
+instance (Renderable (Path V2 Double) b, Backend b (V b) Double) => AGBackend b
 
 
 attr :: AGBackend b =>
         String -> Bool -> (String -> String) -> AGDiagram b
 attr s t f = stack t (unitSquare # named (f s) # lc black) (text' 0.7 s) where
-  stack True  a b = beside          unitY  a (b === strutY 0.2)
-  stack False a b = beside (negateV unitY) a (strutY 0.2 === b)
+  stack True  a b = beside   unitY  a (b === strutY 0.2)
+  stack False a b = beside (-unitY) a (strutY 0.2 === b)
 
 -- | Helper function for drawing a node
 node :: AGBackend b =>
@@ -116,22 +118,25 @@ node top inh s syn ch = res # applyAll lines where
   hcats s = hcat' (with & sep .~ s)
   els = inhs ++ [lhs] ++ syns
   toprow = beside unitX (
-             beside (negateV unitX) lhs
+             beside (-unitX) lhs
                (hcats 0.3 inhs ||| strutX 0.3))
              (strutX 0.3 ||| hcats 0.3 syns)
   inhs = map (\i -> attr i top (\n -> name ++ "." ++ n ++ ".inh")) inh
   syns = map (\s -> attr s top (\n -> name ++ "." ++ n ++ ".syn")) syn
   alines = zipWith line (map getName els) (map getName $ tail els) # lc grey
   name = if top then "lhs" else s
-  lhs = beside (negateV unitY) (
+  lhs = beside (-unitY) (
           beside unitY
           (circle 0.5 # named name # lc grey)
           (if top then (text' 0.9 s === strutY 0.1) else mempty))
         (strutY 0.1 === text' 0.9 name)
 
+{-# NOINLINE lin2' #-}
+lin2' = unsafePerformIO lin2
+
 text' :: AGBackend b =>
          Double -> String -> AGDiagram b
-text' d s = (textSVG_ (TextOpts s lin2 INSIDE_H KERN False d d)) # lw none # fc black # centerX
+text' d s = (textSVG_ (TextOpts lin2' INSIDE_H KERN False d d) s) # lw none # fc black # centerX
 
 line :: (IsName n1, IsName n2, AGBackend b) =>
         n1 -> n2 -> AGDiagram b -> AGDiagram b
