@@ -1,7 +1,7 @@
 cabal-version: >= 1.8
 build-type: Custom
 name: uuagc
-version: 0.9.52.2
+version: 0.9.53
 license: BSD3
 license-file: LICENSE
 maintainer: Jeroen Bransen <J.Bransen@uu.nl>
