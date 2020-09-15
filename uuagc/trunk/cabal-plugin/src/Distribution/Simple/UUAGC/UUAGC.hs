@@ -6,7 +6,7 @@ module Distribution.Simple.UUAGC.UUAGC(uuagcUserHook,
                                        uuagcFromString
                                       ) where
 
-import Distribution.Simple.BuildPaths (autogenModulesDir)
+-- import Distribution.Simple.BuildPaths (autogenComponentModulesDir)
 import Debug.Trace
 import Distribution.Simple
 import Distribution.Simple.PreProcess
@@ -104,13 +104,13 @@ uuagcLibUserHook :: ([String] -> FilePath -> IO (ExitCode, [FilePath])) -> UserH
 uuagcLibUserHook uuagc = hooks where
   hooks = simpleUserHooks { hookedPreProcessors = ("ag", ag):("lag",ag):knownSuffixHandlers
                           , buildHook = uuagcBuildHook uuagc
-                          , sDistHook = uuagcSDistHook uuagc
+--                          , sDistHook = uuagcSDistHook uuagc
                           }
   ag = uuagc' uuagc
 
 originalPreBuild  = preBuild simpleUserHooks
 originalBuildHook = buildHook simpleUserHooks
-originalSDistHook = sDistHook simpleUserHooks
+--originalSDistHook = sDistHook simpleUserHooks
 
 putErrorInfo :: Handle -> IO ()
 putErrorInfo h = hGetContents h >>= hPutStr stderr
@@ -188,21 +188,21 @@ getOptionsFromClass classes fOpt =
                                                    ++ show fClass
                                                    ++ " is not defined."
 
-uuagcSDistHook :: ([String] -> FilePath -> IO (ExitCode, [FilePath]))
-     -> PackageDescription
-     -> Maybe LocalBuildInfo
-     -> UserHooks
-     -> SDistFlags
-     -> IO ()
-uuagcSDistHook uuagc pd mbLbi uh df = do
-  {-
-  case mbLbi of
-    Nothing -> warn normal "sdist: the local buildinfo was not present. Skipping AG initialization. Dist may fail."
-    Just lbi -> let classesPath = buildDir lbi </> agClassesFile
-                in commonHook uuagc classesPath pd lbi (sDistVerbosity df)
-  originalSDistHook pd mbLbi uh df
-  -}
-  originalSDistHook pd mbLbi (uh { hookedPreProcessors = ("ag", nouuagc):("lag",nouuagc):knownSuffixHandlers }) df  -- bypass preprocessors
+-- uuagcSDistHook :: ([String] -> FilePath -> IO (ExitCode, [FilePath]))
+--      -> PackageDescription
+--      -> Maybe LocalBuildInfo
+--      -> UserHooks
+--      -> SDistFlags
+--      -> IO ()
+-- uuagcSDistHook uuagc pd mbLbi uh df = do
+--   {-
+--   case mbLbi of
+--     Nothing -> warn normal "sdist: the local buildinfo was not present. Skipping AG initialization. Dist may fail."
+--     Just lbi -> let classesPath = buildDir lbi </> agClassesFile
+--                 in commonHook uuagc classesPath pd lbi (sDistVerbosity df)
+--   originalSDistHook pd mbLbi uh df
+--   -}
+--   originalSDistHook pd mbLbi (uh { hookedPreProcessors = ("ag", nouuagc):("lag",nouuagc):knownSuffixHandlers }) df  -- bypass preprocessors
 
 uuagcBuildHook
   :: ([String] -> FilePath -> IO (ExitCode, [FilePath]))

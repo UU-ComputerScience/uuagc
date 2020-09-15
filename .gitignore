@@ -3,3 +3,4 @@
 *.dyn_o
 *.dyn_hi
 uuagc/trunk/dist/*
+dist-newstyle/
