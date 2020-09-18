@@ -37,7 +37,7 @@ DATA Expr     | Let              decls : Decls
               | Lambda           args :  Exprs
                                  body : Expr
               | TupleExpr        exprs : Exprs
-	          | UnboxedTupleExpr exprs : Exprs
+                  | UnboxedTupleExpr exprs : Exprs
               | App              name  : {String}
                                  args  : Exprs
               | SimpleExpr       txt   : {String}
@@ -118,7 +118,7 @@ DATA Type     | Arr              left  : Type
               | TypeApp          func  : Type
                                  args  : Types
               | TupleType        tps   : Types
-	          | UnboxedTupleType tps   : Types
+                  | UnboxedTupleType tps   : Types
               | List             tp    : Type
               | SimpleType       txt   : {String}
               | NontermType      name   : String

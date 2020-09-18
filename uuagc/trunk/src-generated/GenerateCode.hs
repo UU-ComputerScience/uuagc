@@ -202,9 +202,9 @@ isFirstOrder (ChildReplace tp) _  = Just tp
 makeLocalComment :: Int -> String -> Identifier -> Maybe Type -> String
 makeLocalComment width what  name tp = let  x = getName name
                                             y = maybe "_" (\t -> case t of
-					      	      (NT nt tps _) -> getName nt ++ " " ++ unwords tps
-					      	      Haskell t' -> '{' : t' ++ "}"
-						      Self -> error "Self type not allowed here.") tp
+                                                      (NT nt tps _) -> getName nt ++ " " ++ unwords tps
+                                                      Haskell t' -> '{' : t' ++ "}"
+                                                      Self -> error "Self type not allowed here.") tp
                                        in   ( what ++ " " ++ x ++ replicate ((width - length x) `max` 0) ' ' ++ " : " ++ y )
 
 {-# LINE 211 "dist/build/GenerateCode.hs" #-}

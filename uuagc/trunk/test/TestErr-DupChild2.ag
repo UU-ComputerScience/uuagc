@@ -3,7 +3,7 @@
 -- in v.0.9.3 this is allowed, but not with the same field
 
 DATA Aap 
-	| Een a : {Int}
+        | Een a : {Int}
 
 DATA Aap
-	| Een a : {Int}
+        | Een a : {Int}

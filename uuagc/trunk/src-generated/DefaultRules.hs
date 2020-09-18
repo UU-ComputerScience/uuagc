@@ -137,7 +137,7 @@ buildConExpr ocaml clean conmap typeSyns rename nt con1 fs'
 
 concatSeq = foldr (Seq.><) Seq.empty
 
-splitAttrs :: Map Identifier a -> [Identifier] -> ([(Identifier,a)],[Identifier])	  -- a used as (String,String)
+splitAttrs :: Map Identifier a -> [Identifier] -> ([(Identifier,a)],[Identifier])         -- a used as (String,String)
 splitAttrs _      []
   =  ([],[])
 splitAttrs useMap (n:rest)
@@ -220,8 +220,8 @@ useRule opts locals ch_outs (n,(op,e,pos))
         isOp (c:cs)
           | isSpace c = isOp cs
           | isAlpha c = case dropWhile isAlpha cs of
-	    	           ('.':cs2) -> isOp cs2 -- fully qualified name, drop prefix
-			   _         -> False
+                           ('.':cs2) -> isOp cs2 -- fully qualified name, drop prefix
+                           _         -> False
           | c == '('  = False
           | otherwise = True
 

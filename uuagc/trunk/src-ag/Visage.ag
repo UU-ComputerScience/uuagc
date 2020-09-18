@@ -55,8 +55,8 @@ SEM VisageGrammar
 
 
 SEM VisageNonterminals
-  | Cons 	lhs.aterms = @hd.aterm : @tl.aterms
-  | Nil		lhs.aterms = []
+  | Cons        lhs.aterms = @hd.aterm : @tl.aterms
+  | Nil         lhs.aterms = []
 
 
 SEM VisageNonterminal
@@ -65,8 +65,8 @@ SEM VisageNonterminal
 
 
 SEM VisageProductions
-  | Cons	lhs.aterms = @hd.aterm : @tl.aterms
-  | Nil		lhs.aterms = []
+  | Cons        lhs.aterms = @hd.aterm : @tl.aterms
+  | Nil         lhs.aterms = []
 
 
 SEM VisageProduction
@@ -77,8 +77,8 @@ SEM VisageProduction
                  rules.isLoc    = False
                                   
 SEM VisageChildren
-  | Cons	lhs.aterms = @hd.aterm : @tl.aterms
-  | Nil		lhs.aterms = []	
+  | Cons        lhs.aterms = @hd.aterm : @tl.aterms
+  | Nil         lhs.aterms = [] 
 
 
 SEM VisageChild
@@ -89,8 +89,8 @@ SEM VisageChild
                  rules.isLoc = False
                  
 SEM VisageRules
-  | Cons	lhs.aterms = @hd.aterm : @tl.aterms
-  | Nil		lhs.aterms = []
+  | Cons        lhs.aterms = @hd.aterm : @tl.aterms
+  | Nil         lhs.aterms = []
 
 
 SEM VisageRule
@@ -104,8 +104,8 @@ SEM Expression
 
 
 SEM VisagePatterns
-  | Cons	lhs.aterms = @hd.aterm : @tl.aterms
-  | Nil		lhs.aterms = []
+  | Cons        lhs.aterms = @hd.aterm : @tl.aterms
+  | Nil         lhs.aterms = []
 
 
 SEM VisagePattern

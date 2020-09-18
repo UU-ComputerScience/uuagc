@@ -5,8 +5,8 @@ DATA Root
    | Root  a : Aap
 
 DATA Aap
-	| Een   t : Int
-	| Twee  u : Int
+        | Een   t : Int
+        | Twee  u : Int
 
 
 ATTR Aap [ x : Int | y : Int  |  s : SELF ]

@@ -1,9 +1,9 @@
 {-----------------------------------------------------------------------------
 
-	Haskell ATerm Library
-		
-	Joost Visser
-	CWI, Amsterdam
+        Haskell ATerm Library
+                
+        Joost Visser
+        CWI, Amsterdam
 
   This module is part of the ATerm library for Haskell. It defines the
   abstract syntax of ATerms as a Haskell datatype.

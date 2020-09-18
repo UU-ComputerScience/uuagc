@@ -114,23 +114,23 @@ SEM Production
       children.rulemap = @splitVRules
 
 SEM Children
-  | Cons	lhs.vchildren = @hd.vchild : @tl.vchildren
-  | Nil		lhs.vchildren = []
+  | Cons        lhs.vchildren = @hd.vchild : @tl.vchildren
+  | Nil         lhs.vchildren = []
 
 SEM Child
   | Child lhs.vchild = VChild @name @tp @loc.inh @loc.syn (getForField (getName @name) @lhs.rulemap)
 
 SEM Rules
-  | Cons	lhs.vrules = @hd.vrule : @tl.vrules
-  | Nil		lhs.vrules = []
+  | Cons        lhs.vrules = @hd.vrule : @tl.vrules
+  | Nil         lhs.vrules = []
 
 -- The undefined may seem strange, but it really belongs there.
 SEM Rule
   | Rule  lhs.vrule  = VRule @pattern.fieldattrs undefined @pattern.vpat @rhs.self @owrt
 
 SEM Patterns
-  | Cons	lhs.vpats = @hd.vpat : @tl.vpats
-  | Nil		lhs.vpats = []
+  | Cons        lhs.vpats = @hd.vpat : @tl.vpats
+  | Nil         lhs.vpats = []
 
 SEM Pattern
   | Constr      lhs.vpat = VConstr @name @pats.vpats

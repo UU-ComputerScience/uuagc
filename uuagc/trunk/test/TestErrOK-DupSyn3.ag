@@ -3,9 +3,9 @@
 -- in v.0.9.3 this is really allowed, and the error message is changed accordingly
 
 DATA Aap
-	| Een a : {Int}
-	
+        | Een a : {Int}
+        
 TYPE Noot = [Aap]
 
 DATA Noot
-	| Twee b : {Int}
+        | Twee b : {Int}

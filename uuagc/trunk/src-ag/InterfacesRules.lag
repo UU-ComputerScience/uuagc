@@ -408,7 +408,7 @@ SEM  Segment [ | | seg : CSegment
               loc.inhmap : {Map Identifier Type}
               loc.synmap : {Map Identifier Type}
               loc.(inhmap,synmap) = let makemap = Map.fromList . map findType
-					findType v = getNtaNameType (attrTable @lhs.info ! v)
+                                        findType v = getNtaNameType (attrTable @lhs.info ! v)
                                     in (makemap @inh,makemap @syn)
               lhs.cvisits = let  mkVisit vss intra = CVisit @inhmap @synmap (mkSequence vss) (mkSequence intra) True
                                  mkSequence = map mkRule

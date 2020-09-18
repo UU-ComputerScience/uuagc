@@ -3,14 +3,14 @@
 -- in v.0.9.3 it is allowed
 
 DATA Aap
-	| Een  a : {Int}
+        | Een  a : {Int}
 
 DATA Noot
-	| Een b : {Int}
+        | Een b : {Int}
 
 SET Both = Aap Noot 
 
 ATTR Both [ | | y : {Int} ]
 
 SEM Both
-	| Een  lhs.y = 3
+        | Een  lhs.y = 3

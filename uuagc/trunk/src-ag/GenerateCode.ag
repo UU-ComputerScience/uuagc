@@ -514,7 +514,7 @@ SEM  CVisit
             loc.semType = let argType (NT tp tps _)  r | tp /= _SELF = typeAppStrs (sdtype tp) tps `Arr` r
                                                        | tp == _SELF = error "GenerateCode: found an intra-type with type SELF, which should have been prevented by CRule.tps"
                               argType (Haskell tp) r                 = SimpleType tp          `Arr` r
-                  argType _ _ = error "Self type not allowed here"
+                              argType _ _ = error "Self type not allowed here"
                               evalTp | null @loc.params = id
                                      | otherwise        = idEvalType @lhs.options
 
@@ -918,9 +918,9 @@ SEM CRule
 makeLocalComment :: Int -> String -> Identifier -> Maybe Type -> String
 makeLocalComment width what  name tp = let  x = getName name
                                             y = maybe "_" (\t -> case t of
-                                  (NT nt tps _) -> getName nt ++ " " ++ unwords tps
-                                  Haskell t' -> '{' : t' ++ "}"
-                              Self -> error "Self type not allowed here.") tp
+                                                                   (NT nt tps _) -> getName nt ++ " " ++ unwords tps
+                                                                   Haskell t' -> '{' : t' ++ "}"
+                                                                   Self -> error "Self type not allowed here.") tp
                                        in   ( what ++ " " ++ x ++ replicate ((width - length x) `max` 0) ' ' ++ " : " ++ y )
 
 }
@@ -1033,7 +1033,7 @@ SEM CProductions
 SEM CProduction
   | CProduction loc.params  = map getName $ Map.findWithDefault [] @lhs.nt @lhs.paramMap
                 lhs.dataAlt = let conNm = conname @lhs.o_rename @lhs.nt @con
-                      mkFields :: (NontermIdent -> ConstructorIdent -> Identifier -> Code.Type -> a) -> [a]
+                                  mkFields :: (NontermIdent -> ConstructorIdent -> Identifier -> Code.Type -> a) -> [a]
                                   mkFields f = map (\(nm,t,_) -> f @lhs.nt @con nm (typeToCodeType (Just @lhs.nt) @loc.params $ removeDeforested t)) @loc.firstOrderChildren
                               in if dataRecords @lhs.options
                                  then Record conNm $ mkFields $ toNamedType (strictData @lhs.options)

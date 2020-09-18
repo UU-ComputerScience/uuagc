@@ -2,8 +2,8 @@
 -- which is allowed because its type is not a Nonterminal
 
 DATA Aap 
-	| Een child : Int
-	
+        | Een child : Int
+        
 ATTR Aap [ | | synth : Int ]
 
 SEM Aap

@@ -595,16 +595,16 @@ ppDefor (Haskell s)    = text s
 SEM EProduction
   | EProduction loc.t_type   = "T_" >|< @lhs.nt
                 loc.t_params = ppSpaced @lhs.params
-		loc.usedArgs = @children.usedArgs `Set.union` @visits.usedArgs `Set.union` @rules.usedArgs
-		-- A bit ugly, but this code renames arguments and puts an underscore when the argument
-		-- is never used. This avoids compiler warnings of unused variables.
+                loc.usedArgs = @children.usedArgs `Set.union` @visits.usedArgs `Set.union` @rules.usedArgs
+                -- A bit ugly, but this code renames arguments and puts an underscore when the argument
+                -- is never used. This avoids compiler warnings of unused variables.
                 loc.args     = map (\x -> let (name,arg) = case show x of 
-					               ""       -> ("", empty)
-				       		       '!':name -> ("arg_" ++ name, "!arg_" >|< name)
-						       name     -> ("arg_" ++ name, "arg_"  >|< name)
+                                                       ""       -> ("", empty)
+                                                       '!':name -> ("arg_" ++ name, "!arg_" >|< name)
+                                                       name     -> ("arg_" ++ name, "arg_"  >|< name)
                                           in  if null name || name `Set.member` @loc.usedArgs
-			       	       	      then arg
-			       	       	      else text "_") @children.argpats
+                                              then arg
+                                              else text "_") @children.argpats
                 loc.semname  = "sem_" ++ show @lhs.nt ++ "_" ++ show @con
                 loc.sem_tp   = @loc.quantPP2 >#< @loc.classPP2 >#< ppSpaced @children.argtps >#< @loc.t_type >#< @loc.t_params
                 loc.classPP2 = ppClasses (classCtxsToDocs @lhs.classCtxs ++ classConstrsToDocs @constraints)
@@ -870,8 +870,8 @@ SEM ERule
 
 SEM EChild
   | EChild +usedArgs = \s -> case @kind of
-    	   		     ChildSyntax -> Set.insert ("arg_" ++ show @name ++ "_") s
-			     _           -> s
+                             ChildSyntax -> Set.insert ("arg_" ++ show @name ++ "_") s
+                             _           -> s
 
 
 -- Number of steps in a 'Sim' block
@@ -1061,17 +1061,17 @@ SEM ERule | ERule
                                   | (str,mbAttr) <- Map.assocs @rhs.attrs
                                   ]
       loc.argExprs     = ppSpaced [ case mbAttr of
-      		       	 	       Nothing -> "arg_" >|< str
-				       _       -> text str
+                                       Nothing -> "arg_" >|< str
+                                       _       -> text str
                                   | (str,mbAttr) <- Map.assocs @rhs.attrs
                                   ]
       loc.stepcode     = \kind fmtMode -> if kind `compatibleRule` @pure
                                           then Right $ let oper | @pure     = "="
                                                                 | otherwise = "<-"
                                                            decl = @pattern.sem_lhs >#< oper >#< @name >#< @loc.argExprs >#< dummyArg @lhs.options (Map.null @rhs.attrs)
-							   tp   = if @pure && not (noPerRuleTypeSigs @lhs.options)
-							   	  then @pattern.attrTypes
-								  else empty
+                                                           tp   = if @pure && not (noPerRuleTypeSigs @lhs.options)
+                                                                  then @pattern.attrTypes
+                                                                  else empty
                                                        in fmtDecl @pure fmtMode (tp >-< decl)
                                           else Left $ IncompatibleRuleKind @name kind
 
@@ -1157,12 +1157,12 @@ SEM Pattern | Alias
 ATTR Pattern Patterns  [ | | attrTypes USE {>-<} {empty} : {PP_Doc} ]
 SEM Pattern | Alias
   loc.mbTp      = if @field == _LHS
-  		  then Map.lookup @attr @lhs.synmap
-		  else if @field == _LOC
-		       then Map.lookup @attr @lhs.localAttrTypes
-		       else Nothing
+                  then Map.lookup @attr @lhs.synmap
+                  else if @field == _LOC
+                       then Map.lookup @attr @lhs.localAttrTypes
+                       else Nothing
   lhs.attrTypes = maybe empty (\tp -> (attrname @lhs.options False @field @attr) >#< "::" >#< ppTp tp) @loc.mbTp
-  		  >-< @pat.attrTypes
+                  >-< @pat.attrTypes
 
 -- Collect the attributes used by the right-hand side
 ATTR HsToken Expression [ | | attrs USE {`Map.union`} {Map.empty} : {Map String (Maybe NonLocalAttr)} ]
@@ -1468,7 +1468,7 @@ SEM ExecutionPlan
                   loc.commonFile      = replaceBaseName @lhs.mainFile (takeBaseName @lhs.mainFile ++ "_common")
                   loc.genCommonModule = writeModule @loc.commonFile
                                           ( [ pp $ "{-# LANGUAGE Rank2Types, GADTs #-}"  -- the common module only needs GADTs and Rank2Types
-					    , pp $ @lhs.pragmaBlocks
+                                            , pp $ @lhs.pragmaBlocks
                                             , pp $ @lhs.moduleHeader @lhs.mainName "_common" "" True
                                             , @loc.ppMonadImports
                                             , @lhs.importBlocks

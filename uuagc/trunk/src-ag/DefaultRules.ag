@@ -315,7 +315,7 @@ useRule opts locals ch_outs (n,(op,e,pos))
           | isSpace c = isOp cs
           | isAlpha c = case dropWhile isAlpha cs of
                        ('.':cs2) -> isOp cs2 -- fully qualified name, drop prefix
-               _         -> False
+                       _         -> False
           | c == '('  = False
           | otherwise = True
 
