@@ -148,7 +148,7 @@ trySingle sat des f dir varMap = do
         vars <- tryExtreme sat des literals
         assertVars sat vars
         return True
- where  literals = M.foldWithKey select [] varMap
+ where  literals = M.foldrWithKey select [] varMap
         select k a b | fst k == f = a : b --inh
                      | snd k == f = varnot a : b --syn
                      | otherwise  = b
@@ -205,7 +205,11 @@ newSchedule sat varMap nbounds tp@(Nt nt _ _ inhs outs _ ) sched = do
         newsched | newmx < oldmx = newinterface
                  | otherwise     = sched
     return $ (newmx < oldmx, newsched)
- where  addEdges (f,t) (idsf,idst) = do
+ where  addEdges
+          :: (Vertex, Vertex)
+          -> (IOArray Vertex Vertices, IOArray Vertex Vertices)
+          -> IO ()
+        addEdges (f,t) (idsf,idst) = do
             modifyArray idsf f (t `IS.insert`)
             modifyArray idst t (f `IS.insert`)
  

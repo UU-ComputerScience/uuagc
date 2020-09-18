@@ -138,7 +138,13 @@ scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn opts = do
             f_idst <- freeze idst
             f_edp  <- freeze edp
             return ((f_idsf,f_idst),f_edp)
-         where  addEdges (f,t) es (idsf,idst) edp = do
+         where  addEdges
+                  :: (Vertex, Vertex)
+                  -> [(Vertex, Vertex)]
+                  -> (IOArray Vertex Vertices, IOArray Vertex Vertices)
+                  -> IOArray Vertex Vertices
+                  -> IO [()]
+                addEdges (f,t) es (idsf,idst) edp = do
                     modifyArray idsf f (t `IS.insert`)
                     modifyArray idst t (f `IS.insert`)
                     forM es $ \(f,t) -> do --edp does not reflect flow
