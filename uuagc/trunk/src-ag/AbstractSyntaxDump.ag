@@ -17,7 +17,7 @@ import TokenDef
 ATTR AllPattern AllAbstractSyntax AllExpression [ | | pp USE {>-<} {empty} : PP_Doc ]
 
 SEM Grammar
-  | Grammar             lhs     .       pp      =   ppNestInfo ["Grammar","Grammar"] []
+  | Grammar         lhs     .   pp      =   ppNestInfo ["Grammar","Grammar"] []
                                                        [ ppF "typeSyns" $ ppAssocL @typeSyns
                                                        , ppF "useMap" $ ppMap $ Map.map ppMap $ @useMap
                                                        , ppF "derivings" $ ppMap $ @derivings
@@ -26,51 +26,51 @@ SEM Grammar
                                                        ] []
 
 SEM Nonterminal
-  | Nonterminal         lhs     .       pp      =   ppNestInfo ["Nonterminal","Nonterminal"] (pp @nt : map pp @params) [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "prods" $ ppVList @prods.ppL] []
+  | Nonterminal     lhs     .   pp      =   ppNestInfo ["Nonterminal","Nonterminal"] (pp @nt : map pp @params) [ppF "inh" $ ppMap @inh, ppF "syn" $ ppMap @syn, ppF "prods" $ ppVList @prods.ppL] []
 
 SEM Production
-  | Production          lhs     .       pp      =   ppNestInfo ["Production","Production"] [pp @con] [ppF "children" $ ppVList @children.ppL,ppF "rules" $ ppVList @rules.ppL,ppF "typeSigs" $ ppVList @typeSigs.ppL] []
+  | Production      lhs     .   pp      =   ppNestInfo ["Production","Production"] [pp @con] [ppF "children" $ ppVList @children.ppL,ppF "rules" $ ppVList @rules.ppL,ppF "typeSigs" $ ppVList @typeSigs.ppL] []
 
 SEM Child
-  | Child                       lhs     .       pp      =   ppNestInfo ["Child","Child"] [pp @name, ppShow @tp] [ppF "kind" $ ppShow @kind] []
+  | Child           lhs     .   pp      =   ppNestInfo ["Child","Child"] [pp @name, ppShow @tp] [ppF "kind" $ ppShow @kind] []
 
 SEM Rule
-  | Rule                        lhs     .       pp      =   ppNestInfo ["Rule","Rule"] [ppShow @owrt, pp @origin] [ppF "pattern" $ @pattern.pp, ppF "rhs" $ @rhs.pp] []
+  | Rule            lhs     .   pp      =   ppNestInfo ["Rule","Rule"] [ppShow @owrt, pp @origin] [ppF "pattern" $ @pattern.pp, ppF "rhs" $ @rhs.pp] []
 
 SEM TypeSig
-  | TypeSig                     lhs     .       pp      =   ppNestInfo ["TypeSig","TypeSig"] [pp @name, ppShow @tp] [] []
+  | TypeSig         lhs     .   pp      =   ppNestInfo ["TypeSig","TypeSig"] [pp @name, ppShow @tp] [] []
 
 SEM Pattern
-  | Constr                      lhs     .       pp      =   ppNestInfo ["Pattern","Constr"] [pp @name] [ppF "pats" $ ppVList @pats.ppL] []
-  | Product                     lhs     .       pp      =   ppNestInfo ["Pattern","Product"] [ppShow @pos] [ppF "pats" $ ppVList @pats.ppL] []
-  | Alias                       lhs     .       pp      =   ppNestInfo ["Pattern","Alias"] [pp @field, pp @attr] [ppF "pat" $ @pat.pp] []
-  | Underscore          lhs     .       pp      =   ppNestInfo ["Pattern","Underscore"] [ppShow @pos] [] []
+  | Constr          lhs     .   pp      =   ppNestInfo ["Pattern","Constr"] [pp @name] [ppF "pats" $ ppVList @pats.ppL] []
+  | Product         lhs     .   pp      =   ppNestInfo ["Pattern","Product"] [ppShow @pos] [ppF "pats" $ ppVList @pats.ppL] []
+  | Alias           lhs     .   pp      =   ppNestInfo ["Pattern","Alias"] [pp @field, pp @attr] [ppF "pat" $ @pat.pp] []
+  | Underscore      lhs     .   pp      =   ppNestInfo ["Pattern","Underscore"] [ppShow @pos] [] []
 
 SEM Expression
-  | Expression          lhs     .       pp      =   ppNestInfo ["Expression","Expression"] [ppShow @pos] [ppF "txt" $ vlist . showTokens . tokensToStrings $ @tks] []
+  | Expression      lhs     .   pp      =   ppNestInfo ["Expression","Expression"] [ppShow @pos] [ppF "txt" $ vlist . showTokens . tokensToStrings $ @tks] []
 
 ATTR Productions Nonterminals Children Rules TypeSigs Patterns [ | | ppL: {[PP_Doc]} ]
 
 SEM Patterns
-  | Cons                        lhs             .       ppL             =       @hd.pp : @tl.ppL
-  | Nil                         lhs             .       ppL             =       []
+  | Cons            lhs     .   ppL     =   @hd.pp : @tl.ppL
+  | Nil             lhs     .   ppL     =   []
 
 SEM TypeSigs
-  | Cons                        lhs             .       ppL             =       @hd.pp : @tl.ppL
-  | Nil                         lhs             .       ppL             =       []
+  | Cons            lhs     .   ppL     =   @hd.pp : @tl.ppL
+  | Nil             lhs     .   ppL     =   []
 
 SEM Rules
-  | Cons                        lhs             .       ppL             =       @hd.pp : @tl.ppL
-  | Nil                         lhs             .       ppL             =       []
+  | Cons            lhs     .   ppL     =   @hd.pp : @tl.ppL
+  | Nil             lhs     .   ppL     =   []
 
 SEM Children
-  | Cons                        lhs             .       ppL             =       @hd.pp : @tl.ppL
-  | Nil                         lhs             .       ppL             =       []
+  | Cons            lhs     .   ppL     =   @hd.pp : @tl.ppL
+  | Nil             lhs     .   ppL     =   []
 
 SEM Productions
-  | Cons                        lhs             .       ppL             =       @hd.pp : @tl.ppL
-  | Nil                         lhs             .       ppL             =       []
+  | Cons            lhs     .   ppL     =   @hd.pp : @tl.ppL
+  | Nil             lhs     .   ppL     =   []
 
 SEM Nonterminals
-  | Cons                        lhs             .       ppL             =       @hd.pp : @tl.ppL
-  | Nil                         lhs             .       ppL             =       []
+  | Cons            lhs     .   ppL     =   @hd.pp : @tl.ppL
+  | Nil             lhs     .   ppL     =   []
