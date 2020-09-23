@@ -103,6 +103,8 @@ library
     , Visage
     , VisageSyntax
     , VisagePatterns
+    , JSON
+    , TfmToMirage
     , AG2AspectAG
     , Macro
     , RhsCheck

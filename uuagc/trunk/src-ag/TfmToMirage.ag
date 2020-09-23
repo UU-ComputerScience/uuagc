@@ -1,0 +1,106 @@
+INCLUDE "AbstractSyntax.ag"
+INCLUDE "Expression.ag"
+INCLUDE "Order.ag" -- for dependencies
+
+imports {
+import AbstractSyntax
+import qualified Data.Map as Map
+import qualified JSON as JSON
+import Pretty
+import TokenDef
+}
+
+{
+typeToJSON :: Type -> JSON.Value
+typeToJSON x = case x of
+  Haskell y -> JSON.tagged "Haskell" [JSON.String y]
+  NT y ys _ -> JSON.tagged "NT"      [JSON.String (getName y), JSON.Array (map JSON.String ys)]
+  Self      -> JSON.tagged "Self"    []
+
+idToJSON :: Identifier -> JSON.Value
+idToJSON x = JSON.String (getName x)
+}
+
+ATTR Grammar Nonterminal Production Child Rule  [ || json:{JSON.Value} ]
+ATTR Nonterminals Productions Children Rules  [ || jsons:{[JSON.Value]} ]
+
+SEM Grammar
+  | Grammar lhs.json = JSON.Array @nonts.jsons
+
+SEM Nonterminals
+  | Cons lhs.jsons = @hd.json : @tl.jsons
+  | Nil  lhs.jsons = []
+
+SEM Nonterminal
+  | Nonterminal lhs.json = JSON.Array [ idToJSON @nt
+                                      , JSON.Array (map idToJSON @params)
+                                      , JSON.Array (Map.foldrWithKey (\k x xs -> JSON.Array [idToJSON k, typeToJSON x] : xs) [] @inh)
+                                      , JSON.Array (Map.foldrWithKey (\k x xs -> JSON.Array [idToJSON k, typeToJSON x] : xs) [] @syn)
+                                      , JSON.Array @prods.jsons
+                                      ]
+
+SEM Productions
+  | Cons lhs.jsons = @hd.json : @tl.jsons
+  | Nil  lhs.jsons = []
+
+SEM Production
+  | Production lhs.json = JSON.Array [idToJSON @con, JSON.Array @children.jsons, JSON.Array @rules.jsons]
+
+SEM Children
+  | Cons lhs.jsons = @hd.json : @tl.jsons
+  | Nil  lhs.jsons = []
+
+SEM Child
+  | Child lhs.json = JSON.Array [idToJSON @name, typeToJSON @tp]
+
+SEM Rules
+  | Cons lhs.jsons = @hd.json : @tl.jsons
+  | Nil  lhs.jsons = []
+
+-- Partly from Order
+
+SEM Rule
+  | Rule lhs.json = JSON.Array [ JSON.Array  [ JSON.Array [idToJSON field, idToJSON attr] | (field,attr,_) <- @pattern.patternAttrs ]
+                               , JSON.Array ([ JSON.Array [idToJSON field, idToJSON attr] | (field,attr) <- @rhs.usedAttrs]
+                                 ++ [ JSON.Array [idToJSON _LOC, idToJSON attr] | attr <- @rhs.usedLocals ++ @rhs.usedFields ])
+                               , JSON.Bool @explicit
+                               , JSON.String (disp @pattern.pp 0 (" = " ++ @rhs.str))
+                               ]
+
+-- Partly from Visage
+
+SEM Expression [ | | str : String ]
+  | Expression  lhs.str = unlines . showTokens . tokensToStrings $ @tks
+
+-- From PrintCode
+
+SEM Patterns [ | | pps : {[PP_Doc]} ]
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM Pattern
+  | Constr Product Alias
+      loc.addBang = \p -> "!" >|< p
+
+SEM Pattern [ | | pp:PP_Doc ]
+  | Constr  lhs.pp     = @loc.addBang $ pp_parens $ @name >#< hv_sp @pats.pps
+  | Product lhs.pp     = @loc.addBang $ pp_block "(" ")" "," @pats.pps
+  | Alias   loc.ppVar  = pp (attrname noOptions False @field @attr)
+            loc.ppVarBang = @loc.addBang $ @loc.ppVar
+            lhs.pp     = if @pat.isUnderscore
+                          then @loc.ppVarBang
+                          else @loc.ppVarBang >|< "@" >|< @pat.pp
+  | Irrefutable lhs.pp = text "~" >|< pp_parens @pat.pp
+  | Underscore lhs.pp  = text "_"
+
+SEM Pattern [ | | isUnderscore:{Bool}]
+ | Constr      lhs.isUnderscore = False
+ | Product     lhs.isUnderscore = False
+ | Alias       lhs.isUnderscore = False
+ | Underscore  lhs.isUnderscore = True
+
+ATTR Pattern Patterns [ belowIrrefutable : Bool | | ]
+SEM Rule
+  | Rule pattern.belowIrrefutable = False
+SEM Pattern
+  | Irrefutable pat.belowIrrefutable = True
