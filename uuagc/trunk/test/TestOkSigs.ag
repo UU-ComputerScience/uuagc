@@ -2,7 +2,7 @@
 -- for multiple variables, possibly extending multiple lines, with or without braces
 
 DATA Aap
-	| Een  a : {Int}
+        | Een  a : {Int}
 
 SEM Aap
    | Een loc.x : {Int 

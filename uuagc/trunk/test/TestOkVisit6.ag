@@ -5,8 +5,8 @@ DATA Root
    | Root  a : Aap
 
 DATA Aap
-	| Een   t : Int
-	| Twee  u : Noot
+        | Een   t : Int
+        | Twee  u : Noot
 
 DATA Noot
     | Drie  v : Aap

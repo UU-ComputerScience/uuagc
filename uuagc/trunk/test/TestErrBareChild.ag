@@ -7,8 +7,8 @@ DATA Noot
   | Two
   
 DATA Aap 
-	| Een child : Noot
-	
+        | Een child : Noot
+        
 ATTR Aap [ | | synth : Noot ]
 
 SEM Aap

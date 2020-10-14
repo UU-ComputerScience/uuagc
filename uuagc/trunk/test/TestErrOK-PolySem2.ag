@@ -3,12 +3,12 @@
 -- in v.0.9.3 it is allowed
 
 DATA Aap
-	| Een  a : {Int}
+        | Een  a : {Int}
 
 DATA Noot
-	| Een b : {Int}
+        | Een b : {Int}
 
 ATTR Aap Noot [ | | y : {Int} ]
 
 SEM Aap Noot
-	| Een  lhs.y = 3
+        | Een  lhs.y = 3

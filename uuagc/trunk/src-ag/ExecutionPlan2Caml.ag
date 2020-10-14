@@ -242,7 +242,7 @@ SEM ENonterminal | ENonterminal
 
   loc.moduleDecl
     = let ppModule :: PP a => a -> PP_Doc
-      	  ppModule expr = "module" >#< modName @nt >#< "="
+          ppModule expr = "module" >#< modName @nt >#< "="
       in case lookup @nt @lhs.typeSyns of
            Just (Map k _)  -> ppModule ("Map.Make" >#< pp_parens (ppTp k))
            Just (IntMap _) -> ppModule ("Map.Make ()")
@@ -323,7 +323,7 @@ SEM ENonterminal | ENonterminal
   loc.o_sigs  = typeSigs @lhs.options
   loc.sem_nt_body = "match arg with" >-< (indent 2 $ @prods.sem_nt)
   loc.sem_nt  = let genSem :: PP a => a -> PP_Doc -> PP_Doc
-  	      	    genSem nm body = "and" >#< ppFunDecl @loc.o_sigs (pp @loc.semname) [(pp nm, @loc.sem_param_tp)] @loc.sem_res_tp body
+                    genSem nm body = "and" >#< ppFunDecl @loc.o_sigs (pp @loc.semname) [(pp nm, @loc.sem_param_tp)] @loc.sem_res_tp body
                     genAlias alts = genSem (pp "arg") (pp "match arg with" >-< (indent 2 $ vlist $ map (pp "|" >#<) alts))
                     genMap v = let body = modName @nt >|< ".fold" >#< @loc.semname >|< "_Entry" >#< @loc.semname >|< "_Nil" >#< els
                                    els  = case v of
@@ -1087,12 +1087,12 @@ SEM Pattern | Alias
 ATTR Pattern Patterns  [ | | attrTypes USE {>-<} {empty} : {PP_Doc} ]
 SEM Pattern | Alias
   loc.mbTp      = if @field == _LHS
-  		  then Map.lookup @attr @lhs.synmap
-		  else if @field == _LOC
-		       then Map.lookup @attr @lhs.localAttrTypes
-		       else Nothing
+                  then Map.lookup @attr @lhs.synmap
+                  else if @field == _LOC
+                       then Map.lookup @attr @lhs.localAttrTypes
+                       else Nothing
   lhs.attrTypes = maybe empty (\tp -> (attrname @lhs.options False @field @attr) >#< "::" >#< ppTp tp) @loc.mbTp
-  		  >-< @pat.attrTypes
+                  >-< @pat.attrTypes
 
 -- Collect the attributes used by the right-hand side
 ATTR HsToken Expression [ | | attrs USE {`Map.union`} {Map.empty} : {Map String (Maybe NonLocalAttr)} ]

@@ -124,7 +124,7 @@ ATTR Grammar Nonterminals Nonterminal Productions Production Children Child Rule
 ATTR Grammar [ | | imp USE {>-<} {empty} : PP_Doc ]
 
 SEM Grammar
-  | Grammar  		lhs     .  	imp    	=  "import Language.Grammars.AspectAG" >-<
+  | Grammar             lhs     .       imp     =  "import Language.Grammars.AspectAG" >-<
                                                    "import Language.Grammars.AspectAG.Derive" >-<
                                                    "import Data.HList.Label4" >-<
                                                    "import Data.HList.TypeEqGeneric1" >-<
@@ -137,7 +137,7 @@ SEM Grammar
 ATTR Grammar [ | | pp USE {>-<} {empty} : PP_Doc ]
 
 SEM Grammar
-  | Grammar  		lhs     .  	pp    	=  (if dataTypes @lhs.options
+  | Grammar             lhs     .       pp      =  (if dataTypes @lhs.options
                                                    then  "-- datatypes"               >-< @nonts.ppD >-<
                                                          "-- labels"                  >-< @nonts.ppL
                                                    else  empty)
@@ -170,16 +170,16 @@ SEM Grammar
 -- data definitions
 
 SEM Nonterminal
-  | Nonterminal		loc       .  	ppNt   	 =  pp @nt
+  | Nonterminal         loc       .     ppNt     =  pp @nt
 
 SEM Production
-  | Production		loc       .  	ppProd 	 =  pp @con
+  | Production          loc       .     ppProd   =  pp @con
                         loc       .     prodName =  ppName [@lhs.ppNt, @loc.ppProd]
                         loc       .     conName  =  if @lhs.o_rename
                                                     then @loc.prodName
                                                     else @loc.ppProd
 SEM Child
-  | Child		loc       .  	ppCh 	 =  pp @name
+  | Child               loc       .     ppCh     =  pp @name
                         loc       .     ppTCh    =  ppShow @tp
                         loc       .     chName   =  ppName [@loc.ppCh, @lhs.ppNt, @lhs.ppProd]
 
@@ -187,13 +187,13 @@ SEM Child
 ATTR Productions Production Rules Rule Children Child Expression [ ppNt : PP_Doc | |  ]
 
 SEM Nonterminal
-  | Nonterminal         prods     .  	ppNt   	=  @loc.ppNt
+  | Nonterminal         prods     .     ppNt    =  @loc.ppNt
 
 ATTR Rules Rule Children Child Expression [ ppProd : PP_Doc | |  ]
 
 SEM Production
-  | Production          children  .  	ppProd 	=  @loc.ppProd
-		        rules     .  	ppProd 	=  @loc.ppProd
+  | Production          children  .     ppProd  =  @loc.ppProd
+                        rules     .     ppProd  =  @loc.ppProd
 
 
 ATTR Nonterminals Nonterminal [ derivs : {Derivings} | |  ]
@@ -205,7 +205,7 @@ SEM Grammar
 ATTR Nonterminals Nonterminal Production [ | | ppD USE {>-<} {empty} : {PP_Doc} ppDI USE {++} {[]} : {[PP_Doc]} ]
 
 SEM Nonterminal
-  | Nonterminal		lhs     .  	ppD    	=
+  | Nonterminal         lhs     .       ppD     =
                                      if (Set.member @nt @lhs.newNTs)
                                      then  case (lookup @nt @lhs.tSyns) of
                                                     -- if it's a data type
@@ -218,28 +218,28 @@ SEM Nonterminal
                                                     Just tp ->  "type " >|< @loc.ppNt >|< " = " >|< ppShow tp
                                      else  empty
 
-		        lhs     .  	ppDI    	=
+                        lhs     .       ppDI            =
                                      if (not $ Set.member @nt @lhs.newNTs)
                                      then  [ @loc.ppNt ]
                                      else  [ ]
 -- uncommented for testing purposes
 
 SEM Production
-  | Production		lhs     .  	ppD    	= @loc.conName >|< ppListSep " {" "}" ", " @children.ppDL
+  | Production          lhs     .       ppD     = @loc.conName >|< ppListSep " {" "}" ", " @children.ppDL
 
 
 ATTR Productions Children Child  [ | | ppDL : {[PP_Doc]} ]
 
 SEM Productions
-  | Cons			lhs		.	ppDL		=	@hd.ppD : @tl.ppDL
-  | Nil				lhs		.	ppDL		=	[]
+  | Cons                        lhs             .       ppDL            =       @hd.ppD : @tl.ppDL
+  | Nil                         lhs             .       ppDL            =       []
 
 SEM Children
-  | Cons			lhs		.	ppDL		=	@hd.ppDL ++ @tl.ppDL
-  | Nil				lhs		.	ppDL		=	[]
+  | Cons                        lhs             .       ppDL            =       @hd.ppDL ++ @tl.ppDL
+  | Nil                         lhs             .       ppDL            =       []
 
 SEM Child
-  | Child	        lhs     .  	ppDL   	= case @kind of
+  | Child               lhs     .       ppDL    = case @kind of
                                                    ChildSyntax    ->  [ @loc.chName  >|< pp " :: " >|< @loc.ppTCh ]
                                                    _              ->  []
 
@@ -261,22 +261,22 @@ ATTR Nonterminals Nonterminal Productions Production Children Child [ | | ppL US
 SEM Nonterminal
   | Nonterminal         loc     .       ntLabel = "nt_" >|< @loc.ppNt
 
-          		lhs     .  	ppL    	=  ( if (Set.member @nt @lhs.newNTs)
+                        lhs     .       ppL     =  ( if (Set.member @nt @lhs.newNTs)
                                                      then @loc.ntLabel >|< " = proxy :: Proxy " >|< @loc.ppNt
                                                      else empty)  >-<
                                                    @prods.ppL
 
-          		lhs     .  	ppLI   	=  ( if (not $ Set.member @nt @lhs.newNTs)
+                        lhs     .       ppLI    =  ( if (not $ Set.member @nt @lhs.newNTs)
                                                      then [ @loc.ntLabel ]
                                                      else [ ])  ++
                                                    @prods.ppLI
 
 SEM Production
-  | Production          lhs     .  	ppL    	=  if (Map.member @con @lhs.newProds)
+  | Production          lhs     .       ppL     =  if (Map.member @con @lhs.newProds)
                                                      then @children.ppL
                                                      else empty
 
-          		lhs     .  	ppLI   	=  if (not $ Map.member @con @lhs.newProds)
+                        lhs     .       ppLI    =  if (not $ Map.member @con @lhs.newProds)
                                                      then @children.ppLI
                                                      else []
 
@@ -284,7 +284,7 @@ SEM Production
 SEM Child
   | Child               loc     .       chLabel  = "ch_" >|< @loc.chName
                         loc     .       chTLabel = "Ch_" >|< @loc.chName
-        	        lhs     .  	ppL    	 = "data " >|< @loc.chTLabel >|< "; " >|< @loc.chLabel >|< pp " = proxy :: " >|<
+                        lhs     .       ppL      = "data " >|< @loc.chTLabel >|< "; " >|< @loc.chLabel >|< pp " = proxy :: " >|<
                                                    case @kind of
                                                     ChildSyntax    ->  "Proxy " >|< "(" >|< @loc.chTLabel >|< ", " >|< @loc.ppTCh >|< ")"
                                                     _              ->  "SemType " >|< @loc.ppTCh >|< pp " nt =>  Proxy " >|<
@@ -297,14 +297,14 @@ SEM Child
 
 
 SEM Grammar
-  | Grammar		loc     .  	ppA    	=  vlist (map defAtt (filterAtts @loc.newAtts @loc.o_noGroup)) >-<     -- not grouped
+  | Grammar             loc     .       ppA     =  vlist (map defAtt (filterAtts @loc.newAtts @loc.o_noGroup)) >-<     -- not grouped
                                                    defAtt "loc" >-<                                                    -- local
                                                    (case @lhs.ext of
                                                      Nothing    ->  defAtt "inh" >-< defAtt "syn"                      -- grouped
                                                      otherwise  ->  empty) >-<
                                                    @nonts.ppA                                                          -- record definitions
 
-        		loc     .  	ppAI   	=
+                        loc     .       ppAI    =
                                                 let atts =  filterNotAtts @loc.newAtts @loc.o_noGroup
                                                 in  (foldr (\a as -> attName a : as) [] atts) ++
                                                     (foldr (\a as -> attTName a : as) [] atts) ++
@@ -314,14 +314,14 @@ SEM Grammar
                                                     @nonts.ppAI
 
 
-        		loc     .  	ppANT 	=
+                        loc     .       ppANT   =
                                                 let atts =  filterNotAtts @loc.newAtts @loc.o_noGroup
                                                 in  (foldr (\a as -> ("nts_" >|< a) : as) [] atts)
 
 ATTR Nonterminals Nonterminal Productions Production [ | | ppA USE {>-<} {empty} : PP_Doc ]
 
 SEM Nonterminal
-  | Nonterminal		lhs     .  	ppA    	=  ( if (Set.member @nt @lhs.newNTs)
+  | Nonterminal         lhs     .       ppA     =  ( if (Set.member @nt @lhs.newNTs)
                                                      then   
                                                             defAttRec (pp "InhG") @loc.ppNt @inh @loc.inhNoGroup >-<
                                                             defAttRec (pp "SynG") @loc.ppNt @syn @loc.synNoGroup 
@@ -329,13 +329,13 @@ SEM Nonterminal
                                                    @prods.ppA
 
 SEM Production
-  | Production		lhs     .  	ppA    	=  defLocalAtts @loc.prodName (length @rules.locals) 1 $ sort @rules.locals
+  | Production          lhs     .       ppA     =  defLocalAtts @loc.prodName (length @rules.locals) 1 $ sort @rules.locals
 
 
 ATTR Nonterminals Nonterminal [ | | ppAI USE {++} {[]} : {[PP_Doc]} ]
 
 SEM Nonterminal
-  | Nonterminal		lhs     .  	ppAI    =  if (not $ Set.member @nt @lhs.newNTs)
+  | Nonterminal         lhs     .       ppAI    =  if (not $ Set.member @nt @lhs.newNTs)
                                                    then [ ppName [(pp "InhG"), @loc.ppNt ] >#< pp "(..)", ppName [(pp "SynG"), @loc.ppNt ] >#< pp "(..)" ]
                                                    else [ ]
 
@@ -372,7 +372,7 @@ ATTR Rules Rule [ | | locals USE {++} {[]} : {[Identifier]} ]
 
 
 SEM Rule
-  | Rule	        lhs     .  	locals    =  if (show (fst @pattern.info) == "loc")
+  | Rule                lhs     .       locals    =  if (show (fst @pattern.info) == "loc")
                                                       then [ snd @pattern.info ]
                                                       else [ ]
 
@@ -390,7 +390,7 @@ SEM Pattern
 
 SEM Grammar
   | Grammar             loc     .       ppNtL   =  @nonts.ppNtL
-        		loc     .  	ppR    	=  ntsList "group" @loc.ppNtL  >-<
+                        loc     .       ppR     =  ntsList "group" @loc.ppNtL  >-<
                                                    vlist (map (\att -> ntsList att (filterNts att @loc.ppNtL)) (filterAtts @newAtts @loc.o_noGroup))  >-<
                                                    @nonts.ppR
 
@@ -403,7 +403,7 @@ filterNts att = filter ( Map.member (identifier att) . snd )
 ATTR Nonterminals Nonterminal  [ | | ppNtL USE {++} {[]} : {[(PP_Doc, Attributes)]} ] -- list of nonterminals and its attributes
 
 SEM Nonterminal
-  | Nonterminal		lhs     .  	ppNtL  	=  [ ("nt_" >|< @nt, Map.union @inh @syn) ]
+  | Nonterminal         lhs     .       ppNtL   =  [ ("nt_" >|< @nt, Map.union @inh @syn) ]
 
 
 
@@ -412,7 +412,7 @@ ATTR Productions Production    [ newNT : {Bool} | |  ]
 ATTR Rules Rule    [ newProd : {Bool} | |  ]
 
 SEM Nonterminal
-  | Nonterminal		prods     .       newNT     =  Set.member @nt @lhs.newNTs
+  | Nonterminal         prods     .       newNT     =  Set.member @nt @lhs.newNTs
 
 
 ATTR Nonterminals Nonterminal Productions Production Children Child [ | | ppR USE {>-<} {empty} : PP_Doc ]
@@ -422,11 +422,11 @@ ATTR Productions Production    [ | | ppRA USE {++} {[]} : {[PP_Doc]} ]
 
 
 SEM Nonterminal
-  | Nonterminal		lhs     .       ppR     =  pp "----" >|< pp @nt >-< @prods.ppR
+  | Nonterminal         lhs     .       ppR     =  pp "----" >|< pp @nt >-< @prods.ppR
 
 SEM Production
-  | Production		loc     .       newProd  = Map.member @con @lhs.newProds
-                        loc     .  	(ppR,ppRA)
+  | Production          loc     .       newProd  = Map.member @con @lhs.newProds
+                        loc     .       (ppR,ppRA)
                            =  let  (instR, instRA)  = defInstRules  @lhs.ppNt @con @lhs.newNT @loc.newProd
                                                                     @children.ppR @rules.ppRL @children.idCL @rules.locals
                                    (locR,  locRA)   = defLocRule    @lhs.ppNt @con @lhs.newNT @loc.newProd
@@ -448,7 +448,7 @@ SEM Production
 
 
 SEM Child
-  | Child	        lhs     .  	ppR    	=  let chName = ppListSep "" "" "_" [pp @name, @lhs.ppNt, @lhs.ppProd]
+  | Child               lhs     .       ppR     =  let chName = ppListSep "" "" "_" [pp @name, @lhs.ppNt, @lhs.ppProd]
                                                    in  pp @name >|< " <- at ch_" >|< chName
 
 
@@ -465,11 +465,11 @@ ruleDef   (PPRule _      _     _     def) = def
 ATTR Rules Rule [ | | ppRL  : {[ PPRule ]} ]
 
 SEM Rules
-  | Cons			lhs		.	ppRL		=	@hd.ppRL ++ @tl.ppRL
-  | Nil				lhs		.	ppRL		=	[]
+  | Cons                        lhs             .       ppRL            =       @hd.ppRL ++ @tl.ppRL
+  | Nil                         lhs             .       ppRL            =       []
 
 SEM Rule
-  | Rule	                lhs             .  	ppRL    	=  if (not @explicit &&  not @lhs.newProd && not (Map.member (snd @pattern.info) @lhs.newAtts) )
+  | Rule                        lhs             .       ppRL            =  if (not @explicit &&  not @lhs.newProd && not (Map.member (snd @pattern.info) @lhs.newAtts) )
                                                                            then []
                                                                            else [ ppRule @pattern.info @owrt (defRule @lhs.ppNt @pattern.info @lhs.o_noGroup @rhs.ppRE) ]
 
@@ -732,11 +732,11 @@ ppMacro (Macro con children) = "( atts_" >|< show con >|< ", " >|<  ppListSep ""
 ATTR Nonterminals Nonterminal Productions Production [ | | ppCata USE {>-<} {empty} : PP_Doc ]
 
 SEM Nonterminal
-  | Nonterminal		lhs     .      ppCata    =  "----" >|< @loc.ppNt >-< @prods.ppCata
+  | Nonterminal         lhs     .      ppCata    =  "----" >|< @loc.ppNt >-< @prods.ppCata
 
 
 SEM Production
-  | Production		lhs     .      ppCata    =
+  | Production          lhs     .      ppCata    =
                                             let  extend = maybe  []
                                                                  (  \ext ->  if (@lhs.newNT || (not @lhs.newNT && @loc.newProd))
                                                                              then []
@@ -763,8 +763,8 @@ elemNT a b = False
 ATTR Productions Production [ syn, inh : { Attributes } | | ]
 
 SEM Nonterminal
-  | Nonterminal         prods     .  	syn   	=  @syn
-                        prods     .  	inh   	=  @inh
+  | Nonterminal         prods     .     syn     =  @syn
+                        prods     .     inh     =  @inh
 
 
 
@@ -775,7 +775,7 @@ ATTR Productions Production  [ | | ppSPF USE {>-<} {empty} : PP_Doc ]
 
 
 SEM Nonterminal
-  | Nonterminal  	lhs     .  	ppSF    	=
+  | Nonterminal         lhs     .       ppSF            =
                                          let      inhAtts = attTypes @loc.inhNoGroup
                                                   synAtts = attTypes @loc.synNoGroup
                                          in
@@ -800,7 +800,7 @@ attTypes atts = map (\(a,t) -> "(HCons (LVPair (Proxy Att_" >|< a >|< ") " >|< p
 
 
 SEM Production
-  | Production		lhs     .  	ppSF    	=
+  | Production          lhs     .       ppSF            =
                                             let  chi = @children.ppCSF
                                                  ppPattern = case (show @con) of
                                                               -- hardcoded list support
@@ -812,7 +812,7 @@ SEM Production
                                                  ppParams f =   f $ map (((>|<) (pp "_")) . fst) chi
                                             in   "sem_" >|< @lhs.ppNt >|< " (" >|< ppPattern >|< ") = sem_" >|< @loc.prodName >|<
                                                  " (" >|< map (fst . snd) chi >|< "emptyRecord)"
-                	lhs     .  	ppSPF    	=
+                        lhs     .       ppSPF           =
                                             let  chi = @children.ppCSF
                                                  ppParams f =   f $ map (((>|<) (pp "_")) . fst) chi
                                             in   "sem_" >|< @lhs.ppNt >|< "_" >|< @con >#< ppParams ppSpaced >|< " = semP_" >|< @loc.prodName >|<
@@ -823,7 +823,7 @@ ATTR Children Child  [ | | ppCSF USE {++} {[]} : {[(Identifier,(PP_Doc,PP_Doc))]
 
 
 SEM Child
-  | Child	        lhs     .  	ppCSF    	=
+  | Child               lhs     .       ppCSF           =
                                             let
                                                  semC   = if (isNonterminal @tp)
                                                            then "sem_" >|< ppShow @tp >|<  " _" >|< @name
@@ -843,7 +843,7 @@ SEM Child
 ATTR Nonterminals Nonterminal  [ | | ppW USE {>-<} {empty} : PP_Doc ]
 
 SEM Nonterminal
-  | Nonterminal		lhs     .  	ppW    	=
+  | Nonterminal         lhs     .       ppW     =
                                             ppName [pp "wrap", @loc.ppNt] >|< " sem " >|< attVars @inh >|< " = " >-<
                                             "   sem " >|< attFields @inh @loc.inhNoGroup @loc.ppNt
 

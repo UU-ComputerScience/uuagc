@@ -10,6 +10,6 @@ SEM  Grammar
 
 SEM  Rule
   |  Rule lhs.rulenumber = @lhs.rulenumber + 1
-     	  loc.rulename   = maybe (identifier $ "rule" ++ show @lhs.rulenumber) id @mbName
+          loc.rulename   = maybe (identifier $ "rule" ++ show @lhs.rulenumber) id @mbName
 
 

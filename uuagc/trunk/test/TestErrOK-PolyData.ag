@@ -3,10 +3,10 @@
 -- in v.0.9.3 it is allowed
 
 DATA Aap
-	| Een  a : {Int}
+        | Een  a : {Int}
 
 DATA Noot
-	| Twee b : {Int}
-	
+        | Twee b : {Int}
+        
 DATA Aap Noot
-	| Drie c : {Int}
+        | Drie c : {Int}

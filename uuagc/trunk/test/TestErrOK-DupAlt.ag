@@ -3,7 +3,7 @@
 -- in v.0.9.3 it is allowed, as long as the childs are different
 
 DATA Aap
-	| Een  a : {Int}
-	| Twee b : {Int}
-	| Twee c : {Int}
-	| Drie d : {Int}	
+        | Een  a : {Int}
+        | Twee b : {Int}
+        | Twee c : {Int}
+        | Drie d : {Int}        

@@ -141,13 +141,13 @@ SEM Child
 -------------------------------------------------------------------------------
 ATTR Grammar
      Nonterminals  [ | | inhmap USE {`Map.union`} {Map.empty} : {Map.Map NontermIdent Attributes}
-     	                 synmap USE {`Map.union`} {Map.empty} : {Map.Map NontermIdent Attributes} ]
+                         synmap USE {`Map.union`} {Map.empty} : {Map.Map NontermIdent Attributes} ]
 
 ATTR Nonterminal [ | | inhmap : {Map.Map NontermIdent Attributes}
-     		       synmap : {Map.Map NontermIdent Attributes} ]
+                       synmap : {Map.Map NontermIdent Attributes} ]
 SEM Nonterminal
   | Nonterminal lhs.inhmap = Map.singleton @nt @inh
-    		lhs.synmap = Map.singleton @nt @syn
+                lhs.synmap = Map.singleton @nt @syn
 
 -------------------------------------------------------------------------------
 --         Output nonterminal type mappings

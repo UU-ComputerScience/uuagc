@@ -3,8 +3,8 @@
 -- in v.0.9.3 it is possible
 
 DATA Both
-	| Een  a : {Int}
-	| Twee b : {Int}
+        | Een  a : {Int}
+        | Twee b : {Int}
 
 SET Both = Aap Noot
 

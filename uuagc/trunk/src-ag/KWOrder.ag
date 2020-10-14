@@ -42,37 +42,37 @@ ATTR HsToken Expression
 SEM  HsToken
   |  AGLocal lhs.vertices = Set.singleton $ VChild @var
   |  AGField lhs.vertices = Set.singleton $ VAttr (if      @field == _LHS then Inh
-     	     		    		    	   else if @field == _LOC then Loc
-						   else    	     	       Syn) @field @attr
+                                                   else if @field == _LOC then Loc
+                                                   else                        Syn) @field @attr
 
 -- Gather vertices for an expression (make a higher order child)
 SEM  Expression
   |  Expression lhs.vertices = Set.unions $ map (\tok -> vertices_Syn_HsToken
-     			       		    (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
+                                            (wrap_HsToken (sem_HsToken tok) Inh_HsToken)) @tks
 
 -- Gather vertices at patterns
 SEM  Pattern
-  |  Alias loc.vertex   = if		      @field == _INST then VChild @attr
-     	   		  else VAttr (if      @field == _LHS  then Syn
-     	     		    	      else if @field == _LOC  then Loc
-				      else 	 	      	   Inh) @field @attr
-     	   lhs.vertices = Set.insert @loc.vertex @pat.vertices
+  |  Alias loc.vertex   = if                  @field == _INST then VChild @attr
+                          else VAttr (if      @field == _LHS  then Syn
+                                      else if @field == _LOC  then Loc
+                                      else                         Inh) @field @attr
+           lhs.vertices = Set.insert @loc.vertex @pat.vertices
 
 -- Gather vertices for children
 --
 -- The behavior for merged children is a bit more complicated (and ignored for now)
 SEM  Child
   |  Child loc.vertex      = VChild @name
-     	   loc.synvertices = map (VAttr Syn @name) . Map.keys $ @loc.syn
-     	   loc.inhvertices = map (VAttr Inh @name) . Map.keys $ @loc.inh
-	   lhs.vertices    = case @tp of -- only Nonterminal children need to be in dependency graph
-     	   		        NT _ _ _ -> Set.insert @loc.vertex $ Set.fromList (@loc.synvertices ++ @loc.inhvertices)
-			     	_        -> Set.empty
+           loc.synvertices = map (VAttr Syn @name) . Map.keys $ @loc.syn
+           loc.inhvertices = map (VAttr Inh @name) . Map.keys $ @loc.inh
+           lhs.vertices    = case @tp of -- only Nonterminal children need to be in dependency graph
+                                NT _ _ _ -> Set.insert @loc.vertex $ Set.fromList (@loc.synvertices ++ @loc.inhvertices)
+                                _        -> Set.empty
 
 -- Add extra vertex for a rule
 SEM  Rule
   |  Rule loc.vertex   = VRule @loc.rulename
-     	  lhs.vertices = Set.insert @loc.vertex $ @pattern.vertices `Set.union` @rhs.vertices
+          lhs.vertices = Set.insert @loc.vertex $ @pattern.vertices `Set.union` @rhs.vertices
 
 -- Combine all vertices for a production
 SEM  Production
@@ -85,8 +85,8 @@ ATTR Rule Rules
 -- Gather edges for a rule
 SEM  Rule
   |  Rule loc.edgesout = map ((,) @loc.vertex) (Set.toList @rhs.vertices)
-     	  loc.edgesin  = map (flip (,) @loc.vertex) (Set.toList @pattern.vertices)
-	  lhs.edges    = Set.fromList $ @loc.edgesout ++ @loc.edgesin
+          loc.edgesin  = map (flip (,) @loc.vertex) (Set.toList @pattern.vertices)
+          lhs.edges    = Set.fromList $ @loc.edgesout ++ @loc.edgesin
 
 -- When a child is defined by a higher order attribute and the late binding option
 -- is enabled, we refer to the additional inherited attribute under the hood, hence
@@ -109,8 +109,8 @@ SEM Child | Child
 -- Gather edges for a child
 SEM  Child
   |  Child loc.edgesout = @loc.higherOrderEdges
-     	   loc.edgesin  = map (flip (,) @loc.vertex) @loc.synvertices
-	   lhs.edges    = Set.fromList (@loc.edgesout ++ @loc.edgesin)
+           loc.edgesin  = map (flip (,) @loc.vertex) @loc.synvertices
+           lhs.edges    = Set.fromList (@loc.edgesout ++ @loc.edgesin)
 
 -- Add manual attribute dependencies
 ATTR Nonterminals Nonterminal [ manualDeps : AttrOrderMap | | ]
@@ -149,8 +149,8 @@ ATTR Child Children [ | | nontnames USE {++} {[]} : {[(Identifier, Identifier)]}
 
 SEM  Child
   |  Child lhs.nontnames = case @tp of
-     	   		     NT nont _ _ -> [(@name, nont)]
-			     _           -> []
+                             NT nont _ _ -> [(@name, nont)]
+                             _           -> []
 
 -- Return a dependency graph for each production
 ATTR Production  [ | | depgraph : {ProdDependencyGraph} ]
@@ -158,13 +158,13 @@ ATTR Productions [ | | depgraph USE {:} {[]} : {[ProdDependencyGraph]} ]
 
 SEM  Production
   |  Production lhs.depgraph  = ProdDependencyGraph { pdgVertices    = Set.toList @loc.vertices
-			      			    , pdgEdges       = Set.toList @loc.edges
-						    , pdgRules       = @rules.erules
-						    , pdgChilds      = @children.echilds
-						    , pdgProduction  = @con
-                                               	    , pdgChildMap    = @children.nontnames
-                                               	    , pdgConstraints = @constraints
-                                               	    , pdgParams      = @params }
+                                                    , pdgEdges       = Set.toList @loc.edges
+                                                    , pdgRules       = @rules.erules
+                                                    , pdgChilds      = @children.echilds
+                                                    , pdgProduction  = @con
+                                                    , pdgChildMap    = @children.nontnames
+                                                    , pdgConstraints = @constraints
+                                                    , pdgParams      = @params }
 
 -------------------------------------------------------------------------------
 --         Dependency graph per nonterminal
@@ -173,13 +173,13 @@ SEM  Production
 -- Vertices are just all inherited and syntesized attributes
 SEM  Nonterminal
   |  Nonterminal loc.synvertices = map (VAttr Syn @nt) . Map.keys $ @syn
-     	   	 loc.inhvertices = map (VAttr Inh @nt) . Map.keys $ @inh
-	   	 loc.vertices    = @loc.synvertices ++ @loc.inhvertices
+                 loc.inhvertices = map (VAttr Inh @nt) . Map.keys $ @inh
+                 loc.vertices    = @loc.synvertices ++ @loc.inhvertices
 
 -- Construct nonterminal dependency graph for production
 SEM  Nonterminal
   |  Nonterminal loc.nontgraph = NontDependencyGraph { ndgVertices = @loc.vertices
-     		 	       	 		     , ndgEdges    = [] }
+                                                     , ndgEdges    = [] }
 
 -- Create dependency information for nonterminal and pass it upwards
 ATTR Nonterminal  [ | | depinfo : {NontDependencyInformation} ]
@@ -187,7 +187,7 @@ ATTR Nonterminals [ | | depinfo USE {:} {[]} : {[NontDependencyInformation]} ]
 
 SEM  Nonterminal
   |  Nonterminal lhs.depinfo = NontDependencyInformation { ndiNonterminal = @nt
-     		 	       				 , ndiParams      = @params
+                                                         , ndiParams      = @params
                                                          , ndiInh         = Map.keys @inh
                                                          , ndiSyn         = Map.keys @syn
                                                          , ndiDepGraph    = @loc.nontgraph
@@ -201,9 +201,9 @@ SEM  Nonterminal
 --         Call the kennedy-warren algorithm
 -------------------------------------------------------------------------------
 ATTR Grammar [ | | output : {ExecutionPlan}
-     	       	   depgraphs : {PP_Doc}
-		   visitgraph : {PP_Doc}
-		   errors : {Seq Error} ]
+                   depgraphs : {PP_Doc}
+                   visitgraph : {PP_Doc}
+                   errors : {Seq Error} ]
 
 SEM  Grammar
   |  Grammar  (lhs.output, lhs.depgraphs, lhs.visitgraph, lhs.errors)

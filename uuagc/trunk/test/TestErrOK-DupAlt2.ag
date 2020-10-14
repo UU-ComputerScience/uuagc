@@ -3,11 +3,11 @@
 -- in v.0.9.3 it is allowed, as long as the childs are different
 
 DATA Aap
-	| Een  a : {Int}
-	| Twee b : {Int}
+        | Een  a : {Int}
+        | Twee b : {Int}
 
 DATA Noot
-	| One  d : {Int}
-	
+        | One  d : {Int}
+        
 DATA Aap
-	| Twee c : {Int}	
+        | Twee c : {Int}        

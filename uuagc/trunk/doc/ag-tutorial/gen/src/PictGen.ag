@@ -240,7 +240,7 @@ SEM Prod
 
 SEM Sym
   | Nont
-      tp.ctxtNm  	 = ""
+      tp.ctxtNm          = ""
 
 --
 -- Width calculation

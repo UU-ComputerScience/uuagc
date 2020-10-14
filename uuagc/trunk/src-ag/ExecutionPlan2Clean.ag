@@ -658,16 +658,16 @@ ppDefor (Haskell s)    = text s
 SEM EProduction
   | EProduction loc.t_type   = "T_" >|< @lhs.nt
                 loc.t_params = ppSpaced @lhs.params
-		loc.usedArgs = @children.usedArgs `Set.union` @visits.usedArgs `Set.union` @rules.usedArgs
-		-- A bit ugly, but this code renames arguments and puts an underscore when the argument
-		-- is never used. This avoids compiler warnings of unused variables.
+                loc.usedArgs = @children.usedArgs `Set.union` @visits.usedArgs `Set.union` @rules.usedArgs
+                -- A bit ugly, but this code renames arguments and puts an underscore when the argument
+                -- is never used. This avoids compiler warnings of unused variables.
                 loc.args     = map (\x -> let (name,arg) = case show x of 
-					               ""       -> ("", empty)
-				       		       '!':name -> ("arg_" ++ name, "!arg_" >|< name)
-						       name     -> ("arg_" ++ name, "arg_"  >|< name)
+                                                       ""       -> ("", empty)
+                                                       '!':name -> ("arg_" ++ name, "!arg_" >|< name)
+                                                       name     -> ("arg_" ++ name, "arg_"  >|< name)
                                           in  if null name || name `Set.member` @loc.usedArgs
-			       	       	                    then arg
-			       	       	                    else text "_") @children.argpats
+                                                            then arg
+                                                            else text "_") @children.argpats
                 loc.semname  = "sem_" ++ show @lhs.nt ++ "_" ++ show @con
                 loc.sem_tp   = @loc.quantPP2 >#< @loc.classPP2 >#< ppSpaced @children.argtps
                                >#< (if length @children.argtps > 0 then "->" else "")
@@ -898,8 +898,8 @@ SEM ERule
 
 SEM EChild
   | EChild +usedArgs = \s -> case @kind of
-    	   		     ChildSyntax -> Set.insert ("arg_" ++ show @name ++ "_") s
-			     _           -> s
+                             ChildSyntax -> Set.insert ("arg_" ++ show @name ++ "_") s
+                             _           -> s
 
 
 -- Number of steps in a 'Sim' block
@@ -1152,13 +1152,13 @@ SEM Pattern | Alias
 ATTR Pattern Patterns  [ | | attrTypes USE {>-<} {empty} : {PP_Doc} ]
 SEM Pattern | Alias
   loc.mbTp      = if @field == _LHS
-  		  then Map.lookup @attr @lhs.synmap
-		  else if @field == _LOC
-		       then Map.lookup @attr @lhs.localAttrTypes
-		       else Nothing
+                  then Map.lookup @attr @lhs.synmap
+                  else if @field == _LOC
+                       then Map.lookup @attr @lhs.localAttrTypes
+                       else Nothing
   lhs.attrTypes = empty -- Don't generate these type signatures; increases performance in Clean
                   -- maybe empty (\tp -> (attrname @lhs.options False @field @attr) >#< "::" >#< ppTp tp) @loc.mbTp
-  		            -- >-< @pat.attrTypes
+                            -- >-< @pat.attrTypes
 
 -- Collect the attributes used by the right-hand side
 ATTR HsToken Expression [ | | attrs USE {`Map.union`} {Map.empty} : {Map String (Maybe NonLocalAttr)} ]
