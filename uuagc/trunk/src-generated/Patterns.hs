@@ -1,13 +1,13 @@
 
 
--- UUAGC 0.9.51 (src-ag/Patterns.ag)
+-- UUAGC 0.9.53 (src-ag/Patterns.ag)
 module Patterns where
 {-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 11 "dist/build/Patterns.hs" #-}
+{-# LINE 11 "src-generated/Patterns.hs" #-}
 -- Pattern -----------------------------------------------------
 {-
    visit 0:

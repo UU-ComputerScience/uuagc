@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.51 (src-ag/CodeSyntax.ag)
+-- UUAGC 0.9.53 (src-ag/CodeSyntax.ag)
 module CodeSyntax where
 {-# LINE 2 "src-ag/CodeSyntax.ag" #-}
 
@@ -8,7 +8,7 @@ import Patterns
 import CommonTypes
 import Data.Map(Map)
 import Data.Set(Set)
-{-# LINE 12 "dist/build/CodeSyntax.hs" #-}
+{-# LINE 12 "src-generated/CodeSyntax.hs" #-}
 -- CGrammar ----------------------------------------------------
 {-
    alternatives:

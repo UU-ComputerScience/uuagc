@@ -6,14 +6,14 @@ module TfmToVisage where
 
 import UU.Scanner.Position(Pos)
 import HsToken
-{-# LINE 10 "dist/build/TfmToVisage.hs" #-}
+{-# LINE 10 "src-generated/TfmToVisage.hs" #-}
 
 {-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 17 "dist/build/TfmToVisage.hs" #-}
+{-# LINE 17 "src-generated/TfmToVisage.hs" #-}
 
 {-# LINE 2 "src-ag/AbstractSyntax.ag" #-}
 
@@ -25,7 +25,7 @@ import Expression  (Expression(..))
 import Macro --marcos
 import CommonTypes
 import ErrorMessages
-{-# LINE 29 "dist/build/TfmToVisage.hs" #-}
+{-# LINE 29 "src-generated/TfmToVisage.hs" #-}
 
 {-# LINE 9 "src-ag/TfmToVisage.ag" #-}
 
@@ -34,7 +34,7 @@ import VisagePatterns
 import VisageSyntax
 import qualified Data.Map as Map
 import Data.Map (Map)
-{-# LINE 38 "dist/build/TfmToVisage.hs" #-}
+{-# LINE 38 "src-generated/TfmToVisage.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
 {-# LINE 17 "src-ag/TfmToVisage.ag" #-}
@@ -92,7 +92,7 @@ underScore field vp@(VAlias afield attr pat) =
 underScore field vp@(VUnderscore pos) = vp
 
 -}
-{-# LINE 96 "dist/build/TfmToVisage.hs" #-}
+{-# LINE 96 "src-generated/TfmToVisage.hs" #-}
 -- Child -------------------------------------------------------
 -- wrapper
 data Inh_Child  = Inh_Child { inhMap_Inh_Child :: (Map Identifier Attributes), rulemap_Inh_Child :: (VisageRuleMap), synMap_Inh_Child :: (Map Identifier Attributes) }
@@ -146,25 +146,25 @@ sem_Child_Child arg_name_ arg_tp_ _ = T_Child (return st2) where
                          NT nt _ _ -> nt
                          Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
                          Haskell t -> identifier ""
-                       {-# LINE 150 "dist/build/TfmToVisage.hs"#-}
+                       {-# LINE 150 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule1 #-}
    {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
    rule1 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
                       {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIinhMap
-                      {-# LINE 156 "dist/build/TfmToVisage.hs"#-}
+                      {-# LINE 156 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule2 #-}
    {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
    rule2 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
                       {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIsynMap
-                      {-# LINE 162 "dist/build/TfmToVisage.hs"#-}
+                      {-# LINE 162 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule3 #-}
    {-# LINE 121 "src-ag/TfmToVisage.ag" #-}
    rule3 = \ _inh ((_lhsIrulemap) :: VisageRuleMap) _syn name_ tp_ ->
                          {-# LINE 121 "src-ag/TfmToVisage.ag" #-}
                          VChild name_ tp_ _inh     _syn     (getForField (getName name_) _lhsIrulemap)
-                         {-# LINE 168 "dist/build/TfmToVisage.hs"#-}
+                         {-# LINE 168 "src-generated/TfmToVisage.hs" #-}
 
 -- Children ----------------------------------------------------
 -- wrapper
@@ -223,7 +223,7 @@ sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st5) where
    rule4 = \ ((_hdIvchild) :: VisageChild) ((_tlIvchildren) :: [VisageChild]) ->
                                   {-# LINE 117 "src-ag/TfmToVisage.ag" #-}
                                   _hdIvchild : _tlIvchildren
-                                  {-# LINE 227 "dist/build/TfmToVisage.hs"#-}
+                                  {-# LINE 227 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule5 #-}
    rule5 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap
@@ -259,7 +259,7 @@ sem_Children_Nil  = T_Children (return st5) where
    rule11 = \  (_ :: ()) ->
                                   {-# LINE 118 "src-ag/TfmToVisage.ag" #-}
                                   []
-                                  {-# LINE 263 "dist/build/TfmToVisage.hs"#-}
+                                  {-# LINE 263 "src-generated/TfmToVisage.hs" #-}
 
 -- Expression --------------------------------------------------
 -- wrapper
@@ -362,19 +362,19 @@ sem_Grammar_Grammar _ _ _ _ arg_nonts_ _ _ _ _ _ _ _ _ _ = T_Grammar (return st1
    rule14 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
                              {-# LINE 15 "src-ag/DistChildAttr.ag" #-}
                              _nontsIinhMap'
-                             {-# LINE 366 "dist/build/TfmToVisage.hs"#-}
+                             {-# LINE 366 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule15 #-}
    {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
    rule15 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
                              {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
                              _nontsIsynMap'
-                             {-# LINE 372 "dist/build/TfmToVisage.hs"#-}
+                             {-# LINE 372 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule16 #-}
    {-# LINE 90 "src-ag/TfmToVisage.ag" #-}
    rule16 = \ ((_nontsIvnonts) :: [VisageNonterminal]) ->
                      {-# LINE 90 "src-ag/TfmToVisage.ag" #-}
                      VGrammar _nontsIvnonts
-                     {-# LINE 378 "dist/build/TfmToVisage.hs"#-}
+                     {-# LINE 378 "src-generated/TfmToVisage.hs" #-}
 
 -- Nonterminal -------------------------------------------------
 -- wrapper
@@ -431,19 +431,19 @@ sem_Nonterminal_Nonterminal arg_nt_ _ arg_inh_ arg_syn_ arg_prods_ = T_Nontermin
    rule17 = \ inh_ nt_ ->
                                  {-# LINE 7 "src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ inh_
-                                 {-# LINE 435 "dist/build/TfmToVisage.hs"#-}
+                                 {-# LINE 435 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule18 #-}
    {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
    rule18 = \ nt_ syn_ ->
                                  {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ syn_
-                                 {-# LINE 441 "dist/build/TfmToVisage.hs"#-}
+                                 {-# LINE 441 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule19 #-}
    {-# LINE 100 "src-ag/TfmToVisage.ag" #-}
    rule19 = \ ((_prodsIvprods) :: [VisageProduction]) inh_ nt_ syn_ ->
                     {-# LINE 100 "src-ag/TfmToVisage.ag" #-}
                     VNonterminal nt_ inh_ syn_ _prodsIvprods
-                    {-# LINE 447 "dist/build/TfmToVisage.hs"#-}
+                    {-# LINE 447 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule20 #-}
    rule20 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap
@@ -510,7 +510,7 @@ sem_Nonterminals_Cons arg_hd_ arg_tl_ = T_Nonterminals (return st17) where
    rule22 = \ ((_hdIvnont) :: VisageNonterminal) ((_tlIvnonts) :: [VisageNonterminal]) ->
                      {-# LINE 94 "src-ag/TfmToVisage.ag" #-}
                      _hdIvnont : _tlIvnonts
-                     {-# LINE 514 "dist/build/TfmToVisage.hs"#-}
+                     {-# LINE 514 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule23 #-}
    rule23 = \ ((_hdIinhMap') :: Map Identifier Attributes) ((_tlIinhMap') :: Map Identifier Attributes) ->
      _hdIinhMap' `Map.union` _tlIinhMap'
@@ -550,7 +550,7 @@ sem_Nonterminals_Nil  = T_Nonterminals (return st17) where
    rule29 = \  (_ :: ()) ->
                      {-# LINE 96 "src-ag/TfmToVisage.ag" #-}
                      []
-                     {-# LINE 554 "dist/build/TfmToVisage.hs"#-}
+                     {-# LINE 554 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule30 #-}
    rule30 = \  (_ :: ()) ->
      Map.empty
@@ -619,7 +619,7 @@ sem_Pattern_Constr arg_name_ arg_pats_ = T_Pattern (return st20) where
    rule32 = \ ((_patsIvpats) :: [VisagePattern]) name_ ->
                              {-# LINE 136 "src-ag/TfmToVisage.ag" #-}
                              VConstr name_ _patsIvpats
-                             {-# LINE 623 "dist/build/TfmToVisage.hs"#-}
+                             {-# LINE 623 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule33 #-}
    rule33 = \ ((_patsIfieldattrs) ::  [(Identifier,Identifier)] ) ->
      _patsIfieldattrs
@@ -662,7 +662,7 @@ sem_Pattern_Product arg_pos_ arg_pats_ = T_Pattern (return st20) where
    rule38 = \ ((_patsIvpats) :: [VisagePattern]) pos_ ->
                              {-# LINE 137 "src-ag/TfmToVisage.ag" #-}
                              VProduct pos_ _patsIvpats
-                             {-# LINE 666 "dist/build/TfmToVisage.hs"#-}
+                             {-# LINE 666 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule39 #-}
    rule39 = \ ((_patsIfieldattrs) ::  [(Identifier,Identifier)] ) ->
      _patsIfieldattrs
@@ -707,13 +707,13 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st20) where
                              if (isVar _self)
                              then VVar field_ attr_
                              else VAlias field_ attr_ _patIvpat
-                             {-# LINE 711 "dist/build/TfmToVisage.hs"#-}
+                             {-# LINE 711 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule45 #-}
    {-# LINE 147 "src-ag/TfmToVisage.ag" #-}
    rule45 = \ attr_ field_ ->
                                    {-# LINE 147 "src-ag/TfmToVisage.ag" #-}
                                    [(field_, attr_)]
-                                   {-# LINE 717 "dist/build/TfmToVisage.hs"#-}
+                                   {-# LINE 717 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule46 #-}
    rule46 = \ ((_patIcopy) :: Pattern) attr_ field_ ->
      Alias field_ attr_ _patIcopy
@@ -791,7 +791,7 @@ sem_Pattern_Underscore arg_pos_ = T_Pattern (return st20) where
    rule56 = \ pos_ ->
                              {-# LINE 141 "src-ag/TfmToVisage.ag" #-}
                              VUnderscore pos_
-                             {-# LINE 795 "dist/build/TfmToVisage.hs"#-}
+                             {-# LINE 795 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule57 #-}
    rule57 = \  (_ :: ()) ->
      []
@@ -867,7 +867,7 @@ sem_Patterns_Cons arg_hd_ arg_tl_ = T_Patterns (return st23) where
    rule62 = \ ((_hdIvpat) :: VisagePattern) ((_tlIvpats) :: [VisagePattern]) ->
                               {-# LINE 132 "src-ag/TfmToVisage.ag" #-}
                               _hdIvpat : _tlIvpats
-                              {-# LINE 871 "dist/build/TfmToVisage.hs"#-}
+                              {-# LINE 871 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule63 #-}
    rule63 = \ ((_hdIfieldattrs) ::  [(Identifier,Identifier)] ) ((_tlIfieldattrs) ::  [(Identifier,Identifier)] ) ->
      _hdIfieldattrs  ++  _tlIfieldattrs
@@ -908,7 +908,7 @@ sem_Patterns_Nil  = T_Patterns (return st23) where
    rule68 = \  (_ :: ()) ->
                               {-# LINE 133 "src-ag/TfmToVisage.ag" #-}
                               []
-                              {-# LINE 912 "dist/build/TfmToVisage.hs"#-}
+                              {-# LINE 912 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule69 #-}
    rule69 = \  (_ :: ()) ->
      []
@@ -984,31 +984,31 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
    rule74 = \ ((_childrenIvchildren) :: [VisageChild]) _lhsrules _locrules con_ ->
                            {-# LINE 110 "src-ag/TfmToVisage.ag" #-}
                            VProduction con_ _childrenIvchildren _lhsrules _locrules
-                           {-# LINE 988 "dist/build/TfmToVisage.hs"#-}
+                           {-# LINE 988 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule75 #-}
    {-# LINE 111 "src-ag/TfmToVisage.ag" #-}
    rule75 = \ ((_rulesIvrules) :: [VisageRule]) ->
                            {-# LINE 111 "src-ag/TfmToVisage.ag" #-}
                            splitVRules _rulesIvrules
-                           {-# LINE 994 "dist/build/TfmToVisage.hs"#-}
+                           {-# LINE 994 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule76 #-}
    {-# LINE 112 "src-ag/TfmToVisage.ag" #-}
    rule76 = \ _splitVRules ->
                            {-# LINE 112 "src-ag/TfmToVisage.ag" #-}
                            getForField "loc" _splitVRules
-                           {-# LINE 1000 "dist/build/TfmToVisage.hs"#-}
+                           {-# LINE 1000 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule77 #-}
    {-# LINE 113 "src-ag/TfmToVisage.ag" #-}
    rule77 = \ _splitVRules ->
                            {-# LINE 113 "src-ag/TfmToVisage.ag" #-}
                            getForField "lhs" _splitVRules
-                           {-# LINE 1006 "dist/build/TfmToVisage.hs"#-}
+                           {-# LINE 1006 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule78 #-}
    {-# LINE 114 "src-ag/TfmToVisage.ag" #-}
    rule78 = \ _splitVRules ->
                            {-# LINE 114 "src-ag/TfmToVisage.ag" #-}
                            _splitVRules
-                           {-# LINE 1012 "dist/build/TfmToVisage.hs"#-}
+                           {-# LINE 1012 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule79 #-}
    rule79 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap
@@ -1071,7 +1071,7 @@ sem_Productions_Cons arg_hd_ arg_tl_ = T_Productions (return st29) where
    rule81 = \ ((_hdIvprod) :: VisageProduction) ((_tlIvprods) :: [VisageProduction]) ->
                      {-# LINE 104 "src-ag/TfmToVisage.ag" #-}
                      _hdIvprod : _tlIvprods
-                     {-# LINE 1075 "dist/build/TfmToVisage.hs"#-}
+                     {-# LINE 1075 "src-generated/TfmToVisage.hs" #-}
    {-# INLINE rule82 #-}
    rule82 = \ ((_lhsIinhMap) :: Map Identifier Attributes) ->
      _lhsIinhMap
@@ -1101,7 +1101,7 @@ sem_Productions_Nil  = T_Productions (return st29) where
    rule86 = \  (_ :: ()) ->
                      {-# LINE 106 "src-ag/TfmToVisage.ag" #-}
                      []
-                     {-# LINE 1105 "dist/build/TfmToVisage.hs"#-}
+                     {-# LINE 1105 "src-generated/TfmToVisage.hs" #-}
 
 -- Rule --------------------------------------------------------
 -- wrapper
@@ -1154,7 +1154,7 @@ sem_Rule_Rule _ arg_pattern_ arg_rhs_ arg_owrt_ _ _ _ _ _ _ = T_Rule (return st3
    rule87 = \ ((_patternIfieldattrs) ::  [(Identifier,Identifier)] ) ((_patternIvpat) :: VisagePattern) ((_rhsIself) :: Expression) owrt_ ->
                          {-# LINE 129 "src-ag/TfmToVisage.ag" #-}
                          VRule _patternIfieldattrs undefined _patternIvpat _rhsIself owrt_
-                         {-# LINE 1158 "dist/build/TfmToVisage.hs"#-}
+                         {-# LINE 1158 "src-generated/TfmToVisage.hs" #-}
 
 -- Rules -------------------------------------------------------
 -- wrapper
@@ -1207,7 +1207,7 @@ sem_Rules_Cons arg_hd_ arg_tl_ = T_Rules (return st35) where
    rule88 = \ ((_hdIvrule) :: VisageRule) ((_tlIvrules) :: [VisageRule]) ->
                                {-# LINE 124 "src-ag/TfmToVisage.ag" #-}
                                _hdIvrule : _tlIvrules
-                               {-# LINE 1211 "dist/build/TfmToVisage.hs"#-}
+                               {-# LINE 1211 "src-generated/TfmToVisage.hs" #-}
 {-# NOINLINE sem_Rules_Nil #-}
 sem_Rules_Nil ::  T_Rules 
 sem_Rules_Nil  = T_Rules (return st35) where
@@ -1225,7 +1225,7 @@ sem_Rules_Nil  = T_Rules (return st35) where
    rule89 = \  (_ :: ()) ->
                                {-# LINE 125 "src-ag/TfmToVisage.ag" #-}
                                []
-                               {-# LINE 1229 "dist/build/TfmToVisage.hs"#-}
+                               {-# LINE 1229 "src-generated/TfmToVisage.hs" #-}
 
 -- TypeSig -----------------------------------------------------
 -- wrapper

@@ -8,7 +8,7 @@ module PrintCode where
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 12 "dist/build/PrintCode.hs" #-}
+{-# LINE 12 "src-generated/PrintCode.hs" #-}
 
 {-# LINE 2 "src-ag/Code.ag" #-}
 
@@ -17,7 +17,7 @@ import Data.Set(Set)
 import qualified Data.Set as Set
 import Data.Map(Map)
 import qualified Data.Map as Map
-{-# LINE 21 "dist/build/PrintCode.hs" #-}
+{-# LINE 21 "src-generated/PrintCode.hs" #-}
 
 {-# LINE 10 "src-ag/PrintCode.ag" #-}
 
@@ -31,7 +31,7 @@ import System.IO
 import System.Directory
 import System.FilePath
 import CommonTypes(BlockInfo, BlockKind(..))
-{-# LINE 35 "dist/build/PrintCode.hs" #-}
+{-# LINE 35 "src-generated/PrintCode.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
 {-# LINE 146 "src-ag/Code.ag" #-}
@@ -51,12 +51,12 @@ mkTupleType unbox' noInh tps | not unbox' || noInh || length tps == 1 = TupleTyp
 mkTupleLhs :: Bool -> Bool -> [String] -> Lhs
 mkTupleLhs  unbox' noInh comps | not unbox' || noInh || length comps == 1 = TupleLhs comps
                                | otherwise                                = UnboxedTupleLhs comps
-{-# LINE 55 "dist/build/PrintCode.hs" #-}
+{-# LINE 55 "src-generated/PrintCode.hs" #-}
 
 {-# LINE 23 "src-ag/PrintCode.ag" #-}
 
 type PP_Docs = [PP_Doc]
-{-# LINE 60 "dist/build/PrintCode.hs" #-}
+{-# LINE 60 "src-generated/PrintCode.hs" #-}
 
 {-# LINE 27 "src-ag/PrintCode.ag" #-}
 
@@ -69,7 +69,7 @@ ppMultiSeqV = ppMultiSeq' (>-<)
 ppMultiSeq' :: (PP_Doc -> PP_Doc -> PP_Doc) -> [PP_Doc] -> PP_Doc -> PP_Doc
 ppMultiSeq' next strictArgs expr
   = foldr (\v r -> (v >#< "`seq`") `next` pp_parens r) expr strictArgs
-{-# LINE 73 "dist/build/PrintCode.hs" #-}
+{-# LINE 73 "src-generated/PrintCode.hs" #-}
 
 {-# LINE 303 "src-ag/PrintCode.ag" #-}
 
@@ -84,19 +84,19 @@ ppUnboxedTuple :: Bool -> [PP_Doc] -> PP_Doc
 ppUnboxedTuple True pps  = "(# " >|< pp_block " " (concat $ replicate (length pps `max` 1) " #)") ",(# " pps
 ppUnboxedTuple False pps = "(# " >|< pp_block " " " #)" "," pps
 
-{-# LINE 88 "dist/build/PrintCode.hs" #-}
+{-# LINE 88 "src-generated/PrintCode.hs" #-}
 
 {-# LINE 404 "src-ag/PrintCode.ag" #-}
 
 locname' :: Identifier -> [Char]
 locname' n = "_loc_" ++ getName n
-{-# LINE 94 "dist/build/PrintCode.hs" #-}
+{-# LINE 94 "src-generated/PrintCode.hs" #-}
 
 {-# LINE 479 "src-ag/PrintCode.ag" #-}
 
 renderDocs :: [PP_Doc] -> String
 renderDocs pps = foldr (.) id (map (\d -> (disp d 50000) . ( '\n':) ) pps) ""
-{-# LINE 100 "dist/build/PrintCode.hs" #-}
+{-# LINE 100 "src-generated/PrintCode.hs" #-}
 
 {-# LINE 527 "src-ag/PrintCode.ag" #-}
 
@@ -113,7 +113,7 @@ writeModule path docs
   where
     output = renderDocs docs
     dumpIt = writeFile path output
-{-# LINE 117 "dist/build/PrintCode.hs" #-}
+{-# LINE 117 "src-generated/PrintCode.hs" #-}
 -- CaseAlt -----------------------------------------------------
 -- wrapper
 data Inh_CaseAlt  = Inh_CaseAlt { nested_Inh_CaseAlt :: !(Bool), options_Inh_CaseAlt :: !(Options), outputfile_Inh_CaseAlt :: !(String) }
@@ -172,13 +172,13 @@ sem_CaseAlt_CaseAlt arg_left_ arg_expr_ = T_CaseAlt (return st2) where
    rule0 = \ ((_exprIpp) :: PP_Doc) ((_leftIpp) :: PP_Doc) ->
                                {-# LINE 218 "src-ag/PrintCode.ag" #-}
                                ["{" >#< _leftIpp >#< "->", _exprIpp >#< "}"]
-                               {-# LINE 176 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 176 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule1 #-}
    {-# LINE 428 "src-ag/PrintCode.ag" #-}
    rule1 = \  (_ :: ()) ->
                            {-# LINE 428 "src-ag/PrintCode.ag" #-}
                            False
-                           {-# LINE 182 "dist/build/PrintCode.hs"#-}
+                           {-# LINE 182 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule2 #-}
    rule2 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -255,7 +255,7 @@ sem_CaseAlts_Cons arg_hd_ arg_tl_ = T_CaseAlts (return st5) where
    rule8 = \ ((_hdIpps) :: PP_Docs) ((_tlIpps) :: PP_Docs) ->
                      {-# LINE 68 "src-ag/PrintCode.ag" #-}
                      _hdIpps ++ _tlIpps
-                     {-# LINE 259 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 259 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule9 #-}
    rule9 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -291,7 +291,7 @@ sem_CaseAlts_Nil  = T_CaseAlts (return st5) where
    rule15 = \  (_ :: ()) ->
                      {-# LINE 69 "src-ag/PrintCode.ag" #-}
                      []
-                     {-# LINE 295 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 295 "src-generated/PrintCode.hs" #-}
 
 -- Chunk -------------------------------------------------------
 -- wrapper
@@ -394,7 +394,7 @@ sem_Chunk_Chunk !arg_name_ arg_comment_ arg_info_ arg_dataDef_ arg_cataFun_ arg_
                          if sepSemMods _lhsIoptions
                          then replaceBaseName _lhsImainFile (takeBaseName _lhsImainFile ++ "_" ++ name_)
                          else _lhsImainFile
-                         {-# LINE 398 "dist/build/PrintCode.hs"#-}
+                         {-# LINE 398 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule17 #-}
    {-# LINE 96 "src-ag/PrintCode.ag" #-}
    rule17 = \ ((_cataFunIpps) :: PP_Docs) ((_commentIpp) :: PP_Doc) ((_dataDefIpps) :: PP_Docs) ((_infoIpps) :: PP_Docs) ((_lhsItextBlockMap) :: Map BlockInfo PP_Doc) ((_semDomIpps) :: PP_Docs) ((_semFunctionsIpps) :: PP_Docs) ((_semWrapperIpps) :: PP_Docs) name_ ->
@@ -407,13 +407,13 @@ sem_Chunk_Chunk !arg_name_ arg_comment_ arg_info_ arg_dataDef_ arg_cataFun_ arg_
                                 ++ _semWrapperIpps
                                 ++ _semFunctionsIpps
                                 ++ [Map.findWithDefault empty (BlockOther, Just $ identifier name_) _lhsItextBlockMap]
-                                {-# LINE 411 "dist/build/PrintCode.hs"#-}
+                                {-# LINE 411 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule18 #-}
    {-# LINE 487 "src-ag/PrintCode.ag" #-}
    rule18 = \ ((_lhsImainName) :: String) name_ ->
                       {-# LINE 487 "src-ag/PrintCode.ag" #-}
                       ["import " ++ _lhsImainName ++ "_" ++ name_ ++ "\n"]
-                      {-# LINE 417 "dist/build/PrintCode.hs"#-}
+                      {-# LINE 417 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule19 #-}
    {-# LINE 494 "src-ag/PrintCode.ag" #-}
    rule19 = \ ((_commentIpp) :: PP_Doc) ((_dataDefIpps) :: PP_Docs) ((_lhsIoptions) :: Options) ((_semDomIpps) :: PP_Docs) ((_semWrapperIpps) :: PP_Docs) ->
@@ -423,7 +423,7 @@ sem_Chunk_Chunk !arg_name_ arg_comment_ arg_info_ arg_dataDef_ arg_cataFun_ arg_
             , _semDomIpps
             , if reference _lhsIoptions then _semWrapperIpps else []
             ]
-            {-# LINE 427 "dist/build/PrintCode.hs"#-}
+            {-# LINE 427 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule20 #-}
    {-# LINE 500 "src-ag/PrintCode.ag" #-}
    rule20 = \ ((_cataFunIpps) :: PP_Docs) ((_commentIpp) :: PP_Doc) ((_lhsIoptions) :: Options) ((_semWrapperIpps) :: PP_Docs) ->
@@ -432,7 +432,7 @@ sem_Chunk_Chunk !arg_name_ arg_comment_ arg_info_ arg_dataDef_ arg_cataFun_ arg_
             , _cataFunIpps
             , if reference _lhsIoptions then [] else _semWrapperIpps
             ]
-            {-# LINE 436 "dist/build/PrintCode.hs"#-}
+            {-# LINE 436 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule21 #-}
    {-# LINE 510 "src-ag/PrintCode.ag" #-}
    rule21 = \ ((_commentIpp) :: PP_Doc) _exports ((_infoIpps) :: PP_Docs) ((_lhsImainName) :: String) ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ((_lhsIoptionsLine) :: String) ((_lhsIpragmaBlocks) :: String) ((_lhsItextBlockMap) :: Map BlockInfo PP_Doc) _outputfile ((_semFunctionsIpps) :: PP_Docs) name_ ->
@@ -449,13 +449,13 @@ sem_Chunk_Chunk !arg_name_ arg_comment_ arg_info_ arg_dataDef_ arg_cataFun_ arg_
               , vlist_sep "" _semFunctionsIpps
               , Map.findWithDefault empty (BlockOther, Just $ identifier name_) _lhsItextBlockMap
               ]
-            {-# LINE 453 "dist/build/PrintCode.hs"#-}
+            {-# LINE 453 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule22 #-}
    {-# LINE 525 "src-ag/PrintCode.ag" #-}
    rule22 = \ semNames_ ->
                       {-# LINE 525 "src-ag/PrintCode.ag" #-}
                       concat $ intersperse "," semNames_
-                      {-# LINE 459 "dist/build/PrintCode.hs"#-}
+                      {-# LINE 459 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule23 #-}
    rule23 = \ ((_lhsIisDeclOfLet) :: Bool) ->
      _lhsIisDeclOfLet
@@ -622,7 +622,7 @@ sem_Chunks_Cons arg_hd_ arg_tl_ = T_Chunks (return st11) where
    rule51 = \ ((_hdIpps) :: PP_Docs) ((_tlIpps) :: PP_Docs) ->
                      {-# LINE 88 "src-ag/PrintCode.ag" #-}
                      _hdIpps ++ _tlIpps
-                     {-# LINE 626 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 626 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule52 #-}
    rule52 = \ ((_hdIappendCommon) :: [[PP_Doc]]) ((_tlIappendCommon) :: [[PP_Doc]]) ->
      _hdIappendCommon ++ _tlIappendCommon
@@ -726,7 +726,7 @@ sem_Chunks_Nil  = T_Chunks (return st11) where
    rule78 = \  (_ :: ()) ->
                      {-# LINE 89 "src-ag/PrintCode.ag" #-}
                      []
-                     {-# LINE 730 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 730 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule79 #-}
    rule79 = \  (_ :: ()) ->
      []
@@ -791,7 +791,7 @@ sem_DataAlt_DataAlt !arg_name_ arg_args_ = T_DataAlt (return st14) where
    rule83 = \ ((_argsIpps) :: PP_Docs) ((_lhsIstrictPre) :: PP_Doc) name_ ->
                                {-# LINE 221 "src-ag/PrintCode.ag" #-}
                                name_ >#< hv_sp (map ((_lhsIstrictPre >|<) . pp_parens) _argsIpps)
-                               {-# LINE 795 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 795 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule84 #-}
    rule84 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -815,7 +815,7 @@ sem_DataAlt_Record !arg_name_ arg_args_ = T_DataAlt (return st14) where
    rule85 = \ ((_argsIpps) :: PP_Docs) name_ ->
                                {-# LINE 222 "src-ag/PrintCode.ag" #-}
                                name_ >#< pp_block "{" "}" "," _argsIpps
-                               {-# LINE 819 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 819 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule86 #-}
    rule86 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -875,7 +875,7 @@ sem_DataAlts_Cons arg_hd_ arg_tl_ = T_DataAlts (return st17) where
    rule87 = \ ((_hdIpp) :: PP_Doc) ((_tlIpps) :: PP_Docs) ->
                      {-# LINE 72 "src-ag/PrintCode.ag" #-}
                      _hdIpp : _tlIpps
-                     {-# LINE 879 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 879 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule88 #-}
    rule88 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -905,7 +905,7 @@ sem_DataAlts_Nil  = T_DataAlts (return st17) where
    rule92 = \  (_ :: ()) ->
                      {-# LINE 73 "src-ag/PrintCode.ag" #-}
                      []
-                     {-# LINE 909 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 909 "src-generated/PrintCode.hs" #-}
 
 -- Decl --------------------------------------------------------
 -- wrapper
@@ -976,7 +976,7 @@ sem_Decl_Decl arg_left_ arg_rhs_ _ _ = T_Decl (return st20) where
                                {-# LINE 106 "src-ag/PrintCode.ag" #-}
                                _leftIpp >#< "="
                                >-< indent 4 _rhsIpp
-                               {-# LINE 980 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 980 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule94 #-}
    rule94 = \ ((_lhsIisDeclOfLet) :: Bool) ->
      _lhsIisDeclOfLet
@@ -1026,7 +1026,7 @@ sem_Decl_Bind arg_left_ arg_rhs_ = T_Decl (return st20) where
    rule101 = \ ((_leftIpp) :: PP_Doc) ((_rhsIpp) :: PP_Doc) ->
                                {-# LINE 108 "src-ag/PrintCode.ag" #-}
                                _leftIpp >#< "<-" >#< _rhsIpp
-                               {-# LINE 1030 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1030 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule102 #-}
    rule102 = \ ((_lhsIisDeclOfLet) :: Bool) ->
      _lhsIisDeclOfLet
@@ -1076,7 +1076,7 @@ sem_Decl_BindLet arg_left_ arg_rhs_ = T_Decl (return st20) where
    rule109 = \ ((_leftIpp) :: PP_Doc) ((_rhsIpp) :: PP_Doc) ->
                                {-# LINE 109 "src-ag/PrintCode.ag" #-}
                                "let" >#< _leftIpp >#< "=" >#< _rhsIpp
-                               {-# LINE 1080 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1080 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule110 #-}
    rule110 = \ ((_lhsIisDeclOfLet) :: Bool) ->
      _lhsIisDeclOfLet
@@ -1127,13 +1127,13 @@ sem_Decl_Data !arg_name_ !arg_params_ arg_alts_ !arg_strict_ !arg_derivings_ = T
                                               then empty
                                               else "deriving" >#< ppTuple False (map text derivings_)
                                     )
-                               {-# LINE 1131 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1131 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule118 #-}
    {-# LINE 325 "src-ag/PrintCode.ag" #-}
    rule118 = \ strict_ ->
                             {-# LINE 325 "src-ag/PrintCode.ag" #-}
                             if strict_ then pp "!" else empty
-                            {-# LINE 1137 "dist/build/PrintCode.hs"#-}
+                            {-# LINE 1137 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule119 #-}
    rule119 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1157,7 +1157,7 @@ sem_Decl_NewType !arg_name_ !arg_params_ !arg_con_ arg_tp_ = T_Decl (return st20
    rule120 = \ ((_tpIpp) :: PP_Doc) con_ name_ params_ ->
                                {-# LINE 119 "src-ag/PrintCode.ag" #-}
                                "newtype" >#< hv_sp (name_ : params_) >#< "=" >#< con_ >#< pp_parens _tpIpp
-                               {-# LINE 1161 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1161 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule121 #-}
    rule121 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1181,7 +1181,7 @@ sem_Decl_Type !arg_name_ !arg_params_ arg_tp_ = T_Decl (return st20) where
    rule122 = \ ((_tpIpp) :: PP_Doc) name_ params_ ->
                                {-# LINE 120 "src-ag/PrintCode.ag" #-}
                                "type" >#< hv_sp (name_ : params_) >#< "=" >#<  _tpIpp
-                               {-# LINE 1185 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1185 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule123 #-}
    rule123 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1205,7 +1205,7 @@ sem_Decl_TSig !arg_name_ arg_tp_ = T_Decl (return st20) where
    rule124 = \ ((_tpIpp) :: PP_Doc) name_ ->
                                {-# LINE 121 "src-ag/PrintCode.ag" #-}
                                name_ >#< "::" >#< _tpIpp
-                               {-# LINE 1209 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1209 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule125 #-}
    rule125 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1228,7 +1228,7 @@ sem_Decl_Comment !arg_txt_ = T_Decl (return st20) where
                                if '\n' `elem` txt_
                                  then "{-" >-< vlist (lines txt_) >-< "-}"
                                  else "--" >#< txt_
-                               {-# LINE 1232 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1232 "src-generated/PrintCode.hs" #-}
 {-# NOINLINE sem_Decl_PragmaDecl #-}
 sem_Decl_PragmaDecl :: (String) -> T_Decl 
 sem_Decl_PragmaDecl !arg_txt_ = T_Decl (return st20) where
@@ -1246,7 +1246,7 @@ sem_Decl_PragmaDecl !arg_txt_ = T_Decl (return st20) where
    rule127 = \ txt_ ->
                                {-# LINE 125 "src-ag/PrintCode.ag" #-}
                                "{-#" >#< text txt_ >#< "#-}"
-                               {-# LINE 1250 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1250 "src-generated/PrintCode.hs" #-}
 {-# NOINLINE sem_Decl_Resume #-}
 sem_Decl_Resume :: (Bool) -> (String) -> T_Lhs  -> T_Expr  -> T_Decl 
 sem_Decl_Resume !arg_monadic_ _ arg_left_ arg_rhs_ = T_Decl (return st20) where
@@ -1277,7 +1277,7 @@ sem_Decl_Resume !arg_monadic_ _ arg_left_ arg_rhs_ = T_Decl (return st20) where
                                if monadic_
                                then _leftIpp >#< "<-" >#< _rhsIpp
                                else _leftIpp >#< "=" >-< indent 4 _rhsIpp
-                               {-# LINE 1281 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1281 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule129 #-}
    rule129 = \ ((_lhsIisDeclOfLet) :: Bool) ->
      _lhsIisDeclOfLet
@@ -1330,7 +1330,7 @@ sem_Decl_EvalDecl !arg_nt_ arg_left_ arg_rhs_ = T_Decl (return st20) where
                                if breadthFirstStrict _lhsIoptions
                                then "stepwiseEval"
                                else "lazyEval"
-                               {-# LINE 1334 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1334 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule137 #-}
    {-# LINE 132 "src-ag/PrintCode.ag" #-}
    rule137 = \ ((_leftIpp) :: PP_Doc) ((_lhsIoptions) :: Options) ((_rhsIpp) :: PP_Doc) _strat nt_ ->
@@ -1341,7 +1341,7 @@ sem_Decl_EvalDecl !arg_nt_ arg_left_ arg_rhs_ = T_Decl (return st20) where
                                       pp_parens (nt_ >|< "_Syn" >#< "_val") >#< "-> _val"
                                     )
                                else _leftIpp >#< "=" >#< _rhsIpp
-                               {-# LINE 1345 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1345 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule138 #-}
    rule138 = \ ((_lhsIisDeclOfLet) :: Bool) ->
      _lhsIisDeclOfLet
@@ -1423,7 +1423,7 @@ sem_Decls_Cons arg_hd_ arg_tl_ = T_Decls (return st23) where
    rule145 = \ ((_hdIpp) :: PP_Doc) ((_tlIpps) :: PP_Docs) ->
                      {-# LINE 84 "src-ag/PrintCode.ag" #-}
                      _hdIpp : _tlIpps
-                     {-# LINE 1427 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 1427 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule146 #-}
    rule146 = \ ((_lhsIisDeclOfLet) :: Bool) ->
      _lhsIisDeclOfLet
@@ -1465,7 +1465,7 @@ sem_Decls_Nil  = T_Decls (return st23) where
    rule154 = \  (_ :: ()) ->
                      {-# LINE 85 "src-ag/PrintCode.ag" #-}
                      []
-                     {-# LINE 1469 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 1469 "src-generated/PrintCode.hs" #-}
 
 -- Expr --------------------------------------------------------
 -- wrapper
@@ -1543,13 +1543,13 @@ sem_Expr_Let arg_decls_ arg_body_ = T_Expr (return st26) where
                                pp_parens (    "let" >#< (vlist _declsIpps)
                                          >-< "in " >#< _bodyIpp
                                          )
-                               {-# LINE 1547 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1547 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule156 #-}
    {-# LINE 420 "src-ag/PrintCode.ag" #-}
    rule156 = \  (_ :: ()) ->
                             {-# LINE 420 "src-ag/PrintCode.ag" #-}
                             True
-                            {-# LINE 1553 "dist/build/PrintCode.hs"#-}
+                            {-# LINE 1553 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule157 #-}
    rule157 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1597,7 +1597,7 @@ sem_Expr_Case arg_expr_ arg_alts_ = T_Expr (return st26) where
                                pp_parens (    "case" >#< pp_parens _exprIpp >#< "of"
                                          >-< (vlist _altsIpps)
                                          )
-                               {-# LINE 1601 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1601 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule164 #-}
    rule164 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1646,13 +1646,13 @@ sem_Expr_Do arg_stmts_ arg_body_ = T_Expr (return st26) where
                                pp_parens ( "do" >#< (   vlist _stmtsIpps
                                                     >-< ("return" >#< _bodyIpp))
                                          )
-                               {-# LINE 1650 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1650 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule171 #-}
    {-# LINE 422 "src-ag/PrintCode.ag" #-}
    rule171 = \  (_ :: ()) ->
                             {-# LINE 422 "src-ag/PrintCode.ag" #-}
                             False
-                            {-# LINE 1656 "dist/build/PrintCode.hs"#-}
+                            {-# LINE 1656 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule172 #-}
    rule172 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1702,7 +1702,7 @@ sem_Expr_Lambda arg_args_ arg_body_ = T_Expr (return st26) where
                                     if strictSems _lhsIoptions
                                     then _argsIpps
                                     else []
-                                    {-# LINE 1706 "dist/build/PrintCode.hs"#-}
+                                    {-# LINE 1706 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule179 #-}
    {-# LINE 152 "src-ag/PrintCode.ag" #-}
    rule179 = \ ((_lhsIoptions) :: Options) ->
@@ -1710,7 +1710,7 @@ sem_Expr_Lambda arg_args_ arg_body_ = T_Expr (return st26) where
                                if bangpats _lhsIoptions
                                then \p -> pp_parens ("!" >|< p)
                                else id
-                               {-# LINE 1714 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1714 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule180 #-}
    {-# LINE 155 "src-ag/PrintCode.ag" #-}
    rule180 = \ _addBang ((_argsIpps) :: PP_Docs) ((_bodyIpp) :: PP_Doc) _strictParams ->
@@ -1718,7 +1718,7 @@ sem_Expr_Lambda arg_args_ arg_body_ = T_Expr (return st26) where
                                pp_parens (    "\\" >#< (vlist (map _addBang     _argsIpps)) >#< "->"
                                          >-< indent 4 (_strictParams     `ppMultiSeqV` _bodyIpp)
                                          )
-                               {-# LINE 1722 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1722 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule181 #-}
    rule181 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1759,7 +1759,7 @@ sem_Expr_TupleExpr arg_exprs_ = T_Expr (return st26) where
    rule187 = \ ((_exprsIpps) :: PP_Docs) ((_lhsInested) :: Bool) ->
                                {-# LINE 158 "src-ag/PrintCode.ag" #-}
                                ppTuple _lhsInested _exprsIpps
-                               {-# LINE 1763 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1763 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule188 #-}
    rule188 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1791,7 +1791,7 @@ sem_Expr_UnboxedTupleExpr arg_exprs_ = T_Expr (return st26) where
    rule191 = \ ((_exprsIpps) :: PP_Docs) ((_lhsInested) :: Bool) ->
                                       {-# LINE 159 "src-ag/PrintCode.ag" #-}
                                       ppUnboxedTuple _lhsInested _exprsIpps
-                                      {-# LINE 1795 "dist/build/PrintCode.hs"#-}
+                                      {-# LINE 1795 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule192 #-}
    rule192 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1823,7 +1823,7 @@ sem_Expr_App !arg_name_ arg_args_ = T_Expr (return st26) where
    rule195 = \ ((_argsIpps) :: PP_Docs) name_ ->
                                {-# LINE 160 "src-ag/PrintCode.ag" #-}
                                pp_parens $ name_ >#< hv_sp _argsIpps
-                               {-# LINE 1827 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1827 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule196 #-}
    rule196 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1850,7 +1850,7 @@ sem_Expr_SimpleExpr !arg_txt_ = T_Expr (return st26) where
    rule199 = \ txt_ ->
                                {-# LINE 161 "src-ag/PrintCode.ag" #-}
                                text txt_
-                               {-# LINE 1854 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1854 "src-generated/PrintCode.hs" #-}
 {-# NOINLINE sem_Expr_TextExpr #-}
 sem_Expr_TextExpr :: ([String]) -> T_Expr 
 sem_Expr_TextExpr !arg_lns_ = T_Expr (return st26) where
@@ -1868,7 +1868,7 @@ sem_Expr_TextExpr !arg_lns_ = T_Expr (return st26) where
    rule200 = \ lns_ ->
                                {-# LINE 162 "src-ag/PrintCode.ag" #-}
                                vlist (map text lns_)
-                               {-# LINE 1872 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1872 "src-generated/PrintCode.hs" #-}
 {-# NOINLINE sem_Expr_Trace #-}
 sem_Expr_Trace :: (String) -> T_Expr  -> T_Expr 
 sem_Expr_Trace !arg_txt_ arg_expr_ = T_Expr (return st26) where
@@ -1893,7 +1893,7 @@ sem_Expr_Trace !arg_txt_ arg_expr_ = T_Expr (return st26) where
                                "trace" >#< (   pp_parens ("\"" >|< text txt_ >|< "\"")
                                            >-< pp_parens _exprIpp
                                            )
-                               {-# LINE 1897 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1897 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule202 #-}
    rule202 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1935,7 +1935,7 @@ sem_Expr_PragmaExpr !arg_onLeftSide_ !arg_onNewLine_ !arg_txt_ arg_expr_ = T_Exp
                                                  then x
                                                  else x `op` y
                                in pp_parens (pragmaDoc `leftOp` _exprIpp `rightOp` pragmaDoc)
-                               {-# LINE 1939 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1939 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule206 #-}
    rule206 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -1968,7 +1968,7 @@ sem_Expr_LineExpr arg_expr_ = T_Expr (return st26) where
                                {-# LINE 177 "src-ag/PrintCode.ag" #-}
                                _exprIpp >-< "{-# LINE" >#< ppWithLineNr (\n -> pp $ show $ n + 1) >#< show _lhsIoutputfile >#< "#-}"
                                         >-< ""
-                               {-# LINE 1972 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 1972 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule210 #-}
    rule210 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -2003,7 +2003,7 @@ sem_Expr_TypedExpr arg_expr_ arg_tp_ = T_Expr (return st26) where
    rule213 = \ ((_exprIpp) :: PP_Doc) ((_tpIpp) :: PP_Doc) ->
                                {-# LINE 179 "src-ag/PrintCode.ag" #-}
                                pp_parens (_exprIpp >#< "::" >#< _tpIpp)
-                               {-# LINE 2007 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 2007 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule214 #-}
    rule214 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -2041,7 +2041,7 @@ sem_Expr_ResultExpr !arg_nt_ arg_expr_ = T_Expr (return st26) where
                                then "final" >#<
                                     pp_parens (nt_ >|< "_Syn" >#< pp_parens _exprIpp)
                                else _exprIpp
-                               {-# LINE 2045 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 2045 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule219 #-}
    rule219 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -2081,7 +2081,7 @@ sem_Expr_InvokeExpr !arg_nt_ arg_expr_ arg_args_ = T_Expr (return st26) where
                                then "invoke" >#< pp_parens _exprIpp >#< pp_parens (
                                      nt_ >|< "_Inh" >#< pp_parens (ppTuple False _argsIpps))
                                else _exprIpp >#< hv_sp _argsIpps
-                               {-# LINE 2085 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 2085 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule223 #-}
    rule223 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -2144,13 +2144,13 @@ sem_Expr_ResumeExpr !arg_nt_ arg_expr_ arg_left_ arg_rhs_ = T_Expr (return st26)
                                               >-< ("{" >#< _leftIpp >#< "->")
                                               >-< indent 4 (_rhsIpp >#< "}")
                                               )
-                               {-# LINE 2148 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 2148 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule230 #-}
    {-# LINE 424 "src-ag/PrintCode.ag" #-}
    rule230 = \  (_ :: ()) ->
                            {-# LINE 424 "src-ag/PrintCode.ag" #-}
                            False
-                           {-# LINE 2154 "dist/build/PrintCode.hs"#-}
+                           {-# LINE 2154 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule231 #-}
    rule231 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -2209,7 +2209,7 @@ sem_Expr_SemFun !arg_nt_ arg_args_ arg_body_ = T_Expr (return st26) where
                                     if strictSems _lhsIoptions
                                     then _argsIpps
                                     else []
-                                    {-# LINE 2213 "dist/build/PrintCode.hs"#-}
+                                    {-# LINE 2213 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule241 #-}
    {-# LINE 203 "src-ag/PrintCode.ag" #-}
    rule241 = \ ((_lhsIoptions) :: Options) ->
@@ -2217,7 +2217,7 @@ sem_Expr_SemFun !arg_nt_ arg_args_ arg_body_ = T_Expr (return st26) where
                                if bangpats _lhsIoptions
                                then \p -> pp_parens ("!" >|< p)
                                else id
-                               {-# LINE 2221 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 2221 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule242 #-}
    {-# LINE 206 "src-ag/PrintCode.ag" #-}
    rule242 = \ _addBang ((_argsIpps) :: PP_Docs) ((_bodyIpp) :: PP_Doc) ((_lhsIoptions) :: Options) _strictParams nt_ ->
@@ -2232,7 +2232,7 @@ sem_Expr_SemFun !arg_nt_ arg_args_ arg_body_ = T_Expr (return st26) where
                                     else pp_parens (    "\\" >#< (vlist (map _addBang     _argsIpps)) >#< "->"
                                                    >-< indent 4 (_strictParams     `ppMultiSeqV` _bodyIpp)
                                                    )
-                               {-# LINE 2236 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 2236 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule243 #-}
    rule243 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -2309,7 +2309,7 @@ sem_Exprs_Cons arg_hd_ arg_tl_ = T_Exprs (return st29) where
    rule249 = \ ((_hdIpp) :: PP_Doc) ((_tlIpps) :: PP_Docs) ->
                      {-# LINE 64 "src-ag/PrintCode.ag" #-}
                      _hdIpp : _tlIpps
-                     {-# LINE 2313 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 2313 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule250 #-}
    rule250 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -2345,7 +2345,7 @@ sem_Exprs_Nil  = T_Exprs (return st29) where
    rule256 = \  (_ :: ()) ->
                      {-# LINE 65 "src-ag/PrintCode.ag" #-}
                      []
-                     {-# LINE 2349 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 2349 "src-generated/PrintCode.hs" #-}
 
 -- Lhs ---------------------------------------------------------
 -- wrapper
@@ -2407,31 +2407,31 @@ sem_Lhs_Pattern3 arg_pat3_ = T_Lhs (return st32) where
    rule257 = \ _hasStrictVars ((_lhsIoptions) :: Options) _strictGuard ->
                              {-# LINE 231 "src-ag/PrintCode.ag" #-}
                              if strictCases _lhsIoptions && _hasStrictVars     then \v -> v >#< "|" >#< _strictGuard     else id
-                             {-# LINE 2411 "dist/build/PrintCode.hs"#-}
+                             {-# LINE 2411 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule258 #-}
    {-# LINE 233 "src-ag/PrintCode.ag" #-}
    rule258 = \ ((_pat3IstrictVars) :: [PP_Doc]) ->
                           {-# LINE 233 "src-ag/PrintCode.ag" #-}
                           _pat3IstrictVars `ppMultiSeqH` (pp "True")
-                          {-# LINE 2417 "dist/build/PrintCode.hs"#-}
+                          {-# LINE 2417 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule259 #-}
    {-# LINE 234 "src-ag/PrintCode.ag" #-}
    rule259 = \ ((_pat3IstrictVars) :: [PP_Doc]) ->
                             {-# LINE 234 "src-ag/PrintCode.ag" #-}
                             not (null _pat3IstrictVars)
-                            {-# LINE 2423 "dist/build/PrintCode.hs"#-}
+                            {-# LINE 2423 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule260 #-}
    {-# LINE 251 "src-ag/PrintCode.ag" #-}
    rule260 = \ _addStrictGuard ((_pat3Ipp) :: PP_Doc) ->
                                {-# LINE 251 "src-ag/PrintCode.ag" #-}
                                _addStrictGuard     _pat3Ipp
-                               {-# LINE 2429 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 2429 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule261 #-}
    {-# LINE 385 "src-ag/PrintCode.ag" #-}
    rule261 = \  (_ :: ()) ->
                                 {-# LINE 385 "src-ag/PrintCode.ag" #-}
                                 False
-                                {-# LINE 2435 "dist/build/PrintCode.hs"#-}
+                                {-# LINE 2435 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule262 #-}
    rule262 = \ ((_lhsIisDeclOfLet) :: Bool) ->
      _lhsIisDeclOfLet
@@ -2460,13 +2460,13 @@ sem_Lhs_Pattern3SM arg_pat3_ = T_Lhs (return st32) where
    rule264 = \ ((_pat3Ipp') :: PP_Doc) ->
                                {-# LINE 252 "src-ag/PrintCode.ag" #-}
                                _pat3Ipp'
-                               {-# LINE 2464 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 2464 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule265 #-}
    {-# LINE 385 "src-ag/PrintCode.ag" #-}
    rule265 = \  (_ :: ()) ->
                                 {-# LINE 385 "src-ag/PrintCode.ag" #-}
                                 False
-                                {-# LINE 2470 "dist/build/PrintCode.hs"#-}
+                                {-# LINE 2470 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule266 #-}
    rule266 = \ ((_lhsIisDeclOfLet) :: Bool) ->
      _lhsIisDeclOfLet
@@ -2494,7 +2494,7 @@ sem_Lhs_TupleLhs !arg_comps_ = T_Lhs (return st32) where
    rule268 = \ _hasStrictVars ((_lhsIoptions) :: Options) _strictGuard ->
                              {-# LINE 231 "src-ag/PrintCode.ag" #-}
                              if strictCases _lhsIoptions && _hasStrictVars     then \v -> v >#< "|" >#< _strictGuard     else id
-                             {-# LINE 2498 "dist/build/PrintCode.hs"#-}
+                             {-# LINE 2498 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule269 #-}
    {-# LINE 236 "src-ag/PrintCode.ag" #-}
    rule269 = \ ((_lhsIisDeclOfLet) :: Bool) ((_lhsIoptions) :: Options) comps_ ->
@@ -2502,13 +2502,13 @@ sem_Lhs_TupleLhs !arg_comps_ = T_Lhs (return st32) where
                           if stricterCases _lhsIoptions && not _lhsIisDeclOfLet
                           then map text comps_ `ppMultiSeqH` (pp "True")
                           else pp "True"
-                          {-# LINE 2506 "dist/build/PrintCode.hs"#-}
+                          {-# LINE 2506 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule270 #-}
    {-# LINE 239 "src-ag/PrintCode.ag" #-}
    rule270 = \ comps_ ->
                             {-# LINE 239 "src-ag/PrintCode.ag" #-}
                             not (null comps_)
-                            {-# LINE 2512 "dist/build/PrintCode.hs"#-}
+                            {-# LINE 2512 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule271 #-}
    {-# LINE 247 "src-ag/PrintCode.ag" #-}
    rule271 = \ ((_lhsIoptions) :: Options) ->
@@ -2516,13 +2516,13 @@ sem_Lhs_TupleLhs !arg_comps_ = T_Lhs (return st32) where
                       if bangpats _lhsIoptions
                                then \p -> "!" >|< p
                                else id
-                      {-# LINE 2520 "dist/build/PrintCode.hs"#-}
+                      {-# LINE 2520 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule272 #-}
    {-# LINE 253 "src-ag/PrintCode.ag" #-}
    rule272 = \ _addBang _addStrictGuard ((_lhsInested) :: Bool) comps_ ->
                                {-# LINE 253 "src-ag/PrintCode.ag" #-}
                                _addStrictGuard     $ ppTuple _lhsInested (map (_addBang     . text) comps_)
-                               {-# LINE 2526 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 2526 "src-generated/PrintCode.hs" #-}
 {-# NOINLINE sem_Lhs_UnboxedTupleLhs #-}
 sem_Lhs_UnboxedTupleLhs :: ([String]) -> T_Lhs 
 sem_Lhs_UnboxedTupleLhs !arg_comps_ = T_Lhs (return st32) where
@@ -2544,7 +2544,7 @@ sem_Lhs_UnboxedTupleLhs !arg_comps_ = T_Lhs (return st32) where
    rule273 = \ _hasStrictVars ((_lhsIoptions) :: Options) _strictGuard ->
                              {-# LINE 231 "src-ag/PrintCode.ag" #-}
                              if strictCases _lhsIoptions && _hasStrictVars     then \v -> v >#< "|" >#< _strictGuard     else id
-                             {-# LINE 2548 "dist/build/PrintCode.hs"#-}
+                             {-# LINE 2548 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule274 #-}
    {-# LINE 236 "src-ag/PrintCode.ag" #-}
    rule274 = \ ((_lhsIisDeclOfLet) :: Bool) ((_lhsIoptions) :: Options) comps_ ->
@@ -2552,13 +2552,13 @@ sem_Lhs_UnboxedTupleLhs !arg_comps_ = T_Lhs (return st32) where
                           if stricterCases _lhsIoptions && not _lhsIisDeclOfLet
                           then map text comps_ `ppMultiSeqH` (pp "True")
                           else pp "True"
-                          {-# LINE 2556 "dist/build/PrintCode.hs"#-}
+                          {-# LINE 2556 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule275 #-}
    {-# LINE 239 "src-ag/PrintCode.ag" #-}
    rule275 = \ comps_ ->
                             {-# LINE 239 "src-ag/PrintCode.ag" #-}
                             not (null comps_)
-                            {-# LINE 2562 "dist/build/PrintCode.hs"#-}
+                            {-# LINE 2562 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule276 #-}
    {-# LINE 247 "src-ag/PrintCode.ag" #-}
    rule276 = \ ((_lhsIoptions) :: Options) ->
@@ -2566,13 +2566,13 @@ sem_Lhs_UnboxedTupleLhs !arg_comps_ = T_Lhs (return st32) where
                       if bangpats _lhsIoptions
                                then \p -> "!" >|< p
                                else id
-                      {-# LINE 2570 "dist/build/PrintCode.hs"#-}
+                      {-# LINE 2570 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule277 #-}
    {-# LINE 254 "src-ag/PrintCode.ag" #-}
    rule277 = \ _addBang _addStrictGuard ((_lhsInested) :: Bool) comps_ ->
                                       {-# LINE 254 "src-ag/PrintCode.ag" #-}
                                       _addStrictGuard     $ ppUnboxedTuple _lhsInested (map (_addBang     . text) comps_)
-                                      {-# LINE 2576 "dist/build/PrintCode.hs"#-}
+                                      {-# LINE 2576 "src-generated/PrintCode.hs" #-}
 {-# NOINLINE sem_Lhs_Fun #-}
 sem_Lhs_Fun :: (String) -> T_Exprs  -> T_Lhs 
 sem_Lhs_Fun !arg_name_ arg_args_ = T_Lhs (return st32) where
@@ -2599,19 +2599,19 @@ sem_Lhs_Fun !arg_name_ arg_args_ = T_Lhs (return st32) where
    rule278 = \ _hasStrictVars ((_lhsIoptions) :: Options) _strictGuard ->
                              {-# LINE 242 "src-ag/PrintCode.ag" #-}
                              if strictSems _lhsIoptions && _hasStrictVars     then \v -> v >#< "|" >#< _strictGuard     else id
-                             {-# LINE 2603 "dist/build/PrintCode.hs"#-}
+                             {-# LINE 2603 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule279 #-}
    {-# LINE 243 "src-ag/PrintCode.ag" #-}
    rule279 = \ ((_argsIpps) :: PP_Docs) ->
                              {-# LINE 243 "src-ag/PrintCode.ag" #-}
                              not (null _argsIpps)
-                             {-# LINE 2609 "dist/build/PrintCode.hs"#-}
+                             {-# LINE 2609 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule280 #-}
    {-# LINE 244 "src-ag/PrintCode.ag" #-}
    rule280 = \ ((_argsIpps) :: PP_Docs) ->
                              {-# LINE 244 "src-ag/PrintCode.ag" #-}
                              _argsIpps `ppMultiSeqH` (pp "True")
-                             {-# LINE 2615 "dist/build/PrintCode.hs"#-}
+                             {-# LINE 2615 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule281 #-}
    {-# LINE 247 "src-ag/PrintCode.ag" #-}
    rule281 = \ ((_lhsIoptions) :: Options) ->
@@ -2619,13 +2619,13 @@ sem_Lhs_Fun !arg_name_ arg_args_ = T_Lhs (return st32) where
                       if bangpats _lhsIoptions
                                then \p -> "!" >|< p
                                else id
-                      {-# LINE 2623 "dist/build/PrintCode.hs"#-}
+                      {-# LINE 2623 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule282 #-}
    {-# LINE 255 "src-ag/PrintCode.ag" #-}
    rule282 = \ _addBang _addStrictGuard ((_argsIpps) :: PP_Docs) name_ ->
                                {-# LINE 255 "src-ag/PrintCode.ag" #-}
                                _addStrictGuard     (name_ >#< hv_sp (map _addBang     _argsIpps))
-                               {-# LINE 2629 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 2629 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule283 #-}
    rule283 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -2658,7 +2658,7 @@ sem_Lhs_Unwrap !arg_name_ arg_sub_ = T_Lhs (return st32) where
    rule286 = \ ((_subIpp) :: PP_Doc) name_ ->
                                {-# LINE 256 "src-ag/PrintCode.ag" #-}
                                pp_parens (name_ >#< _subIpp)
-                               {-# LINE 2662 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 2662 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule287 #-}
    rule287 = \ ((_lhsIisDeclOfLet) :: Bool) ->
      _lhsIisDeclOfLet
@@ -2724,7 +2724,7 @@ sem_NamedType_Named !arg_strict_ !arg_name_ arg_tp_ = T_NamedType (return st35) 
                                if strict_
                                then name_ >#< "::" >#< "!" >|< pp_parens _tpIpp
                                else name_ >#< "::" >#< _tpIpp
-                               {-# LINE 2728 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 2728 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule292 #-}
    rule292 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -2782,7 +2782,7 @@ sem_NamedTypes_Cons arg_hd_ arg_tl_ = T_NamedTypes (return st38) where
    rule293 = \ ((_hdIpp) :: PP_Doc) ((_tlIpps) :: PP_Docs) ->
                      {-# LINE 80 "src-ag/PrintCode.ag" #-}
                      _hdIpp : _tlIpps
-                     {-# LINE 2786 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 2786 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule294 #-}
    rule294 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -2806,7 +2806,7 @@ sem_NamedTypes_Nil  = T_NamedTypes (return st38) where
    rule296 = \  (_ :: ()) ->
                      {-# LINE 81 "src-ag/PrintCode.ag" #-}
                      []
-                     {-# LINE 2810 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 2810 "src-generated/PrintCode.hs" #-}
 
 -- Pattern -----------------------------------------------------
 -- wrapper
@@ -2876,25 +2876,25 @@ sem_Pattern_Constr !arg_name_ arg_pats_ = T_Pattern (return st41) where
                       if bangpats _lhsIoptions && not _lhsIisDeclOfLet && not _lhsIbelowIrrefutable
                       then \p -> "!" >|< p
                       else id
-                      {-# LINE 2880 "dist/build/PrintCode.hs"#-}
+                      {-# LINE 2880 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule298 #-}
    {-# LINE 362 "src-ag/PrintCode.ag" #-}
    rule298 = \ _addBang ((_patsIpps) :: [PP_Doc]) name_ ->
                            {-# LINE 362 "src-ag/PrintCode.ag" #-}
                            _addBang     $ pp_parens $ name_ >#< hv_sp _patsIpps
-                           {-# LINE 2886 "dist/build/PrintCode.hs"#-}
+                           {-# LINE 2886 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule299 #-}
    {-# LINE 373 "src-ag/PrintCode.ag" #-}
    rule299 = \  (_ :: ()) ->
                                     {-# LINE 373 "src-ag/PrintCode.ag" #-}
                                     False
-                                    {-# LINE 2892 "dist/build/PrintCode.hs"#-}
+                                    {-# LINE 2892 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule300 #-}
    {-# LINE 396 "src-ag/PrintCode.ag" #-}
    rule300 = \ ((_patsIpps') :: [PP_Doc]) name_ ->
                             {-# LINE 396 "src-ag/PrintCode.ag" #-}
                             pp_parens $ name_ >#< hv_sp (map pp_parens _patsIpps')
-                            {-# LINE 2898 "dist/build/PrintCode.hs"#-}
+                            {-# LINE 2898 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule301 #-}
    rule301 = \ ((_patsIstrictVars) :: [PP_Doc]) ->
      _patsIstrictVars
@@ -2947,25 +2947,25 @@ sem_Pattern_Product !arg_pos_ arg_pats_ = T_Pattern (return st41) where
                       if bangpats _lhsIoptions && not _lhsIisDeclOfLet && not _lhsIbelowIrrefutable
                       then \p -> "!" >|< p
                       else id
-                      {-# LINE 2951 "dist/build/PrintCode.hs"#-}
+                      {-# LINE 2951 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule308 #-}
    {-# LINE 363 "src-ag/PrintCode.ag" #-}
    rule308 = \ _addBang ((_patsIpps) :: [PP_Doc]) ->
                            {-# LINE 363 "src-ag/PrintCode.ag" #-}
                            _addBang     $ pp_block "(" ")" "," _patsIpps
-                           {-# LINE 2957 "dist/build/PrintCode.hs"#-}
+                           {-# LINE 2957 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule309 #-}
    {-# LINE 374 "src-ag/PrintCode.ag" #-}
    rule309 = \  (_ :: ()) ->
                                     {-# LINE 374 "src-ag/PrintCode.ag" #-}
                                     False
-                                    {-# LINE 2963 "dist/build/PrintCode.hs"#-}
+                                    {-# LINE 2963 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule310 #-}
    {-# LINE 397 "src-ag/PrintCode.ag" #-}
    rule310 = \ ((_patsIpps') :: [PP_Doc]) ->
                             {-# LINE 397 "src-ag/PrintCode.ag" #-}
                             pp_block "(" ")" "," _patsIpps'
-                            {-# LINE 2969 "dist/build/PrintCode.hs"#-}
+                            {-# LINE 2969 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule311 #-}
    rule311 = \ ((_patsIstrictVars) :: [PP_Doc]) ->
      _patsIstrictVars
@@ -3022,7 +3022,7 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st41) wher
             if strictCases _lhsIoptions && not _lhsIisDeclOfLet
             then [_ppVar    ]
             else []
-            {-# LINE 3026 "dist/build/PrintCode.hs"#-}
+            {-# LINE 3026 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule318 #-}
    {-# LINE 339 "src-ag/PrintCode.ag" #-}
    rule318 = \ ((_lhsIisDeclOfLet) :: Bool) ((_lhsIoptions) :: Options) ((_patIstrictVars) :: [PP_Doc]) ->
@@ -3030,13 +3030,13 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st41) wher
             if stricterCases _lhsIoptions && not _lhsIisDeclOfLet
             then _patIstrictVars
             else []
-            {-# LINE 3034 "dist/build/PrintCode.hs"#-}
+            {-# LINE 3034 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule319 #-}
    {-# LINE 343 "src-ag/PrintCode.ag" #-}
    rule319 = \ _strictPatVars _strictVar ->
             {-# LINE 343 "src-ag/PrintCode.ag" #-}
             _strictVar     ++ _strictPatVars
-            {-# LINE 3040 "dist/build/PrintCode.hs"#-}
+            {-# LINE 3040 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule320 #-}
    {-# LINE 357 "src-ag/PrintCode.ag" #-}
    rule320 = \ ((_lhsIbelowIrrefutable) :: Bool) ((_lhsIisDeclOfLet) :: Bool) ((_lhsIoptions) :: Options) ->
@@ -3044,19 +3044,19 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st41) wher
                       if bangpats _lhsIoptions && not _lhsIisDeclOfLet && not _lhsIbelowIrrefutable
                       then \p -> "!" >|< p
                       else id
-                      {-# LINE 3048 "dist/build/PrintCode.hs"#-}
+                      {-# LINE 3048 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule321 #-}
    {-# LINE 364 "src-ag/PrintCode.ag" #-}
    rule321 = \ ((_lhsIoptions) :: Options) attr_ field_ ->
                            {-# LINE 364 "src-ag/PrintCode.ag" #-}
                            pp (attrname _lhsIoptions False field_ attr_)
-                           {-# LINE 3054 "dist/build/PrintCode.hs"#-}
+                           {-# LINE 3054 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule322 #-}
    {-# LINE 365 "src-ag/PrintCode.ag" #-}
    rule322 = \ _addBang _ppVar ->
                               {-# LINE 365 "src-ag/PrintCode.ag" #-}
                               _addBang     $ _ppVar
-                              {-# LINE 3060 "dist/build/PrintCode.hs"#-}
+                              {-# LINE 3060 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule323 #-}
    {-# LINE 366 "src-ag/PrintCode.ag" #-}
    rule323 = \ ((_patIisUnderscore) :: Bool) ((_patIpp) :: PP_Doc) _ppVarBang ->
@@ -3064,13 +3064,13 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st41) wher
                            if _patIisUnderscore
                             then _ppVarBang
                             else _ppVarBang     >|< "@" >|< _patIpp
-                           {-# LINE 3068 "dist/build/PrintCode.hs"#-}
+                           {-# LINE 3068 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule324 #-}
    {-# LINE 375 "src-ag/PrintCode.ag" #-}
    rule324 = \  (_ :: ()) ->
                                     {-# LINE 375 "src-ag/PrintCode.ag" #-}
                                     False
-                                    {-# LINE 3074 "dist/build/PrintCode.hs"#-}
+                                    {-# LINE 3074 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule325 #-}
    {-# LINE 398 "src-ag/PrintCode.ag" #-}
    rule325 = \ ((_lhsIoptions) :: Options) ((_patIpp') :: PP_Doc) attr_ field_ ->
@@ -3078,7 +3078,7 @@ sem_Pattern_Alias !arg_field_ !arg_attr_ arg_pat_ = T_Pattern (return st41) wher
                             let attribute | field_ == _LOC || field_ == nullIdent = locname' attr_
                                           | otherwise                             = attrname _lhsIoptions False field_ attr_
                             in attribute >|< "@" >|< _patIpp'
-                            {-# LINE 3082 "dist/build/PrintCode.hs"#-}
+                            {-# LINE 3082 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule326 #-}
    rule326 = \ ((_patIcopy) :: Pattern) attr_ field_ ->
      Alias field_ attr_ _patIcopy
@@ -3125,25 +3125,25 @@ sem_Pattern_Irrefutable arg_pat_ = T_Pattern (return st41) where
    rule331 = \  (_ :: ()) ->
                          {-# LINE 345 "src-ag/PrintCode.ag" #-}
                          []
-                         {-# LINE 3129 "dist/build/PrintCode.hs"#-}
+                         {-# LINE 3129 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule332 #-}
    {-# LINE 369 "src-ag/PrintCode.ag" #-}
    rule332 = \ ((_patIpp) :: PP_Doc) ->
                            {-# LINE 369 "src-ag/PrintCode.ag" #-}
                            text "~" >|< pp_parens _patIpp
-                           {-# LINE 3135 "dist/build/PrintCode.hs"#-}
+                           {-# LINE 3135 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule333 #-}
    {-# LINE 381 "src-ag/PrintCode.ag" #-}
    rule333 = \  (_ :: ()) ->
                                {-# LINE 381 "src-ag/PrintCode.ag" #-}
                                True
-                               {-# LINE 3141 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3141 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule334 #-}
    {-# LINE 401 "src-ag/PrintCode.ag" #-}
    rule334 = \ ((_patIpp) :: PP_Doc) ->
                             {-# LINE 401 "src-ag/PrintCode.ag" #-}
                             text "~" >|< pp_parens _patIpp
-                            {-# LINE 3147 "dist/build/PrintCode.hs"#-}
+                            {-# LINE 3147 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule335 #-}
    rule335 = \ ((_patIcopy) :: Pattern) ->
      Irrefutable _patIcopy
@@ -3185,19 +3185,19 @@ sem_Pattern_Underscore !arg_pos_ = T_Pattern (return st41) where
    rule340 = \  (_ :: ()) ->
                            {-# LINE 370 "src-ag/PrintCode.ag" #-}
                            text "_"
-                           {-# LINE 3189 "dist/build/PrintCode.hs"#-}
+                           {-# LINE 3189 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule341 #-}
    {-# LINE 376 "src-ag/PrintCode.ag" #-}
    rule341 = \  (_ :: ()) ->
                                     {-# LINE 376 "src-ag/PrintCode.ag" #-}
                                     True
-                                    {-# LINE 3195 "dist/build/PrintCode.hs"#-}
+                                    {-# LINE 3195 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule342 #-}
    {-# LINE 402 "src-ag/PrintCode.ag" #-}
    rule342 = \  (_ :: ()) ->
                             {-# LINE 402 "src-ag/PrintCode.ag" #-}
                             text "_"
-                            {-# LINE 3201 "dist/build/PrintCode.hs"#-}
+                            {-# LINE 3201 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule343 #-}
    rule343 = \  (_ :: ()) ->
      []
@@ -3272,13 +3272,13 @@ sem_Patterns_Cons arg_hd_ arg_tl_ = T_Patterns (return st44) where
    rule346 = \ ((_hdIpp) :: PP_Doc) ((_tlIpps) :: [PP_Doc]) ->
                      {-# LINE 352 "src-ag/PrintCode.ag" #-}
                      _hdIpp : _tlIpps
-                     {-# LINE 3276 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 3276 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule347 #-}
    {-# LINE 392 "src-ag/PrintCode.ag" #-}
    rule347 = \ ((_hdIpp') :: PP_Doc) ((_tlIpps') :: [PP_Doc]) ->
                       {-# LINE 392 "src-ag/PrintCode.ag" #-}
                       _hdIpp' : _tlIpps'
-                      {-# LINE 3282 "dist/build/PrintCode.hs"#-}
+                      {-# LINE 3282 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule348 #-}
    rule348 = \ ((_hdIstrictVars) :: [PP_Doc]) ((_tlIstrictVars) :: [PP_Doc]) ->
      _hdIstrictVars ++ _tlIstrictVars
@@ -3330,13 +3330,13 @@ sem_Patterns_Nil  = T_Patterns (return st44) where
    rule357 = \  (_ :: ()) ->
                      {-# LINE 353 "src-ag/PrintCode.ag" #-}
                      []
-                     {-# LINE 3334 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 3334 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule358 #-}
    {-# LINE 393 "src-ag/PrintCode.ag" #-}
    rule358 = \  (_ :: ()) ->
                       {-# LINE 393 "src-ag/PrintCode.ag" #-}
                       []
-                      {-# LINE 3340 "dist/build/PrintCode.hs"#-}
+                      {-# LINE 3340 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule359 #-}
    rule359 = \  (_ :: ()) ->
      []
@@ -3414,31 +3414,31 @@ sem_Program_Program arg_chunks_ !arg_ordered_ = T_Program (return st47) where
    rule362 = \ ((_lhsIoptions) :: Options) ordered_ ->
                   {-# LINE 58 "src-ag/PrintCode.ag" #-}
                   _lhsIoptions { breadthFirst = breadthFirst _lhsIoptions && visit _lhsIoptions && cases _lhsIoptions && ordered_ }
-                  {-# LINE 3418 "dist/build/PrintCode.hs"#-}
+                  {-# LINE 3418 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule363 #-}
    {-# LINE 61 "src-ag/PrintCode.ag" #-}
    rule363 = \ ((_lhsIoptions) :: Options) ->
                               {-# LINE 61 "src-ag/PrintCode.ag" #-}
                               nest _lhsIoptions
-                              {-# LINE 3424 "dist/build/PrintCode.hs"#-}
+                              {-# LINE 3424 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule364 #-}
    {-# LINE 93 "src-ag/PrintCode.ag" #-}
    rule364 = \ ((_chunksIpps) :: PP_Docs) ->
                                {-# LINE 93 "src-ag/PrintCode.ag" #-}
                                _chunksIpps
-                               {-# LINE 3430 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3430 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule365 #-}
    {-# LINE 416 "src-ag/PrintCode.ag" #-}
    rule365 = \  (_ :: ()) ->
                              {-# LINE 416 "src-ag/PrintCode.ag" #-}
                              False
-                             {-# LINE 3436 "dist/build/PrintCode.hs"#-}
+                             {-# LINE 3436 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule366 #-}
    {-# LINE 450 "src-ag/PrintCode.ag" #-}
    rule366 = \ ((_lhsImainFile) :: String) ->
                              {-# LINE 450 "src-ag/PrintCode.ag" #-}
                              _lhsImainFile
-                             {-# LINE 3442 "dist/build/PrintCode.hs"#-}
+                             {-# LINE 3442 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule367 #-}
    {-# LINE 452 "src-ag/PrintCode.ag" #-}
    rule367 = \ ((_chunksIappendMain) :: [[PP_Doc]]) ((_chunksIimports) :: [String]) ((_lhsImainBlocksDoc) :: PP_Doc) ((_lhsImainName) :: String) ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ((_lhsIoptionsLine) :: String) ((_lhsIpragmaBlocks) :: String) _mainModuleFile ->
@@ -3453,13 +3453,13 @@ sem_Program_Program arg_chunks_ !arg_ordered_ = T_Program (return st47) where
                 ++ map vlist _chunksIappendMain
                 ++ [_lhsImainBlocksDoc]
               )
-            {-# LINE 3457 "dist/build/PrintCode.hs"#-}
+            {-# LINE 3457 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule368 #-}
    {-# LINE 463 "src-ag/PrintCode.ag" #-}
    rule368 = \ ((_lhsImainFile) :: String) ->
                          {-# LINE 463 "src-ag/PrintCode.ag" #-}
                          replaceBaseName _lhsImainFile (takeBaseName _lhsImainFile ++ "_common")
-                         {-# LINE 3463 "dist/build/PrintCode.hs"#-}
+                         {-# LINE 3463 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule369 #-}
    {-# LINE 465 "src-ag/PrintCode.ag" #-}
    rule369 = \ ((_chunksIappendCommon) :: [[PP_Doc]]) _commonFile ((_lhsIimportBlocks) :: PP_Doc) ((_lhsImainName) :: String) ((_lhsImoduleHeader) :: String -> String -> String -> Bool -> String) ((_lhsIoptionsLine) :: String) ((_lhsIpragmaBlocks) :: String) ((_lhsItextBlocks) :: PP_Doc) ->
@@ -3473,7 +3473,7 @@ sem_Program_Program arg_chunks_ !arg_ordered_ = T_Program (return st47) where
                   ]
                   ++ map vlist _chunksIappendCommon
                 )
-            {-# LINE 3477 "dist/build/PrintCode.hs"#-}
+            {-# LINE 3477 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule370 #-}
    {-# LINE 475 "src-ag/PrintCode.ag" #-}
    rule370 = \ ((_chunksIgenSems) :: IO ()) _genCommonModule _genMainModule ->
@@ -3481,7 +3481,7 @@ sem_Program_Program arg_chunks_ !arg_ordered_ = T_Program (return st47) where
                     do _genMainModule
                        _genCommonModule
                        _chunksIgenSems
-                    {-# LINE 3485 "dist/build/PrintCode.hs"#-}
+                    {-# LINE 3485 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule371 #-}
    rule371 = \ ((_lhsIimportBlocks) :: PP_Doc) ->
      _lhsIimportBlocks
@@ -3581,25 +3581,25 @@ sem_Type_Arr arg_left_ arg_right_ = T_Type (return st50) where
    rule380 = \  (_ :: ()) ->
                                {-# LINE 259 "src-ag/PrintCode.ag" #-}
                                2
-                               {-# LINE 3585 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3585 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule381 #-}
    {-# LINE 260 "src-ag/PrintCode.ag" #-}
    rule381 = \ _l _r ->
                                {-# LINE 260 "src-ag/PrintCode.ag" #-}
                                _l     >#< "->" >-< _r
-                               {-# LINE 3591 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3591 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule382 #-}
    {-# LINE 261 "src-ag/PrintCode.ag" #-}
    rule382 = \ ((_leftIpp) :: PP_Doc) ((_leftIprec) :: Int) ->
                                {-# LINE 261 "src-ag/PrintCode.ag" #-}
                                if _leftIprec  <= 2 then pp_parens _leftIpp  else _leftIpp
-                               {-# LINE 3597 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3597 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule383 #-}
    {-# LINE 262 "src-ag/PrintCode.ag" #-}
    rule383 = \ ((_rightIpp) :: PP_Doc) ((_rightIprec) :: Int) ->
                                {-# LINE 262 "src-ag/PrintCode.ag" #-}
                                if _rightIprec <  2 then pp_parens _rightIpp else _rightIpp
-                               {-# LINE 3603 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3603 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule384 #-}
    rule384 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -3628,7 +3628,7 @@ sem_Type_CtxApp !arg_left_ arg_right_ = T_Type (return st50) where
    rule386 = \ ((_rightIpp) :: PP_Doc) left_ ->
                  {-# LINE 268 "src-ag/PrintCode.ag" #-}
                  (pp_block "(" ")" "," $ map (\(n,ns) -> hv_sp $ map pp (n:ns)) left_) >#< "=>" >#< _rightIpp
-                 {-# LINE 3632 "dist/build/PrintCode.hs"#-}
+                 {-# LINE 3632 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule387 #-}
    rule387 = \ ((_rightIprec) :: Int) ->
      _rightIprec
@@ -3657,7 +3657,7 @@ sem_Type_QuantApp !arg_left_ arg_right_ = T_Type (return st50) where
    rule389 = \ ((_rightIpp) :: PP_Doc) left_ ->
                  {-# LINE 270 "src-ag/PrintCode.ag" #-}
                  left_ >#< _rightIpp
-                 {-# LINE 3661 "dist/build/PrintCode.hs"#-}
+                 {-# LINE 3661 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule390 #-}
    rule390 = \ ((_rightIprec) :: Int) ->
      _rightIprec
@@ -3689,7 +3689,7 @@ sem_Type_TypeApp arg_func_ arg_args_ = T_Type (return st50) where
    rule392 = \ ((_argsIpps) :: PP_Docs) ((_funcIpp) :: PP_Doc) ->
                  {-# LINE 265 "src-ag/PrintCode.ag" #-}
                  hv_sp (_funcIpp : _argsIpps)
-                 {-# LINE 3693 "dist/build/PrintCode.hs"#-}
+                 {-# LINE 3693 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule393 #-}
    rule393 = \ ((_funcIprec) :: Int) ->
      _funcIprec
@@ -3721,13 +3721,13 @@ sem_Type_TupleType arg_tps_ = T_Type (return st50) where
    rule396 = \  (_ :: ()) ->
                                {-# LINE 272 "src-ag/PrintCode.ag" #-}
                                5
-                               {-# LINE 3725 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3725 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule397 #-}
    {-# LINE 273 "src-ag/PrintCode.ag" #-}
    rule397 = \ ((_lhsInested) :: Bool) ((_tpsIpps) :: PP_Docs) ->
                                {-# LINE 273 "src-ag/PrintCode.ag" #-}
                                ppTuple _lhsInested _tpsIpps
-                               {-# LINE 3731 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3731 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule398 #-}
    rule398 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -3753,13 +3753,13 @@ sem_Type_UnboxedTupleType arg_tps_ = T_Type (return st50) where
    rule399 = \  (_ :: ()) ->
                                       {-# LINE 275 "src-ag/PrintCode.ag" #-}
                                       5
-                                      {-# LINE 3757 "dist/build/PrintCode.hs"#-}
+                                      {-# LINE 3757 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule400 #-}
    {-# LINE 276 "src-ag/PrintCode.ag" #-}
    rule400 = \ ((_lhsInested) :: Bool) ((_tpsIpps) :: PP_Docs) ->
                                       {-# LINE 276 "src-ag/PrintCode.ag" #-}
                                       ppUnboxedTuple _lhsInested _tpsIpps
-                                      {-# LINE 3763 "dist/build/PrintCode.hs"#-}
+                                      {-# LINE 3763 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule401 #-}
    rule401 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -3785,13 +3785,13 @@ sem_Type_List arg_tp_ = T_Type (return st50) where
    rule402 = \  (_ :: ()) ->
                                {-# LINE 278 "src-ag/PrintCode.ag" #-}
                                5
-                               {-# LINE 3789 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3789 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule403 #-}
    {-# LINE 279 "src-ag/PrintCode.ag" #-}
    rule403 = \ ((_tpIpp) :: PP_Doc) ->
                                {-# LINE 279 "src-ag/PrintCode.ag" #-}
                                "[" >|< _tpIpp >|< "]"
-                               {-# LINE 3795 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3795 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule404 #-}
    rule404 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -3814,13 +3814,13 @@ sem_Type_SimpleType !arg_txt_ = T_Type (return st50) where
    rule405 = \  (_ :: ()) ->
                                {-# LINE 281 "src-ag/PrintCode.ag" #-}
                                5
-                               {-# LINE 3818 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3818 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule406 #-}
    {-# LINE 282 "src-ag/PrintCode.ag" #-}
    rule406 = \ txt_ ->
                                {-# LINE 282 "src-ag/PrintCode.ag" #-}
                                if reallySimple txt_ then text txt_ else pp_parens (text txt_)
-                               {-# LINE 3824 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3824 "src-generated/PrintCode.hs" #-}
 {-# NOINLINE sem_Type_NontermType #-}
 sem_Type_NontermType :: (String) -> ([String]) -> (Bool) -> T_Type 
 sem_Type_NontermType !arg_name_ !arg_params_ !arg_deforested_ = T_Type (return st50) where
@@ -3841,13 +3841,13 @@ sem_Type_NontermType !arg_name_ !arg_params_ !arg_deforested_ = T_Type (return s
    rule407 = \  (_ :: ()) ->
                                {-# LINE 284 "src-ag/PrintCode.ag" #-}
                                5
-                               {-# LINE 3845 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3845 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule408 #-}
    {-# LINE 285 "src-ag/PrintCode.ag" #-}
    rule408 = \ _prefix name_ params_ ->
                                {-# LINE 285 "src-ag/PrintCode.ag" #-}
                                _prefix     >|< text name_ >#< hv_sp params_
-                               {-# LINE 3851 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3851 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule409 #-}
    {-# LINE 286 "src-ag/PrintCode.ag" #-}
    rule409 = \ deforested_ ->
@@ -3855,7 +3855,7 @@ sem_Type_NontermType !arg_name_ !arg_params_ !arg_deforested_ = T_Type (return s
                                 if deforested_
                                 then text "T_"
                                 else empty
-                                {-# LINE 3859 "dist/build/PrintCode.hs"#-}
+                                {-# LINE 3859 "src-generated/PrintCode.hs" #-}
 {-# NOINLINE sem_Type_TMaybe #-}
 sem_Type_TMaybe :: T_Type  -> T_Type 
 sem_Type_TMaybe arg_tp_ = T_Type (return st50) where
@@ -3878,13 +3878,13 @@ sem_Type_TMaybe arg_tp_ = T_Type (return st50) where
    rule410 = \  (_ :: ()) ->
                                {-# LINE 289 "src-ag/PrintCode.ag" #-}
                                5
-                               {-# LINE 3882 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3882 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule411 #-}
    {-# LINE 290 "src-ag/PrintCode.ag" #-}
    rule411 = \ ((_tpIpp) :: PP_Doc) ->
                                {-# LINE 290 "src-ag/PrintCode.ag" #-}
                                text "Maybe" >#< pp_parens _tpIpp
-                               {-# LINE 3888 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3888 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule412 #-}
    rule412 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -3913,13 +3913,13 @@ sem_Type_TEither arg_left_ arg_right_ = T_Type (return st50) where
    rule413 = \  (_ :: ()) ->
                                {-# LINE 291 "src-ag/PrintCode.ag" #-}
                                5
-                               {-# LINE 3917 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3917 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule414 #-}
    {-# LINE 292 "src-ag/PrintCode.ag" #-}
    rule414 = \ ((_leftIpp) :: PP_Doc) ((_rightIpp) :: PP_Doc) ->
                                {-# LINE 292 "src-ag/PrintCode.ag" #-}
                                text "Either" >#< pp_parens _leftIpp >#< pp_parens _rightIpp
-                               {-# LINE 3923 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3923 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule415 #-}
    rule415 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -3951,13 +3951,13 @@ sem_Type_TMap arg_key_ arg_value_ = T_Type (return st50) where
    rule417 = \  (_ :: ()) ->
                                {-# LINE 293 "src-ag/PrintCode.ag" #-}
                                5
-                               {-# LINE 3955 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3955 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule418 #-}
    {-# LINE 294 "src-ag/PrintCode.ag" #-}
    rule418 = \ ((_keyIpp) :: PP_Doc) ((_valueIpp) :: PP_Doc) ->
                                {-# LINE 294 "src-ag/PrintCode.ag" #-}
                                text "Data.Map.Map" >#< pp_parens _keyIpp >#< pp_parens _valueIpp
-                               {-# LINE 3961 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3961 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule419 #-}
    rule419 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -3986,13 +3986,13 @@ sem_Type_TIntMap arg_value_ = T_Type (return st50) where
    rule421 = \  (_ :: ()) ->
                                {-# LINE 295 "src-ag/PrintCode.ag" #-}
                                5
-                               {-# LINE 3990 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3990 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule422 #-}
    {-# LINE 296 "src-ag/PrintCode.ag" #-}
    rule422 = \ ((_valueIpp) :: PP_Doc) ->
                                {-# LINE 296 "src-ag/PrintCode.ag" #-}
                                text "Data.IntMap.IntMap" >#< pp_parens _valueIpp
-                               {-# LINE 3996 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 3996 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule423 #-}
    rule423 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -4018,13 +4018,13 @@ sem_Type_TSet arg_tp_ = T_Type (return st50) where
    rule424 = \  (_ :: ()) ->
                                {-# LINE 297 "src-ag/PrintCode.ag" #-}
                                5
-                               {-# LINE 4022 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 4022 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule425 #-}
    {-# LINE 298 "src-ag/PrintCode.ag" #-}
    rule425 = \ ((_tpIpp) :: PP_Doc) ->
                                {-# LINE 298 "src-ag/PrintCode.ag" #-}
                                text "Data.Set.Set" >#< pp_parens _tpIpp
-                               {-# LINE 4028 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 4028 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule426 #-}
    rule426 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -4047,13 +4047,13 @@ sem_Type_TIntSet  = T_Type (return st50) where
    rule427 = \  (_ :: ()) ->
                                {-# LINE 299 "src-ag/PrintCode.ag" #-}
                                5
-                               {-# LINE 4051 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 4051 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule428 #-}
    {-# LINE 300 "src-ag/PrintCode.ag" #-}
    rule428 = \  (_ :: ()) ->
                                {-# LINE 300 "src-ag/PrintCode.ag" #-}
                                text "Data.IntSet.IntSet"
-                               {-# LINE 4057 "dist/build/PrintCode.hs"#-}
+                               {-# LINE 4057 "src-generated/PrintCode.hs" #-}
 
 -- Types -------------------------------------------------------
 -- wrapper
@@ -4108,7 +4108,7 @@ sem_Types_Cons arg_hd_ arg_tl_ = T_Types (return st53) where
    rule429 = \ ((_hdIpp) :: PP_Doc) ((_tlIpps) :: PP_Docs) ->
                      {-# LINE 76 "src-ag/PrintCode.ag" #-}
                      _hdIpp : _tlIpps
-                     {-# LINE 4112 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 4112 "src-generated/PrintCode.hs" #-}
    {-# INLINE rule430 #-}
    rule430 = \ ((_lhsInested) :: Bool) ->
      _lhsInested
@@ -4132,4 +4132,4 @@ sem_Types_Nil  = T_Types (return st53) where
    rule432 = \  (_ :: ()) ->
                      {-# LINE 77 "src-ag/PrintCode.ag" #-}
                      []
-                     {-# LINE 4136 "dist/build/PrintCode.hs"#-}
+                     {-# LINE 4136 "src-generated/PrintCode.hs" #-}

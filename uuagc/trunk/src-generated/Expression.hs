@@ -1,12 +1,12 @@
 
 
--- UUAGC 0.9.51 (src-ag/Expression.ag)
+-- UUAGC 0.9.53 (src-ag/Expression.ag)
 module Expression where
 {-# LINE 2 "src-ag/Expression.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import HsToken
-{-# LINE 10 "dist/build/Expression.hs" #-}
+{-# LINE 10 "src-generated/Expression.hs" #-}
 -- Expression --------------------------------------------------
 {-
    alternatives:

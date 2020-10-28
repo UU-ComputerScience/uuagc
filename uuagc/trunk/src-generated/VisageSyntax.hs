@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.51 (src-ag/VisageSyntax.ag)
+-- UUAGC 0.9.53 (src-ag/VisageSyntax.ag)
 module VisageSyntax where
 {-# LINE 2 "src-ag/VisageSyntax.ag" #-}
 
@@ -9,7 +9,7 @@ import UU.Pretty
 import AbstractSyntax
 import VisagePatterns
 import Expression
-{-# LINE 13 "dist/build/VisageSyntax.hs" #-}
+{-# LINE 13 "src-generated/VisageSyntax.hs" #-}
 -- VisageChild -------------------------------------------------
 {-
    alternatives:

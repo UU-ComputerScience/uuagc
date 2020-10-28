@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.51 (src-ag/ErrorMessages.ag)
+-- UUAGC 0.9.53 (src-ag/ErrorMessages.ag)
 module ErrorMessages where
 {-# LINE 2 "src-ag/ErrorMessages.ag" #-}
 
@@ -8,7 +8,7 @@ import UU.Scanner.Position(Pos)
 import Pretty
 import CodeSyntax
 import CommonTypes
-{-# LINE 12 "dist/build/ErrorMessages.hs" #-}
+{-# LINE 12 "src-generated/ErrorMessages.hs" #-}
 -- Error -------------------------------------------------------
 {-
    alternatives:

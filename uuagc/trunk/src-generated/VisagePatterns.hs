@@ -1,12 +1,12 @@
 
 
--- UUAGC 0.9.51 (src-ag/VisagePatterns.ag)
+-- UUAGC 0.9.53 (src-ag/VisagePatterns.ag)
 module VisagePatterns where
 {-# LINE 2 "src-ag/VisagePatterns.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import CommonTypes
-{-# LINE 10 "dist/build/VisagePatterns.hs" #-}
+{-# LINE 10 "src-generated/VisagePatterns.hs" #-}
 -- VisagePattern -----------------------------------------------
 {-
    alternatives:

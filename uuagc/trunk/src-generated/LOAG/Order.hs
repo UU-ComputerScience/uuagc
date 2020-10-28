@@ -8,19 +8,19 @@ module LOAG.Order where
 import Data.List (intercalate, foldl', nub)
 import Data.Tuple (swap)
 import Control.Arrow
-{-# LINE 12 "dist/build/LOAG/Order.hs" #-}
+{-# LINE 12 "src-generated/LOAG/Order.hs" #-}
 
 {-# LINE 2 "src-ag/HsToken.ag" #-}
 
 import CommonTypes
 import UU.Scanner.Position(Pos)
-{-# LINE 18 "dist/build/LOAG/Order.hs" #-}
+{-# LINE 18 "src-generated/LOAG/Order.hs" #-}
 
 {-# LINE 2 "src-ag/Expression.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import HsToken
-{-# LINE 24 "dist/build/LOAG/Order.hs" #-}
+{-# LINE 24 "src-generated/LOAG/Order.hs" #-}
 
 {-# LINE 2 "src-ag/CodeSyntax.ag" #-}
 
@@ -28,14 +28,14 @@ import Patterns
 import CommonTypes
 import Data.Map(Map)
 import Data.Set(Set)
-{-# LINE 32 "dist/build/LOAG/Order.hs" #-}
+{-# LINE 32 "src-generated/LOAG/Order.hs" #-}
 
 {-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 39 "dist/build/LOAG/Order.hs" #-}
+{-# LINE 39 "src-generated/LOAG/Order.hs" #-}
 
 {-# LINE 2 "src-ag/AbstractSyntax.ag" #-}
 
@@ -47,7 +47,7 @@ import Expression  (Expression(..))
 import Macro --marcos
 import CommonTypes
 import ErrorMessages
-{-# LINE 51 "dist/build/LOAG/Order.hs" #-}
+{-# LINE 51 "src-generated/LOAG/Order.hs" #-}
 
 {-# LINE 13 "src-ag/LOAG/Order.ag" #-}
 
@@ -77,7 +77,7 @@ import HsToken (HsToken(..))
 import Pretty
 import qualified System.IO as IO
 import           System.IO.Unsafe
-{-# LINE 81 "dist/build/LOAG/Order.hs" #-}
+{-# LINE 81 "src-generated/LOAG/Order.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
 {-# LINE 13 "src-ag/LOAG/Prepare.ag" #-}
@@ -102,26 +102,39 @@ vertexToAttr :: NMP -> Vertex -> Attributes
 vertexToAttr nmp v = Map.singleton (identifier a) (fromMyTy ty)
     where (MyAttribute ty (a,_)) = findWithErr nmp "vertexToAttr" v
 
-{-# LINE 106 "dist/build/LOAG/Order.hs" #-}
+{-# LINE 106 "src-generated/LOAG/Order.hs" #-}
 
 {-# LINE 292 "src-ag/LOAG/Prepare.ag" #-}
 
--- | Replace the references to local attributes, by his attrs dependencies
+-- | Replace the references to local attributes, by his attrs dependencies,
+-- |    rendering the local attributes 'transparent'.
 repLocRefs :: SF_P -> SF_P -> SF_P
 repLocRefs lfp sfp =
-    Map.map (setConcatMap rep) sfp
-    where rep :: MyOccurrence -> Set.Set MyOccurrence 
-          rep occ | isLoc occ   = setConcatMap rep $ 
-                                    findWithErr lfp "repping locals" occ
-                  | otherwise   = Set.singleton occ
-{-# LINE 118 "dist/build/LOAG/Order.hs" #-}
+    Map.map (setConcatMap $ rep Set.empty) sfp
+    where rep :: Set.Set MyOccurrence -> MyOccurrence -> Set.Set MyOccurrence 
+          rep done occ | occ `Set.member` done = Set.empty
+                       | isLoc occ   = setConcatMap (rep $ Set.insert occ done) $ 
+                                       findWithErr lfp "repping locals" occ
+                       | otherwise   = Set.singleton occ
+
+-- | Add dependencies from a higher order child to all its attributes
+addHigherOrders :: SF_P -> SF_P -> SF_P
+addHigherOrders lfp sfp = 
+   Map.mapWithKey f $ Map.map (setConcatMap (\mo -> f mo (Set.singleton mo))) sfp
+   where f :: MyOccurrence -> Set.Set MyOccurrence -> Set.Set MyOccurrence
+         f mo@(MyOccurrence (p,f) _) deps =
+           let ho = ((p,"inst") >.< (f,AnyDir))
+           in  if ho `Map.member` lfp
+               then ho `Set.insert` deps
+               else deps
+{-# LINE 131 "src-generated/LOAG/Order.hs" #-}
 
 {-# LINE 42 "src-ag/LOAG/Order.ag" #-}
 
 fst' (a,_,_) = a
 snd' (_,b,_) = b
 trd' (_,_,c) = c
-{-# LINE 125 "dist/build/LOAG/Order.hs" #-}
+{-# LINE 138 "src-generated/LOAG/Order.hs" #-}
 
 {-# LINE 95 "src-ag/LOAG/Order.ag" #-}
 
@@ -151,7 +164,7 @@ ppOcc :: PMP -> Vertex -> PP_Doc
 ppOcc pmp v = text f >|< text "." >|< fst a
  where (MyOccurrence ((t,p),f) a) = findWithErr pmp "ppOcc" v
 
-{-# LINE 155 "dist/build/LOAG/Order.hs" #-}
+{-# LINE 168 "src-generated/LOAG/Order.hs" #-}
 
 {-# LINE 239 "src-ag/LOAG/Order.ag" #-}
 
@@ -213,10 +226,10 @@ getVss (done,intros,rules,vnrs) ps tdp synsO lfp nmpr pmp pmpr fty visMap ruleMa
                                 writeSTRef introed (Set.insert child intros)
                                 let occ = (ps,"inst") >.< (child, AnyDir)
                                     preds = Set.toList $ setConcatMap rep $ 
-                                                        findWithErr lfp "woot4" occ
+                                                        lfp Map.! occ
                                     rep :: MyOccurrence -> Set.Set MyOccurrence 
                                     rep occ | isLoc occ   = Set.insert occ $ 
-                                                setConcatMap rep $ findWithErr lfp "woot3" occ
+                                                setConcatMap rep $ lfp Map.! occ
                                             | otherwise   = Set.singleton occ
                                 rest <- forM preds 
                                             (visit ref introed ruleref vnrsref)
@@ -229,9 +242,9 @@ getVss (done,intros,rules,vnrs) ps tdp synsO lfp nmpr pmp pmpr fty visMap ruleMa
              where  cvisit= ChildVisit (identifier child) ntid visnr
                     child = snd $ argsOf o
                     ntid  = ((\(NT name _ _ )-> name) . fromMyTy) nt 
-                    visnr = (\x-> findWithErr' visMap (show (inOutput,o,x)) x) (findWithErr nmpr "woot3" (nt <.> attr o))
-                    nt    = findWithErr fty "woot" (ps,child)
-{-# LINE 235 "dist/build/LOAG/Order.hs" #-}
+                    visnr = (\x-> visMap IMap.! x) (nmpr Map.! (nt <.> attr o))
+                    nt    = fty Map.! (ps,child)
+{-# LINE 248 "src-generated/LOAG/Order.hs" #-}
 
 {-# LINE 356 "src-ag/LOAG/Order.ag" #-}
 
@@ -313,7 +326,7 @@ repToAg sem (Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _) =
            syns = map (((genA A.!) &&& id).(pmpr Map.!))$ Set.toList ss
 
 
-{-# LINE 317 "dist/build/LOAG/Order.hs" #-}
+{-# LINE 330 "src-generated/LOAG/Order.hs" #-}
 -- CGrammar ----------------------------------------------------
 -- wrapper
 data Inh_CGrammar  = Inh_CGrammar {  }
@@ -1093,13 +1106,13 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_  = T_Child (return st35) where
                  case tp_ of
                    NT nt _ _ -> Set.singleton nt
                    _         -> mempty
-                 {-# LINE 1097 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 1110 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule33 #-}
    {-# LINE 34 "src-ag/ExecutionPlanCommon.ag" #-}
    rule33 = \ _isHigherOrder _refNts ->
                    {-# LINE 34 "src-ag/ExecutionPlanCommon.ag" #-}
                    if _isHigherOrder     then _refNts     else mempty
-                   {-# LINE 1103 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 1116 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule34 #-}
    {-# LINE 35 "src-ag/ExecutionPlanCommon.ag" #-}
    rule34 = \ kind_ ->
@@ -1107,7 +1120,7 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_  = T_Child (return st35) where
                         case kind_ of
                           ChildSyntax -> False
                           _           -> True
-                        {-# LINE 1111 "dist/build/LOAG/Order.hs"#-}
+                        {-# LINE 1124 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule35 #-}
    {-# LINE 95 "src-ag/ExecutionPlanCommon.ag" #-}
    rule35 = \ ((_lhsIaroundMap) :: Map Identifier [Expression]) name_ ->
@@ -1115,19 +1128,19 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_  = T_Child (return st35) where
                      case Map.lookup name_ _lhsIaroundMap of
                        Nothing -> False
                        Just as -> not (null as)
-                     {-# LINE 1119 "dist/build/LOAG/Order.hs"#-}
+                     {-# LINE 1132 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule36 #-}
    {-# LINE 123 "src-ag/ExecutionPlanCommon.ag" #-}
    rule36 = \ ((_lhsImergeMap) :: Map Identifier (Identifier, [Identifier], Expression)) name_ ->
                    {-# LINE 123 "src-ag/ExecutionPlanCommon.ag" #-}
                    maybe Nothing (\(_,ms,_) -> Just ms) $ Map.lookup name_ _lhsImergeMap
-                   {-# LINE 1125 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 1138 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule37 #-}
    {-# LINE 124 "src-ag/ExecutionPlanCommon.ag" #-}
    rule37 = \ ((_lhsImergedChildren) :: Set Identifier) name_ ->
                    {-# LINE 124 "src-ag/ExecutionPlanCommon.ag" #-}
                    name_ `Set.member` _lhsImergedChildren
-                   {-# LINE 1131 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 1144 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule38 #-}
    {-# LINE 135 "src-ag/ExecutionPlanCommon.ag" #-}
    rule38 = \ _hasArounds _isMerged _merges kind_ name_ tp_ ->
@@ -1135,56 +1148,56 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_  = T_Child (return st35) where
                           case tp_ of
                             NT _ _ _ -> EChild name_ tp_ kind_ _hasArounds     _merges     _isMerged
                             _        -> ETerm name_ tp_
-                          {-# LINE 1139 "dist/build/LOAG/Order.hs"#-}
+                          {-# LINE 1152 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule39 #-}
    {-# LINE 174 "src-ag/LOAG/Prepare.ag" #-}
    rule39 = \ ((_lhsIflab) :: Int) ->
                     {-# LINE 174 "src-ag/LOAG/Prepare.ag" #-}
                     _lhsIflab + 1
-                    {-# LINE 1145 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1158 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule40 #-}
    {-# LINE 175 "src-ag/LOAG/Prepare.ag" #-}
    rule40 = \ tp_ ->
                     {-# LINE 175 "src-ag/LOAG/Prepare.ag" #-}
                     toMyTy tp_
-                    {-# LINE 1151 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1164 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule41 #-}
    {-# LINE 177 "src-ag/LOAG/Prepare.ag" #-}
    rule41 = \ _atp ((_lhsIan) :: MyType -> MyAttributes) ((_lhsIpll) :: PLabel) name_ ->
                     {-# LINE 177 "src-ag/LOAG/Prepare.ag" #-}
                     map ((FieldAtt _atp     _lhsIpll (getName name_)) . alab)
                           $ _lhsIan _atp
-                    {-# LINE 1158 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1171 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule42 #-}
    {-# LINE 179 "src-ag/LOAG/Prepare.ag" #-}
    rule42 = \ _flab ->
                     {-# LINE 179 "src-ag/LOAG/Prepare.ag" #-}
                     _flab
-                    {-# LINE 1164 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1177 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule43 #-}
    {-# LINE 180 "src-ag/LOAG/Prepare.ag" #-}
    rule43 = \ name_ ->
                     {-# LINE 180 "src-ag/LOAG/Prepare.ag" #-}
                     getName name_
-                    {-# LINE 1170 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1183 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule44 #-}
    {-# LINE 181 "src-ag/LOAG/Prepare.ag" #-}
    rule44 = \ _ident ((_lhsIpll) :: PLabel) ->
                     {-# LINE 181 "src-ag/LOAG/Prepare.ag" #-}
                     (_lhsIpll, _ident    )
-                    {-# LINE 1176 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1189 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule45 #-}
    {-# LINE 182 "src-ag/LOAG/Prepare.ag" #-}
    rule45 = \ _atp _label ((_lhsIain) :: MyType -> MyAttributes) ->
                     {-# LINE 182 "src-ag/LOAG/Prepare.ag" #-}
                     Set.fromList $ handAllOut _label     $ _lhsIain _atp
-                    {-# LINE 1182 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1195 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule46 #-}
    {-# LINE 183 "src-ag/LOAG/Prepare.ag" #-}
    rule46 = \ _atp _label ((_lhsIasn) :: MyType -> MyAttributes) ->
                     {-# LINE 183 "src-ag/LOAG/Prepare.ag" #-}
                     Set.fromList $ handAllOut _label     $ _lhsIasn _atp
-                    {-# LINE 1188 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1201 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule47 #-}
    {-# LINE 184 "src-ag/LOAG/Prepare.ag" #-}
    rule47 = \ _foccsI _foccsS _label ->
@@ -1192,7 +1205,7 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_  = T_Child (return st35) where
                     if Set.null _foccsI     && Set.null _foccsS
                           then Map.empty
                           else Map.singleton _label     (_foccsS    ,_foccsI    )
-                    {-# LINE 1196 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1209 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule48 #-}
    {-# LINE 187 "src-ag/LOAG/Prepare.ag" #-}
    rule48 = \ _ident ((_lhsIpll) :: PLabel) kind_ ->
@@ -1200,19 +1213,19 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_  = T_Child (return st35) where
                     case kind_ of
                       ChildAttr -> Map.singleton _lhsIpll (Set.singleton _ident    )
                       _         -> Map.empty
-                    {-# LINE 1204 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1217 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule49 #-}
    {-# LINE 190 "src-ag/LOAG/Prepare.ag" #-}
    rule49 = \ _atp ((_lhsIpll) :: PLabel) name_ ->
                     {-# LINE 190 "src-ag/LOAG/Prepare.ag" #-}
                     Map.singleton (_lhsIpll, getName name_) _atp
-                    {-# LINE 1210 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1223 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule50 #-}
    {-# LINE 223 "src-ag/LOAG/Prepare.ag" #-}
    rule50 = \ name_ ->
                 {-# LINE 223 "src-ag/LOAG/Prepare.ag" #-}
                 Set.singleton $ getName name_
-                {-# LINE 1216 "dist/build/LOAG/Order.hs"#-}
+                {-# LINE 1229 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule51 #-}
    rule51 = \ ((_fattsIap) :: A_P) ->
      _fattsIap
@@ -1594,56 +1607,56 @@ sem_Children_Nil  = T_Children (return st38) where
    rule120 = \ ((_lhsIflab) :: Int) ->
                     {-# LINE 161 "src-ag/LOAG/Prepare.ag" #-}
                     _lhsIflab + 1
-                    {-# LINE 1598 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1611 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule121 #-}
    {-# LINE 162 "src-ag/LOAG/Prepare.ag" #-}
    rule121 = \ ((_lhsIpll) :: PLabel) ->
                     {-# LINE 162 "src-ag/LOAG/Prepare.ag" #-}
                     fst _lhsIpll
-                    {-# LINE 1604 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1617 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule122 #-}
    {-# LINE 164 "src-ag/LOAG/Prepare.ag" #-}
    rule122 = \ _atp ((_lhsIan) :: MyType -> MyAttributes) ((_lhsIpll) :: PLabel) ->
                     {-# LINE 164 "src-ag/LOAG/Prepare.ag" #-}
                     map ((FieldAtt _atp     _lhsIpll "lhs") . alab) $
                           _lhsIan _atp
-                    {-# LINE 1611 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1624 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule123 #-}
    {-# LINE 166 "src-ag/LOAG/Prepare.ag" #-}
    rule123 = \ _flab ->
                     {-# LINE 166 "src-ag/LOAG/Prepare.ag" #-}
                     _flab
-                    {-# LINE 1617 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1630 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule124 #-}
    {-# LINE 167 "src-ag/LOAG/Prepare.ag" #-}
    rule124 = \ ((_lhsIpll) :: PLabel) ->
                     {-# LINE 167 "src-ag/LOAG/Prepare.ag" #-}
                     (_lhsIpll, "lhs")
-                    {-# LINE 1623 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1636 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule125 #-}
    {-# LINE 168 "src-ag/LOAG/Prepare.ag" #-}
    rule125 = \ _atp _label ((_lhsIain) :: MyType -> MyAttributes) ->
                     {-# LINE 168 "src-ag/LOAG/Prepare.ag" #-}
                     Set.fromList $ handAllOut _label     $ _lhsIain _atp
-                    {-# LINE 1629 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1642 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule126 #-}
    {-# LINE 169 "src-ag/LOAG/Prepare.ag" #-}
    rule126 = \ _atp _label ((_lhsIasn) :: MyType -> MyAttributes) ->
                     {-# LINE 169 "src-ag/LOAG/Prepare.ag" #-}
                     Set.fromList $ handAllOut _label     $ _lhsIasn _atp
-                    {-# LINE 1635 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1648 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule127 #-}
    {-# LINE 170 "src-ag/LOAG/Prepare.ag" #-}
    rule127 = \ _foccsI _foccsS _label ->
                     {-# LINE 170 "src-ag/LOAG/Prepare.ag" #-}
                     Map.singleton _label     (_foccsI    , _foccsS    )
-                    {-# LINE 1641 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1654 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule128 #-}
    {-# LINE 171 "src-ag/LOAG/Prepare.ag" #-}
    rule128 = \ _label ((_lhsIdty) :: MyType) ->
                     {-# LINE 171 "src-ag/LOAG/Prepare.ag" #-}
                     Map.singleton _label     _lhsIdty
-                    {-# LINE 1647 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1660 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule129 #-}
    rule129 = \ ((_fattsIap) :: A_P) ->
      _fattsIap
@@ -1760,25 +1773,25 @@ sem_Expression_Expression arg_pos_ arg_tks_  = T_Expression (return st41) where
    rule148 = \ tks_ ->
                     {-# LINE 273 "src-ag/LOAG/Prepare.ag" #-}
                     HsTokensRoot tks_
-                    {-# LINE 1764 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1777 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule149 #-}
    {-# LINE 274 "src-ag/LOAG/Prepare.ag" #-}
    rule149 = \ ((_lhsIpll) :: PLabel) ->
                     {-# LINE 274 "src-ag/LOAG/Prepare.ag" #-}
                     _lhsIpll
-                    {-# LINE 1770 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1783 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule150 #-}
    {-# LINE 275 "src-ag/LOAG/Prepare.ag" #-}
    rule150 = \ ((_lhsIpts) :: Set.Set (FLabel)) ->
                     {-# LINE 275 "src-ag/LOAG/Prepare.ag" #-}
                     _lhsIpts
-                    {-# LINE 1776 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1789 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule151 #-}
    {-# LINE 276 "src-ag/LOAG/Prepare.ag" #-}
    rule151 = \ ((_tokensIused) :: Set.Set MyOccurrence) ->
                     {-# LINE 276 "src-ag/LOAG/Prepare.ag" #-}
                     _tokensIused
-                    {-# LINE 1782 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1795 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule152 #-}
    rule152 = \ pos_ tks_ ->
      Expression pos_ tks_
@@ -1866,61 +1879,61 @@ sem_FieldAtt_FieldAtt arg_t_ arg_p_ arg_f_ arg_a_ = T_FieldAtt (return st44) whe
    rule156 = \ ((_lhsIolab) :: Int) ->
                     {-# LINE 193 "src-ag/LOAG/Prepare.ag" #-}
                     _lhsIolab + 1
-                    {-# LINE 1870 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1883 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule157 #-}
    {-# LINE 194 "src-ag/LOAG/Prepare.ag" #-}
    rule157 = \ _att ((_lhsInmprf) :: NMP_R) ->
                     {-# LINE 194 "src-ag/LOAG/Prepare.ag" #-}
                     findWithErr _lhsInmprf "getting attr label" _att
-                    {-# LINE 1876 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1889 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule158 #-}
    {-# LINE 195 "src-ag/LOAG/Prepare.ag" #-}
    rule158 = \ a_ t_ ->
                     {-# LINE 195 "src-ag/LOAG/Prepare.ag" #-}
                     t_ <.> a_
-                    {-# LINE 1882 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1895 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule159 #-}
    {-# LINE 196 "src-ag/LOAG/Prepare.ag" #-}
    rule159 = \ a_ f_ p_ ->
                     {-# LINE 196 "src-ag/LOAG/Prepare.ag" #-}
                     (p_, f_) >.< a_
-                    {-# LINE 1888 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1901 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule160 #-}
    {-# LINE 197 "src-ag/LOAG/Prepare.ag" #-}
    rule160 = \ _occ _olab ->
                     {-# LINE 197 "src-ag/LOAG/Prepare.ag" #-}
                     Map.singleton _olab     _occ
-                    {-# LINE 1894 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1907 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule161 #-}
    {-# LINE 198 "src-ag/LOAG/Prepare.ag" #-}
    rule161 = \ _occ _olab ->
                     {-# LINE 198 "src-ag/LOAG/Prepare.ag" #-}
                     Map.singleton _occ      _olab
-                    {-# LINE 1900 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1913 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule162 #-}
    {-# LINE 199 "src-ag/LOAG/Prepare.ag" #-}
    rule162 = \ _alab _olab ->
                     {-# LINE 199 "src-ag/LOAG/Prepare.ag" #-}
                     Map.singleton _alab     [_olab    ]
-                    {-# LINE 1906 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1919 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule163 #-}
    {-# LINE 200 "src-ag/LOAG/Prepare.ag" #-}
    rule163 = \ _alab _olab ->
                     {-# LINE 200 "src-ag/LOAG/Prepare.ag" #-}
                     Map.singleton _olab     _alab
-                    {-# LINE 1912 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1925 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule164 #-}
    {-# LINE 201 "src-ag/LOAG/Prepare.ag" #-}
    rule164 = \ _occ p_ ->
                     {-# LINE 201 "src-ag/LOAG/Prepare.ag" #-}
                     Map.singleton p_ [_occ    ]
-                    {-# LINE 1918 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1931 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule165 #-}
    {-# LINE 202 "src-ag/LOAG/Prepare.ag" #-}
    rule165 = \ ((_lhsIflab) :: Int) _olab ->
                     {-# LINE 202 "src-ag/LOAG/Prepare.ag" #-}
                     [(_olab    , _lhsIflab)]
-                    {-# LINE 1924 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 1937 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule166 #-}
    rule166 = \  (_ :: ()) ->
      Map.empty
@@ -2252,49 +2265,49 @@ sem_Grammar_Grammar arg_typeSyns_ arg_useMap_ arg_derivings_ arg_wrappers_ arg_n
    rule205 = \ ((_nontsIntDeps) :: Map NontermIdent (Set NontermIdent)) ->
                             {-# LINE 40 "src-ag/ExecutionPlanCommon.ag" #-}
                             closeMap _nontsIntDeps
-                            {-# LINE 2256 "dist/build/LOAG/Order.hs"#-}
+                            {-# LINE 2269 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule206 #-}
    {-# LINE 41 "src-ag/ExecutionPlanCommon.ag" #-}
    rule206 = \ ((_nontsIntHoDeps) :: Map NontermIdent (Set NontermIdent)) ->
                             {-# LINE 41 "src-ag/ExecutionPlanCommon.ag" #-}
                             closeMap _nontsIntHoDeps
-                            {-# LINE 2262 "dist/build/LOAG/Order.hs"#-}
+                            {-# LINE 2275 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule207 #-}
    {-# LINE 42 "src-ag/ExecutionPlanCommon.ag" #-}
    rule207 = \ _closedHoNtDeps ->
                             {-# LINE 42 "src-ag/ExecutionPlanCommon.ag" #-}
                             revDeps _closedHoNtDeps
-                            {-# LINE 2268 "dist/build/LOAG/Order.hs"#-}
+                            {-# LINE 2281 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule208 #-}
    {-# LINE 51 "src-ag/ExecutionPlanCommon.ag" #-}
    rule208 = \ contextMap_ ->
                           {-# LINE 51 "src-ag/ExecutionPlanCommon.ag" #-}
                           contextMap_
-                          {-# LINE 2274 "dist/build/LOAG/Order.hs"#-}
+                          {-# LINE 2287 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule209 #-}
    {-# LINE 92 "src-ag/ExecutionPlanCommon.ag" #-}
    rule209 = \ aroundsMap_ ->
                       {-# LINE 92 "src-ag/ExecutionPlanCommon.ag" #-}
                       aroundsMap_
-                      {-# LINE 2280 "dist/build/LOAG/Order.hs"#-}
+                      {-# LINE 2293 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule210 #-}
    {-# LINE 117 "src-ag/ExecutionPlanCommon.ag" #-}
    rule210 = \ mergeMap_ ->
                      {-# LINE 117 "src-ag/ExecutionPlanCommon.ag" #-}
                      mergeMap_
-                     {-# LINE 2286 "dist/build/LOAG/Order.hs"#-}
+                     {-# LINE 2299 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule211 #-}
    {-# LINE 9 "src-ag/ExecutionPlanPre.ag" #-}
    rule211 = \  (_ :: ()) ->
                                   {-# LINE 9 "src-ag/ExecutionPlanPre.ag" #-}
                                   0
-                                  {-# LINE 2292 "dist/build/LOAG/Order.hs"#-}
+                                  {-# LINE 2305 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule212 #-}
    {-# LINE 38 "src-ag/LOAG/Prepare.ag" #-}
    rule212 = \ ((_nontsIpmp) :: PMP) ->
                  {-# LINE 38 "src-ag/LOAG/Prepare.ag" #-}
                  if Map.null _nontsIpmp then 1 else fst $ Map.findMin _nontsIpmp
-                 {-# LINE 2298 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 2311 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule213 #-}
    {-# LINE 40 "src-ag/LOAG/Prepare.ag" #-}
    rule213 = \ _ain _an _asn _initO _nmp _nmpr ((_nontsIap) :: A_P) ((_nontsIfieldMap) :: FMap) ((_nontsIfsInP) :: FsInP) ((_nontsIfty) :: FTY) ((_nontsIgen) :: Map Int Int) ((_nontsIinss) :: Map Int [Int]) ((_nontsIofld) :: [(Int, Int)]) ((_nontsIpmp) :: PMP) ((_nontsIpmpr) :: PMP_R) ((_nontsIps) :: [PLabel]) _sfp ->
@@ -2308,145 +2321,145 @@ sem_Grammar_Grammar arg_typeSyns_ arg_useMap_ arg_derivings_ arg_wrappers_ arg_n
                   Map.toList $ _nontsIinss)
              (A.array (_initO    , _initO     + length _nontsIofld) $
                   _nontsIofld) _nontsIfty _nontsIfieldMap _nontsIfsInP
-          {-# LINE 2312 "dist/build/LOAG/Order.hs"#-}
+          {-# LINE 2325 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule214 #-}
    {-# LINE 49 "src-ag/LOAG/Prepare.ag" #-}
    rule214 = \ _atts ->
                  {-# LINE 49 "src-ag/LOAG/Prepare.ag" #-}
                  Map.fromList $ zip [1..] _atts
-                 {-# LINE 2318 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 2331 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule215 #-}
    {-# LINE 50 "src-ag/LOAG/Prepare.ag" #-}
    rule215 = \ _atts ->
                  {-# LINE 50 "src-ag/LOAG/Prepare.ag" #-}
                  Map.fromList $ zip _atts     [1..]
-                 {-# LINE 2324 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 2337 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule216 #-}
    {-# LINE 51 "src-ag/LOAG/Prepare.ag" #-}
    rule216 = \ _ain _asn ->
                  {-# LINE 51 "src-ag/LOAG/Prepare.ag" #-}
                  Map.unionWith (++) _ain     _asn
-                 {-# LINE 2330 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 2343 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule217 #-}
    {-# LINE 52 "src-ag/LOAG/Prepare.ag" #-}
    rule217 = \ ((_nontsIinhs) :: AI_N) ->
                  {-# LINE 52 "src-ag/LOAG/Prepare.ag" #-}
                  _nontsIinhs
-                 {-# LINE 2336 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 2349 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule218 #-}
    {-# LINE 53 "src-ag/LOAG/Prepare.ag" #-}
    rule218 = \ ((_nontsIsyns) :: AS_N) ->
                  {-# LINE 53 "src-ag/LOAG/Prepare.ag" #-}
                  _nontsIsyns
-                 {-# LINE 2342 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 2355 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule219 #-}
    {-# LINE 54 "src-ag/LOAG/Prepare.ag" #-}
    rule219 = \ _an ->
                  {-# LINE 54 "src-ag/LOAG/Prepare.ag" #-}
                  concat $ Map.elems _an
-                 {-# LINE 2348 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 2361 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule220 #-}
    {-# LINE 55 "src-ag/LOAG/Prepare.ag" #-}
    rule220 = \ ((_nontsIap) :: A_P) ->
                  {-# LINE 55 "src-ag/LOAG/Prepare.ag" #-}
                  concat $ Map.elems _nontsIap
-                 {-# LINE 2354 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 2367 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule221 #-}
    {-# LINE 56 "src-ag/LOAG/Prepare.ag" #-}
    rule221 = \ manualAttrOrderMap_ ->
                    {-# LINE 56 "src-ag/LOAG/Prepare.ag" #-}
                    manualAttrOrderMap_
-                   {-# LINE 2360 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 2373 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule222 #-}
    {-# LINE 87 "src-ag/LOAG/Prepare.ag" #-}
    rule222 = \ _ain ->
                    {-# LINE 87 "src-ag/LOAG/Prepare.ag" #-}
                    map2F _ain
-                   {-# LINE 2366 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 2379 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule223 #-}
    {-# LINE 88 "src-ag/LOAG/Prepare.ag" #-}
    rule223 = \ _asn ->
                    {-# LINE 88 "src-ag/LOAG/Prepare.ag" #-}
                    map2F _asn
-                   {-# LINE 2372 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 2385 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule224 #-}
    {-# LINE 89 "src-ag/LOAG/Prepare.ag" #-}
    rule224 = \ ((_nontsIpmp) :: PMP) ->
                     {-# LINE 89 "src-ag/LOAG/Prepare.ag" #-}
                     _nontsIpmp
-                    {-# LINE 2378 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 2391 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule225 #-}
    {-# LINE 90 "src-ag/LOAG/Prepare.ag" #-}
    rule225 = \ ((_nontsIpmpr) :: PMP_R) ->
                     {-# LINE 90 "src-ag/LOAG/Prepare.ag" #-}
                     _nontsIpmpr
-                    {-# LINE 2384 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 2397 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule226 #-}
    {-# LINE 91 "src-ag/LOAG/Prepare.ag" #-}
    rule226 = \ ((_nontsIlfp) :: SF_P) ->
                     {-# LINE 91 "src-ag/LOAG/Prepare.ag" #-}
                     _nontsIlfp
-                    {-# LINE 2390 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 2403 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule227 #-}
    {-# LINE 92 "src-ag/LOAG/Prepare.ag" #-}
    rule227 = \ ((_nontsIhoMap) :: HOMap) ->
                     {-# LINE 92 "src-ag/LOAG/Prepare.ag" #-}
                     _nontsIhoMap
-                    {-# LINE 2396 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 2409 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule228 #-}
    {-# LINE 93 "src-ag/LOAG/Prepare.ag" #-}
    rule228 = \ ((_nontsIfty) :: FTY) ->
                     {-# LINE 93 "src-ag/LOAG/Prepare.ag" #-}
                     _nontsIfty
-                    {-# LINE 2402 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 2415 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule229 #-}
    {-# LINE 94 "src-ag/LOAG/Prepare.ag" #-}
    rule229 = \ ((_nontsIfty) :: FTY) ->
                     {-# LINE 94 "src-ag/LOAG/Prepare.ag" #-}
                     _nontsIfty
-                    {-# LINE 2408 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 2421 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule230 #-}
    {-# LINE 103 "src-ag/LOAG/Prepare.ag" #-}
    rule230 = \ ((_nontsIps) :: [PLabel]) ->
                 {-# LINE 103 "src-ag/LOAG/Prepare.ag" #-}
                 _nontsIps
-                {-# LINE 2414 "dist/build/LOAG/Order.hs"#-}
+                {-# LINE 2427 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule231 #-}
    {-# LINE 150 "src-ag/LOAG/Prepare.ag" #-}
    rule231 = \ _an ->
                  {-# LINE 150 "src-ag/LOAG/Prepare.ag" #-}
                  map2F _an
-                 {-# LINE 2420 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 2433 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule232 #-}
    {-# LINE 151 "src-ag/LOAG/Prepare.ag" #-}
    rule232 = \ _nmpr ->
                    {-# LINE 151 "src-ag/LOAG/Prepare.ag" #-}
                    _nmpr
-                   {-# LINE 2426 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 2439 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule233 #-}
    {-# LINE 152 "src-ag/LOAG/Prepare.ag" #-}
    rule233 = \ _nmp ->
                    {-# LINE 152 "src-ag/LOAG/Prepare.ag" #-}
                    if Map.null _nmp     then 0 else (fst $ Map.findMax _nmp    )
-                   {-# LINE 2432 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 2445 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule234 #-}
    {-# LINE 153 "src-ag/LOAG/Prepare.ag" #-}
    rule234 = \  (_ :: ()) ->
                    {-# LINE 153 "src-ag/LOAG/Prepare.ag" #-}
                    0
-                   {-# LINE 2438 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 2451 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule235 #-}
    {-# LINE 207 "src-ag/LOAG/Prepare.ag" #-}
    rule235 = \ ((_nontsIlfp) :: SF_P) ((_nontsIsfp) :: SF_P) ->
                  {-# LINE 207 "src-ag/LOAG/Prepare.ag" #-}
-                 repLocRefs _nontsIlfp _nontsIsfp
-                 {-# LINE 2444 "dist/build/LOAG/Order.hs"#-}
+                 repLocRefs _nontsIlfp $ addHigherOrders _nontsIlfp _nontsIsfp
+                 {-# LINE 2457 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule236 #-}
    {-# LINE 54 "src-ag/LOAG/Order.ag" #-}
    rule236 = \ _schedRes ->
                    {-# LINE 54 "src-ag/LOAG/Order.ag" #-}
                    either Seq.singleton (const Seq.empty) _schedRes
-                   {-# LINE 2450 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 2463 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule237 #-}
    {-# LINE 55 "src-ag/LOAG/Order.ag" #-}
    rule237 = \ ((_lhsIoptions) :: Options) ((_nontsIpmp) :: PMP) _schedRes ->
@@ -2454,25 +2467,25 @@ sem_Grammar_Grammar arg_typeSyns_ arg_useMap_ arg_derivings_ arg_wrappers_ arg_n
                    case either (const []) trd' _schedRes     of
                       []  -> Nothing
                       ads -> Just $ ppAds _lhsIoptions _nontsIpmp ads
-                   {-# LINE 2458 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 2471 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule238 #-}
    {-# LINE 58 "src-ag/LOAG/Order.ag" #-}
    rule238 = \ ((_nontsIenonts) :: ENonterminals) derivings_ typeSyns_ wrappers_ ->
                    {-# LINE 58 "src-ag/LOAG/Order.ag" #-}
                    ExecutionPlan _nontsIenonts typeSyns_ wrappers_ derivings_
-                   {-# LINE 2464 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 2477 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule239 #-}
    {-# LINE 60 "src-ag/LOAG/Order.ag" #-}
    rule239 = \ _schedRes ->
                       {-# LINE 60 "src-ag/LOAG/Order.ag" #-}
                       either (const Map.empty) snd' _schedRes
-                      {-# LINE 2470 "dist/build/LOAG/Order.hs"#-}
+                      {-# LINE 2483 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule240 #-}
    {-# LINE 61 "src-ag/LOAG/Order.ag" #-}
    rule240 = \ _schedRes ->
                       {-# LINE 61 "src-ag/LOAG/Order.ag" #-}
                       either (error "no tdp") (fromJust.fst') _schedRes
-                      {-# LINE 2476 "dist/build/LOAG/Order.hs"#-}
+                      {-# LINE 2489 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule241 #-}
    {-# LINE 63 "src-ag/LOAG/Order.ag" #-}
    rule241 = \ _ag ((_lhsIoptions) :: Options) _loagRes ((_nontsIads) :: [Edge]) _self ((_smfIself) :: LOAGRep) ->
@@ -2482,38 +2495,38 @@ sem_Grammar_Grammar arg_typeSyns_ arg_useMap_ arg_derivings_ arg_wrappers_ arg_n
                                   then AOAG.schedule _smfIself _self _ag     _nontsIads
                                   else _loagRes
                           else Right (Nothing,Map.empty,[])
-                       {-# LINE 2486 "dist/build/LOAG/Order.hs"#-}
+                       {-# LINE 2499 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule242 #-}
    {-# LINE 68 "src-ag/LOAG/Order.ag" #-}
    rule242 = \ _ag ((_lhsIoptions) :: Options) ->
                     {-# LINE 68 "src-ag/LOAG/Order.ag" #-}
                     let putStrLn s = when (verbose _lhsIoptions) (IO.putStrLn s)
                     in  Right $ unsafePerformIO $ scheduleLOAG _ag     putStrLn _lhsIoptions
-                    {-# LINE 2493 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 2506 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule243 #-}
    {-# LINE 70 "src-ag/LOAG/Order.ag" #-}
    rule243 = \ _self ((_smfIself) :: LOAGRep) ->
                {-# LINE 70 "src-ag/LOAG/Order.ag" #-}
                repToAg _smfIself _self
-               {-# LINE 2499 "dist/build/LOAG/Order.hs"#-}
+               {-# LINE 2512 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule244 #-}
    {-# LINE 72 "src-ag/LOAG/Order.ag" #-}
    rule244 = \ _schedRes ->
                       {-# LINE 72 "src-ag/LOAG/Order.ag" #-}
                       either (const []) trd' _schedRes
-                      {-# LINE 2505 "dist/build/LOAG/Order.hs"#-}
+                      {-# LINE 2518 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule245 #-}
    {-# LINE 133 "src-ag/LOAG/Order.ag" #-}
    rule245 = \ ((_nontsIvisMap) :: IMap.IntMap Int) ->
                               {-# LINE 133 "src-ag/LOAG/Order.ag" #-}
                               _nontsIvisMap
-                              {-# LINE 2511 "dist/build/LOAG/Order.hs"#-}
+                              {-# LINE 2524 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule246 #-}
    {-# LINE 134 "src-ag/LOAG/Order.ag" #-}
    rule246 = \  (_ :: ()) ->
                                {-# LINE 134 "src-ag/LOAG/Order.ag" #-}
                                0
-                               {-# LINE 2517 "dist/build/LOAG/Order.hs"#-}
+                               {-# LINE 2530 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule247 #-}
    rule247 = \ ((_nontsIinhmap) :: Map.Map NontermIdent Attributes) ->
      _nontsIinhmap
@@ -2603,7 +2616,7 @@ sem_HsToken_AGLocal arg_var_ arg_pos_ arg_rdesc_ = T_HsToken (return st53) where
             True  -> Set.empty
             False -> Set.singleton $ (_lhsIpll, getName _LOC) >.<
                           (getName var_, drhs _LOC)
-          {-# LINE 2607 "dist/build/LOAG/Order.hs"#-}
+          {-# LINE 2620 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule258 #-}
    rule258 = \ pos_ rdesc_ var_ ->
      AGLocal var_ pos_ rdesc_
@@ -2631,7 +2644,7 @@ sem_HsToken_AGField arg_field_ arg_attr_ arg_pos_ arg_rdesc_ = T_HsToken (return
                  {-# LINE 289 "src-ag/LOAG/Prepare.ag" #-}
                  Set.singleton $ (_lhsIpll, getName field_) >.<
                                   (getName attr_, drhs field_)
-                 {-# LINE 2635 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 2648 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule261 #-}
    rule261 = \ attr_ field_ pos_ rdesc_ ->
      AGField field_ attr_ pos_ rdesc_
@@ -3026,51 +3039,51 @@ sem_MySegment_MySegment arg_visnr_ arg_inhAttr_ arg_synAttr_ arg_inhOccs_ arg_sy
    rule294 = \ ((_lhsInmp) :: NMP) inhAttr_ ->
                    {-# LINE 225 "src-ag/LOAG/Order.ag" #-}
                    Map.keysSet$ Map.unions $ map (vertexToAttr _lhsInmp) inhAttr_
-                   {-# LINE 3030 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 3043 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule295 #-}
    {-# LINE 226 "src-ag/LOAG/Order.ag" #-}
    rule295 = \ ((_lhsInmp) :: NMP) synAttr_ ->
                    {-# LINE 226 "src-ag/LOAG/Order.ag" #-}
                    Map.keysSet$ Map.unions $ map (vertexToAttr _lhsInmp) synAttr_
-                   {-# LINE 3036 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 3049 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule296 #-}
    {-# LINE 227 "src-ag/LOAG/Order.ag" #-}
    rule296 = \ inhOccs_ ->
                    {-# LINE 227 "src-ag/LOAG/Order.ag" #-}
                    maybe (error "segment not instantiated") id inhOccs_
-                   {-# LINE 3042 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 3055 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule297 #-}
    {-# LINE 228 "src-ag/LOAG/Order.ag" #-}
    rule297 = \ synOccs_ ->
                    {-# LINE 228 "src-ag/LOAG/Order.ag" #-}
                    maybe (error "segment not instantiated") id synOccs_
-                   {-# LINE 3048 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 3061 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule298 #-}
    {-# LINE 229 "src-ag/LOAG/Order.ag" #-}
    rule298 = \ visnr_ ->
                    {-# LINE 229 "src-ag/LOAG/Order.ag" #-}
                    visnr_
-                   {-# LINE 3054 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 3067 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule299 #-}
    {-# LINE 230 "src-ag/LOAG/Order.ag" #-}
    rule299 = \ ((_lhsIoptions) :: Options) ->
                    {-# LINE 230 "src-ag/LOAG/Order.ag" #-}
                    if monadic _lhsIoptions then VisitMonadic else VisitPure True
-                   {-# LINE 3060 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 3073 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule300 #-}
    {-# LINE 231 "src-ag/LOAG/Order.ag" #-}
    rule300 = \ _inhs _kind ((_lhsIvisitnum) :: Int) _steps _syns ->
                       {-# LINE 231 "src-ag/LOAG/Order.ag" #-}
                       Visit _lhsIvisitnum _lhsIvisitnum (_lhsIvisitnum+1)
                             _inhs     _syns     _steps     _kind
-                      {-# LINE 3067 "dist/build/LOAG/Order.hs"#-}
+                      {-# LINE 3080 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule301 #-}
    {-# LINE 233 "src-ag/LOAG/Order.ag" #-}
    rule301 = \ ((_lhsIoptions) :: Options) _vss ->
                       {-# LINE 233 "src-ag/LOAG/Order.ag" #-}
                       if monadic _lhsIoptions
                           then [Sim _vss    ] else [PureGroup _vss     True]
-                      {-# LINE 3074 "dist/build/LOAG/Order.hs"#-}
+                      {-# LINE 3087 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule302 #-}
    {-# LINE 235 "src-ag/LOAG/Order.ag" #-}
    rule302 = \ ((_lhsIdone) ::  (Set.Set MyOccurrence, Set.Set FLabel
@@ -3079,7 +3092,7 @@ sem_MySegment_MySegment arg_visnr_ arg_inhAttr_ arg_synAttr_ arg_inhOccs_ arg_sy
                              (runST $ getVss _lhsIdone _lhsIps _lhsItdp _synsO
                               _lhsIlfpf _lhsInmprf _lhsIpmpf _lhsIpmprf _lhsIfty
                               _lhsIvisMapf _lhsIruleMap _lhsIhoMapf)
-                             {-# LINE 3083 "dist/build/LOAG/Order.hs"#-}
+                             {-# LINE 3096 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule303 #-}
    rule303 = \ inhAttr_ inhOccs_ synAttr_ synOccs_ visnr_ ->
      MySegment visnr_ inhAttr_ synAttr_ inhOccs_ synOccs_
@@ -3184,14 +3197,14 @@ sem_MySegments_Cons arg_hd_ arg_tl_ = T_MySegments (return st68) where
                                                , Set.Set Identifier, Set.Set (FLabel,Int))) ->
                         {-# LINE 220 "src-ag/LOAG/Order.ag" #-}
                         _lhsIdone
-                        {-# LINE 3188 "dist/build/LOAG/Order.hs"#-}
+                        {-# LINE 3201 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule308 #-}
    {-# LINE 221 "src-ag/LOAG/Order.ag" #-}
    rule308 = \ ((_hdIdone) ::  (Set.Set MyOccurrence, Set.Set FLabel
                                               ,Set.Set Identifier, Set.Set (FLabel,Int))) ->
                         {-# LINE 221 "src-ag/LOAG/Order.ag" #-}
                         _hdIdone
-                        {-# LINE 3195 "dist/build/LOAG/Order.hs"#-}
+                        {-# LINE 3208 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule309 #-}
    rule309 = \ ((_hdIevisits) :: Visit) ((_tlIevisits) :: Visits) ->
      _hdIevisits : _tlIevisits
@@ -3478,43 +3491,43 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
    rule347 = \ ((_prodsIrefNts) :: Set NontermIdent) nt_ ->
                             {-# LINE 16 "src-ag/ExecutionPlanCommon.ag" #-}
                             Map.singleton nt_ _prodsIrefNts
-                            {-# LINE 3482 "dist/build/LOAG/Order.hs"#-}
+                            {-# LINE 3495 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule348 #-}
    {-# LINE 17 "src-ag/ExecutionPlanCommon.ag" #-}
    rule348 = \ ((_prodsIrefHoNts) :: Set NontermIdent) nt_ ->
                             {-# LINE 17 "src-ag/ExecutionPlanCommon.ag" #-}
                             Map.singleton nt_ _prodsIrefHoNts
-                            {-# LINE 3488 "dist/build/LOAG/Order.hs"#-}
+                            {-# LINE 3501 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule349 #-}
    {-# LINE 19 "src-ag/ExecutionPlanCommon.ag" #-}
    rule349 = \ ((_lhsIclosedNtDeps) :: Map NontermIdent (Set NontermIdent)) nt_ ->
                             {-# LINE 19 "src-ag/ExecutionPlanCommon.ag" #-}
                             Map.findWithDefault Set.empty nt_ _lhsIclosedNtDeps
-                            {-# LINE 3494 "dist/build/LOAG/Order.hs"#-}
+                            {-# LINE 3507 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule350 #-}
    {-# LINE 20 "src-ag/ExecutionPlanCommon.ag" #-}
    rule350 = \ ((_lhsIclosedHoNtDeps) :: Map NontermIdent (Set NontermIdent)) nt_ ->
                             {-# LINE 20 "src-ag/ExecutionPlanCommon.ag" #-}
                             Map.findWithDefault Set.empty nt_ _lhsIclosedHoNtDeps
-                            {-# LINE 3500 "dist/build/LOAG/Order.hs"#-}
+                            {-# LINE 3513 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule351 #-}
    {-# LINE 21 "src-ag/ExecutionPlanCommon.ag" #-}
    rule351 = \ ((_lhsIclosedHoNtRevDeps) :: Map NontermIdent (Set NontermIdent)) nt_ ->
                             {-# LINE 21 "src-ag/ExecutionPlanCommon.ag" #-}
                             Map.findWithDefault Set.empty nt_ _lhsIclosedHoNtRevDeps
-                            {-# LINE 3506 "dist/build/LOAG/Order.hs"#-}
+                            {-# LINE 3519 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule352 #-}
    {-# LINE 23 "src-ag/ExecutionPlanCommon.ag" #-}
    rule352 = \ _closedNtDeps nt_ ->
                             {-# LINE 23 "src-ag/ExecutionPlanCommon.ag" #-}
                             nt_ `Set.member` _closedNtDeps
-                            {-# LINE 3512 "dist/build/LOAG/Order.hs"#-}
+                            {-# LINE 3525 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule353 #-}
    {-# LINE 24 "src-ag/ExecutionPlanCommon.ag" #-}
    rule353 = \ _closedHoNtDeps nt_ ->
                             {-# LINE 24 "src-ag/ExecutionPlanCommon.ag" #-}
                             nt_ `Set.member` _closedHoNtDeps
-                            {-# LINE 3518 "dist/build/LOAG/Order.hs"#-}
+                            {-# LINE 3531 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule354 #-}
    {-# LINE 25 "src-ag/ExecutionPlanCommon.ag" #-}
    rule354 = \ _closedHoNtDeps _closedHoNtRevDeps _nontrivAcyc ->
@@ -3523,57 +3536,57 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
                                             , hoNtRevDeps         = _closedHoNtRevDeps
                                             , hoAcyclic           = _nontrivAcyc
                                             }
-                            {-# LINE 3527 "dist/build/LOAG/Order.hs"#-}
+                            {-# LINE 3540 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule355 #-}
    {-# LINE 54 "src-ag/ExecutionPlanCommon.ag" #-}
    rule355 = \ ((_lhsIclassContexts) :: ContextMap) nt_ ->
                         {-# LINE 54 "src-ag/ExecutionPlanCommon.ag" #-}
                         Map.findWithDefault [] nt_ _lhsIclassContexts
-                        {-# LINE 3533 "dist/build/LOAG/Order.hs"#-}
+                        {-# LINE 3546 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule356 #-}
    {-# LINE 88 "src-ag/ExecutionPlanCommon.ag" #-}
    rule356 = \ ((_lhsIaroundMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) nt_ ->
                                                  {-# LINE 88 "src-ag/ExecutionPlanCommon.ag" #-}
                                                  Map.findWithDefault Map.empty nt_ _lhsIaroundMap
-                                                 {-# LINE 3539 "dist/build/LOAG/Order.hs"#-}
+                                                 {-# LINE 3552 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule357 #-}
    {-# LINE 113 "src-ag/ExecutionPlanCommon.ag" #-}
    rule357 = \ ((_lhsImergeMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))) nt_ ->
                                                 {-# LINE 113 "src-ag/ExecutionPlanCommon.ag" #-}
                                                 Map.findWithDefault Map.empty nt_ _lhsImergeMap
-                                                {-# LINE 3545 "dist/build/LOAG/Order.hs"#-}
+                                                {-# LINE 3558 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule358 #-}
    {-# LINE 149 "src-ag/ExecutionPlanCommon.ag" #-}
    rule358 = \ inh_ nt_ ->
                                {-# LINE 149 "src-ag/ExecutionPlanCommon.ag" #-}
                                Map.singleton nt_ inh_
-                               {-# LINE 3551 "dist/build/LOAG/Order.hs"#-}
+                               {-# LINE 3564 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule359 #-}
    {-# LINE 150 "src-ag/ExecutionPlanCommon.ag" #-}
    rule359 = \ nt_ syn_ ->
                                {-# LINE 150 "src-ag/ExecutionPlanCommon.ag" #-}
                                Map.singleton nt_ syn_
-                               {-# LINE 3557 "dist/build/LOAG/Order.hs"#-}
+                               {-# LINE 3570 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule360 #-}
    {-# LINE 159 "src-ag/ExecutionPlanCommon.ag" #-}
    rule360 = \ ((_prodsIlocalSigMap) :: Map.Map ConstructorIdent (Map.Map Identifier Type)) nt_ ->
                                                    {-# LINE 159 "src-ag/ExecutionPlanCommon.ag" #-}
                                                    Map.singleton nt_ _prodsIlocalSigMap
-                                                   {-# LINE 3563 "dist/build/LOAG/Order.hs"#-}
+                                                   {-# LINE 3576 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule361 #-}
    {-# LINE 65 "src-ag/LOAG/Prepare.ag" #-}
    rule361 = \ inh_ nt_ ->
                  {-# LINE 65 "src-ag/LOAG/Prepare.ag" #-}
                  let dty = TyData (getName nt_)
                   in Map.singleton dty (toMyAttr Inh dty inh_)
-                 {-# LINE 3570 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 3583 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule362 #-}
    {-# LINE 67 "src-ag/LOAG/Prepare.ag" #-}
    rule362 = \ nt_ syn_ ->
                  {-# LINE 67 "src-ag/LOAG/Prepare.ag" #-}
                  let dty = TyData (getName nt_)
                   in Map.singleton dty (toMyAttr Syn dty syn_)
-                 {-# LINE 3577 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 3590 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule363 #-}
    {-# LINE 69 "src-ag/LOAG/Prepare.ag" #-}
    rule363 = \ ((_lhsIaugM) :: Map.Map Identifier (Map.Map Identifier (Set.Set Dependency))) nt_ ->
@@ -3581,51 +3594,51 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
                    case Map.lookup nt_ _lhsIaugM of
                       Nothing -> Map.empty
                       Just a  -> a
-                   {-# LINE 3585 "dist/build/LOAG/Order.hs"#-}
+                   {-# LINE 3598 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule364 #-}
    {-# LINE 131 "src-ag/LOAG/Prepare.ag" #-}
    rule364 = \ nt_ ->
                  {-# LINE 131 "src-ag/LOAG/Prepare.ag" #-}
                  TyData (getName nt_)
-                 {-# LINE 3591 "dist/build/LOAG/Order.hs"#-}
+                 {-# LINE 3604 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule365 #-}
    {-# LINE 82 "src-ag/LOAG/Order.ag" #-}
    rule365 = \ ((_prodsIfdps) :: Map.Map ConstructorIdent (Set Dependency)) nt_ ->
                     {-# LINE 82 "src-ag/LOAG/Order.ag" #-}
                     Map.singleton nt_ _prodsIfdps
-                    {-# LINE 3597 "dist/build/LOAG/Order.hs"#-}
+                    {-# LINE 3610 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule366 #-}
    {-# LINE 138 "src-ag/LOAG/Order.ag" #-}
    rule366 = \ ((_lhsIvisitnum) :: Int) ->
                         {-# LINE 138 "src-ag/LOAG/Order.ag" #-}
                         _lhsIvisitnum
-                        {-# LINE 3603 "dist/build/LOAG/Order.hs"#-}
+                        {-# LINE 3616 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule367 #-}
    {-# LINE 139 "src-ag/LOAG/Order.ag" #-}
    rule367 = \ _initial _segments ->
                         {-# LINE 139 "src-ag/LOAG/Order.ag" #-}
                         zipWith const [_initial    ..] _segments
-                        {-# LINE 3609 "dist/build/LOAG/Order.hs"#-}
+                        {-# LINE 3622 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule368 #-}
    {-# LINE 140 "src-ag/LOAG/Order.ag" #-}
    rule368 = \ _vnums ->
                              {-# LINE 140 "src-ag/LOAG/Order.ag" #-}
                              _vnums
-                             {-# LINE 3615 "dist/build/LOAG/Order.hs"#-}
+                             {-# LINE 3628 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule369 #-}
    {-# LINE 141 "src-ag/LOAG/Order.ag" #-}
    rule369 = \ _initial _vnums ->
                         {-# LINE 141 "src-ag/LOAG/Order.ag" #-}
                         Map.fromList $ (_initial     + length _vnums, NoneVis)
                                      : [(v, OneVis v) | v <- _vnums ]
-                        {-# LINE 3622 "dist/build/LOAG/Order.hs"#-}
+                        {-# LINE 3635 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule370 #-}
    {-# LINE 143 "src-ag/LOAG/Order.ag" #-}
    rule370 = \ _initial _vnums ->
                         {-# LINE 143 "src-ag/LOAG/Order.ag" #-}
                         Map.fromList $ (_initial    , NoneVis)
                                      : [(v+1, OneVis v) | v <- _vnums ]
-                        {-# LINE 3629 "dist/build/LOAG/Order.hs"#-}
+                        {-# LINE 3642 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule371 #-}
    {-# LINE 145 "src-ag/LOAG/Order.ag" #-}
    rule371 = \ _initial _mysegments ->
@@ -3633,7 +3646,7 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
                         let op vnr (MySegment visnr ins syns _ _) =
                               IMap.fromList $ zip syns (repeat vnr)
                          in IMap.unions $ zipWith op [_initial    ..] _mysegments
-                        {-# LINE 3637 "dist/build/LOAG/Order.hs"#-}
+                        {-# LINE 3650 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule372 #-}
    {-# LINE 148 "src-ag/LOAG/Order.ag" #-}
    rule372 = \ _classContexts _hoInfo _initial _initialVisit _nextVis _prevVis ((_prodsIeprods) :: EProductions) _recursive nt_ params_ ->
@@ -3649,14 +3662,14 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
                           _prodsIeprods
                           _recursive
                           _hoInfo     ]
-                       {-# LINE 3653 "dist/build/LOAG/Order.hs"#-}
+                       {-# LINE 3666 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule373 #-}
    {-# LINE 322 "src-ag/LOAG/Order.ag" #-}
    rule373 = \ ((_lhsIsched) :: InterfaceRes) nt_ ->
                          {-# LINE 322 "src-ag/LOAG/Order.ag" #-}
                          findWithErr _lhsIsched "could not const. interfaces"
                               (getName nt_)
-                         {-# LINE 3660 "dist/build/LOAG/Order.hs"#-}
+                         {-# LINE 3673 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule374 #-}
    {-# LINE 324 "src-ag/LOAG/Order.ag" #-}
    rule374 = \ _assigned ((_lhsIsched) :: InterfaceRes) ->
@@ -3665,7 +3678,7 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
                           then 0
                           else let mx = fst $ IMap.findMax _assigned     in
                                 if even mx then mx else mx + 1
-                         {-# LINE 3669 "dist/build/LOAG/Order.hs"#-}
+                         {-# LINE 3682 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule375 #-}
    {-# LINE 329 "src-ag/LOAG/Order.ag" #-}
    rule375 = \ _assigned _mx ->
@@ -3675,7 +3688,7 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
                           (maybe [] id $ IMap.lookup (i-1) _assigned    )
                               Nothing Nothing)
                    [_mx    ,_mx    -2 .. 2]
-              {-# LINE 3679 "dist/build/LOAG/Order.hs"#-}
+              {-# LINE 3692 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule376 #-}
    {-# LINE 335 "src-ag/LOAG/Order.ag" #-}
    rule376 = \ ((_lhsInmp) :: NMP) _mysegments ->
@@ -3684,7 +3697,7 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
                       CSegment (Map.unions $ map (vertexToAttr _lhsInmp) is)
                                (Map.unions $ map (vertexToAttr _lhsInmp) ss))
                   _mysegments
-              {-# LINE 3688 "dist/build/LOAG/Order.hs"#-}
+              {-# LINE 3701 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule377 #-}
    rule377 = \ ((_prodsIads) :: [Edge]) ->
      _prodsIads
@@ -4544,7 +4557,7 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st77) where
                 let isLocal = (field_ == _LOC || field_ == _INST)
                  in [(getName field_, (getName attr_, dlhs field_),
                       isLocal)] ++ _patIafs
-                {-# LINE 4548 "dist/build/LOAG/Order.hs"#-}
+                {-# LINE 4561 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule552 #-}
    rule552 = \ ((_patIcopy) :: Pattern) attr_ field_ ->
      Alias field_ attr_ _patIcopy
@@ -4879,31 +4892,31 @@ sem_Production_Production arg_con_ arg_params_ arg_constraints_ arg_children_ ar
    rule576 = \ ((_lhsIaroundMap) :: Map ConstructorIdent (Map Identifier [Expression])) con_ ->
                                                  {-# LINE 89 "src-ag/ExecutionPlanCommon.ag" #-}
                                                  Map.findWithDefault Map.empty con_ _lhsIaroundMap
-                                                 {-# LINE 4883 "dist/build/LOAG/Order.hs"#-}
+                                                 {-# LINE 4896 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule577 #-}
    {-# LINE 114 "src-ag/ExecutionPlanCommon.ag" #-}
    rule577 = \ ((_lhsImergeMap) :: Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression))) con_ ->
                                                 {-# LINE 114 "src-ag/ExecutionPlanCommon.ag" #-}
                                                 Map.findWithDefault Map.empty con_ _lhsImergeMap
-                                                {-# LINE 4889 "dist/build/LOAG/Order.hs"#-}
+                                                {-# LINE 4902 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule578 #-}
    {-# LINE 120 "src-ag/ExecutionPlanCommon.ag" #-}
    rule578 = \ _mergeMap ->
                          {-# LINE 120 "src-ag/ExecutionPlanCommon.ag" #-}
                          Set.unions [ Set.fromList ms | (_,ms,_) <- Map.elems _mergeMap     ]
-                         {-# LINE 4895 "dist/build/LOAG/Order.hs"#-}
+                         {-# LINE 4908 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule579 #-}
    {-# LINE 160 "src-ag/ExecutionPlanCommon.ag" #-}
    rule579 = \ ((_typeSigsIlocalSigMap) :: Map Identifier Type) con_ ->
                                                    {-# LINE 160 "src-ag/ExecutionPlanCommon.ag" #-}
                                                    Map.singleton con_ _typeSigsIlocalSigMap
-                                                   {-# LINE 4901 "dist/build/LOAG/Order.hs"#-}
+                                                   {-# LINE 4914 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule580 #-}
    {-# LINE 115 "src-ag/LOAG/Prepare.ag" #-}
    rule580 = \ ((_lhsIdty) :: MyType) con_ ->
                {-# LINE 115 "src-ag/LOAG/Prepare.ag" #-}
                (_lhsIdty,getName con_)
-               {-# LINE 4907 "dist/build/LOAG/Order.hs"#-}
+               {-# LINE 4920 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule581 #-}
    {-# LINE 117 "src-ag/LOAG/Prepare.ag" #-}
    rule581 = \ ((_childrenIpmpr) :: PMP_R) ((_lhsIaugM) :: Map.Map Identifier (Set.Set Dependency)) _pll con_ ->
@@ -4911,37 +4924,37 @@ sem_Production_Production arg_con_ arg_params_ arg_constraints_ arg_children_ ar
           case Map.lookup con_ _lhsIaugM of
            Nothing -> []
            Just a  -> Set.toList $ Set.map (depToEdge _childrenIpmpr _pll    ) a
-          {-# LINE 4915 "dist/build/LOAG/Order.hs"#-}
+          {-# LINE 4928 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule582 #-}
    {-# LINE 120 "src-ag/LOAG/Prepare.ag" #-}
    rule582 = \ ((_lhsIdty) :: MyType) ->
                      {-# LINE 120 "src-ag/LOAG/Prepare.ag" #-}
                      _lhsIdty
-                     {-# LINE 4921 "dist/build/LOAG/Order.hs"#-}
+                     {-# LINE 4934 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule583 #-}
    {-# LINE 214 "src-ag/LOAG/Prepare.ag" #-}
    rule583 = \ ((_lhsIdty) :: MyType) con_ ->
                   {-# LINE 214 "src-ag/LOAG/Prepare.ag" #-}
                   (_lhsIdty,getName con_)
-                  {-# LINE 4927 "dist/build/LOAG/Order.hs"#-}
+                  {-# LINE 4940 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule584 #-}
    {-# LINE 215 "src-ag/LOAG/Prepare.ag" #-}
    rule584 = \ _pll ->
                   {-# LINE 215 "src-ag/LOAG/Prepare.ag" #-}
                   _pll
-                  {-# LINE 4933 "dist/build/LOAG/Order.hs"#-}
+                  {-# LINE 4946 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule585 #-}
    {-# LINE 216 "src-ag/LOAG/Prepare.ag" #-}
    rule585 = \ ((_childrenIpts) :: Set.Set FLabel) ->
                   {-# LINE 216 "src-ag/LOAG/Prepare.ag" #-}
                   _childrenIpts
-                  {-# LINE 4939 "dist/build/LOAG/Order.hs"#-}
+                  {-# LINE 4952 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule586 #-}
    {-# LINE 217 "src-ag/LOAG/Prepare.ag" #-}
    rule586 = \ ((_childrenIfieldMap) :: FMap) _pll ->
                   {-# LINE 217 "src-ag/LOAG/Prepare.ag" #-}
                   Map.singleton _pll $ Map.keys _childrenIfieldMap
-                  {-# LINE 4945 "dist/build/LOAG/Order.hs"#-}
+                  {-# LINE 4958 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule587 #-}
    {-# LINE 89 "src-ag/LOAG/Order.ag" #-}
    rule587 = \ ((_lhsIdty) :: MyType) ((_lhsIpmpf) :: PMP) ((_lhsIres_ads) :: [Edge]) con_ ->
@@ -4952,19 +4965,19 @@ sem_Production_Production arg_con_ arg_params_ arg_constraints_ arg_children_ ar
               | otherwise
                   = ds
         in Map.singleton con_ $ foldr op Set.empty _lhsIres_ads
-        {-# LINE 4956 "dist/build/LOAG/Order.hs"#-}
+        {-# LINE 4969 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule588 #-}
    {-# LINE 167 "src-ag/LOAG/Order.ag" #-}
    rule588 = \ ((_rulesIruleMap) :: Map.Map MyOccurrence Identifier) ->
                           {-# LINE 167 "src-ag/LOAG/Order.ag" #-}
                           _rulesIruleMap
-                          {-# LINE 4962 "dist/build/LOAG/Order.hs"#-}
+                          {-# LINE 4975 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule589 #-}
    {-# LINE 168 "src-ag/LOAG/Order.ag" #-}
    rule589 = \  (_ :: ()) ->
                           {-# LINE 168 "src-ag/LOAG/Order.ag" #-}
                           (Set.empty, Set.empty, Set.empty, Set.empty)
-                          {-# LINE 4968 "dist/build/LOAG/Order.hs"#-}
+                          {-# LINE 4981 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule590 #-}
    {-# LINE 169 "src-ag/LOAG/Order.ag" #-}
    rule590 = \ ((_childrenIself) :: Children) ->
@@ -4973,7 +4986,7 @@ sem_Production_Production arg_con_ arg_params_ arg_constraints_ arg_children_ ar
                               | kind == ChildAttr = Nothing
                               | otherwise = Just $ ChildIntro nm
                           in catMaybes $ map intro _childrenIself
-                        {-# LINE 4977 "dist/build/LOAG/Order.hs"#-}
+                        {-# LINE 4990 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule591 #-}
    {-# LINE 174 "src-ag/LOAG/Order.ag" #-}
    rule591 = \ ((_childrenIechilds) :: EChildren) _intros ((_rulesIerules) :: ERules) ((_segsIevisits) :: Visits) con_ constraints_ params_ ->
@@ -4990,7 +5003,7 @@ sem_Production_Production arg_con_ arg_params_ arg_constraints_ arg_children_ ar
                           _rulesIerules
                           _childrenIechilds
                           visits ]
-              {-# LINE 4994 "dist/build/LOAG/Order.hs"#-}
+              {-# LINE 5007 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule592 #-}
    {-# LINE 346 "src-ag/LOAG/Order.ag" #-}
    rule592 = \ ((_lhsImysegments) :: MySegments) ((_lhsInmp) :: NMP) ((_lhsIpmprf) :: PMP_R) _ps ->
@@ -5004,7 +5017,7 @@ sem_Production_Production arg_con_ arg_params_ arg_constraints_ arg_children_ ar
                                       handAllOut (_ps    ,"lhs") $
                                           map (_lhsInmp Map.!) syns)
                            ) _lhsImysegments
-              {-# LINE 5008 "dist/build/LOAG/Order.hs"#-}
+              {-# LINE 5021 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule593 #-}
    rule593 = \ ((_childrenIap) :: A_P) ->
      _childrenIap
@@ -5324,13 +5337,13 @@ sem_Productions_Cons arg_hd_ arg_tl_ = T_Productions (return st86) where
    rule649 = \ ((_lhsIvisitnum) :: Int) ->
                           {-# LINE 192 "src-ag/LOAG/Order.ag" #-}
                           _lhsIvisitnum
-                          {-# LINE 5328 "dist/build/LOAG/Order.hs"#-}
+                          {-# LINE 5341 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule650 #-}
    {-# LINE 193 "src-ag/LOAG/Order.ag" #-}
    rule650 = \ ((_hdIvisitnum) :: Int) ->
                           {-# LINE 193 "src-ag/LOAG/Order.ag" #-}
                           _hdIvisitnum
-                          {-# LINE 5334 "dist/build/LOAG/Order.hs"#-}
+                          {-# LINE 5347 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule651 #-}
    rule651 = \ ((_hdIads) :: [Edge]) ((_tlIads) :: [Edge]) ->
      ((++) _hdIads _tlIads)
@@ -5772,31 +5785,31 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
                               explicit_
                               pure_
                               mbError_
-                        {-# LINE 5776 "dist/build/LOAG/Order.hs"#-}
+                        {-# LINE 5789 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule752 #-}
    {-# LINE 12 "src-ag/ExecutionPlanPre.ag" #-}
    rule752 = \ ((_lhsIrulenumber) :: Int) ->
                              {-# LINE 12 "src-ag/ExecutionPlanPre.ag" #-}
                              _lhsIrulenumber + 1
-                             {-# LINE 5782 "dist/build/LOAG/Order.hs"#-}
+                             {-# LINE 5795 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule753 #-}
    {-# LINE 13 "src-ag/ExecutionPlanPre.ag" #-}
    rule753 = \ ((_lhsIrulenumber) :: Int) mbName_ ->
                              {-# LINE 13 "src-ag/ExecutionPlanPre.ag" #-}
                              maybe (identifier $ "rule" ++ show _lhsIrulenumber) id mbName_
-                             {-# LINE 5788 "dist/build/LOAG/Order.hs"#-}
+                             {-# LINE 5801 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule754 #-}
    {-# LINE 230 "src-ag/LOAG/Prepare.ag" #-}
    rule754 = \ ((_rhsIused) :: Set.Set MyOccurrence) ->
                        {-# LINE 230 "src-ag/LOAG/Prepare.ag" #-}
                        Set.filter (\(MyOccurrence (_,f) _) -> f == "loc") _rhsIused
-                       {-# LINE 5794 "dist/build/LOAG/Order.hs"#-}
+                       {-# LINE 5807 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule755 #-}
    {-# LINE 231 "src-ag/LOAG/Prepare.ag" #-}
    rule755 = \ _usedLocals ->
                        {-# LINE 231 "src-ag/LOAG/Prepare.ag" #-}
                        not $ Set.null _usedLocals
-                       {-# LINE 5800 "dist/build/LOAG/Order.hs"#-}
+                       {-# LINE 5813 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule756 #-}
    {-# LINE 233 "src-ag/LOAG/Prepare.ag" #-}
    rule756 = \ ((_lhsIlfpf) :: SF_P) ((_lhsIpll) :: PLabel) ((_patternIafs) :: [(FLabel, ALabel, Bool)]) ((_rhsIused) :: Set.Set MyOccurrence) _rulename _usedLocals _usesLocals ->
@@ -5820,7 +5833,7 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
                                   (Set.singleton att) m) lr _rhsIused)
                   else (sfpins,rm,l,lr))
                           (Map.empty,Map.empty,Map.empty,Map.empty) _patternIafs
-          {-# LINE 5824 "dist/build/LOAG/Order.hs"#-}
+          {-# LINE 5837 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule757 #-}
    rule757 = \ ((_rhsIused) :: Set.Set MyOccurrence) ->
      _rhsIused
@@ -6146,7 +6159,7 @@ sem_TypeSig_TypeSig arg_name_ arg_tp_ = T_TypeSig (return st98) where
    rule795 = \ name_ tp_ ->
                                                    {-# LINE 161 "src-ag/ExecutionPlanCommon.ag" #-}
                                                    Map.singleton name_ tp_
-                                                   {-# LINE 6150 "dist/build/LOAG/Order.hs"#-}
+                                                   {-# LINE 6163 "src-generated/LOAG/Order.hs" #-}
    {-# INLINE rule796 #-}
    rule796 = \ name_ tp_ ->
      TypeSig name_ tp_

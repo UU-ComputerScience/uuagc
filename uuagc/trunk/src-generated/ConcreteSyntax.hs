@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.51 (src-ag/ConcreteSyntax.ag)
+-- UUAGC 0.9.53 (src-ag/ConcreteSyntax.ag)
 module ConcreteSyntax where
 {-# LINE 2 "src-ag/ConcreteSyntax.ag" #-}
 
@@ -9,7 +9,7 @@ import Patterns   (Pattern)
 import Expression (Expression)
 import CommonTypes
 import Macro --marcos
-{-# LINE 13 "dist/build/ConcreteSyntax.hs" #-}
+{-# LINE 13 "src-generated/ConcreteSyntax.hs" #-}
 -- AG ----------------------------------------------------------
 {-
    alternatives:

@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.51 (src-ag/Code.ag)
+-- UUAGC 0.9.53 (src-ag/Code.ag)
 module Code where
 {-# LINE 2 "src-ag/Code.ag" #-}
 
@@ -9,7 +9,7 @@ import Data.Set(Set)
 import qualified Data.Set as Set
 import Data.Map(Map)
 import qualified Data.Map as Map
-{-# LINE 13 "dist/build/Code.hs" #-}
+{-# LINE 13 "src-generated/Code.hs" #-}
 {-# LINE 146 "src-ag/Code.ag" #-}
 
 -- Unboxed tuples
@@ -27,7 +27,7 @@ mkTupleType unbox' noInh tps | not unbox' || noInh || length tps == 1 = TupleTyp
 mkTupleLhs :: Bool -> Bool -> [String] -> Lhs
 mkTupleLhs  unbox' noInh comps | not unbox' || noInh || length comps == 1 = TupleLhs comps
                                | otherwise                                = UnboxedTupleLhs comps
-{-# LINE 31 "dist/build/Code.hs" #-}
+{-# LINE 31 "src-generated/Code.hs" #-}
 -- CaseAlt -----------------------------------------------------
 {-
    alternatives:

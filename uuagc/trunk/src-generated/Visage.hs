@@ -6,13 +6,13 @@ module Visage where
 
 import UU.Scanner.Position(Pos)
 import HsToken
-{-# LINE 10 "dist/build/Visage.hs" #-}
+{-# LINE 10 "src-generated/Visage.hs" #-}
 
 {-# LINE 2 "src-ag/VisagePatterns.ag" #-}
 
 import UU.Scanner.Position(Pos)
 import CommonTypes
-{-# LINE 16 "dist/build/Visage.hs" #-}
+{-# LINE 16 "src-generated/Visage.hs" #-}
 
 {-# LINE 2 "src-ag/VisageSyntax.ag" #-}
 
@@ -21,7 +21,7 @@ import UU.Pretty
 import AbstractSyntax
 import VisagePatterns
 import Expression
-{-# LINE 25 "dist/build/Visage.hs" #-}
+{-# LINE 25 "src-generated/Visage.hs" #-}
 
 {-# LINE 6 "src-ag/Visage.ag" #-}
 
@@ -35,7 +35,7 @@ import qualified Data.Map as Map
 import Data.Map(Map)
 import Data.List(intersperse)
 import TokenDef
-{-# LINE 39 "dist/build/Visage.hs" #-}
+{-# LINE 39 "src-generated/Visage.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
 {-# LINE 19 "src-ag/Visage.ag" #-}
@@ -63,7 +63,7 @@ showMap
   where
     braces s = "{" ++ s ++ "}"
     assign a b = show a ++ ":=" ++ show b
-{-# LINE 67 "dist/build/Visage.hs" #-}
+{-# LINE 67 "src-generated/Visage.hs" #-}
 -- Expression --------------------------------------------------
 -- wrapper
 data Inh_Expression  = Inh_Expression {  }
@@ -111,7 +111,7 @@ sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st2) where
    rule0 = \ pos_ tks_ ->
                               {-# LINE 103 "src-ag/Visage.ag" #-}
                               AAppl "Expression" [AString (sQ (showAGPos pos_)), AString (sQ (unlines . showTokens . tokensToStrings $ tks_))]
-                              {-# LINE 115 "dist/build/Visage.hs"#-}
+                              {-# LINE 115 "src-generated/Visage.hs" #-}
 
 -- VisageChild -------------------------------------------------
 -- wrapper
@@ -166,13 +166,13 @@ sem_VisageChild_VChild arg_name_ arg_tp_ arg_inh_ arg_syn_ arg_rules_ = T_Visage
                                               AString (sQ (showMap inh_)),
                                               AString (sQ (showMap syn_)),
                                               AAppl "Rules" _rulesIaterms]
-                               {-# LINE 170 "dist/build/Visage.hs"#-}
+                               {-# LINE 170 "src-generated/Visage.hs" #-}
    {-# INLINE rule2 #-}
    {-# LINE 89 "src-ag/Visage.ag" #-}
    rule2 = \  (_ :: ()) ->
                                  {-# LINE 89 "src-ag/Visage.ag" #-}
                                  False
-                                 {-# LINE 176 "dist/build/Visage.hs"#-}
+                                 {-# LINE 176 "src-generated/Visage.hs" #-}
 
 -- VisageChildren ----------------------------------------------
 -- wrapper
@@ -225,7 +225,7 @@ sem_VisageChildren_Cons arg_hd_ arg_tl_ = T_VisageChildren (return st8) where
    rule3 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
                                {-# LINE 80 "src-ag/Visage.ag" #-}
                                _hdIaterm : _tlIaterms
-                               {-# LINE 229 "dist/build/Visage.hs"#-}
+                               {-# LINE 229 "src-generated/Visage.hs" #-}
 {-# NOINLINE sem_VisageChildren_Nil #-}
 sem_VisageChildren_Nil ::  T_VisageChildren 
 sem_VisageChildren_Nil  = T_VisageChildren (return st8) where
@@ -243,7 +243,7 @@ sem_VisageChildren_Nil  = T_VisageChildren (return st8) where
    rule4 = \  (_ :: ()) ->
                                {-# LINE 81 "src-ag/Visage.ag" #-}
                                []
-                               {-# LINE 247 "dist/build/Visage.hs"#-}
+                               {-# LINE 247 "src-generated/Visage.hs" #-}
 
 -- VisageGrammar -----------------------------------------------
 -- wrapper
@@ -294,7 +294,7 @@ sem_VisageGrammar_VGrammar arg_nonts_ = T_VisageGrammar (return st11) where
    rule5 = \ ((_nontsIaterms) :: [ATerm]) ->
                                {-# LINE 54 "src-ag/Visage.ag" #-}
                                AAppl "Productions" _nontsIaterms
-                               {-# LINE 298 "dist/build/Visage.hs"#-}
+                               {-# LINE 298 "src-generated/Visage.hs" #-}
 
 -- VisageNonterminal -------------------------------------------
 -- wrapper
@@ -346,7 +346,7 @@ sem_VisageNonterminal_VNonterminal arg_nt_ arg_inh_ arg_syn_ arg_alts_ = T_Visag
                                 {-# LINE 63 "src-ag/Visage.ag" #-}
                                 AAppl "Production" [AString (sQ (getName nt_)), AString (sQ(showMap inh_)),
                                                    AString (sQ(showMap syn_)), AAppl "Alternatives" _altsIaterms]
-                                {-# LINE 350 "dist/build/Visage.hs"#-}
+                                {-# LINE 350 "src-generated/Visage.hs" #-}
 
 -- VisageNonterminals ------------------------------------------
 -- wrapper
@@ -399,7 +399,7 @@ sem_VisageNonterminals_Cons arg_hd_ arg_tl_ = T_VisageNonterminals (return st17)
    rule7 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
                                {-# LINE 58 "src-ag/Visage.ag" #-}
                                _hdIaterm : _tlIaterms
-                               {-# LINE 403 "dist/build/Visage.hs"#-}
+                               {-# LINE 403 "src-generated/Visage.hs" #-}
 {-# NOINLINE sem_VisageNonterminals_Nil #-}
 sem_VisageNonterminals_Nil ::  T_VisageNonterminals 
 sem_VisageNonterminals_Nil  = T_VisageNonterminals (return st17) where
@@ -417,7 +417,7 @@ sem_VisageNonterminals_Nil  = T_VisageNonterminals (return st17) where
    rule8 = \  (_ :: ()) ->
                                {-# LINE 59 "src-ag/Visage.ag" #-}
                                []
-                               {-# LINE 421 "dist/build/Visage.hs"#-}
+                               {-# LINE 421 "src-generated/Visage.hs" #-}
 
 -- VisagePattern -----------------------------------------------
 -- wrapper
@@ -474,7 +474,7 @@ sem_VisagePattern_VConstr arg_name_ arg_pats_ = T_VisagePattern (return st20) wh
                                AAppl "Pattern" [AAppl "Constr" [AString (sQ (showAGPos (getPos name_))),
                                                 AString (sQ (getName name_)),
                                                 AAppl "Patterns" _patsIaterms]]
-                               {-# LINE 478 "dist/build/Visage.hs"#-}
+                               {-# LINE 478 "src-generated/Visage.hs" #-}
 {-# NOINLINE sem_VisagePattern_VProduct #-}
 sem_VisagePattern_VProduct :: (Pos) -> T_VisagePatterns  -> T_VisagePattern 
 sem_VisagePattern_VProduct arg_pos_ arg_pats_ = T_VisagePattern (return st20) where
@@ -495,7 +495,7 @@ sem_VisagePattern_VProduct arg_pos_ arg_pats_ = T_VisagePattern (return st20) wh
                                {-# LINE 115 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Product" [AString (sQ (showAGPos pos_)),
                                                                  AAppl "Patterns" _patsIaterms]]
-                               {-# LINE 499 "dist/build/Visage.hs"#-}
+                               {-# LINE 499 "src-generated/Visage.hs" #-}
 {-# NOINLINE sem_VisagePattern_VVar #-}
 sem_VisagePattern_VVar :: (Identifier) -> (Identifier) -> T_VisagePattern 
 sem_VisagePattern_VVar arg_field_ arg_attr_ = T_VisagePattern (return st20) where
@@ -514,7 +514,7 @@ sem_VisagePattern_VVar arg_field_ arg_attr_ = T_VisagePattern (return st20) wher
                                {-# LINE 117 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Var" [AString (sQ (showAGPos (getPos field_))),
                                                              AString (sQ (getName field_ ++ "." ++ getName attr_))]]
-                               {-# LINE 518 "dist/build/Visage.hs"#-}
+                               {-# LINE 518 "src-generated/Visage.hs" #-}
 {-# NOINLINE sem_VisagePattern_VAlias #-}
 sem_VisagePattern_VAlias :: (Identifier) -> (Identifier) -> T_VisagePattern  -> T_VisagePattern 
 sem_VisagePattern_VAlias arg_field_ arg_attr_ arg_pat_ = T_VisagePattern (return st20) where
@@ -535,7 +535,7 @@ sem_VisagePattern_VAlias arg_field_ arg_attr_ arg_pat_ = T_VisagePattern (return
                                {-# LINE 119 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Alias" [AString (sQ (showAGPos (getPos field_))),
                                                                AString (sQ (getName field_ ++ "." ++ getName attr_)), _patIaterm]]
-                               {-# LINE 539 "dist/build/Visage.hs"#-}
+                               {-# LINE 539 "src-generated/Visage.hs" #-}
 {-# NOINLINE sem_VisagePattern_VUnderscore #-}
 sem_VisagePattern_VUnderscore :: (Pos) -> T_VisagePattern 
 sem_VisagePattern_VUnderscore arg_pos_ = T_VisagePattern (return st20) where
@@ -553,7 +553,7 @@ sem_VisagePattern_VUnderscore arg_pos_ = T_VisagePattern (return st20) where
    rule13 = \ pos_ ->
                                {-# LINE 121 "src-ag/Visage.ag" #-}
                                AAppl "Pattern" [AAppl "Underscore" [AString (sQ (showAGPos pos_))]]
-                               {-# LINE 557 "dist/build/Visage.hs"#-}
+                               {-# LINE 557 "src-generated/Visage.hs" #-}
 
 -- VisagePatterns ----------------------------------------------
 -- wrapper
@@ -606,7 +606,7 @@ sem_VisagePatterns_Cons arg_hd_ arg_tl_ = T_VisagePatterns (return st23) where
    rule14 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
                                {-# LINE 107 "src-ag/Visage.ag" #-}
                                _hdIaterm : _tlIaterms
-                               {-# LINE 610 "dist/build/Visage.hs"#-}
+                               {-# LINE 610 "src-generated/Visage.hs" #-}
 {-# NOINLINE sem_VisagePatterns_Nil #-}
 sem_VisagePatterns_Nil ::  T_VisagePatterns 
 sem_VisagePatterns_Nil  = T_VisagePatterns (return st23) where
@@ -624,7 +624,7 @@ sem_VisagePatterns_Nil  = T_VisagePatterns (return st23) where
    rule15 = \  (_ :: ()) ->
                                {-# LINE 108 "src-ag/Visage.ag" #-}
                                []
-                               {-# LINE 628 "dist/build/Visage.hs"#-}
+                               {-# LINE 628 "src-generated/Visage.hs" #-}
 
 -- VisageProduction --------------------------------------------
 -- wrapper
@@ -683,19 +683,19 @@ sem_VisageProduction_VProduction arg_con_ arg_children_ arg_rules_ arg_locrules_
                               AAppl "Alternative" [AString (sQ (getName con_)), AAppl "Children" _childrenIaterms,
                                                     AAppl "Rules" _rulesIaterms,
                                                     AAppl "LocRules" _locrulesIaterms]
-                              {-# LINE 687 "dist/build/Visage.hs"#-}
+                              {-# LINE 687 "src-generated/Visage.hs" #-}
    {-# INLINE rule17 #-}
    {-# LINE 76 "src-ag/Visage.ag" #-}
    rule17 = \  (_ :: ()) ->
                                     {-# LINE 76 "src-ag/Visage.ag" #-}
                                     True
-                                    {-# LINE 693 "dist/build/Visage.hs"#-}
+                                    {-# LINE 693 "src-generated/Visage.hs" #-}
    {-# INLINE rule18 #-}
    {-# LINE 77 "src-ag/Visage.ag" #-}
    rule18 = \  (_ :: ()) ->
                                     {-# LINE 77 "src-ag/Visage.ag" #-}
                                     False
-                                    {-# LINE 699 "dist/build/Visage.hs"#-}
+                                    {-# LINE 699 "src-generated/Visage.hs" #-}
 
 -- VisageProductions -------------------------------------------
 -- wrapper
@@ -748,7 +748,7 @@ sem_VisageProductions_Cons arg_hd_ arg_tl_ = T_VisageProductions (return st29) w
    rule19 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
                                {-# LINE 68 "src-ag/Visage.ag" #-}
                                _hdIaterm : _tlIaterms
-                               {-# LINE 752 "dist/build/Visage.hs"#-}
+                               {-# LINE 752 "src-generated/Visage.hs" #-}
 {-# NOINLINE sem_VisageProductions_Nil #-}
 sem_VisageProductions_Nil ::  T_VisageProductions 
 sem_VisageProductions_Nil  = T_VisageProductions (return st29) where
@@ -766,7 +766,7 @@ sem_VisageProductions_Nil  = T_VisageProductions (return st29) where
    rule20 = \  (_ :: ()) ->
                                {-# LINE 69 "src-ag/Visage.ag" #-}
                                []
-                               {-# LINE 770 "dist/build/Visage.hs"#-}
+                               {-# LINE 770 "src-generated/Visage.hs" #-}
 
 -- VisageRule --------------------------------------------------
 -- wrapper
@@ -820,7 +820,7 @@ sem_VisageRule_VRule _ arg_attr_ arg_pat_ arg_rhs_ arg_owrt_ = T_VisageRule (ret
                                {-# LINE 97 "src-ag/Visage.ag" #-}
                                AAppl (if _lhsIisLoc then "LocRule" else "Rule")
                                      ([AString (sQ (getName attr_)), _patIaterm, _rhsIaterm] ++ if _lhsIisLoc then [AString (sQ (show owrt_))] else [])
-                               {-# LINE 824 "dist/build/Visage.hs"#-}
+                               {-# LINE 824 "src-generated/Visage.hs" #-}
 
 -- VisageRules -------------------------------------------------
 -- wrapper
@@ -875,7 +875,7 @@ sem_VisageRules_Cons arg_hd_ arg_tl_ = T_VisageRules (return st35) where
    rule22 = \ ((_hdIaterm) :: ATerm) ((_tlIaterms) :: [ATerm]) ->
                                {-# LINE 92 "src-ag/Visage.ag" #-}
                                _hdIaterm : _tlIaterms
-                               {-# LINE 879 "dist/build/Visage.hs"#-}
+                               {-# LINE 879 "src-generated/Visage.hs" #-}
    {-# INLINE rule23 #-}
    rule23 = \ ((_lhsIisLoc) :: Bool) ->
      _lhsIisLoc
@@ -899,4 +899,4 @@ sem_VisageRules_Nil  = T_VisageRules (return st35) where
    rule25 = \  (_ :: ()) ->
                                {-# LINE 93 "src-ag/Visage.ag" #-}
                                []
-                               {-# LINE 903 "dist/build/Visage.hs"#-}
+                               {-# LINE 903 "src-generated/Visage.hs" #-}

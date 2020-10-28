@@ -7,7 +7,7 @@ module InterfacesRules where
 
 import CommonTypes
 import SequentialTypes
-{-# LINE 11 "dist/build/InterfacesRules.hs" #-}
+{-# LINE 11 "src-generated/InterfacesRules.hs" #-}
 
 {-# LINE 10 "src-ag/InterfacesRules.lag" #-}
 
@@ -25,20 +25,20 @@ import Data.Maybe (fromJust)
 import Data.List (partition,transpose,(\\),nub,findIndex)
 import Data.Array ((!),inRange,bounds,assocs)
 import Data.Foldable(toList)
-{-# LINE 29 "dist/build/InterfacesRules.hs" #-}
+{-# LINE 29 "src-generated/InterfacesRules.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
 {-# LINE 53 "src-ag/InterfacesRules.lag" #-}
 
 type VisitSS = [Vertex]
-{-# LINE 35 "dist/build/InterfacesRules.hs" #-}
+{-# LINE 35 "src-generated/InterfacesRules.hs" #-}
 
 {-# LINE 88 "src-ag/InterfacesRules.lag" #-}
 
 gather :: Info -> [Vertex] -> [[Vertex]]
 gather info =  eqClasses comp
                where comp a b = isEqualField (ruleTable info ! a) (ruleTable info ! b)
-{-# LINE 42 "dist/build/InterfacesRules.hs" #-}
+{-# LINE 42 "src-generated/InterfacesRules.hs" #-}
 
 {-# LINE 129 "src-ag/InterfacesRules.lag" #-}
 
@@ -49,13 +49,13 @@ cv look n v (inh,syn) =  let  fld = getField (look (head syn))
                               rnt = fromJust (getRhsNt (look (head syn)))
                               d = ChildVisit fld rnt n inh syn
                          in (v,d)
-{-# LINE 53 "dist/build/InterfacesRules.hs" #-}
+{-# LINE 53 "src-generated/InterfacesRules.hs" #-}
 
 {-# LINE 152 "src-ag/InterfacesRules.lag" #-}
 
 ed :: Vertex -> ([Vertex], [Vertex]) -> [(Vertex, Vertex)]
 ed v (inh,syn) = map (\i -> (i,v)) inh ++ map (\s -> (v,s)) syn
-{-# LINE 59 "dist/build/InterfacesRules.hs" #-}
+{-# LINE 59 "src-generated/InterfacesRules.hs" #-}
 
 {-# LINE 240 "src-ag/InterfacesRules.lag" #-}
 
@@ -67,18 +67,18 @@ postOrd :: Graph -> [Vertex] -> [Vertex]
 postOrd g = postorderF . dfs g
 topSort' :: Graph -> [Vertex] -> [Vertex]
 topSort' g = postOrd g
-{-# LINE 71 "dist/build/InterfacesRules.hs" #-}
+{-# LINE 71 "src-generated/InterfacesRules.hs" #-}
 
 {-# LINE 323 "src-ag/InterfacesRules.lag" #-}
 
 type IntraVisit = [Vertex]
-{-# LINE 76 "dist/build/InterfacesRules.hs" #-}
+{-# LINE 76 "src-generated/InterfacesRules.hs" #-}
 
 {-# LINE 345 "src-ag/InterfacesRules.lag" #-}
 
 swap :: (a,b) -> (b,a)
 swap (a,b) = (b,a)
-{-# LINE 82 "dist/build/InterfacesRules.hs" #-}
+{-# LINE 82 "src-generated/InterfacesRules.hs" #-}
 
 {-# LINE 420 "src-ag/InterfacesRules.lag" #-}
 
@@ -89,7 +89,7 @@ ccv name nt n table
             (seg:remain) = drop n segs
             CSegment inh syn = seg
             lst = null remain
-{-# LINE 93 "dist/build/InterfacesRules.hs" #-}
+{-# LINE 93 "src-generated/InterfacesRules.hs" #-}
 -- IRoot -------------------------------------------------------
 -- wrapper
 data Inh_IRoot  = Inh_IRoot { dpr_Inh_IRoot :: !([Edge]), info_Inh_IRoot :: !(Info), tdp_Inh_IRoot :: !(Graph) }
@@ -153,7 +153,7 @@ sem_IRoot_IRoot arg_inters_ = T_IRoot (return st2) where
    rule0 = \ ((_intersInewedges) :: Seq Edge ) ->
                             {-# LINE 66 "src-ag/InterfacesRules.lag" #-}
                             toList _intersInewedges
-                            {-# LINE 157 "dist/build/InterfacesRules.hs"#-}
+                            {-# LINE 157 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule1 #-}
    {-# LINE 67 "src-ag/InterfacesRules.lag" #-}
    rule1 = \ ((_intersIv) :: Vertex) ((_lhsItdp) :: Graph) _newedges ->
@@ -161,56 +161,56 @@ sem_IRoot_IRoot arg_inters_ = T_IRoot (return st2) where
                                  let graph = buildG (0,_intersIv-1) es
                                      es = _newedges ++ edges _lhsItdp
                                  in transposeG graph
-                                 {-# LINE 165 "dist/build/InterfacesRules.hs"#-}
+                                 {-# LINE 165 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule2 #-}
    {-# LINE 80 "src-ag/InterfacesRules.lag" #-}
    rule2 = \ ((_lhsItdp) :: Graph) ->
                         {-# LINE 80 "src-ag/InterfacesRules.lag" #-}
                         snd (bounds _lhsItdp) + 1
-                        {-# LINE 171 "dist/build/InterfacesRules.hs"#-}
+                        {-# LINE 171 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule3 #-}
    {-# LINE 122 "src-ag/InterfacesRules.lag" #-}
    rule3 = \ _descr ->
                                   {-# LINE 122 "src-ag/InterfacesRules.lag" #-}
                                   Map.fromList _descr
-                                  {-# LINE 177 "dist/build/InterfacesRules.hs"#-}
+                                  {-# LINE 177 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule4 #-}
    {-# LINE 142 "src-ag/InterfacesRules.lag" #-}
    rule4 = \ ((_intersIdescr) :: Seq (Vertex,ChildVisit)) ->
                          {-# LINE 142 "src-ag/InterfacesRules.lag" #-}
                          toList _intersIdescr
-                         {-# LINE 183 "dist/build/InterfacesRules.hs"#-}
+                         {-# LINE 183 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule5 #-}
    {-# LINE 214 "src-ag/InterfacesRules.lag" #-}
    rule5 = \ _visitssGraph ->
                                {-# LINE 214 "src-ag/InterfacesRules.lag" #-}
                                _visitssGraph
-                               {-# LINE 189 "dist/build/InterfacesRules.hs"#-}
+                               {-# LINE 189 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule6 #-}
    {-# LINE 260 "src-ag/InterfacesRules.lag" #-}
    rule6 = \ ((_intersIfirstvisitvertices) :: [Vertex]) ((_lhsIinfo) :: Info) ->
                             {-# LINE 260 "src-ag/InterfacesRules.lag" #-}
                             let terminals = [ v | (v,cr) <- assocs (ruleTable _lhsIinfo), not (getHasCode cr), isLocal cr ]
                             in _intersIfirstvisitvertices ++ terminals
-                            {-# LINE 196 "dist/build/InterfacesRules.hs"#-}
+                            {-# LINE 196 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule7 #-}
    {-# LINE 343 "src-ag/InterfacesRules.lag" #-}
    rule7 = \ ((_intersIv) :: Vertex) ((_lhsIdpr) :: [Edge]) _newedges ->
                           {-# LINE 343 "src-ag/InterfacesRules.lag" #-}
                           buildG (0,_intersIv-1) (map swap (_lhsIdpr ++ _newedges))
-                          {-# LINE 202 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 202 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule8 #-}
    {-# LINE 381 "src-ag/InterfacesRules.lag" #-}
    rule8 = \ ((_intersIinters) :: CInterfaceMap) ->
                                  {-# LINE 381 "src-ag/InterfacesRules.lag" #-}
                                  _intersIinters
-                                 {-# LINE 208 "dist/build/InterfacesRules.hs"#-}
+                                 {-# LINE 208 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule9 #-}
    {-# LINE 443 "src-ag/InterfacesRules.lag" #-}
    rule9 = \ ((_intersIedp) :: Seq Edge) ->
                         {-# LINE 443 "src-ag/InterfacesRules.lag" #-}
                         toList _intersIedp
-                        {-# LINE 214 "dist/build/InterfacesRules.hs"#-}
+                        {-# LINE 214 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule10 #-}
    rule10 = \ ((_intersIinters) :: CInterfaceMap) ->
      _intersIinters
@@ -301,97 +301,97 @@ sem_Interface_Interface !arg_nt_ !arg_cons_ arg_seg_ = T_Interface (return st5) 
    rule13 = \ ((_lhsIv) :: Vertex) ->
                           {-# LINE 183 "src-ag/InterfacesRules.lag" #-}
                           _lhsIv
-                          {-# LINE 305 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 305 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule14 #-}
    {-# LINE 184 "src-ag/InterfacesRules.lag" #-}
    rule14 = \ ((_segInewvertices) :: [Vertex]) ((_segIv) :: Vertex) ->
                           {-# LINE 184 "src-ag/InterfacesRules.lag" #-}
                           _segIv + length _segInewvertices
-                          {-# LINE 311 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 311 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule15 #-}
    {-# LINE 185 "src-ag/InterfacesRules.lag" #-}
    rule15 = \ _v ->
                           {-# LINE 185 "src-ag/InterfacesRules.lag" #-}
                           _v
-                          {-# LINE 317 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 317 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule16 #-}
    {-# LINE 186 "src-ag/InterfacesRules.lag" #-}
    rule16 = \ ((_segIv) :: Vertex) _v ->
                                            {-# LINE 186 "src-ag/InterfacesRules.lag" #-}
                                            [_segIv .. _v-1]
-                                           {-# LINE 323 "dist/build/InterfacesRules.hs"#-}
+                                           {-# LINE 323 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule17 #-}
    {-# LINE 187 "src-ag/InterfacesRules.lag" #-}
    rule17 = \ _firstvisitvertices ((_segInewvertices) :: [Vertex]) ->
                                  {-# LINE 187 "src-ag/InterfacesRules.lag" #-}
                                  zip _firstvisitvertices _segInewvertices
-                                 {-# LINE 329 "dist/build/InterfacesRules.hs"#-}
+                                 {-# LINE 329 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule18 #-}
    {-# LINE 188 "src-ag/InterfacesRules.lag" #-}
    rule18 = \ _newedges ((_segInewedges) :: Seq Edge ) ->
                                  {-# LINE 188 "src-ag/InterfacesRules.lag" #-}
                                  _segInewedges Seq.>< Seq.fromList _newedges
-                                 {-# LINE 335 "dist/build/InterfacesRules.hs"#-}
+                                 {-# LINE 335 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule19 #-}
    {-# LINE 191 "src-ag/InterfacesRules.lag" #-}
    rule19 = \ ((_lhsIinfo) :: Info) ->
                              {-# LINE 191 "src-ag/InterfacesRules.lag" #-}
                              \a -> ruleTable _lhsIinfo ! a
-                             {-# LINE 341 "dist/build/InterfacesRules.hs"#-}
+                             {-# LINE 341 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule20 #-}
    {-# LINE 192 "src-ag/InterfacesRules.lag" #-}
    rule20 = \ _firstvisitvertices ((_look) :: Vertex -> CRule) ((_segIgroups) :: [([Vertex],[Vertex])]) ->
                               {-# LINE 192 "src-ag/InterfacesRules.lag" #-}
                               zipWith (cv _look (-1)) _firstvisitvertices _segIgroups
-                              {-# LINE 347 "dist/build/InterfacesRules.hs"#-}
+                              {-# LINE 347 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule21 #-}
    {-# LINE 193 "src-ag/InterfacesRules.lag" #-}
    rule21 = \ _descr ((_segIdescr) :: Seq (Vertex,ChildVisit)) ->
                               {-# LINE 193 "src-ag/InterfacesRules.lag" #-}
                               _segIdescr Seq.>< Seq.fromList _descr
-                              {-# LINE 353 "dist/build/InterfacesRules.hs"#-}
+                              {-# LINE 353 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule22 #-}
    {-# LINE 201 "src-ag/InterfacesRules.lag" #-}
    rule22 = \  (_ :: ()) ->
                          {-# LINE 201 "src-ag/InterfacesRules.lag" #-}
                          0
-                         {-# LINE 359 "dist/build/InterfacesRules.hs"#-}
+                         {-# LINE 359 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule23 #-}
    {-# LINE 233 "src-ag/InterfacesRules.lag" #-}
    rule23 = \ cons_ ->
                             {-# LINE 233 "src-ag/InterfacesRules.lag" #-}
                             cons_
-                            {-# LINE 365 "dist/build/InterfacesRules.hs"#-}
+                            {-# LINE 365 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule24 #-}
    {-# LINE 314 "src-ag/InterfacesRules.lag" #-}
    rule24 = \  (_ :: ()) ->
                                {-# LINE 314 "src-ag/InterfacesRules.lag" #-}
                                True
-                               {-# LINE 371 "dist/build/InterfacesRules.hs"#-}
+                               {-# LINE 371 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule25 #-}
    {-# LINE 352 "src-ag/InterfacesRules.lag" #-}
    rule25 = \ ((_lhsIprev) :: [Vertex]) ->
                                {-# LINE 352 "src-ag/InterfacesRules.lag" #-}
                                _lhsIprev
-                               {-# LINE 377 "dist/build/InterfacesRules.hs"#-}
+                               {-# LINE 377 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule26 #-}
    {-# LINE 392 "src-ag/InterfacesRules.lag" #-}
    rule26 = \ nt_ ->
                           {-# LINE 392 "src-ag/InterfacesRules.lag" #-}
                           nt_
-                          {-# LINE 383 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 383 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule27 #-}
    {-# LINE 396 "src-ag/InterfacesRules.lag" #-}
    rule27 = \ ((_segIsegs) :: CSegments) ->
                               {-# LINE 396 "src-ag/InterfacesRules.lag" #-}
                               CInterface _segIsegs
-                              {-# LINE 389 "dist/build/InterfacesRules.hs"#-}
+                              {-# LINE 389 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule28 #-}
    {-# LINE 397 "src-ag/InterfacesRules.lag" #-}
    rule28 = \ ((_segIcvisits) :: [[CVisit]]) cons_ ->
                                {-# LINE 397 "src-ag/InterfacesRules.lag" #-}
                                Map.fromList (zip cons_ (transpose _segIcvisits))
-                               {-# LINE 395 "dist/build/InterfacesRules.hs"#-}
+                               {-# LINE 395 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule29 #-}
    rule29 = \ ((_segIedp) :: Seq Edge) ->
      _segIedp
@@ -494,13 +494,13 @@ sem_Interfaces_Cons arg_hd_ arg_tl_ = T_Interfaces (return st8) where
    rule37 = \ ((_hdIinter) :: CInterface) ((_hdInt) :: NontermIdent) ((_tlIinters) :: CInterfaceMap) ->
                           {-# LINE 386 "src-ag/InterfacesRules.lag" #-}
                           Map.insert _hdInt _hdIinter _tlIinters
-                          {-# LINE 498 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 498 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule38 #-}
    {-# LINE 387 "src-ag/InterfacesRules.lag" #-}
    rule38 = \ ((_hdInt) :: NontermIdent) ((_hdIvisits) :: Map ConstructorIdent CVisits) ((_tlIvisits) :: CVisitsMap) ->
                           {-# LINE 387 "src-ag/InterfacesRules.lag" #-}
                           Map.insert _hdInt _hdIvisits _tlIvisits
-                          {-# LINE 504 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 504 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule39 #-}
    rule39 = \ ((_hdIdescr) :: Seq (Vertex,ChildVisit)) ((_tlIdescr) :: Seq (Vertex,ChildVisit)) ->
      _hdIdescr Seq.>< _tlIdescr
@@ -587,13 +587,13 @@ sem_Interfaces_Nil  = T_Interfaces (return st8) where
    rule58 = \  (_ :: ()) ->
                           {-# LINE 388 "src-ag/InterfacesRules.lag" #-}
                           Map.empty
-                          {-# LINE 591 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 591 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule59 #-}
    {-# LINE 389 "src-ag/InterfacesRules.lag" #-}
    rule59 = \  (_ :: ()) ->
                           {-# LINE 389 "src-ag/InterfacesRules.lag" #-}
                           Map.empty
-                          {-# LINE 597 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 597 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule60 #-}
    rule60 = \  (_ :: ()) ->
      Seq.empty
@@ -703,7 +703,7 @@ sem_Segment_Segment !arg_inh_ !arg_syn_ = T_Segment (return st11) where
    rule65 = \ ((_lhsIinfo) :: Info) ->
                            {-# LINE 101 "src-ag/InterfacesRules.lag" #-}
                            \a -> ruleTable _lhsIinfo ! a
-                           {-# LINE 707 "dist/build/InterfacesRules.hs"#-}
+                           {-# LINE 707 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule66 #-}
    {-# LINE 104 "src-ag/InterfacesRules.lag" #-}
    rule66 = \ ((_lhsIinfo) :: Info) ((_look) :: Vertex -> CRule) ->
@@ -711,56 +711,56 @@ sem_Segment_Segment !arg_inh_ !arg_syn_ = T_Segment (return st11) where
                               \p us -> [ a  |  u <- us
                                             ,  a <- tdsToTdp _lhsIinfo ! u
                                             ,  p (_look a)]
-                              {-# LINE 715 "dist/build/InterfacesRules.hs"#-}
+                              {-# LINE 715 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule67 #-}
    {-# LINE 108 "src-ag/InterfacesRules.lag" #-}
    rule67 = \ ((_lhsIinfo) :: Info) ((_look) :: Vertex -> CRule) ((_occurAs) :: (CRule -> Bool) -> [Vertex] -> [Vertex]) inh_ syn_ ->
                               {-# LINE 108 "src-ag/InterfacesRules.lag" #-}
                               let group as = gather _lhsIinfo (_occurAs isRhs as)
                               in map (partition (isInh . _look)) (group (inh_ ++ syn_))
-                              {-# LINE 722 "dist/build/InterfacesRules.hs"#-}
+                              {-# LINE 722 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule68 #-}
    {-# LINE 111 "src-ag/InterfacesRules.lag" #-}
    rule68 = \ ((_groups) :: [([Vertex],[Vertex])]) ((_lhsIv) :: Vertex) ->
                         {-# LINE 111 "src-ag/InterfacesRules.lag" #-}
                         _lhsIv + length _groups
-                        {-# LINE 728 "dist/build/InterfacesRules.hs"#-}
+                        {-# LINE 728 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule69 #-}
    {-# LINE 112 "src-ag/InterfacesRules.lag" #-}
    rule69 = \ ((_lhsIv) :: Vertex) ((_v) :: Int) ->
                                   {-# LINE 112 "src-ag/InterfacesRules.lag" #-}
                                   [_lhsIv .. _v    -1]
-                                  {-# LINE 734 "dist/build/InterfacesRules.hs"#-}
+                                  {-# LINE 734 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule70 #-}
    {-# LINE 127 "src-ag/InterfacesRules.lag" #-}
    rule70 = \ ((_groups) :: [([Vertex],[Vertex])]) ((_lhsIn) :: Int) ((_look) :: Vertex -> CRule) _newvertices ->
                             {-# LINE 127 "src-ag/InterfacesRules.lag" #-}
                             Seq.fromList $ zipWith (cv _look _lhsIn) _newvertices _groups
-                            {-# LINE 740 "dist/build/InterfacesRules.hs"#-}
+                            {-# LINE 740 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule71 #-}
    {-# LINE 150 "src-ag/InterfacesRules.lag" #-}
    rule71 = \ ((_groups) :: [([Vertex],[Vertex])]) _newvertices ->
                                {-# LINE 150 "src-ag/InterfacesRules.lag" #-}
                                concat (zipWith ed _newvertices _groups)
-                               {-# LINE 746 "dist/build/InterfacesRules.hs"#-}
+                               {-# LINE 746 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule72 #-}
    {-# LINE 170 "src-ag/InterfacesRules.lag" #-}
    rule72 = \ ((_lhsInextNewvertices) :: [Vertex]) _newvertices ->
                                  {-# LINE 170 "src-ag/InterfacesRules.lag" #-}
                                  zip _newvertices _lhsInextNewvertices
-                                 {-# LINE 752 "dist/build/InterfacesRules.hs"#-}
+                                 {-# LINE 752 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule73 #-}
    {-# LINE 171 "src-ag/InterfacesRules.lag" #-}
    rule73 = \ _attredges _visitedges ->
                                {-# LINE 171 "src-ag/InterfacesRules.lag" #-}
                                Seq.fromList _attredges Seq.>< Seq.fromList _visitedges
-                               {-# LINE 758 "dist/build/InterfacesRules.hs"#-}
+                               {-# LINE 758 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule74 #-}
    {-# LINE 225 "src-ag/InterfacesRules.lag" #-}
    rule74 = \ ((_lhsIinfo) :: Info) ((_occurAs) :: (CRule -> Bool) -> [Vertex] -> [Vertex]) syn_ ->
                                {-# LINE 225 "src-ag/InterfacesRules.lag" #-}
                                gather _lhsIinfo (_occurAs isLhs syn_)
-                               {-# LINE 764 "dist/build/InterfacesRules.hs"#-}
+                               {-# LINE 764 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule75 #-}
    {-# LINE 226 "src-ag/InterfacesRules.lag" #-}
    rule75 = \ ((_lhsIcons) :: [ConstructorIdent]) ((_lhsIinfo) :: Info) ((_lhsIvssGraph) :: Graph) _synOccur syn_ ->
@@ -770,13 +770,13 @@ sem_Segment_Segment !arg_inh_ !arg_syn_ = T_Segment (return st11) where
                            in if  null syn_
                                   then replicate (length _lhsIcons) []
                                   else map (filter hasCode' . topSort' _lhsIvssGraph) _synOccur
-                           {-# LINE 774 "dist/build/InterfacesRules.hs"#-}
+                           {-# LINE 774 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule76 #-}
    {-# LINE 270 "src-ag/InterfacesRules.lag" #-}
    rule76 = \ ((_lhsIprev) :: [Vertex]) _vss ->
                                {-# LINE 270 "src-ag/InterfacesRules.lag" #-}
                                map (\\ _lhsIprev) _vss
-                               {-# LINE 780 "dist/build/InterfacesRules.hs"#-}
+                               {-# LINE 780 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule77 #-}
    {-# LINE 271 "src-ag/InterfacesRules.lag" #-}
    rule77 = \ ((_lhsIvisitDescr) :: Map Vertex ChildVisit) ((_visitss) :: [[Vertex]]) ->
@@ -785,13 +785,13 @@ sem_Segment_Segment !arg_inh_ !arg_syn_ = T_Segment (return st11) where
                                                  Nothing -> [v]
                                                  Just (ChildVisit _ _ _ inh _) -> v:inh
                                in concatMap (concatMap defines) _visitss
-                               {-# LINE 789 "dist/build/InterfacesRules.hs"#-}
+                               {-# LINE 789 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule78 #-}
    {-# LINE 275 "src-ag/InterfacesRules.lag" #-}
    rule78 = \ _defined ((_lhsIprev) :: [Vertex]) ->
                            {-# LINE 275 "src-ag/InterfacesRules.lag" #-}
                            _lhsIprev ++ _defined
-                           {-# LINE 795 "dist/build/InterfacesRules.hs"#-}
+                           {-# LINE 795 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule79 #-}
    {-# LINE 284 "src-ag/InterfacesRules.lag" #-}
    rule79 = \ ((_lhsIinfo) :: Info) _visitss' ->
@@ -812,13 +812,13 @@ sem_Segment_Segment !arg_inh_ !arg_syn_ = T_Segment (return st11) where
                                      | otherwise = v:rem' prev vs
                                    table = ruleTable _lhsIinfo
                               in map (rem' []) _visitss'
-                              {-# LINE 816 "dist/build/InterfacesRules.hs"#-}
+                              {-# LINE 816 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule80 #-}
    {-# LINE 357 "src-ag/InterfacesRules.lag" #-}
    rule80 = \ ((_lhsIfromLhs) :: [Vertex]) ((_occurAs) :: (CRule -> Bool) -> [Vertex] -> [Vertex]) inh_ ->
                               {-# LINE 357 "src-ag/InterfacesRules.lag" #-}
                               _occurAs isLhs inh_ ++ _lhsIfromLhs
-                              {-# LINE 822 "dist/build/InterfacesRules.hs"#-}
+                              {-# LINE 822 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule81 #-}
    {-# LINE 358 "src-ag/InterfacesRules.lag" #-}
    rule81 = \ ((_lhsIinfo) :: Info) ((_lhsIvisitDescr) :: Map Vertex ChildVisit) ((_visitss) :: [[Vertex]]) ->
@@ -827,13 +827,13 @@ sem_Segment_Segment !arg_inh_ !arg_syn_ = T_Segment (return st11) where
                                                    Nothing -> Map.keys (getDefines (ruleTable _lhsIinfo ! v))
                                                    Just (ChildVisit _ _ _ _ syn) -> v:syn
                                 in concatMap (concatMap computes) _visitss
-                                {-# LINE 831 "dist/build/InterfacesRules.hs"#-}
+                                {-# LINE 831 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule82 #-}
    {-# LINE 362 "src-ag/InterfacesRules.lag" #-}
    rule82 = \ _iv ((_lhsInextIntravisits) :: [IntraVisit]) ((_visitss) :: [[Vertex]]) ->
                                   {-# LINE 362 "src-ag/InterfacesRules.lag" #-}
                                   zipWith _iv _visitss _lhsInextIntravisits
-                                  {-# LINE 837 "dist/build/InterfacesRules.hs"#-}
+                                  {-# LINE 837 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule83 #-}
    {-# LINE 363 "src-ag/InterfacesRules.lag" #-}
    rule83 = \ _computed _fromLhs ((_lhsIddp) :: Graph) ->
@@ -841,13 +841,13 @@ sem_Segment_Segment !arg_inh_ !arg_syn_ = T_Segment (return st11) where
                           \vs next ->
                             let needed = concatMap (_lhsIddp !) vs
                             in nub (needed ++ next) \\ (_fromLhs ++ _computed)
-                          {-# LINE 845 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 845 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule84 #-}
    {-# LINE 406 "src-ag/InterfacesRules.lag" #-}
    rule84 = \ ((_inhmap) :: Map Identifier Type) ((_lhsIprev) :: [Vertex]) ((_lhsIvisitDescr) :: Map Vertex ChildVisit) ((_lhsIvssGraph) :: Graph) ((_synmap) :: Map Identifier Type) ->
                           {-# LINE 406 "src-ag/InterfacesRules.lag" #-}
                           if False then undefined _lhsIvssGraph _lhsIvisitDescr _lhsIprev else CSegment _inhmap _synmap
-                          {-# LINE 851 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 851 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule85 #-}
    {-# LINE 410 "src-ag/InterfacesRules.lag" #-}
    rule85 = \ ((_lhsIinfo) :: Info) inh_ syn_ ->
@@ -855,7 +855,7 @@ sem_Segment_Segment !arg_inh_ !arg_syn_ = T_Segment (return st11) where
                                       let makemap = Map.fromList . map findType
                                           findType v = getNtaNameType (attrTable _lhsIinfo ! v)
                                       in (makemap inh_,makemap syn_)
-                                      {-# LINE 859 "dist/build/InterfacesRules.hs"#-}
+                                      {-# LINE 859 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule86 #-}
    {-# LINE 413 "src-ag/InterfacesRules.lag" #-}
    rule86 = \ ((_inhmap) :: Map Identifier Type) _intravisits ((_lhsIallInters) :: CInterfaceMap) ((_lhsIinfo) :: Info) ((_lhsIvisitDescr) :: Map Vertex ChildVisit) ((_synmap) :: Map Identifier Type) ((_visitss) :: [[Vertex]]) ->
@@ -866,20 +866,20 @@ sem_Segment_Segment !arg_inh_ !arg_syn_ = T_Segment (return st11) where
                                                 Nothing -> ruleTable _lhsIinfo ! v
                                                 Just (ChildVisit name nt n _ _) -> ccv name nt n _lhsIallInters
                               in zipWith mkVisit _visitss _intravisits
-                              {-# LINE 870 "dist/build/InterfacesRules.hs"#-}
+                              {-# LINE 870 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule87 #-}
    {-# LINE 440 "src-ag/InterfacesRules.lag" #-}
    rule87 = \ ((_lhsInextInh) :: [Vertex]) inh_ syn_ ->
                           {-# LINE 440 "src-ag/InterfacesRules.lag" #-}
                           Seq.fromList [(i,s) | i <- inh_, s <- syn_]
                           Seq.>< Seq.fromList [(s,i) | s <- syn_, i <- _lhsInextInh ]
-                          {-# LINE 877 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 877 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule88 #-}
    {-# LINE 445 "src-ag/InterfacesRules.lag" #-}
    rule88 = \ inh_ ->
                          {-# LINE 445 "src-ag/InterfacesRules.lag" #-}
                          inh_
-                         {-# LINE 883 "dist/build/InterfacesRules.hs"#-}
+                         {-# LINE 883 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule89 #-}
    rule89 = \ ((_groups) :: [([Vertex],[Vertex])]) ->
      _groups
@@ -992,73 +992,73 @@ sem_Segments_Cons arg_hd_ arg_tl_ = T_Segments (return st14) where
    rule94 = \ ((_tlInewvertices) :: [Vertex]) ->
                                   {-# LINE 165 "src-ag/InterfacesRules.lag" #-}
                                   _tlInewvertices
-                                  {-# LINE 996 "dist/build/InterfacesRules.hs"#-}
+                                  {-# LINE 996 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule95 #-}
    {-# LINE 166 "src-ag/InterfacesRules.lag" #-}
    rule95 = \ ((_hdInewvertices) :: [Vertex]) ->
                                {-# LINE 166 "src-ag/InterfacesRules.lag" #-}
                                _hdInewvertices
-                               {-# LINE 1002 "dist/build/InterfacesRules.hs"#-}
+                               {-# LINE 1002 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule96 #-}
    {-# LINE 180 "src-ag/InterfacesRules.lag" #-}
    rule96 = \ ((_hdIgroups) :: [([Vertex],[Vertex])]) ->
                          {-# LINE 180 "src-ag/InterfacesRules.lag" #-}
                          _hdIgroups
-                         {-# LINE 1008 "dist/build/InterfacesRules.hs"#-}
+                         {-# LINE 1008 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule97 #-}
    {-# LINE 203 "src-ag/InterfacesRules.lag" #-}
    rule97 = \ ((_lhsIn) :: Int) ->
                    {-# LINE 203 "src-ag/InterfacesRules.lag" #-}
                    _lhsIn + 1
-                   {-# LINE 1014 "dist/build/InterfacesRules.hs"#-}
+                   {-# LINE 1014 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule98 #-}
    {-# LINE 316 "src-ag/InterfacesRules.lag" #-}
    rule98 = \  (_ :: ()) ->
                          {-# LINE 316 "src-ag/InterfacesRules.lag" #-}
                          False
-                         {-# LINE 1020 "dist/build/InterfacesRules.hs"#-}
+                         {-# LINE 1020 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule99 #-}
    {-# LINE 329 "src-ag/InterfacesRules.lag" #-}
    rule99 = \ ((_tlIhdIntravisits) :: [IntraVisit]) ->
                                   {-# LINE 329 "src-ag/InterfacesRules.lag" #-}
                                   _tlIhdIntravisits
-                                  {-# LINE 1026 "dist/build/InterfacesRules.hs"#-}
+                                  {-# LINE 1026 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule100 #-}
    {-# LINE 330 "src-ag/InterfacesRules.lag" #-}
    rule100 = \ ((_hdIintravisits) :: [IntraVisit]) ->
                                  {-# LINE 330 "src-ag/InterfacesRules.lag" #-}
                                  _hdIintravisits
-                                 {-# LINE 1032 "dist/build/InterfacesRules.hs"#-}
+                                 {-# LINE 1032 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule101 #-}
    {-# LINE 354 "src-ag/InterfacesRules.lag" #-}
    rule101 = \ ((_lhsIfromLhs) :: [Vertex]) ->
                           {-# LINE 354 "src-ag/InterfacesRules.lag" #-}
                           _lhsIfromLhs
-                          {-# LINE 1038 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 1038 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule102 #-}
    {-# LINE 355 "src-ag/InterfacesRules.lag" #-}
    rule102 = \  (_ :: ()) ->
                           {-# LINE 355 "src-ag/InterfacesRules.lag" #-}
                           []
-                          {-# LINE 1044 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 1044 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule103 #-}
    {-# LINE 401 "src-ag/InterfacesRules.lag" #-}
    rule103 = \ ((_hdIseg) :: CSegment) ((_tlIsegs) :: CSegments) ->
                         {-# LINE 401 "src-ag/InterfacesRules.lag" #-}
                         _hdIseg : _tlIsegs
-                        {-# LINE 1050 "dist/build/InterfacesRules.hs"#-}
+                        {-# LINE 1050 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule104 #-}
    {-# LINE 447 "src-ag/InterfacesRules.lag" #-}
    rule104 = \ ((_tlIfirstInh) :: [Vertex]) ->
                           {-# LINE 447 "src-ag/InterfacesRules.lag" #-}
                           _tlIfirstInh
-                          {-# LINE 1056 "dist/build/InterfacesRules.hs"#-}
+                          {-# LINE 1056 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule105 #-}
    {-# LINE 448 "src-ag/InterfacesRules.lag" #-}
    rule105 = \ ((_hdIinh) :: [Vertex]) ->
                             {-# LINE 448 "src-ag/InterfacesRules.lag" #-}
                             _hdIinh
-                            {-# LINE 1062 "dist/build/InterfacesRules.hs"#-}
+                            {-# LINE 1062 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule106 #-}
    rule106 = \ ((_hdIcvisits) :: [CVisit]) ((_tlIcvisits) :: [[CVisit]]) ->
      _hdIcvisits : _tlIcvisits
@@ -1168,31 +1168,31 @@ sem_Segments_Nil  = T_Segments (return st14) where
    rule130 = \  (_ :: ()) ->
                                {-# LINE 167 "src-ag/InterfacesRules.lag" #-}
                                []
-                               {-# LINE 1172 "dist/build/InterfacesRules.hs"#-}
+                               {-# LINE 1172 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule131 #-}
    {-# LINE 181 "src-ag/InterfacesRules.lag" #-}
    rule131 = \  (_ :: ()) ->
                          {-# LINE 181 "src-ag/InterfacesRules.lag" #-}
                          []
-                         {-# LINE 1178 "dist/build/InterfacesRules.hs"#-}
+                         {-# LINE 1178 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule132 #-}
    {-# LINE 331 "src-ag/InterfacesRules.lag" #-}
    rule132 = \  (_ :: ()) ->
                                {-# LINE 331 "src-ag/InterfacesRules.lag" #-}
                                repeat []
-                               {-# LINE 1184 "dist/build/InterfacesRules.hs"#-}
+                               {-# LINE 1184 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule133 #-}
    {-# LINE 402 "src-ag/InterfacesRules.lag" #-}
    rule133 = \  (_ :: ()) ->
                         {-# LINE 402 "src-ag/InterfacesRules.lag" #-}
                         []
-                        {-# LINE 1190 "dist/build/InterfacesRules.hs"#-}
+                        {-# LINE 1190 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule134 #-}
    {-# LINE 449 "src-ag/InterfacesRules.lag" #-}
    rule134 = \  (_ :: ()) ->
                            {-# LINE 449 "src-ag/InterfacesRules.lag" #-}
                            []
-                           {-# LINE 1196 "dist/build/InterfacesRules.hs"#-}
+                           {-# LINE 1196 "src-generated/InterfacesRules.hs" #-}
    {-# INLINE rule135 #-}
    rule135 = \  (_ :: ()) ->
      []

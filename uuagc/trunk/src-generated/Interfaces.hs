@@ -1,12 +1,12 @@
 
 
--- UUAGC 0.9.51 (src-ag/Interfaces.ag)
+-- UUAGC 0.9.53 (src-ag/Interfaces.ag)
 module Interfaces where
 {-# LINE 2 "src-ag/Interfaces.ag" #-}
 
 import CommonTypes
 import SequentialTypes
-{-# LINE 10 "dist/build/Interfaces.hs" #-}
+{-# LINE 10 "src-generated/Interfaces.hs" #-}
 -- IRoot -------------------------------------------------------
 {-
    alternatives:

@@ -5,14 +5,14 @@ module PrintVisitCode where
 {-# LINE 2 "src-ag/DeclBlocks.ag" #-}
 
 import Code (Decl,Expr)
-{-# LINE 9 "dist/build/PrintVisitCode.hs" #-}
+{-# LINE 9 "src-generated/PrintVisitCode.hs" #-}
 
 {-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 16 "dist/build/PrintVisitCode.hs" #-}
+{-# LINE 16 "src-generated/PrintVisitCode.hs" #-}
 
 {-# LINE 2 "src-ag/CodeSyntax.ag" #-}
 
@@ -20,7 +20,7 @@ import Patterns
 import CommonTypes
 import Data.Map(Map)
 import Data.Set(Set)
-{-# LINE 24 "dist/build/PrintVisitCode.hs" #-}
+{-# LINE 24 "src-generated/PrintVisitCode.hs" #-}
 
 {-# LINE 10 "src-ag/PrintVisitCode.ag" #-}
 
@@ -43,7 +43,7 @@ import UU.Scanner.Position
 
 import Data.List(partition,intersperse,intersect,(\\))
 import Data.Maybe(fromJust,isJust)
-{-# LINE 47 "dist/build/PrintVisitCode.hs" #-}
+{-# LINE 47 "src-generated/PrintVisitCode.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
 {-# LINE 32 "src-ag/PrintVisitCode.ag" #-}
@@ -59,7 +59,7 @@ ppMultiSeqV = ppMultiSeq' (>-<)
 ppMultiSeq' :: (PP_Doc -> PP_Doc -> PP_Doc) -> [PP_Doc] -> PP_Doc -> PP_Doc
 ppMultiSeq' next strictArgs expr
   = foldr (\v r -> (v >#< "`seq`") `next` pp_parens r) expr strictArgs
-{-# LINE 63 "dist/build/PrintVisitCode.hs" #-}
+{-# LINE 63 "src-generated/PrintVisitCode.hs" #-}
 -- CGrammar ----------------------------------------------------
 -- wrapper
 data Inh_CGrammar  = Inh_CGrammar { options_Inh_CGrammar :: (Options) }
@@ -109,7 +109,7 @@ sem_CGrammar_CGrammar _ _ _ arg_nonts_ _ _ _ _ _ _ _ = T_CGrammar (return st2) w
    rule0 = \  (_ :: ()) ->
                      {-# LINE 53 "src-ag/PrintVisitCode.ag" #-}
                      []
-                     {-# LINE 113 "dist/build/PrintVisitCode.hs"#-}
+                     {-# LINE 113 "src-generated/PrintVisitCode.hs" #-}
 
 -- CInterface --------------------------------------------------
 -- wrapper

@@ -6,14 +6,14 @@ module ResolveLocals where
 
 import UU.Scanner.Position(Pos)
 import HsToken
-{-# LINE 10 "dist/build/ResolveLocals.hs" #-}
+{-# LINE 10 "src-generated/ResolveLocals.hs" #-}
 
 {-# LINE 2 "src-ag/Patterns.ag" #-}
 
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 17 "dist/build/ResolveLocals.hs" #-}
+{-# LINE 17 "src-generated/ResolveLocals.hs" #-}
 
 {-# LINE 2 "src-ag/AbstractSyntax.ag" #-}
 
@@ -25,7 +25,7 @@ import Expression  (Expression(..))
 import Macro --marcos
 import CommonTypes
 import ErrorMessages
-{-# LINE 29 "dist/build/ResolveLocals.hs" #-}
+{-# LINE 29 "src-generated/ResolveLocals.hs" #-}
 
 {-# LINE 15 "src-ag/ResolveLocals.ag" #-}
 
@@ -43,7 +43,7 @@ import Options
 import HsToken(HsTokensRoot(HsTokensRoot))
 import SemHsTokens(sem_HsTokensRoot,wrap_HsTokensRoot, Syn_HsTokensRoot(..),Inh_HsTokensRoot(..))
 import Data.Maybe
-{-# LINE 47 "dist/build/ResolveLocals.hs" #-}
+{-# LINE 47 "src-generated/ResolveLocals.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
 -- Child -------------------------------------------------------
@@ -104,31 +104,31 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
                          NT nt _ _ -> nt
                          Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
                          Haskell t -> identifier ""
-                       {-# LINE 108 "dist/build/ResolveLocals.hs"#-}
+                       {-# LINE 108 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule1 #-}
    {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
    rule1 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
                       {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIinhMap
-                      {-# LINE 114 "dist/build/ResolveLocals.hs"#-}
+                      {-# LINE 114 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule2 #-}
    {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
    rule2 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
                       {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIsynMap
-                      {-# LINE 120 "dist/build/ResolveLocals.hs"#-}
+                      {-# LINE 120 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule3 #-}
    {-# LINE 83 "src-ag/ResolveLocals.ag" #-}
    rule3 = \ _inh _syn name_ ->
                              {-# LINE 83 "src-ag/ResolveLocals.ag" #-}
                              [(name_, _inh    , _syn    )]
-                             {-# LINE 126 "dist/build/ResolveLocals.hs"#-}
+                             {-# LINE 126 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule4 #-}
    {-# LINE 86 "src-ag/ResolveLocals.ag" #-}
    rule4 = \ kind_ name_ tp_ ->
                         {-# LINE 86 "src-ag/ResolveLocals.ag" #-}
                         (name_, tp_, kind_)
-                        {-# LINE 132 "dist/build/ResolveLocals.hs"#-}
+                        {-# LINE 132 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule5 #-}
    rule5 = \ kind_ name_ tp_ ->
      Child name_ tp_ kind_
@@ -212,7 +212,7 @@ sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st5) where
    rule7 = \ ((_hdIfield) :: (Identifier,Type,ChildKind)) ((_tlIfields) :: [(Identifier,Type,ChildKind)]) ->
                          {-# LINE 89 "src-ag/ResolveLocals.ag" #-}
                          _hdIfield : _tlIfields
-                         {-# LINE 216 "dist/build/ResolveLocals.hs"#-}
+                         {-# LINE 216 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule8 #-}
    rule8 = \ ((_hdIattributes) :: [(Identifier,Attributes,Attributes)]) ((_tlIattributes) :: [(Identifier,Attributes,Attributes)]) ->
      _hdIattributes ++ _tlIattributes
@@ -304,7 +304,7 @@ sem_Children_Nil  = T_Children (return st5) where
    rule31 = \  (_ :: ()) ->
                          {-# LINE 90 "src-ag/ResolveLocals.ag" #-}
                          []
-                         {-# LINE 308 "dist/build/ResolveLocals.hs"#-}
+                         {-# LINE 308 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule32 #-}
    rule32 = \  (_ :: ()) ->
      []
@@ -377,13 +377,13 @@ sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st8) where
                                                 }
                                     synthesized = wrap_HsTokensRoot (sem_HsTokensRoot (HsTokensRoot tks_)) inherited
                                 in (errors_Syn_HsTokensRoot synthesized, output_Syn_HsTokensRoot synthesized)
-                                {-# LINE 381 "dist/build/ResolveLocals.hs"#-}
+                                {-# LINE 381 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule36 #-}
    {-# LINE 157 "src-ag/ResolveLocals.ag" #-}
    rule36 = \ _newTks pos_ ->
                                {-# LINE 157 "src-ag/ResolveLocals.ag" #-}
                                Expression pos_ _newTks
-                               {-# LINE 387 "dist/build/ResolveLocals.hs"#-}
+                               {-# LINE 387 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule37 #-}
    rule37 = \ _errors ->
      _errors
@@ -448,25 +448,25 @@ sem_Grammar_Grammar arg_typeSyns_ arg_useMap_ arg_derivings_ arg_wrappers_ arg_n
    rule39 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
                              {-# LINE 15 "src-ag/DistChildAttr.ag" #-}
                              _nontsIinhMap'
-                             {-# LINE 452 "dist/build/ResolveLocals.hs"#-}
+                             {-# LINE 452 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule40 #-}
    {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
    rule40 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
                              {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
                              _nontsIsynMap'
-                             {-# LINE 458 "dist/build/ResolveLocals.hs"#-}
+                             {-# LINE 458 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule41 #-}
    {-# LINE 59 "src-ag/ResolveLocals.ag" #-}
    rule41 = \ ((_nontsInonts) :: [(NontermIdent,[ConstructorIdent])]) ->
                              {-# LINE 59 "src-ag/ResolveLocals.ag" #-}
                              map fst (_nontsInonts)
-                             {-# LINE 464 "dist/build/ResolveLocals.hs"#-}
+                             {-# LINE 464 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule42 #-}
    {-# LINE 119 "src-ag/ResolveLocals.ag" #-}
    rule42 = \ mergeMap_ ->
                                  {-# LINE 119 "src-ag/ResolveLocals.ag" #-}
                                  Map.map (Map.map (Map.map (\(nt,srcs,_) -> (nt,srcs)))) mergeMap_
-                                 {-# LINE 470 "dist/build/ResolveLocals.hs"#-}
+                                 {-# LINE 470 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule43 #-}
    rule43 = \ ((_nontsIerrors) :: Seq Error) ->
      _nontsIerrors
@@ -547,43 +547,43 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
    rule47 = \ inh_ nt_ ->
                                  {-# LINE 7 "src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ inh_
-                                 {-# LINE 551 "dist/build/ResolveLocals.hs"#-}
+                                 {-# LINE 551 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule48 #-}
    {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
    rule48 = \ nt_ syn_ ->
                                  {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ syn_
-                                 {-# LINE 557 "dist/build/ResolveLocals.hs"#-}
+                                 {-# LINE 557 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule49 #-}
    {-# LINE 63 "src-ag/ResolveLocals.ag" #-}
    rule49 = \ ((_prodsIcons) :: [ConstructorIdent]) nt_ ->
                                 {-# LINE 63 "src-ag/ResolveLocals.ag" #-}
                                 [(nt_,_prodsIcons)]
-                                {-# LINE 563 "dist/build/ResolveLocals.hs"#-}
+                                {-# LINE 563 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule50 #-}
    {-# LINE 111 "src-ag/ResolveLocals.ag" #-}
    rule50 = \ nt_ ->
                                {-# LINE 111 "src-ag/ResolveLocals.ag" #-}
                                nt_
-                               {-# LINE 569 "dist/build/ResolveLocals.hs"#-}
+                               {-# LINE 569 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule51 #-}
    {-# LINE 114 "src-ag/ResolveLocals.ag" #-}
    rule51 = \ inh_ ->
                                {-# LINE 114 "src-ag/ResolveLocals.ag" #-}
                                inh_
-                               {-# LINE 575 "dist/build/ResolveLocals.hs"#-}
+                               {-# LINE 575 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule52 #-}
    {-# LINE 115 "src-ag/ResolveLocals.ag" #-}
    rule52 = \ syn_ ->
                                {-# LINE 115 "src-ag/ResolveLocals.ag" #-}
                                syn_
-                               {-# LINE 581 "dist/build/ResolveLocals.hs"#-}
+                               {-# LINE 581 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule53 #-}
    {-# LINE 127 "src-ag/ResolveLocals.ag" #-}
    rule53 = \ ((_lhsImergeMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))) nt_ ->
                                                 {-# LINE 127 "src-ag/ResolveLocals.ag" #-}
                                                 Map.findWithDefault Map.empty nt_ _lhsImergeMap
-                                                {-# LINE 587 "dist/build/ResolveLocals.hs"#-}
+                                                {-# LINE 587 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule54 #-}
    rule54 = \ ((_prodsIerrors) :: Seq Error) ->
      _prodsIerrors
@@ -953,7 +953,7 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st20) where
                                if field_ == _LOC
                                   then [attr_]
                                   else []
-                               {-# LINE 957 "dist/build/ResolveLocals.hs"#-}
+                               {-# LINE 957 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule107 #-}
    {-# LINE 98 "src-ag/ResolveLocals.ag" #-}
    rule107 = \ attr_ field_ ->
@@ -961,7 +961,7 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st20) where
                                if field_ == _INST
                                   then [attr_]
                                   else []
-                               {-# LINE 965 "dist/build/ResolveLocals.hs"#-}
+                               {-# LINE 965 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule108 #-}
    rule108 = \ ((_patIerrors) :: Seq Error) ->
      _patIerrors
@@ -1329,13 +1329,13 @@ sem_Production_Production arg_con_ arg_params_ arg_constraints_ arg_children_ ar
    rule157 = \ con_ ->
                               {-# LINE 66 "src-ag/ResolveLocals.ag" #-}
                               [con_]
-                              {-# LINE 1333 "dist/build/ResolveLocals.hs"#-}
+                              {-# LINE 1333 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule158 #-}
    {-# LINE 73 "src-ag/ResolveLocals.ag" #-}
    rule158 = \ ((_childrenIfields) :: [(Identifier,Type,ChildKind)]) ->
                                   {-# LINE 73 "src-ag/ResolveLocals.ag" #-}
                                   _childrenIfields
-                                  {-# LINE 1339 "dist/build/ResolveLocals.hs"#-}
+                                  {-# LINE 1339 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule159 #-}
    {-# LINE 74 "src-ag/ResolveLocals.ag" #-}
    rule159 = \ ((_childrenIattributes) :: [(Identifier,Attributes,Attributes)]) _inhnames ((_rulesIinstVars) :: [Identifier]) ((_rulesIlocVars) :: [Identifier]) ->
@@ -1344,37 +1344,37 @@ sem_Production_Production arg_con_ arg_params_ arg_constraints_ arg_children_ ar
                                    map ((,) _INST) _rulesIinstVars ++
                                    map ((,) _LHS)  _inhnames ++
                                    concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- _childrenIattributes]
-                                   {-# LINE 1348 "dist/build/ResolveLocals.hs"#-}
+                                   {-# LINE 1348 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule160 #-}
    {-# LINE 78 "src-ag/ResolveLocals.ag" #-}
    rule160 = \ ((_lhsIinh) :: Attributes) ->
                                    {-# LINE 78 "src-ag/ResolveLocals.ag" #-}
                                    Map.keys _lhsIinh
-                                   {-# LINE 1354 "dist/build/ResolveLocals.hs"#-}
+                                   {-# LINE 1354 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule161 #-}
    {-# LINE 79 "src-ag/ResolveLocals.ag" #-}
    rule161 = \ ((_lhsIsyn) :: Attributes) ->
                                    {-# LINE 79 "src-ag/ResolveLocals.ag" #-}
                                    Map.keys _lhsIsyn
-                                   {-# LINE 1360 "dist/build/ResolveLocals.hs"#-}
+                                   {-# LINE 1360 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule162 #-}
    {-# LINE 107 "src-ag/ResolveLocals.ag" #-}
    rule162 = \ con_ ->
                                   {-# LINE 107 "src-ag/ResolveLocals.ag" #-}
                                   con_
-                                  {-# LINE 1366 "dist/build/ResolveLocals.hs"#-}
+                                  {-# LINE 1366 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule163 #-}
    {-# LINE 109 "src-ag/ResolveLocals.ag" #-}
    rule163 = \ con_ ->
                                {-# LINE 109 "src-ag/ResolveLocals.ag" #-}
                                con_
-                               {-# LINE 1372 "dist/build/ResolveLocals.hs"#-}
+                               {-# LINE 1372 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule164 #-}
    {-# LINE 128 "src-ag/ResolveLocals.ag" #-}
    rule164 = \ ((_lhsImergeMap) :: Map ConstructorIdent (Map Identifier (Identifier,[Identifier]))) con_ ->
                                                 {-# LINE 128 "src-ag/ResolveLocals.ag" #-}
                                                 Map.findWithDefault Map.empty con_ _lhsImergeMap
-                                                {-# LINE 1378 "dist/build/ResolveLocals.hs"#-}
+                                                {-# LINE 1378 "src-generated/ResolveLocals.hs" #-}
    {-# INLINE rule165 #-}
    rule165 = \ ((_rulesIerrors) :: Seq Error) ->
      _rulesIerrors

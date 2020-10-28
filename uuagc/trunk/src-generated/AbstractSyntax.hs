@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.51 (src-ag/AbstractSyntax.ag)
+-- UUAGC 0.9.53 (src-ag/AbstractSyntax.ag)
 module AbstractSyntax where
 {-# LINE 2 "src-ag/AbstractSyntax.ag" #-}
 
@@ -12,7 +12,7 @@ import Expression  (Expression(..))
 import Macro --marcos
 import CommonTypes
 import ErrorMessages
-{-# LINE 16 "dist/build/AbstractSyntax.hs" #-}
+{-# LINE 16 "src-generated/AbstractSyntax.hs" #-}
 -- Child -------------------------------------------------------
 {-
    alternatives:

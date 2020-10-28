@@ -7,7 +7,7 @@ module CodeSyntaxDump where
 -- Patterns.ag imports
 import UU.Scanner.Position(Pos)
 import CommonTypes (ConstructorIdent,Identifier)
-{-# LINE 11 "dist/build/CodeSyntaxDump.hs" #-}
+{-# LINE 11 "src-generated/CodeSyntaxDump.hs" #-}
 
 {-# LINE 2 "src-ag/CodeSyntax.ag" #-}
 
@@ -15,7 +15,7 @@ import Patterns
 import CommonTypes
 import Data.Map(Map)
 import Data.Set(Set)
-{-# LINE 19 "dist/build/CodeSyntaxDump.hs" #-}
+{-# LINE 19 "src-generated/CodeSyntaxDump.hs" #-}
 
 {-# LINE 5 "src-ag/CodeSyntaxDump.ag" #-}
 
@@ -26,7 +26,7 @@ import Pretty
 import PPUtil
 
 import CodeSyntax
-{-# LINE 30 "dist/build/CodeSyntaxDump.hs" #-}
+{-# LINE 30 "src-generated/CodeSyntaxDump.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
 {-# LINE 15 "src-ag/CodeSyntaxDump.ag" #-}
@@ -56,7 +56,7 @@ ppMaybeShow Nothing  = pp "_"
 
 ppStrings :: [String] -> PP_Doc
 ppStrings = vlist
-{-# LINE 60 "dist/build/CodeSyntaxDump.hs" #-}
+{-# LINE 60 "src-generated/CodeSyntaxDump.hs" #-}
 -- CGrammar ----------------------------------------------------
 -- wrapper
 data Inh_CGrammar  = Inh_CGrammar {  }
@@ -110,7 +110,7 @@ sem_CGrammar_CGrammar arg_typeSyns_ arg_derivings_ _ arg_nonts_ _ _ _ _ _ _ _ = 
                                                          , ppF "derivings" $ ppMap $ derivings_
                                                          , ppF "nonts"     $ ppVList _nontsIppL
                                                          ] []
-                                              {-# LINE 114 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 114 "src-generated/CodeSyntaxDump.hs" #-}
 
 -- CInterface --------------------------------------------------
 -- wrapper
@@ -161,7 +161,7 @@ sem_CInterface_CInterface arg_seg_ = T_CInterface (return st5) where
    rule1 = \ ((_segIppL) :: [PP_Doc]) ->
                                               {-# LINE 57 "src-ag/CodeSyntaxDump.ag" #-}
                                               ppNestInfo ["CInterface","CInterface"] [] [ppF "seg" $ ppVList _segIppL] []
-                                              {-# LINE 165 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 165 "src-generated/CodeSyntaxDump.hs" #-}
 
 -- CNonterminal ------------------------------------------------
 -- wrapper
@@ -212,9 +212,9 @@ sem_CNonterminal_CNonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ a
    {-# INLINE rule2 #-}
    {-# LINE 54 "src-ag/CodeSyntaxDump.ag" #-}
    rule2 = \ ((_interIpp) :: PP_Doc) ((_prodsIppL) :: [PP_Doc]) inh_ nt_ params_ syn_ ->
-                                                              {-# LINE 54 "src-ag/CodeSyntaxDump.ag" #-}
-                                                              ppNestInfo ["CNonterminal","CNonterminal"] (pp nt_ : map pp params_) [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "prods" $ ppVList _prodsIppL, ppF "inter" _interIpp] []
-                                                              {-# LINE 218 "dist/build/CodeSyntaxDump.hs"#-}
+                                                  {-# LINE 54 "src-ag/CodeSyntaxDump.ag" #-}
+                                                  ppNestInfo ["CNonterminal","CNonterminal"] (pp nt_ : map pp params_) [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "prods" $ ppVList _prodsIppL, ppF "inter" _interIpp] []
+                                                  {-# LINE 218 "src-generated/CodeSyntaxDump.hs" #-}
 
 -- CNonterminals -----------------------------------------------
 -- wrapper
@@ -267,9 +267,9 @@ sem_CNonterminals_Cons arg_hd_ arg_tl_ = T_CNonterminals (return st11) where
    {-# INLINE rule3 #-}
    {-# LINE 102 "src-ag/CodeSyntaxDump.ag" #-}
    rule3 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
-                                                                                  {-# LINE 102 "src-ag/CodeSyntaxDump.ag" #-}
-                                                                                  _hdIpp : _tlIppL
-                                                                                  {-# LINE 273 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 102 "src-ag/CodeSyntaxDump.ag" #-}
+                                              _hdIpp : _tlIppL
+                                              {-# LINE 273 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule4 #-}
    rule4 = \ ((_hdIpp) :: PP_Doc) ((_tlIpp) :: PP_Doc) ->
      _hdIpp >-< _tlIpp
@@ -290,9 +290,9 @@ sem_CNonterminals_Nil  = T_CNonterminals (return st11) where
    {-# INLINE rule5 #-}
    {-# LINE 103 "src-ag/CodeSyntaxDump.ag" #-}
    rule5 = \  (_ :: ()) ->
-                                                                                  {-# LINE 103 "src-ag/CodeSyntaxDump.ag" #-}
-                                                                                  []
-                                                                                  {-# LINE 296 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 103 "src-ag/CodeSyntaxDump.ag" #-}
+                                              []
+                                              {-# LINE 296 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule6 #-}
    rule6 = \  (_ :: ()) ->
      empty
@@ -344,9 +344,9 @@ sem_CProduction_CProduction arg_con_ arg_visits_ arg_children_ arg_terminals_ = 
    {-# INLINE rule7 #-}
    {-# LINE 63 "src-ag/CodeSyntaxDump.ag" #-}
    rule7 = \ ((_visitsIppL) :: [PP_Doc]) children_ con_ terminals_ ->
-                                              {-# LINE 63 "src-ag/CodeSyntaxDump.ag" #-}
-                                              ppNestInfo ["CProduction","CProduction"] [pp con_] [ppF "visits" $ ppVList _visitsIppL, ppF "children" $ ppVList (map ppChild children_),ppF "terminals" $ ppVList (map ppShow terminals_)] []
-                                              {-# LINE 350 "dist/build/CodeSyntaxDump.hs"#-}
+                                          {-# LINE 63 "src-ag/CodeSyntaxDump.ag" #-}
+                                          ppNestInfo ["CProduction","CProduction"] [pp con_] [ppF "visits" $ ppVList _visitsIppL, ppF "children" $ ppVList (map ppChild children_),ppF "terminals" $ ppVList (map ppShow terminals_)] []
+                                          {-# LINE 350 "src-generated/CodeSyntaxDump.hs" #-}
 
 -- CProductions ------------------------------------------------
 -- wrapper
@@ -399,9 +399,9 @@ sem_CProductions_Cons arg_hd_ arg_tl_ = T_CProductions (return st17) where
    {-# INLINE rule8 #-}
    {-# LINE 94 "src-ag/CodeSyntaxDump.ag" #-}
    rule8 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
-                                                                                  {-# LINE 94 "src-ag/CodeSyntaxDump.ag" #-}
-                                                                                  _hdIpp : _tlIppL
-                                                                                  {-# LINE 405 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 94 "src-ag/CodeSyntaxDump.ag" #-}
+                                              _hdIpp : _tlIppL
+                                              {-# LINE 405 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule9 #-}
    rule9 = \ ((_hdIpp) :: PP_Doc) ((_tlIpp) :: PP_Doc) ->
      _hdIpp >-< _tlIpp
@@ -422,9 +422,9 @@ sem_CProductions_Nil  = T_CProductions (return st17) where
    {-# INLINE rule10 #-}
    {-# LINE 95 "src-ag/CodeSyntaxDump.ag" #-}
    rule10 = \  (_ :: ()) ->
-                                                                                  {-# LINE 95 "src-ag/CodeSyntaxDump.ag" #-}
-                                                                                  []
-                                                                                  {-# LINE 428 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 95 "src-ag/CodeSyntaxDump.ag" #-}
+                                              []
+                                              {-# LINE 428 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule11 #-}
    rule11 = \  (_ :: ()) ->
      empty
@@ -477,9 +477,9 @@ sem_CRule_CRule arg_name_ arg_isIn_ arg_hasCode_ arg_nt_ arg_con_ arg_field_ arg
    {-# INLINE rule12 #-}
    {-# LINE 69 "src-ag/CodeSyntaxDump.ag" #-}
    rule12 = \ ((_patternIpp) :: PP_Doc) childnt_ con_ defines_ field_ hasCode_ isIn_ name_ nt_ origin_ owrt_ rhs_ tp_ ->
-                                                              {-# LINE 69 "src-ag/CodeSyntaxDump.ag" #-}
-                                                              ppNestInfo ["CRule","CRule"] [pp name_] [ppF "isIn" $ ppBool isIn_, ppF "hasCode" $ ppBool hasCode_, ppF "nt" $ pp nt_, ppF "con" $ pp con_, ppF "field" $ pp field_, ppF "childnt" $ ppMaybeShow childnt_, ppF "tp" $ ppMaybeShow tp_, ppF "pattern" $ if isIn_ then pp "<no pat because In>" else _patternIpp, ppF "rhs" $ ppStrings rhs_, ppF "defines" $ ppVertexMap defines_, ppF "owrt" $ ppBool owrt_, ppF "origin" $ pp origin_] []
-                                                              {-# LINE 483 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 69 "src-ag/CodeSyntaxDump.ag" #-}
+                                              ppNestInfo ["CRule","CRule"] [pp name_] [ppF "isIn" $ ppBool isIn_, ppF "hasCode" $ ppBool hasCode_, ppF "nt" $ pp nt_, ppF "con" $ pp con_, ppF "field" $ pp field_, ppF "childnt" $ ppMaybeShow childnt_, ppF "tp" $ ppMaybeShow tp_, ppF "pattern" $ if isIn_ then pp "<no pat because In>" else _patternIpp, ppF "rhs" $ ppStrings rhs_, ppF "defines" $ ppVertexMap defines_, ppF "owrt" $ ppBool owrt_, ppF "origin" $ pp origin_] []
+                                              {-# LINE 483 "src-generated/CodeSyntaxDump.hs" #-}
 {-# NOINLINE sem_CRule_CChildVisit #-}
 sem_CRule_CChildVisit :: (Identifier) -> (NontermIdent) -> (Int) -> (Attributes) -> (Attributes) -> (Bool) -> T_CRule 
 sem_CRule_CChildVisit arg_name_ arg_nt_ arg_nr_ arg_inh_ arg_syn_ arg_isLast_ = T_CRule (return st20) where
@@ -497,7 +497,7 @@ sem_CRule_CChildVisit arg_name_ arg_nt_ arg_nr_ arg_inh_ arg_syn_ arg_isLast_ = 
    rule13 = \ inh_ isLast_ name_ nr_ nt_ syn_ ->
                                               {-# LINE 70 "src-ag/CodeSyntaxDump.ag" #-}
                                               ppNestInfo ["CRule","CChildVisit"] [pp name_] [ppF "nt" $ pp nt_, ppF "nr" $ ppShow nr_, ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "last" $ ppBool isLast_] []
-                                              {-# LINE 501 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 501 "src-generated/CodeSyntaxDump.hs" #-}
 
 -- CSegment ----------------------------------------------------
 -- wrapper
@@ -546,7 +546,7 @@ sem_CSegment_CSegment arg_inh_ arg_syn_ = T_CSegment (return st23) where
    rule14 = \ inh_ syn_ ->
                                               {-# LINE 60 "src-ag/CodeSyntaxDump.ag" #-}
                                               ppNestInfo ["CSegment","CSegment"] [] [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_] []
-                                              {-# LINE 550 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 550 "src-generated/CodeSyntaxDump.hs" #-}
 
 -- CSegments ---------------------------------------------------
 -- wrapper
@@ -599,9 +599,9 @@ sem_CSegments_Cons arg_hd_ arg_tl_ = T_CSegments (return st26) where
    {-# INLINE rule15 #-}
    {-# LINE 98 "src-ag/CodeSyntaxDump.ag" #-}
    rule15 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
-                                                                                  {-# LINE 98 "src-ag/CodeSyntaxDump.ag" #-}
-                                                                                  _hdIpp : _tlIppL
-                                                                                  {-# LINE 605 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 98 "src-ag/CodeSyntaxDump.ag" #-}
+                                              _hdIpp : _tlIppL
+                                              {-# LINE 605 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule16 #-}
    rule16 = \ ((_hdIpp) :: PP_Doc) ((_tlIpp) :: PP_Doc) ->
      _hdIpp >-< _tlIpp
@@ -622,9 +622,9 @@ sem_CSegments_Nil  = T_CSegments (return st26) where
    {-# INLINE rule17 #-}
    {-# LINE 99 "src-ag/CodeSyntaxDump.ag" #-}
    rule17 = \  (_ :: ()) ->
-                                                                                  {-# LINE 99 "src-ag/CodeSyntaxDump.ag" #-}
-                                                                                  []
-                                                                                  {-# LINE 628 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 99 "src-ag/CodeSyntaxDump.ag" #-}
+                                              []
+                                              {-# LINE 628 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule18 #-}
    rule18 = \  (_ :: ()) ->
      empty
@@ -680,7 +680,7 @@ sem_CVisit_CVisit arg_inh_ arg_syn_ arg_vss_ arg_intra_ arg_ordered_ = T_CVisit 
    rule19 = \ ((_intraIppL) :: [PP_Doc]) ((_vssIppL) :: [PP_Doc]) inh_ ordered_ syn_ ->
                                               {-# LINE 66 "src-ag/CodeSyntaxDump.ag" #-}
                                               ppNestInfo ["CVisit","CVisit"] [] [ppF "inh" $ ppMap inh_, ppF "syn" $ ppMap syn_, ppF "sequence" $ ppVList _vssIppL, ppF "intra" $ ppVList _intraIppL, ppF "ordered" $ ppBool ordered_] []
-                                              {-# LINE 684 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 684 "src-generated/CodeSyntaxDump.hs" #-}
 
 -- CVisits -----------------------------------------------------
 -- wrapper
@@ -733,9 +733,9 @@ sem_CVisits_Cons arg_hd_ arg_tl_ = T_CVisits (return st32) where
    {-# INLINE rule20 #-}
    {-# LINE 90 "src-ag/CodeSyntaxDump.ag" #-}
    rule20 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
-                                                                                  {-# LINE 90 "src-ag/CodeSyntaxDump.ag" #-}
-                                                                                  _hdIpp : _tlIppL
-                                                                                  {-# LINE 739 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 90 "src-ag/CodeSyntaxDump.ag" #-}
+                                              _hdIpp : _tlIppL
+                                              {-# LINE 739 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule21 #-}
    rule21 = \ ((_hdIpp) :: PP_Doc) ((_tlIpp) :: PP_Doc) ->
      _hdIpp >-< _tlIpp
@@ -756,9 +756,9 @@ sem_CVisits_Nil  = T_CVisits (return st32) where
    {-# INLINE rule22 #-}
    {-# LINE 91 "src-ag/CodeSyntaxDump.ag" #-}
    rule22 = \  (_ :: ()) ->
-                                                                                  {-# LINE 91 "src-ag/CodeSyntaxDump.ag" #-}
-                                                                                  []
-                                                                                  {-# LINE 762 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 91 "src-ag/CodeSyntaxDump.ag" #-}
+                                              []
+                                              {-# LINE 762 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule23 #-}
    rule23 = \  (_ :: ()) ->
      empty
@@ -817,9 +817,9 @@ sem_Pattern_Constr arg_name_ arg_pats_ = T_Pattern (return st35) where
    {-# INLINE rule24 #-}
    {-# LINE 73 "src-ag/CodeSyntaxDump.ag" #-}
    rule24 = \ ((_patsIppL) :: [PP_Doc]) name_ ->
-                                                              {-# LINE 73 "src-ag/CodeSyntaxDump.ag" #-}
-                                                              ppNestInfo ["Pattern","Constr"] [pp name_] [ppF "pats" $ ppVList _patsIppL] []
-                                                              {-# LINE 823 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 73 "src-ag/CodeSyntaxDump.ag" #-}
+                                              ppNestInfo ["Pattern","Constr"] [pp name_] [ppF "pats" $ ppVList _patsIppL] []
+                                              {-# LINE 823 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule25 #-}
    rule25 = \ ((_patsIcopy) :: Patterns) name_ ->
      Constr name_ _patsIcopy
@@ -846,9 +846,9 @@ sem_Pattern_Product arg_pos_ arg_pats_ = T_Pattern (return st35) where
    {-# INLINE rule27 #-}
    {-# LINE 74 "src-ag/CodeSyntaxDump.ag" #-}
    rule27 = \ ((_patsIppL) :: [PP_Doc]) pos_ ->
-                                                              {-# LINE 74 "src-ag/CodeSyntaxDump.ag" #-}
-                                                              ppNestInfo ["Pattern","Product"] [ppShow pos_] [ppF "pats" $ ppVList _patsIppL] []
-                                                              {-# LINE 852 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 74 "src-ag/CodeSyntaxDump.ag" #-}
+                                              ppNestInfo ["Pattern","Product"] [ppShow pos_] [ppF "pats" $ ppVList _patsIppL] []
+                                              {-# LINE 852 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule28 #-}
    rule28 = \ ((_patsIcopy) :: Patterns) pos_ ->
      Product pos_ _patsIcopy
@@ -875,9 +875,9 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st35) where
    {-# INLINE rule30 #-}
    {-# LINE 75 "src-ag/CodeSyntaxDump.ag" #-}
    rule30 = \ ((_patIpp) :: PP_Doc) attr_ field_ ->
-                                                              {-# LINE 75 "src-ag/CodeSyntaxDump.ag" #-}
-                                                              ppNestInfo ["Pattern","Alias"] [pp field_, pp attr_] [ppF "pat" $ _patIpp] []
-                                                              {-# LINE 881 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 75 "src-ag/CodeSyntaxDump.ag" #-}
+                                              ppNestInfo ["Pattern","Alias"] [pp field_, pp attr_] [ppF "pat" $ _patIpp] []
+                                              {-# LINE 881 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule31 #-}
    rule31 = \ ((_patIcopy) :: Pattern) attr_ field_ ->
      Alias field_ attr_ _patIcopy
@@ -928,9 +928,9 @@ sem_Pattern_Underscore arg_pos_ = T_Pattern (return st35) where
    {-# INLINE rule36 #-}
    {-# LINE 76 "src-ag/CodeSyntaxDump.ag" #-}
    rule36 = \ pos_ ->
-                                                      {-# LINE 76 "src-ag/CodeSyntaxDump.ag" #-}
-                                                      ppNestInfo ["Pattern","Underscore"] [ppShow pos_] [] []
-                                                      {-# LINE 934 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 76 "src-ag/CodeSyntaxDump.ag" #-}
+                                              ppNestInfo ["Pattern","Underscore"] [ppShow pos_] [] []
+                                              {-# LINE 934 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule37 #-}
    rule37 = \ pos_ ->
      Underscore pos_
@@ -992,9 +992,9 @@ sem_Patterns_Cons arg_hd_ arg_tl_ = T_Patterns (return st38) where
    {-# INLINE rule39 #-}
    {-# LINE 82 "src-ag/CodeSyntaxDump.ag" #-}
    rule39 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
-                                                                                  {-# LINE 82 "src-ag/CodeSyntaxDump.ag" #-}
-                                                                                  _hdIpp : _tlIppL
-                                                                                  {-# LINE 998 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 82 "src-ag/CodeSyntaxDump.ag" #-}
+                                              _hdIpp : _tlIppL
+                                              {-# LINE 998 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule40 #-}
    rule40 = \ ((_hdIpp) :: PP_Doc) ((_tlIpp) :: PP_Doc) ->
      _hdIpp >-< _tlIpp
@@ -1024,9 +1024,9 @@ sem_Patterns_Nil  = T_Patterns (return st38) where
    {-# INLINE rule43 #-}
    {-# LINE 83 "src-ag/CodeSyntaxDump.ag" #-}
    rule43 = \  (_ :: ()) ->
-                                                                                  {-# LINE 83 "src-ag/CodeSyntaxDump.ag" #-}
-                                                                                  []
-                                                                                  {-# LINE 1030 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 83 "src-ag/CodeSyntaxDump.ag" #-}
+                                              []
+                                              {-# LINE 1030 "src-generated/CodeSyntaxDump.hs" #-}
    {-# INLINE rule44 #-}
    rule44 = \  (_ :: ()) ->
      empty
@@ -1086,9 +1086,9 @@ sem_Sequence_Cons arg_hd_ arg_tl_ = T_Sequence (return st41) where
    {-# INLINE rule47 #-}
    {-# LINE 86 "src-ag/CodeSyntaxDump.ag" #-}
    rule47 = \ ((_hdIpp) :: PP_Doc) ((_tlIppL) :: [PP_Doc]) ->
-                                                                                  {-# LINE 86 "src-ag/CodeSyntaxDump.ag" #-}
-                                                                                  _hdIpp : _tlIppL
-                                                                                  {-# LINE 1092 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 86 "src-ag/CodeSyntaxDump.ag" #-}
+                                              _hdIpp : _tlIppL
+                                              {-# LINE 1092 "src-generated/CodeSyntaxDump.hs" #-}
 {-# NOINLINE sem_Sequence_Nil #-}
 sem_Sequence_Nil ::  T_Sequence 
 sem_Sequence_Nil  = T_Sequence (return st41) where
@@ -1104,6 +1104,6 @@ sem_Sequence_Nil  = T_Sequence (return st41) where
    {-# INLINE rule48 #-}
    {-# LINE 87 "src-ag/CodeSyntaxDump.ag" #-}
    rule48 = \  (_ :: ()) ->
-                                                                                  {-# LINE 87 "src-ag/CodeSyntaxDump.ag" #-}
-                                                                                  []
-                                                                                  {-# LINE 1110 "dist/build/CodeSyntaxDump.hs"#-}
+                                              {-# LINE 87 "src-ag/CodeSyntaxDump.ag" #-}
+                                              []
+                                              {-# LINE 1110 "src-generated/CodeSyntaxDump.hs" #-}
