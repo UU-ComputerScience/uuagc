@@ -1,4 +1,4 @@
-# rm -rf dist-newstyle
+rm -rf dist-newstyle
 cabal v2-configure --ghc-options="-DEXTERNAL_UUAGC" -fwith-loag
 cabal v2-build --ghc-options="-DEXTERNAL_UUAGC"
 cp dist-newstyle/build/x86_64-linux/ghc-*/uuagc-*/build/*.hs src-generated/
