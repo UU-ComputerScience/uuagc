@@ -64,6 +64,7 @@ SEM Rule
                                , JSON.Array ([ JSON.Array [idToJSON field, idToJSON attr] | (field,attr) <- @rhs.usedAttrs]
                                  ++ [ JSON.Array [idToJSON _LOC, idToJSON attr] | attr <- @rhs.usedLocals ++ @rhs.usedFields ])
                                , JSON.Bool @explicit
+                               , JSON.String @origin
                                , JSON.String (disp @pattern.pp 0 (" = " ++ @rhs.str))
                                ]
 
@@ -78,15 +79,11 @@ SEM Patterns [ | | pps : {[PP_Doc]} ]
   | Cons lhs.pps = @hd.pp : @tl.pps
   | Nil  lhs.pps = []
 
-SEM Pattern
-  | Constr Product Alias
-      loc.addBang = \p -> "!" >|< p
-
 SEM Pattern [ | | pp:PP_Doc ]
-  | Constr  lhs.pp     = @loc.addBang $ pp_parens $ @name >#< hv_sp @pats.pps
-  | Product lhs.pp     = @loc.addBang $ pp_block "(" ")" "," @pats.pps
-  | Alias   loc.ppVar  = pp (attrname noOptions False @field @attr)
-            loc.ppVarBang = @loc.addBang $ @loc.ppVar
+  | Constr  lhs.pp     = pp_parens $ @name >#< hv_sp @pats.pps
+  | Product lhs.pp     = pp_block "(" ")" "," @pats.pps
+  | Alias   loc.ppVar  = pp @field >|< "." >|< pp @attr
+            loc.ppVarBang = @loc.ppVar
             lhs.pp     = if @pat.isUnderscore
                           then @loc.ppVarBang
                           else @loc.ppVarBang >|< "@" >|< @pat.pp
