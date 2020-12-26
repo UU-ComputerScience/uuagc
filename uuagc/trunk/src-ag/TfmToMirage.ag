@@ -65,13 +65,13 @@ SEM Rule
                                  ++ [ JSON.Array [idToJSON _LOC, idToJSON attr] | attr <- @rhs.usedLocals ++ @rhs.usedFields ])
                                , JSON.Bool @explicit
                                , JSON.String @origin
-                               , JSON.String (disp @pattern.pp 0 (" = " ++ @rhs.str))
+                               , JSON.String (disp (@pattern.pp >-< indent 1 (text "= " >|< vlist @rhs.lns)) 0 "")
                                ]
 
 -- Partly from Visage
 
-SEM Expression [ | | str : String ]
-  | Expression  lhs.str = unlines . showTokens . tokensToStrings $ @tks
+SEM Expression [ | | lns : {[String]} ]
+  | Expression  lhs.lns = showTokens . tokensToStrings $ @tks
 
 -- From PrintCode
 
