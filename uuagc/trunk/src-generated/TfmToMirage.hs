@@ -68,9 +68,9 @@ import ErrorMessages
 
 import AbstractSyntax
 import qualified Data.Map as Map
-import qualified JSON as JSON
 import Pretty
 import TokenDef
+import qualified MirageSyntax as Mirage
 {-# LINE 75 "src-generated/TfmToMirage.hs" #-}
 import Control.Monad.Identity (Identity)
 import qualified Control.Monad.Identity
@@ -238,27 +238,24 @@ inducedCycleErrs attrTable ruleTable cim xs
 
 {-# LINE 13 "src-ag/TfmToMirage.ag" #-}
 
-typeToJSON :: Type -> JSON.Value
-typeToJSON x = case x of
-  Haskell y -> JSON.tagged "Haskell" [JSON.String y]
-  NT y ys _ -> JSON.tagged "NT"      [JSON.String (getName y), JSON.Array (map JSON.String ys)]
-  Self      -> JSON.tagged "Self"    []
-
-idToJSON :: Identifier -> JSON.Value
-idToJSON x = JSON.String (getName x)
-{-# LINE 250 "src-generated/TfmToMirage.hs" #-}
+typeToMirage :: Type -> Mirage.Type
+typeToMirage x = case x of
+  Haskell y -> Mirage.Haskell y
+  NT y ys _ -> Mirage.NT (getName y) ys
+  Self      -> Mirage.Self
+{-# LINE 247 "src-generated/TfmToMirage.hs" #-}
 -- Child -------------------------------------------------------
 -- wrapper
 data Inh_Child  = Inh_Child { allfields_Inh_Child :: ([(Identifier,Type,ChildKind)]), allnts_Inh_Child :: ([Identifier]), attrs_Inh_Child :: ([(Identifier,Identifier)]), con_Inh_Child :: (Identifier), inh_Inh_Child :: (Attributes), inhMap_Inh_Child :: (Map Identifier Attributes), mergeMap_Inh_Child :: (Map Identifier (Identifier,[Identifier])), nt_Inh_Child :: (Identifier), o_unbox_Inh_Child :: (Bool), syn_Inh_Child :: (Attributes), synMap_Inh_Child :: (Map Identifier Attributes) }
-data Syn_Child  = Syn_Child { attributes_Syn_Child :: ([(Identifier,Attributes,Attributes)]), collectChildrenInhs_Syn_Child :: (Map Identifier Attributes ), collectChildrenSyns_Syn_Child :: (Map Identifier Attributes ), errors_Syn_Child :: (Seq Error), field_Syn_Child :: ((Identifier,Type,ChildKind)), gathAltAttrs_Syn_Child :: ([AltAttr]), gathRules_Syn_Child :: (Seq CRule), inhs_Syn_Child :: (Seq (Identifier,Attributes)), json_Syn_Child :: (JSON.Value), nts_Syn_Child :: (Seq (Identifier,NontermIdent)), singlevisits_Syn_Child :: ([CRule]), terminals_Syn_Child :: ([Identifier]) }
+data Syn_Child  = Syn_Child { attributes_Syn_Child :: ([(Identifier,Attributes,Attributes)]), collectChildrenInhs_Syn_Child :: (Map Identifier Attributes ), collectChildrenSyns_Syn_Child :: (Map Identifier Attributes ), errors_Syn_Child :: (Seq Error), field_Syn_Child :: ((Identifier,Type,ChildKind)), gathAltAttrs_Syn_Child :: ([AltAttr]), gathRules_Syn_Child :: (Seq CRule), inhs_Syn_Child :: (Seq (Identifier,Attributes)), mirage_Syn_Child :: (Mirage.Child), nts_Syn_Child :: (Seq (Identifier,NontermIdent)), singlevisits_Syn_Child :: ([CRule]), terminals_Syn_Child :: ([Identifier]) }
 {-# INLINABLE wrap_Child #-}
 wrap_Child :: T_Child  -> Inh_Child  -> (Syn_Child )
 wrap_Child (T_Child act) (Inh_Child _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIo_unbox _lhsIsyn _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
         let arg1 = T_Child_vIn1 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIo_unbox _lhsIsyn _lhsIsynMap
-        (T_Child_vOut1 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfield _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOjson _lhsOnts _lhsOsinglevisits _lhsOterminals) <- return (inv_Child_s2 sem arg1)
-        return (Syn_Child _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfield _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOjson _lhsOnts _lhsOsinglevisits _lhsOterminals)
+        (T_Child_vOut1 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfield _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOmirage _lhsOnts _lhsOsinglevisits _lhsOterminals) <- return (inv_Child_s2 sem arg1)
+        return (Syn_Child _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfield _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOmirage _lhsOnts _lhsOsinglevisits _lhsOterminals)
    )
 
 -- cata
@@ -276,7 +273,7 @@ newtype T_Child_s2  = C_Child_s2 {
 data T_Child_s3  = C_Child_s3
 type T_Child_v1  = (T_Child_vIn1 ) -> (T_Child_vOut1 )
 data T_Child_vIn1  = T_Child_vIn1 ([(Identifier,Type,ChildKind)]) ([Identifier]) ([(Identifier,Identifier)]) (Identifier) (Attributes) (Map Identifier Attributes) (Map Identifier (Identifier,[Identifier])) (Identifier) (Bool) (Attributes) (Map Identifier Attributes)
-data T_Child_vOut1  = T_Child_vOut1 ([(Identifier,Attributes,Attributes)]) (Map Identifier Attributes ) (Map Identifier Attributes ) (Seq Error) ((Identifier,Type,ChildKind)) ([AltAttr]) (Seq CRule) (Seq (Identifier,Attributes)) (JSON.Value) (Seq (Identifier,NontermIdent)) ([CRule]) ([Identifier])
+data T_Child_vOut1  = T_Child_vOut1 ([(Identifier,Attributes,Attributes)]) (Map Identifier Attributes ) (Map Identifier Attributes ) (Seq Error) ((Identifier,Type,ChildKind)) ([AltAttr]) (Seq CRule) (Seq (Identifier,Attributes)) (Mirage.Child) (Seq (Identifier,NontermIdent)) ([CRule]) ([Identifier])
 {-# NOINLINE sem_Child_Child #-}
 sem_Child_Child :: (Identifier) -> (Type) -> (ChildKind) -> T_Child 
 sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
@@ -307,13 +304,13 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
          _lhsOattributes = rule12 _inh _syn arg_name_
          _lhsOfield :: (Identifier,Type,ChildKind)
          _lhsOfield = rule13 arg_kind_ arg_name_ arg_tp_
-         _lhsOjson :: JSON.Value
-         _lhsOjson = rule14 arg_name_ arg_tp_
+         _lhsOmirage :: Mirage.Child
+         _lhsOmirage = rule14 arg_name_ arg_tp_
          _lhsOerrors :: Seq Error
          _lhsOerrors = rule15  ()
          _lhsOgathRules :: Seq CRule
          _lhsOgathRules = rule16 _gathRules
-         __result_ = T_Child_vOut1 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfield _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOjson _lhsOnts _lhsOsinglevisits _lhsOterminals
+         __result_ = T_Child_vOut1 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfield _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOmirage _lhsOnts _lhsOsinglevisits _lhsOterminals
          in __result_ )
      in C_Child_s2 v1
    {-# INLINE rule0 #-}
@@ -324,19 +321,19 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
                          NT nt _ _ -> nt
                          Self      -> error ("The type of child " ++ show name_ ++ " should not be a Self type.")
                          Haskell t -> identifier ""
-                       {-# LINE 328 "src-generated/TfmToMirage.hs" #-}
+                       {-# LINE 325 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule1 #-}
    {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
    rule1 = \ _chnt ((_lhsIinhMap) :: Map Identifier Attributes) ->
                       {-# LINE 23 "src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIinhMap
-                      {-# LINE 334 "src-generated/TfmToMirage.hs" #-}
+                      {-# LINE 331 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule2 #-}
    {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
    rule2 = \ _chnt ((_lhsIsynMap) :: Map Identifier Attributes) ->
                       {-# LINE 24 "src-ag/DistChildAttr.ag" #-}
                       Map.findWithDefault Map.empty _chnt     _lhsIsynMap
-                      {-# LINE 340 "src-generated/TfmToMirage.hs" #-}
+                      {-# LINE 337 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule3 #-}
    {-# LINE 180 "src-ag/Order.ag" #-}
    rule3 = \ _syn tp_ ->
@@ -344,7 +341,7 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
                                 case tp_ of
                                   NT nt _ _ -> Map.null _syn
                                   _         -> True
-                                {-# LINE 348 "src-generated/TfmToMirage.hs" #-}
+                                {-# LINE 345 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule4 #-}
    {-# LINE 183 "src-ag/Order.ag" #-}
    rule4 = \ _maptolocal _syn name_ ->
@@ -352,19 +349,19 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
                                  if  _maptolocal
                                      then [ AltAttr _LOC name_ True ]
                                      else [ AltAttr name_ syn True | syn <- Map.keys _syn     ]
-                                 {-# LINE 356 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 353 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule5 #-}
    {-# LINE 198 "src-ag/Order.ag" #-}
    rule5 = \ name_ tp_ ->
                         {-# LINE 198 "src-ag/Order.ag" #-}
                         Seq.singleton (name_,getNtName tp_)
-                        {-# LINE 362 "src-generated/TfmToMirage.hs" #-}
+                        {-# LINE 359 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule6 #-}
    {-# LINE 199 "src-ag/Order.ag" #-}
    rule6 = \ _inh name_ ->
                          {-# LINE 199 "src-ag/Order.ag" #-}
                          Seq.singleton (name_,_inh    )
-                         {-# LINE 368 "src-generated/TfmToMirage.hs" #-}
+                         {-# LINE 365 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule7 #-}
    {-# LINE 215 "src-ag/Order.ag" #-}
    rule7 = \ ((_lhsIcon) :: Identifier) ((_lhsInt) :: Identifier) _maptolocal _syn name_ tp_ ->
@@ -372,19 +369,19 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
                               if  _maptolocal
                                   then Seq.singleton (cRuleTerminal name_ _lhsInt _lhsIcon tp_)
                                   else Seq.fromList [ cRuleRhsSyn syn _lhsInt _lhsIcon tp name_ (getNtName tp_) | (syn,tp) <- Map.assocs _syn    ]
-                              {-# LINE 376 "src-generated/TfmToMirage.hs" #-}
+                              {-# LINE 373 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule8 #-}
    {-# LINE 347 "src-ag/Order.ag" #-}
    rule8 = \ _syn name_ ->
                                        {-# LINE 347 "src-ag/Order.ag" #-}
                                        Map.singleton name_ _syn
-                                       {-# LINE 382 "src-generated/TfmToMirage.hs" #-}
+                                       {-# LINE 379 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule9 #-}
    {-# LINE 348 "src-ag/Order.ag" #-}
    rule9 = \ _inh name_ ->
                                        {-# LINE 348 "src-ag/Order.ag" #-}
                                        Map.singleton name_ _inh
-                                       {-# LINE 388 "src-generated/TfmToMirage.hs" #-}
+                                       {-# LINE 385 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule10 #-}
    {-# LINE 618 "src-ag/Order.ag" #-}
    rule10 = \ _inh _maptolocal _syn name_ tp_ ->
@@ -392,7 +389,7 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
                                  if  _maptolocal
                                      then []
                                      else [CChildVisit name_ (getNtName tp_) 0 _inh     _syn     True]
-                                 {-# LINE 396 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 393 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule11 #-}
    {-# LINE 643 "src-ag/Order.ag" #-}
    rule11 = \ _maptolocal name_ ->
@@ -400,25 +397,25 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
                             if _maptolocal
                             then [name_]
                             else []
-                            {-# LINE 404 "src-generated/TfmToMirage.hs" #-}
+                            {-# LINE 401 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule12 #-}
    {-# LINE 672 "src-ag/Order.ag" #-}
    rule12 = \ _inh _syn name_ ->
                              {-# LINE 672 "src-ag/Order.ag" #-}
                              [(name_, _inh    , _syn    )]
-                             {-# LINE 410 "src-generated/TfmToMirage.hs" #-}
+                             {-# LINE 407 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule13 #-}
    {-# LINE 676 "src-ag/Order.ag" #-}
    rule13 = \ kind_ name_ tp_ ->
                         {-# LINE 676 "src-ag/Order.ag" #-}
                         (name_, tp_, kind_)
-                        {-# LINE 416 "src-generated/TfmToMirage.hs" #-}
+                        {-# LINE 413 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule14 #-}
-   {-# LINE 54 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 50 "src-ag/TfmToMirage.ag" #-}
    rule14 = \ name_ tp_ ->
-                       {-# LINE 54 "src-ag/TfmToMirage.ag" #-}
-                       JSON.Array [idToJSON name_, typeToJSON tp_]
-                       {-# LINE 422 "src-generated/TfmToMirage.hs" #-}
+                         {-# LINE 50 "src-ag/TfmToMirage.ag" #-}
+                         Mirage.Child (getName name_) (typeToMirage tp_)
+                         {-# LINE 419 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule15 #-}
    rule15 = \  (_ :: ()) ->
      Seq.empty
@@ -429,15 +426,15 @@ sem_Child_Child arg_name_ arg_tp_ arg_kind_ = T_Child (return st2) where
 -- Children ----------------------------------------------------
 -- wrapper
 data Inh_Children  = Inh_Children { allfields_Inh_Children :: ([(Identifier,Type,ChildKind)]), allnts_Inh_Children :: ([Identifier]), attrs_Inh_Children :: ([(Identifier,Identifier)]), con_Inh_Children :: (Identifier), inh_Inh_Children :: (Attributes), inhMap_Inh_Children :: (Map Identifier Attributes), mergeMap_Inh_Children :: (Map Identifier (Identifier,[Identifier])), nt_Inh_Children :: (Identifier), o_unbox_Inh_Children :: (Bool), syn_Inh_Children :: (Attributes), synMap_Inh_Children :: (Map Identifier Attributes) }
-data Syn_Children  = Syn_Children { attributes_Syn_Children :: ([(Identifier,Attributes,Attributes)]), collectChildrenInhs_Syn_Children :: (Map Identifier Attributes ), collectChildrenSyns_Syn_Children :: (Map Identifier Attributes ), errors_Syn_Children :: (Seq Error), fields_Syn_Children :: ([(Identifier,Type,ChildKind)]), gathAltAttrs_Syn_Children :: ([AltAttr]), gathRules_Syn_Children :: (Seq CRule), inhs_Syn_Children :: (Seq (Identifier,Attributes)), jsons_Syn_Children :: ([JSON.Value]), nts_Syn_Children :: (Seq (Identifier,NontermIdent)), singlevisits_Syn_Children :: ([CRule]), terminals_Syn_Children :: ([Identifier]) }
+data Syn_Children  = Syn_Children { attributes_Syn_Children :: ([(Identifier,Attributes,Attributes)]), collectChildrenInhs_Syn_Children :: (Map Identifier Attributes ), collectChildrenSyns_Syn_Children :: (Map Identifier Attributes ), errors_Syn_Children :: (Seq Error), fields_Syn_Children :: ([(Identifier,Type,ChildKind)]), gathAltAttrs_Syn_Children :: ([AltAttr]), gathRules_Syn_Children :: (Seq CRule), inhs_Syn_Children :: (Seq (Identifier,Attributes)), mirages_Syn_Children :: ([Mirage.Child]), nts_Syn_Children :: (Seq (Identifier,NontermIdent)), singlevisits_Syn_Children :: ([CRule]), terminals_Syn_Children :: ([Identifier]) }
 {-# INLINABLE wrap_Children #-}
 wrap_Children :: T_Children  -> Inh_Children  -> (Syn_Children )
 wrap_Children (T_Children act) (Inh_Children _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIo_unbox _lhsIsyn _lhsIsynMap) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
         let arg4 = T_Children_vIn4 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIo_unbox _lhsIsyn _lhsIsynMap
-        (T_Children_vOut4 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOjsons _lhsOnts _lhsOsinglevisits _lhsOterminals) <- return (inv_Children_s5 sem arg4)
-        return (Syn_Children _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOjsons _lhsOnts _lhsOsinglevisits _lhsOterminals)
+        (T_Children_vOut4 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOmirages _lhsOnts _lhsOsinglevisits _lhsOterminals) <- return (inv_Children_s5 sem arg4)
+        return (Syn_Children _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOmirages _lhsOnts _lhsOsinglevisits _lhsOterminals)
    )
 
 -- cata
@@ -455,7 +452,7 @@ newtype T_Children_s5  = C_Children_s5 {
 data T_Children_s6  = C_Children_s6
 type T_Children_v4  = (T_Children_vIn4 ) -> (T_Children_vOut4 )
 data T_Children_vIn4  = T_Children_vIn4 ([(Identifier,Type,ChildKind)]) ([Identifier]) ([(Identifier,Identifier)]) (Identifier) (Attributes) (Map Identifier Attributes) (Map Identifier (Identifier,[Identifier])) (Identifier) (Bool) (Attributes) (Map Identifier Attributes)
-data T_Children_vOut4  = T_Children_vOut4 ([(Identifier,Attributes,Attributes)]) (Map Identifier Attributes ) (Map Identifier Attributes ) (Seq Error) ([(Identifier,Type,ChildKind)]) ([AltAttr]) (Seq CRule) (Seq (Identifier,Attributes)) ([JSON.Value]) (Seq (Identifier,NontermIdent)) ([CRule]) ([Identifier])
+data T_Children_vOut4  = T_Children_vOut4 ([(Identifier,Attributes,Attributes)]) (Map Identifier Attributes ) (Map Identifier Attributes ) (Seq Error) ([(Identifier,Type,ChildKind)]) ([AltAttr]) (Seq CRule) (Seq (Identifier,Attributes)) ([Mirage.Child]) (Seq (Identifier,NontermIdent)) ([CRule]) ([Identifier])
 {-# NOINLINE sem_Children_Cons #-}
 sem_Children_Cons :: T_Child  -> T_Children  -> T_Children 
 sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st5) where
@@ -465,12 +462,12 @@ sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st5) where
       v4 = \ (T_Children_vIn4 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIo_unbox _lhsIsyn _lhsIsynMap) -> ( let
          _hdX2 = Control.Monad.Identity.runIdentity (attach_T_Child (arg_hd_))
          _tlX5 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_tl_))
-         (T_Child_vOut1 _hdIattributes _hdIcollectChildrenInhs _hdIcollectChildrenSyns _hdIerrors _hdIfield _hdIgathAltAttrs _hdIgathRules _hdIinhs _hdIjson _hdInts _hdIsinglevisits _hdIterminals) = inv_Child_s2 _hdX2 (T_Child_vIn1 _hdOallfields _hdOallnts _hdOattrs _hdOcon _hdOinh _hdOinhMap _hdOmergeMap _hdOnt _hdOo_unbox _hdOsyn _hdOsynMap)
-         (T_Children_vOut4 _tlIattributes _tlIcollectChildrenInhs _tlIcollectChildrenSyns _tlIerrors _tlIfields _tlIgathAltAttrs _tlIgathRules _tlIinhs _tlIjsons _tlInts _tlIsinglevisits _tlIterminals) = inv_Children_s5 _tlX5 (T_Children_vIn4 _tlOallfields _tlOallnts _tlOattrs _tlOcon _tlOinh _tlOinhMap _tlOmergeMap _tlOnt _tlOo_unbox _tlOsyn _tlOsynMap)
+         (T_Child_vOut1 _hdIattributes _hdIcollectChildrenInhs _hdIcollectChildrenSyns _hdIerrors _hdIfield _hdIgathAltAttrs _hdIgathRules _hdIinhs _hdImirage _hdInts _hdIsinglevisits _hdIterminals) = inv_Child_s2 _hdX2 (T_Child_vIn1 _hdOallfields _hdOallnts _hdOattrs _hdOcon _hdOinh _hdOinhMap _hdOmergeMap _hdOnt _hdOo_unbox _hdOsyn _hdOsynMap)
+         (T_Children_vOut4 _tlIattributes _tlIcollectChildrenInhs _tlIcollectChildrenSyns _tlIerrors _tlIfields _tlIgathAltAttrs _tlIgathRules _tlIinhs _tlImirages _tlInts _tlIsinglevisits _tlIterminals) = inv_Children_s5 _tlX5 (T_Children_vIn4 _tlOallfields _tlOallnts _tlOattrs _tlOcon _tlOinh _tlOinhMap _tlOmergeMap _tlOnt _tlOo_unbox _tlOsyn _tlOsynMap)
          _lhsOfields :: [(Identifier,Type,ChildKind)]
          _lhsOfields = rule17 _hdIfield _tlIfields
-         _lhsOjsons :: [JSON.Value]
-         _lhsOjsons = rule18 _hdIjson _tlIjsons
+         _lhsOmirages :: [Mirage.Child]
+         _lhsOmirages = rule18 _hdImirage _tlImirages
          _lhsOattributes :: [(Identifier,Attributes,Attributes)]
          _lhsOattributes = rule19 _hdIattributes _tlIattributes
          _lhsOcollectChildrenInhs :: Map Identifier Attributes 
@@ -513,7 +510,7 @@ sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st5) where
          _tlOo_unbox = rule48 _lhsIo_unbox
          _tlOsyn = rule49 _lhsIsyn
          _tlOsynMap = rule50 _lhsIsynMap
-         __result_ = T_Children_vOut4 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOjsons _lhsOnts _lhsOsinglevisits _lhsOterminals
+         __result_ = T_Children_vOut4 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOmirages _lhsOnts _lhsOsinglevisits _lhsOterminals
          in __result_ )
      in C_Children_s5 v4
    {-# INLINE rule17 #-}
@@ -521,13 +518,13 @@ sem_Children_Cons arg_hd_ arg_tl_ = T_Children (return st5) where
    rule17 = \ ((_hdIfield) :: (Identifier,Type,ChildKind)) ((_tlIfields) :: [(Identifier,Type,ChildKind)]) ->
                          {-# LINE 679 "src-ag/Order.ag" #-}
                          _hdIfield : _tlIfields
-                         {-# LINE 525 "src-generated/TfmToMirage.hs" #-}
+                         {-# LINE 522 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule18 #-}
-   {-# LINE 50 "src-ag/TfmToMirage.ag" #-}
-   rule18 = \ ((_hdIjson) :: JSON.Value) ((_tlIjsons) :: [JSON.Value]) ->
-                       {-# LINE 50 "src-ag/TfmToMirage.ag" #-}
-                       _hdIjson : _tlIjsons
-                       {-# LINE 531 "src-generated/TfmToMirage.hs" #-}
+   {-# LINE 46 "src-ag/TfmToMirage.ag" #-}
+   rule18 = \ ((_hdImirage) :: Mirage.Child) ((_tlImirages) :: [Mirage.Child]) ->
+                         {-# LINE 46 "src-ag/TfmToMirage.ag" #-}
+                         _hdImirage : _tlImirages
+                         {-# LINE 528 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule19 #-}
    rule19 = \ ((_hdIattributes) :: [(Identifier,Attributes,Attributes)]) ((_tlIattributes) :: [(Identifier,Attributes,Attributes)]) ->
      _hdIattributes ++ _tlIattributes
@@ -633,8 +630,8 @@ sem_Children_Nil  = T_Children (return st5) where
       v4 = \ (T_Children_vIn4 _lhsIallfields _lhsIallnts _lhsIattrs _lhsIcon _lhsIinh _lhsIinhMap _lhsImergeMap _lhsInt _lhsIo_unbox _lhsIsyn _lhsIsynMap) -> ( let
          _lhsOfields :: [(Identifier,Type,ChildKind)]
          _lhsOfields = rule51  ()
-         _lhsOjsons :: [JSON.Value]
-         _lhsOjsons = rule52  ()
+         _lhsOmirages :: [Mirage.Child]
+         _lhsOmirages = rule52  ()
          _lhsOattributes :: [(Identifier,Attributes,Attributes)]
          _lhsOattributes = rule53  ()
          _lhsOcollectChildrenInhs :: Map Identifier Attributes 
@@ -655,7 +652,7 @@ sem_Children_Nil  = T_Children (return st5) where
          _lhsOsinglevisits = rule61  ()
          _lhsOterminals :: [Identifier]
          _lhsOterminals = rule62  ()
-         __result_ = T_Children_vOut4 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOjsons _lhsOnts _lhsOsinglevisits _lhsOterminals
+         __result_ = T_Children_vOut4 _lhsOattributes _lhsOcollectChildrenInhs _lhsOcollectChildrenSyns _lhsOerrors _lhsOfields _lhsOgathAltAttrs _lhsOgathRules _lhsOinhs _lhsOmirages _lhsOnts _lhsOsinglevisits _lhsOterminals
          in __result_ )
      in C_Children_s5 v4
    {-# INLINE rule51 #-}
@@ -663,13 +660,13 @@ sem_Children_Nil  = T_Children (return st5) where
    rule51 = \  (_ :: ()) ->
                          {-# LINE 680 "src-ag/Order.ag" #-}
                          []
-                         {-# LINE 667 "src-generated/TfmToMirage.hs" #-}
+                         {-# LINE 664 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule52 #-}
-   {-# LINE 51 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 47 "src-ag/TfmToMirage.ag" #-}
    rule52 = \  (_ :: ()) ->
-                       {-# LINE 51 "src-ag/TfmToMirage.ag" #-}
-                       []
-                       {-# LINE 673 "src-generated/TfmToMirage.hs" #-}
+                         {-# LINE 47 "src-ag/TfmToMirage.ag" #-}
+                         []
+                         {-# LINE 670 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule53 #-}
    rule53 = \  (_ :: ()) ->
      []
@@ -785,13 +782,13 @@ sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st8) where
                                                              , let (Just (_, srcs)) = mbMerged, src <- srcs ]
                                                 usedAttrs' = usedAttrs ++ extraAttrs
                                             in (textLines,usedAttrs',usedLocals,usedFields)
-                                {-# LINE 789 "src-generated/TfmToMirage.hs" #-}
+                                {-# LINE 786 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule64 #-}
    {-# LINE 492 "src-ag/Order.ag" #-}
    rule64 = \  (_ :: ()) ->
                                {-# LINE 492 "src-ag/Order.ag" #-}
                                Seq.empty
-                               {-# LINE 795 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 792 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule65 #-}
    {-# LINE 493 "src-ag/Order.ag" #-}
    rule65 = \ _usedAttrs _usedFields _usedLocals ->
@@ -801,13 +798,13 @@ sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st8) where
                                    Set.fromList [ (_LOC, l) | l <- _usedLocals    ]
                                    `Set.union`
                                    Set.fromList [ (_FIELD, fld) | fld <- _usedFields    ]
-                                   {-# LINE 805 "src-generated/TfmToMirage.hs" #-}
+                                   {-# LINE 802 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule66 #-}
-   {-# LINE 74 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 71 "src-ag/TfmToMirage.ag" #-}
    rule66 = \ tks_ ->
-                            {-# LINE 74 "src-ag/TfmToMirage.ag" #-}
+                            {-# LINE 71 "src-ag/TfmToMirage.ag" #-}
                             showTokens . tokensToStrings $ tks_
-                            {-# LINE 811 "src-generated/TfmToMirage.hs" #-}
+                            {-# LINE 808 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule67 #-}
    rule67 = \ pos_ tks_ ->
      Expression pos_ tks_
@@ -830,15 +827,15 @@ sem_Expression_Expression arg_pos_ arg_tks_ = T_Expression (return st8) where
 -- Grammar -----------------------------------------------------
 -- wrapper
 data Inh_Grammar  = Inh_Grammar { options_Inh_Grammar :: (Options) }
-data Syn_Grammar  = Syn_Grammar { errors_Syn_Grammar :: (Seq Error), json_Syn_Grammar :: (JSON.Value), nAutoRules_Syn_Grammar :: (Int), nExplicitRules_Syn_Grammar :: (Int), output_Syn_Grammar :: (CGrammar) }
+data Syn_Grammar  = Syn_Grammar { errors_Syn_Grammar :: (Seq Error), mirage_Syn_Grammar :: (Mirage.Grammar), nAutoRules_Syn_Grammar :: (Int), nExplicitRules_Syn_Grammar :: (Int), output_Syn_Grammar :: (CGrammar) }
 {-# INLINABLE wrap_Grammar #-}
 wrap_Grammar :: T_Grammar  -> Inh_Grammar  -> (Syn_Grammar )
 wrap_Grammar (T_Grammar act) (Inh_Grammar _lhsIoptions) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
         let arg10 = T_Grammar_vIn10 _lhsIoptions
-        (T_Grammar_vOut10 _lhsOerrors _lhsOjson _lhsOnAutoRules _lhsOnExplicitRules _lhsOoutput) <- return (inv_Grammar_s11 sem arg10)
-        return (Syn_Grammar _lhsOerrors _lhsOjson _lhsOnAutoRules _lhsOnExplicitRules _lhsOoutput)
+        (T_Grammar_vOut10 _lhsOerrors _lhsOmirage _lhsOnAutoRules _lhsOnExplicitRules _lhsOoutput) <- return (inv_Grammar_s11 sem arg10)
+        return (Syn_Grammar _lhsOerrors _lhsOmirage _lhsOnAutoRules _lhsOnExplicitRules _lhsOoutput)
    )
 
 -- cata
@@ -856,7 +853,7 @@ newtype T_Grammar_s11  = C_Grammar_s11 {
 data T_Grammar_s12  = C_Grammar_s12
 type T_Grammar_v10  = (T_Grammar_vIn10 ) -> (T_Grammar_vOut10 )
 data T_Grammar_vIn10  = T_Grammar_vIn10 (Options)
-data T_Grammar_vOut10  = T_Grammar_vOut10 (Seq Error) (JSON.Value) (Int) (Int) (CGrammar)
+data T_Grammar_vOut10  = T_Grammar_vOut10 (Seq Error) (Mirage.Grammar) (Int) (Int) (CGrammar)
 {-# NOINLINE sem_Grammar_Grammar #-}
 sem_Grammar_Grammar :: (TypeSyns) -> (UseMap) -> (Derivings) -> (Set NontermIdent) -> T_Nonterminals  -> (PragmaMap) -> (AttrOrderMap) -> (ParamMap) -> (ContextMap) -> (QuantMap) -> (UniqueMap) -> (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) -> (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) -> (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier, [Identifier], Expression)))) -> T_Grammar 
 sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ arg_pragmas_ arg_manualAttrOrderMap_ arg_paramMap_ arg_contextMap_ arg_quantMap_ _ _ arg_aroundsMap_ arg_mergeMap_ = T_Grammar (return st11) where
@@ -865,7 +862,7 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ arg_
       v10 :: T_Grammar_v10 
       v10 = \ (T_Grammar_vIn10 _lhsIoptions) -> ( let
          _nontsX17 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_nonts_))
-         (T_Nonterminals_vOut16 _nontsIacount _nontsIadditionalDep _nontsIaranges _nontsIaroundDep _nontsIcNonterminals _nontsIdirectDep _nontsIerrors _nontsIinhMap' _nontsIinstDep _nontsIjsons _nontsImergeDep _nontsInAutoRules _nontsInExplicitRules _nontsInonts _nontsIntattrs _nontsIrules _nontsIsynMap' _nontsIvcount) = inv_Nonterminals_s17 _nontsX17 (T_Nonterminals_vIn16 _nontsOacount _nontsOallnts _nontsOaroundMap _nontsOcInterfaceMap _nontsOcVisitsMap _nontsOinhMap _nontsOmanualAttrDepMap _nontsOmergeMap _nontsOo_case _nontsOo_cata _nontsOo_data _nontsOo_dovisit _nontsOo_newtypes _nontsOo_rename _nontsOo_sem _nontsOo_sig _nontsOo_unbox _nontsOo_wantvisit _nontsOoptions _nontsOprefix _nontsOsynMap _nontsOvcount)
+         (T_Nonterminals_vOut16 _nontsIacount _nontsIadditionalDep _nontsIaranges _nontsIaroundDep _nontsIcNonterminals _nontsIdirectDep _nontsIerrors _nontsIinhMap' _nontsIinstDep _nontsImergeDep _nontsImirages _nontsInAutoRules _nontsInExplicitRules _nontsInonts _nontsIntattrs _nontsIrules _nontsIsynMap' _nontsIvcount) = inv_Nonterminals_s17 _nontsX17 (T_Nonterminals_vIn16 _nontsOacount _nontsOallnts _nontsOaroundMap _nontsOcInterfaceMap _nontsOcVisitsMap _nontsOinhMap _nontsOmanualAttrDepMap _nontsOmergeMap _nontsOo_case _nontsOo_cata _nontsOo_data _nontsOo_dovisit _nontsOo_newtypes _nontsOo_rename _nontsOo_sem _nontsOo_sig _nontsOo_unbox _nontsOo_wantvisit _nontsOoptions _nontsOprefix _nontsOsynMap _nontsOvcount)
          _nontsOinhMap = rule73 _nontsIinhMap'
          _nontsOsynMap = rule74 _nontsIsynMap'
          _o_dovisit = rule75 _cyclesErrors _lhsIoptions
@@ -901,8 +898,8 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ arg_
          _aroundMap = rule103 arg_aroundsMap_
          _mergeMap = rule104 arg_mergeMap_
          _nontsOallnts = rule105 _nontsInonts
-         _lhsOjson :: JSON.Value
-         _lhsOjson = rule106 _nontsIjsons
+         _lhsOmirage :: Mirage.Grammar
+         _lhsOmirage = rule106 _nontsImirages
          _lhsOnAutoRules :: Int
          _lhsOnAutoRules = rule107 _nontsInAutoRules
          _lhsOnExplicitRules :: Int
@@ -912,7 +909,7 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ arg_
          _nontsOmergeMap = rule111 _mergeMap
          _nontsOo_dovisit = rule112 _o_dovisit
          _nontsOoptions = rule113 _lhsIoptions
-         __result_ = T_Grammar_vOut10 _lhsOerrors _lhsOjson _lhsOnAutoRules _lhsOnExplicitRules _lhsOoutput
+         __result_ = T_Grammar_vOut10 _lhsOerrors _lhsOmirage _lhsOnAutoRules _lhsOnExplicitRules _lhsOoutput
          in __result_ )
      in C_Grammar_s11 v10
    {-# INLINE rule73 #-}
@@ -920,128 +917,128 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ arg_
    rule73 = \ ((_nontsIinhMap') :: Map Identifier Attributes) ->
                              {-# LINE 15 "src-ag/DistChildAttr.ag" #-}
                              _nontsIinhMap'
-                             {-# LINE 924 "src-generated/TfmToMirage.hs" #-}
+                             {-# LINE 921 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule74 #-}
    {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
    rule74 = \ ((_nontsIsynMap') :: Map Identifier Attributes) ->
                              {-# LINE 16 "src-ag/DistChildAttr.ag" #-}
                              _nontsIsynMap'
-                             {-# LINE 930 "src-generated/TfmToMirage.hs" #-}
+                             {-# LINE 927 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule75 #-}
    {-# LINE 123 "src-ag/Order.ag" #-}
    rule75 = \ _cyclesErrors ((_lhsIoptions) :: Options) ->
                                     {-# LINE 123 "src-ag/Order.ag" #-}
                                     visit     _lhsIoptions && null _cyclesErrors
-                                    {-# LINE 936 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 933 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule76 #-}
    {-# LINE 124 "src-ag/Order.ag" #-}
    rule76 = \ ((_lhsIoptions) :: Options) ->
                                     {-# LINE 124 "src-ag/Order.ag" #-}
                                     folds     _lhsIoptions
-                                    {-# LINE 942 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 939 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule77 #-}
    {-# LINE 125 "src-ag/Order.ag" #-}
    rule77 = \ ((_lhsIoptions) :: Options) ->
                                     {-# LINE 125 "src-ag/Order.ag" #-}
                                     dataTypes _lhsIoptions
-                                    {-# LINE 948 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 945 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule78 #-}
    {-# LINE 126 "src-ag/Order.ag" #-}
    rule78 = \ ((_lhsIoptions) :: Options) ->
                                     {-# LINE 126 "src-ag/Order.ag" #-}
                                     typeSigs  _lhsIoptions
-                                    {-# LINE 954 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 951 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule79 #-}
    {-# LINE 127 "src-ag/Order.ag" #-}
    rule79 = \ ((_lhsIoptions) :: Options) ->
                                     {-# LINE 127 "src-ag/Order.ag" #-}
                                     semfuns   _lhsIoptions
-                                    {-# LINE 960 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 957 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule80 #-}
    {-# LINE 128 "src-ag/Order.ag" #-}
    rule80 = \ ((_lhsIoptions) :: Options) ->
                                     {-# LINE 128 "src-ag/Order.ag" #-}
                                     rename    _lhsIoptions
-                                    {-# LINE 966 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 963 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule81 #-}
    {-# LINE 129 "src-ag/Order.ag" #-}
    rule81 = \ ((_lhsIoptions) :: Options) ->
                                     {-# LINE 129 "src-ag/Order.ag" #-}
                                     newtypes  _lhsIoptions
-                                    {-# LINE 972 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 969 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule82 #-}
    {-# LINE 130 "src-ag/Order.ag" #-}
    rule82 = \ ((_lhsIoptions) :: Options) ->
                                       {-# LINE 130 "src-ag/Order.ag" #-}
                                       visit   _lhsIoptions
-                                      {-# LINE 978 "src-generated/TfmToMirage.hs" #-}
+                                      {-# LINE 975 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule83 #-}
    {-# LINE 131 "src-ag/Order.ag" #-}
    rule83 = \ ((_lhsIoptions) :: Options) ->
                                     {-# LINE 131 "src-ag/Order.ag" #-}
                                     unbox     _lhsIoptions
-                                    {-# LINE 984 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 981 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule84 #-}
    {-# LINE 132 "src-ag/Order.ag" #-}
    rule84 = \ ((_lhsIoptions) :: Options) ->
                                     {-# LINE 132 "src-ag/Order.ag" #-}
                                     cases     _lhsIoptions
-                                    {-# LINE 990 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 987 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule85 #-}
    {-# LINE 133 "src-ag/Order.ag" #-}
    rule85 = \ ((_lhsIoptions) :: Options) ->
                                     {-# LINE 133 "src-ag/Order.ag" #-}
                                     prefix    _lhsIoptions
-                                    {-# LINE 996 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 993 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule86 #-}
    {-# LINE 262 "src-ag/Order.ag" #-}
    rule86 = \  (_ :: ()) ->
                                {-# LINE 262 "src-ag/Order.ag" #-}
                                0
-                               {-# LINE 1002 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 999 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule87 #-}
    {-# LINE 288 "src-ag/Order.ag" #-}
    rule87 = \ manualAttrOrderMap_ ->
                                  {-# LINE 288 "src-ag/Order.ag" #-}
                                  manualAttrOrderMap_
-                                 {-# LINE 1008 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 1005 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule88 #-}
    {-# LINE 417 "src-ag/Order.ag" #-}
    rule88 = \ aroundsMap_ ->
                                  {-# LINE 417 "src-ag/Order.ag" #-}
                                  aroundsMap_
-                                 {-# LINE 1014 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 1011 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule89 #-}
    {-# LINE 508 "src-ag/Order.ag" #-}
    rule89 = \  (_ :: ()) ->
                              {-# LINE 508 "src-ag/Order.ag" #-}
                              0
-                             {-# LINE 1020 "src-generated/TfmToMirage.hs" #-}
+                             {-# LINE 1017 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule90 #-}
    {-# LINE 546 "src-ag/Order.ag" #-}
    rule90 = \ ((_nontsIrules) :: Seq (Vertex,CRule)) ((_nontsIvcount) :: Int) ->
                               {-# LINE 546 "src-ag/Order.ag" #-}
                               Array.array (0,_nontsIvcount-1) (toList _nontsIrules)
-                              {-# LINE 1026 "src-generated/TfmToMirage.hs" #-}
+                              {-# LINE 1023 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule91 #-}
    {-# LINE 547 "src-ag/Order.ag" #-}
    rule91 = \ ((_nontsIacount) :: Int) ((_nontsIntattrs) :: Seq (Vertex,NTAttr)) ->
                               {-# LINE 547 "src-ag/Order.ag" #-}
                               Array.array (0,_nontsIacount-1) (toList _nontsIntattrs)
-                              {-# LINE 1032 "src-generated/TfmToMirage.hs" #-}
+                              {-# LINE 1029 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule92 #-}
    {-# LINE 548 "src-ag/Order.ag" #-}
    rule92 = \ ((_nontsIntattrs) :: Seq (Vertex,NTAttr)) ->
                                {-# LINE 548 "src-ag/Order.ag" #-}
                                Map.fromList (map swap (toList _nontsIntattrs))
-                               {-# LINE 1038 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 1035 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule93 #-}
    {-# LINE 549 "src-ag/Order.ag" #-}
    rule93 = \ _attrVertex ((_nontsIrules) :: Seq (Vertex,CRule)) ->
                               {-# LINE 549 "src-ag/Order.ag" #-}
                               [ (s, maybe (-1) (\v -> findWithErr1 "Grammar.tdpToTds" v _attrVertex) (ntattr cr))
                               | (s,cr) <- toList _nontsIrules]
-                              {-# LINE 1045 "src-generated/TfmToMirage.hs" #-}
+                              {-# LINE 1042 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule94 #-}
    {-# LINE 551 "src-ag/Order.ag" #-}
    rule94 = \ _tdpToTds ->
@@ -1050,31 +1047,31 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ arg_
                                     conv ((s,v):svs)  | v == -1 = Nothing
                                                       | otherwise = Just (v,s:map fst svs)
                                in mapMaybe conv (eqClasses eq _tdpToTds)
-                               {-# LINE 1054 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 1051 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule95 #-}
    {-# LINE 555 "src-ag/Order.ag" #-}
    rule95 = \ ((_nontsIadditionalDep) :: Seq Edge) ((_nontsIdirectDep) :: Seq Edge) ->
                               {-# LINE 555 "src-ag/Order.ag" #-}
                               toList (_nontsIdirectDep Seq.>< _nontsIadditionalDep)
-                              {-# LINE 1060 "src-generated/TfmToMirage.hs" #-}
+                              {-# LINE 1057 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule96 #-}
    {-# LINE 556 "src-ag/Order.ag" #-}
    rule96 = \ ((_nontsIinstDep) :: Seq Edge) ->
                               {-# LINE 556 "src-ag/Order.ag" #-}
                               toList _nontsIinstDep
-                              {-# LINE 1066 "src-generated/TfmToMirage.hs" #-}
+                              {-# LINE 1063 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule97 #-}
    {-# LINE 557 "src-ag/Order.ag" #-}
    rule97 = \ ((_nontsIaroundDep) :: Seq Edge) ->
                               {-# LINE 557 "src-ag/Order.ag" #-}
                               toList _nontsIaroundDep
-                              {-# LINE 1072 "src-generated/TfmToMirage.hs" #-}
+                              {-# LINE 1069 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule98 #-}
    {-# LINE 558 "src-ag/Order.ag" #-}
    rule98 = \ ((_nontsImergeDep) :: Seq Edge) ->
                               {-# LINE 558 "src-ag/Order.ag" #-}
                               toList _nontsImergeDep
-                              {-# LINE 1078 "src-generated/TfmToMirage.hs" #-}
+                              {-# LINE 1075 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule99 #-}
    {-# LINE 559 "src-ag/Order.ag" #-}
    rule99 = \ _attrTable ((_nontsIacount) :: Int) ((_nontsIaranges) :: Seq (Int,Int,Int)) ((_nontsInonts) :: [(NontermIdent,[ConstructorIdent])]) ((_nontsIvcount) :: Int) _ruleTable _tdpToTds _tdsToTdp wrappers_ ->
@@ -1089,7 +1086,7 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ arg_
                                        , nonts      = _nontsInonts
                                        , wraps      = wrappers_
                                        }
-                              {-# LINE 1093 "src-generated/TfmToMirage.hs" #-}
+                              {-# LINE 1090 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule100 #-}
    {-# LINE 571 "src-ag/Order.ag" #-}
    rule100 = \ _aroundDep _attrTable _directDep _info _instDep ((_lhsIoptions) :: Options) _mergeDep _ruleTable ->
@@ -1115,44 +1112,44 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ arg_
                                                                        , error "No visit sub-sequences for AG with induced cycles"
                                                                        , inducedCycleErrs _attrTable _ruleTable cim errs
                                                                        )
-                                {-# LINE 1119 "src-generated/TfmToMirage.hs" #-}
+                                {-# LINE 1116 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule101 #-}
    {-# LINE 592 "src-ag/Order.ag" #-}
    rule101 = \ _cyclesErrors ((_lhsIoptions) :: Options) ((_nontsIerrors) :: Seq Error) ->
                            {-# LINE 592 "src-ag/Order.ag" #-}
                            (if withCycle _lhsIoptions then Seq.fromList _cyclesErrors else Seq.empty)
                             Seq.>< _nontsIerrors
-                           {-# LINE 1126 "src-generated/TfmToMirage.hs" #-}
+                           {-# LINE 1123 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule102 #-}
    {-# LINE 624 "src-ag/Order.ag" #-}
    rule102 = \ _aroundMap _mergeMap ((_nontsIcNonterminals) :: CNonterminals) _o_dovisit contextMap_ derivings_ paramMap_ pragmas_ quantMap_ typeSyns_ wrappers_ ->
                              {-# LINE 624 "src-ag/Order.ag" #-}
                              CGrammar typeSyns_ derivings_ wrappers_ _nontsIcNonterminals pragmas_ paramMap_ contextMap_ quantMap_ _aroundMap     _mergeMap     _o_dovisit
-                             {-# LINE 1132 "src-generated/TfmToMirage.hs" #-}
+                             {-# LINE 1129 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule103 #-}
    {-# LINE 637 "src-ag/Order.ag" #-}
    rule103 = \ aroundsMap_ ->
                                {-# LINE 637 "src-ag/Order.ag" #-}
                                Map.map (Map.map Map.keysSet) aroundsMap_
-                               {-# LINE 1138 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 1135 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule104 #-}
    {-# LINE 638 "src-ag/Order.ag" #-}
    rule104 = \ mergeMap_ ->
                                {-# LINE 638 "src-ag/Order.ag" #-}
                                Map.map (Map.map (Map.map (\(nt,srcs,_) -> (nt,srcs)))) mergeMap_
-                               {-# LINE 1144 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 1141 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule105 #-}
    {-# LINE 655 "src-ag/Order.ag" #-}
    rule105 = \ ((_nontsInonts) :: [(NontermIdent,[ConstructorIdent])]) ->
                              {-# LINE 655 "src-ag/Order.ag" #-}
                              map fst (_nontsInonts)
-                             {-# LINE 1150 "src-generated/TfmToMirage.hs" #-}
+                             {-# LINE 1147 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule106 #-}
-   {-# LINE 28 "src-ag/TfmToMirage.ag" #-}
-   rule106 = \ ((_nontsIjsons) :: [JSON.Value]) ->
-                         {-# LINE 28 "src-ag/TfmToMirage.ag" #-}
-                         JSON.Array _nontsIjsons
-                         {-# LINE 1156 "src-generated/TfmToMirage.hs" #-}
+   {-# LINE 22 "src-ag/TfmToMirage.ag" #-}
+   rule106 = \ ((_nontsImirages) :: [Mirage.Nonterminal]) ->
+                           {-# LINE 22 "src-ag/TfmToMirage.ag" #-}
+                           Mirage.Grammar _nontsImirages
+                           {-# LINE 1153 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule107 #-}
    rule107 = \ ((_nontsInAutoRules) :: Int) ->
      _nontsInAutoRules
@@ -1178,15 +1175,15 @@ sem_Grammar_Grammar arg_typeSyns_ _ arg_derivings_ arg_wrappers_ arg_nonts_ arg_
 -- Nonterminal -------------------------------------------------
 -- wrapper
 data Inh_Nonterminal  = Inh_Nonterminal { acount_Inh_Nonterminal :: (Int), allnts_Inh_Nonterminal :: ([Identifier]), aroundMap_Inh_Nonterminal :: (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))), cInterfaceMap_Inh_Nonterminal :: (CInterfaceMap), cVisitsMap_Inh_Nonterminal :: (CVisitsMap), inhMap_Inh_Nonterminal :: (Map Identifier Attributes), manualAttrDepMap_Inh_Nonterminal :: (AttrOrderMap), mergeMap_Inh_Nonterminal :: (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))), o_case_Inh_Nonterminal :: (Bool), o_cata_Inh_Nonterminal :: (Bool), o_data_Inh_Nonterminal :: (Bool), o_dovisit_Inh_Nonterminal :: (Bool), o_newtypes_Inh_Nonterminal :: (Bool), o_rename_Inh_Nonterminal :: (Bool), o_sem_Inh_Nonterminal :: (Bool), o_sig_Inh_Nonterminal :: (Bool), o_unbox_Inh_Nonterminal :: (Bool), o_wantvisit_Inh_Nonterminal :: (Bool), options_Inh_Nonterminal :: (Options), prefix_Inh_Nonterminal :: (String), synMap_Inh_Nonterminal :: (Map Identifier Attributes), vcount_Inh_Nonterminal :: (Int) }
-data Syn_Nonterminal  = Syn_Nonterminal { acount_Syn_Nonterminal :: (Int), additionalDep_Syn_Nonterminal :: (Seq Edge), aranges_Syn_Nonterminal :: (Seq (Int,Int,Int)), aroundDep_Syn_Nonterminal :: (Seq Edge), cNonterminal_Syn_Nonterminal :: (CNonterminal), directDep_Syn_Nonterminal :: (Seq Edge), errors_Syn_Nonterminal :: (Seq Error), inhMap'_Syn_Nonterminal :: (Map Identifier Attributes), instDep_Syn_Nonterminal :: (Seq Edge), json_Syn_Nonterminal :: (JSON.Value), mergeDep_Syn_Nonterminal :: (Seq Edge), nAutoRules_Syn_Nonterminal :: (Int), nExplicitRules_Syn_Nonterminal :: (Int), nonts_Syn_Nonterminal :: ([(NontermIdent,[ConstructorIdent])]), ntattrs_Syn_Nonterminal :: (Seq (Vertex,NTAttr)), rules_Syn_Nonterminal :: (Seq (Vertex,CRule)), synMap'_Syn_Nonterminal :: (Map Identifier Attributes), vcount_Syn_Nonterminal :: (Int) }
+data Syn_Nonterminal  = Syn_Nonterminal { acount_Syn_Nonterminal :: (Int), additionalDep_Syn_Nonterminal :: (Seq Edge), aranges_Syn_Nonterminal :: (Seq (Int,Int,Int)), aroundDep_Syn_Nonterminal :: (Seq Edge), cNonterminal_Syn_Nonterminal :: (CNonterminal), directDep_Syn_Nonterminal :: (Seq Edge), errors_Syn_Nonterminal :: (Seq Error), inhMap'_Syn_Nonterminal :: (Map Identifier Attributes), instDep_Syn_Nonterminal :: (Seq Edge), mergeDep_Syn_Nonterminal :: (Seq Edge), mirage_Syn_Nonterminal :: (Mirage.Nonterminal), nAutoRules_Syn_Nonterminal :: (Int), nExplicitRules_Syn_Nonterminal :: (Int), nonts_Syn_Nonterminal :: ([(NontermIdent,[ConstructorIdent])]), ntattrs_Syn_Nonterminal :: (Seq (Vertex,NTAttr)), rules_Syn_Nonterminal :: (Seq (Vertex,CRule)), synMap'_Syn_Nonterminal :: (Map Identifier Attributes), vcount_Syn_Nonterminal :: (Int) }
 {-# INLINABLE wrap_Nonterminal #-}
 wrap_Nonterminal :: T_Nonterminal  -> Inh_Nonterminal  -> (Syn_Nonterminal )
 wrap_Nonterminal (T_Nonterminal act) (Inh_Nonterminal _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
         let arg13 = T_Nonterminal_vIn13 _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount
-        (T_Nonterminal_vOut13 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminal _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOjson _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount) <- return (inv_Nonterminal_s14 sem arg13)
-        return (Syn_Nonterminal _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminal _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOjson _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount)
+        (T_Nonterminal_vOut13 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminal _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOmirage _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount) <- return (inv_Nonterminal_s14 sem arg13)
+        return (Syn_Nonterminal _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminal _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOmirage _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount)
    )
 
 -- cata
@@ -1204,7 +1201,7 @@ newtype T_Nonterminal_s14  = C_Nonterminal_s14 {
 data T_Nonterminal_s15  = C_Nonterminal_s15
 type T_Nonterminal_v13  = (T_Nonterminal_vIn13 ) -> (T_Nonterminal_vOut13 )
 data T_Nonterminal_vIn13  = T_Nonterminal_vIn13 (Int) ([Identifier]) (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) (CInterfaceMap) (CVisitsMap) (Map Identifier Attributes) (AttrOrderMap) (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Options) (String) (Map Identifier Attributes) (Int)
-data T_Nonterminal_vOut13  = T_Nonterminal_vOut13 (Int) (Seq Edge) (Seq (Int,Int,Int)) (Seq Edge) (CNonterminal) (Seq Edge) (Seq Error) (Map Identifier Attributes) (Seq Edge) (JSON.Value) (Seq Edge) (Int) (Int) ([(NontermIdent,[ConstructorIdent])]) (Seq (Vertex,NTAttr)) (Seq (Vertex,CRule)) (Map Identifier Attributes) (Int)
+data T_Nonterminal_vOut13  = T_Nonterminal_vOut13 (Int) (Seq Edge) (Seq (Int,Int,Int)) (Seq Edge) (CNonterminal) (Seq Edge) (Seq Error) (Map Identifier Attributes) (Seq Edge) (Seq Edge) (Mirage.Nonterminal) (Int) (Int) ([(NontermIdent,[ConstructorIdent])]) (Seq (Vertex,NTAttr)) (Seq (Vertex,CRule)) (Map Identifier Attributes) (Int)
 {-# NOINLINE sem_Nonterminal_Nonterminal #-}
 sem_Nonterminal_Nonterminal :: (NontermIdent) -> ([Identifier]) -> (Attributes) -> (Attributes) -> T_Productions  -> T_Nonterminal 
 sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T_Nonterminal (return st14) where
@@ -1213,7 +1210,7 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
       v13 :: T_Nonterminal_v13 
       v13 = \ (T_Nonterminal_vIn13 _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount) -> ( let
          _prodsX29 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_prods_))
-         (T_Productions_vOut28 _prodsIadditionalDep _prodsIaroundDep _prodsIcProductions _prodsIcons _prodsIdirectDep _prodsIerrors _prodsIinstDep _prodsIjsons _prodsImergeDep _prodsInAutoRules _prodsInExplicitRules _prodsIrules _prodsIvcount) = inv_Productions_s29 _prodsX29 (T_Productions_vIn28 _prodsOallnts _prodsOaroundMap _prodsOcVisitsMap _prodsOinh _prodsOinhMap _prodsOmanualAttrDepMap _prodsOmergeMap _prodsOnt _prodsOo_case _prodsOo_cata _prodsOo_dovisit _prodsOo_newtypes _prodsOo_rename _prodsOo_sem _prodsOo_sig _prodsOo_unbox _prodsOo_wantvisit _prodsOoptions _prodsOprefix _prodsOsyn _prodsOsynMap _prodsOvcount)
+         (T_Productions_vOut28 _prodsIadditionalDep _prodsIaroundDep _prodsIcProductions _prodsIcons _prodsIdirectDep _prodsIerrors _prodsIinstDep _prodsImergeDep _prodsImirages _prodsInAutoRules _prodsInExplicitRules _prodsIrules _prodsIvcount) = inv_Productions_s29 _prodsX29 (T_Productions_vIn28 _prodsOallnts _prodsOaroundMap _prodsOcVisitsMap _prodsOinh _prodsOinhMap _prodsOmanualAttrDepMap _prodsOmergeMap _prodsOnt _prodsOo_case _prodsOo_cata _prodsOo_dovisit _prodsOo_newtypes _prodsOo_rename _prodsOo_sem _prodsOo_sig _prodsOo_unbox _prodsOo_wantvisit _prodsOoptions _prodsOprefix _prodsOsyn _prodsOsynMap _prodsOvcount)
          _lhsOinhMap' :: Map Identifier Attributes
          _lhsOinhMap' = rule114 arg_inh_ arg_nt_
          _lhsOsynMap' :: Map Identifier Attributes
@@ -1235,8 +1232,8 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
          _cInter = rule126 _lhsIcInterfaceMap _lhsIo_dovisit arg_inh_ arg_nt_ arg_syn_
          _lhsOcNonterminal :: CNonterminal
          _lhsOcNonterminal = rule127 _cInter _prodsIcProductions arg_inh_ arg_nt_ arg_params_ arg_syn_
-         _lhsOjson :: JSON.Value
-         _lhsOjson = rule128 _prodsIjsons arg_inh_ arg_nt_ arg_params_ arg_syn_
+         _lhsOmirage :: Mirage.Nonterminal
+         _lhsOmirage = rule128 _prodsImirages arg_inh_ arg_nt_ arg_params_ arg_syn_
          _lhsOadditionalDep :: Seq Edge
          _lhsOadditionalDep = rule129 _prodsIadditionalDep
          _lhsOaroundDep :: Seq Edge
@@ -1276,7 +1273,7 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
          _prodsOprefix = rule155 _lhsIprefix
          _prodsOsynMap = rule156 _lhsIsynMap
          _prodsOvcount = rule157 _lhsIvcount
-         __result_ = T_Nonterminal_vOut13 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminal _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOjson _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount
+         __result_ = T_Nonterminal_vOut13 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminal _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOmirage _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount
          in __result_ )
      in C_Nonterminal_s14 v13
    {-# INLINE rule114 #-}
@@ -1284,62 +1281,62 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
    rule114 = \ inh_ nt_ ->
                                  {-# LINE 7 "src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ inh_
-                                 {-# LINE 1288 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 1285 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule115 #-}
    {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
    rule115 = \ nt_ syn_ ->
                                  {-# LINE 8 "src-ag/DistChildAttr.ag" #-}
                                  Map.singleton nt_ syn_
-                                 {-# LINE 1294 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 1291 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule116 #-}
    {-# LINE 97 "src-ag/Order.ag" #-}
    rule116 = \ nt_ ->
                                {-# LINE 97 "src-ag/Order.ag" #-}
                                nt_
-                               {-# LINE 1300 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 1297 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule117 #-}
    {-# LINE 100 "src-ag/Order.ag" #-}
    rule117 = \ inh_ ->
                                {-# LINE 100 "src-ag/Order.ag" #-}
                                inh_
-                               {-# LINE 1306 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 1303 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule118 #-}
    {-# LINE 101 "src-ag/Order.ag" #-}
    rule118 = \ syn_ ->
                                {-# LINE 101 "src-ag/Order.ag" #-}
                                syn_
-                               {-# LINE 1312 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 1309 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule119 #-}
    {-# LINE 360 "src-ag/Order.ag" #-}
    rule119 = \ ((_lhsImergeMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))) nt_ ->
                                                 {-# LINE 360 "src-ag/Order.ag" #-}
                                                 Map.findWithDefault Map.empty nt_ _lhsImergeMap
-                                                {-# LINE 1318 "src-generated/TfmToMirage.hs" #-}
+                                                {-# LINE 1315 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule120 #-}
    {-# LINE 413 "src-ag/Order.ag" #-}
    rule120 = \ ((_lhsIaroundMap) :: Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) nt_ ->
                                                  {-# LINE 413 "src-ag/Order.ag" #-}
                                                  Map.findWithDefault Map.empty nt_ _lhsIaroundMap
-                                                 {-# LINE 1324 "src-generated/TfmToMirage.hs" #-}
+                                                 {-# LINE 1321 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule121 #-}
    {-# LINE 511 "src-ag/Order.ag" #-}
    rule121 = \ inh_ nt_ syn_ ->
                                  {-# LINE 511 "src-ag/Order.ag" #-}
                                  [ NTAInh nt_ inh tp | (inh,tp) <- Map.assocs inh_ ]
                                  ++ [NTASyn nt_ syn tp | (syn,tp) <- Map.assocs syn_ ]
-                                 {-# LINE 1331 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 1328 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule122 #-}
    {-# LINE 513 "src-ag/Order.ag" #-}
    rule122 = \ ((_lhsIacount) :: Int) _ntattrs ->
                                 {-# LINE 513 "src-ag/Order.ag" #-}
                                 Seq.fromList (zip [_lhsIacount ..] _ntattrs)
-                                {-# LINE 1337 "src-generated/TfmToMirage.hs" #-}
+                                {-# LINE 1334 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule123 #-}
    {-# LINE 514 "src-ag/Order.ag" #-}
    rule123 = \ ((_lhsIacount) :: Int) inh_ syn_ ->
                                 {-# LINE 514 "src-ag/Order.ag" #-}
                                 _lhsIacount + Map.size inh_ + Map.size syn_
-                                {-# LINE 1343 "src-generated/TfmToMirage.hs" #-}
+                                {-# LINE 1340 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule124 #-}
    {-# LINE 515 "src-ag/Order.ag" #-}
    rule124 = \ ((_lhsIacount) :: Int) inh_ syn_ ->
@@ -1348,13 +1345,13 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
                                   (_lhsIacount
                                   ,_lhsIacount + Map.size inh_
                                   ,_lhsIacount + Map.size syn_ + Map.size inh_ - 1)
-                                 {-# LINE 1352 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 1349 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule125 #-}
    {-# LINE 524 "src-ag/Order.ag" #-}
    rule125 = \ ((_prodsIcons) :: [ConstructorIdent]) nt_ ->
                                 {-# LINE 524 "src-ag/Order.ag" #-}
                                 [(nt_,_prodsIcons)]
-                                {-# LINE 1358 "src-generated/TfmToMirage.hs" #-}
+                                {-# LINE 1355 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule126 #-}
    {-# LINE 601 "src-ag/Order.ag" #-}
    rule126 = \ ((_lhsIcInterfaceMap) :: CInterfaceMap) ((_lhsIo_dovisit) :: Bool) inh_ nt_ syn_ ->
@@ -1362,24 +1359,24 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
                                  if  _lhsIo_dovisit
                                         then findWithErr1 "Nonterminal.cInter" nt_ _lhsIcInterfaceMap
                                         else CInterface [CSegment inh_ syn_]
-                                 {-# LINE 1366 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 1363 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule127 #-}
    {-# LINE 629 "src-ag/Order.ag" #-}
    rule127 = \ _cInter ((_prodsIcProductions) :: CProductions) inh_ nt_ params_ syn_ ->
                                        {-# LINE 629 "src-ag/Order.ag" #-}
                                        CNonterminal nt_ params_ inh_ syn_ _prodsIcProductions _cInter
-                                       {-# LINE 1372 "src-generated/TfmToMirage.hs" #-}
+                                       {-# LINE 1369 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule128 #-}
-   {-# LINE 35 "src-ag/TfmToMirage.ag" #-}
-   rule128 = \ ((_prodsIjsons) :: [JSON.Value]) inh_ nt_ params_ syn_ ->
-                             {-# LINE 35 "src-ag/TfmToMirage.ag" #-}
-                             JSON.Array [ idToJSON nt_
-                                        , JSON.Array (map idToJSON params_)
-                                        , JSON.Array (Map.foldrWithKey (\k x xs -> JSON.Array [idToJSON k, typeToJSON x] : xs) [] inh_)
-                                        , JSON.Array (Map.foldrWithKey (\k x xs -> JSON.Array [idToJSON k, typeToJSON x] : xs) [] syn_)
-                                        , JSON.Array _prodsIjsons
-                                        ]
-                             {-# LINE 1383 "src-generated/TfmToMirage.hs" #-}
+   {-# LINE 30 "src-ag/TfmToMirage.ag" #-}
+   rule128 = \ ((_prodsImirages) :: [Mirage.Production]) inh_ nt_ params_ syn_ ->
+          {-# LINE 30 "src-ag/TfmToMirage.ag" #-}
+          Mirage.Nonterminal
+            (getName nt_)
+            (map getName params_)
+            (Map.foldrWithKey (\k x xs -> Mirage.Attribute (getName k) (typeToMirage x) : xs) [] inh_)
+            (Map.foldrWithKey (\k x xs -> Mirage.Attribute (getName k) (typeToMirage x) : xs) [] syn_)
+            _prodsImirages
+          {-# LINE 1380 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule129 #-}
    rule129 = \ ((_prodsIadditionalDep) :: Seq Edge) ->
      _prodsIadditionalDep
@@ -1471,15 +1468,15 @@ sem_Nonterminal_Nonterminal arg_nt_ arg_params_ arg_inh_ arg_syn_ arg_prods_ = T
 -- Nonterminals ------------------------------------------------
 -- wrapper
 data Inh_Nonterminals  = Inh_Nonterminals { acount_Inh_Nonterminals :: (Int), allnts_Inh_Nonterminals :: ([Identifier]), aroundMap_Inh_Nonterminals :: (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))), cInterfaceMap_Inh_Nonterminals :: (CInterfaceMap), cVisitsMap_Inh_Nonterminals :: (CVisitsMap), inhMap_Inh_Nonterminals :: (Map Identifier Attributes), manualAttrDepMap_Inh_Nonterminals :: (AttrOrderMap), mergeMap_Inh_Nonterminals :: (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))), o_case_Inh_Nonterminals :: (Bool), o_cata_Inh_Nonterminals :: (Bool), o_data_Inh_Nonterminals :: (Bool), o_dovisit_Inh_Nonterminals :: (Bool), o_newtypes_Inh_Nonterminals :: (Bool), o_rename_Inh_Nonterminals :: (Bool), o_sem_Inh_Nonterminals :: (Bool), o_sig_Inh_Nonterminals :: (Bool), o_unbox_Inh_Nonterminals :: (Bool), o_wantvisit_Inh_Nonterminals :: (Bool), options_Inh_Nonterminals :: (Options), prefix_Inh_Nonterminals :: (String), synMap_Inh_Nonterminals :: (Map Identifier Attributes), vcount_Inh_Nonterminals :: (Int) }
-data Syn_Nonterminals  = Syn_Nonterminals { acount_Syn_Nonterminals :: (Int), additionalDep_Syn_Nonterminals :: (Seq Edge), aranges_Syn_Nonterminals :: (Seq (Int,Int,Int)), aroundDep_Syn_Nonterminals :: (Seq Edge), cNonterminals_Syn_Nonterminals :: (CNonterminals), directDep_Syn_Nonterminals :: (Seq Edge), errors_Syn_Nonterminals :: (Seq Error), inhMap'_Syn_Nonterminals :: (Map Identifier Attributes), instDep_Syn_Nonterminals :: (Seq Edge), jsons_Syn_Nonterminals :: ([JSON.Value]), mergeDep_Syn_Nonterminals :: (Seq Edge), nAutoRules_Syn_Nonterminals :: (Int), nExplicitRules_Syn_Nonterminals :: (Int), nonts_Syn_Nonterminals :: ([(NontermIdent,[ConstructorIdent])]), ntattrs_Syn_Nonterminals :: (Seq (Vertex,NTAttr)), rules_Syn_Nonterminals :: (Seq (Vertex,CRule)), synMap'_Syn_Nonterminals :: (Map Identifier Attributes), vcount_Syn_Nonterminals :: (Int) }
+data Syn_Nonterminals  = Syn_Nonterminals { acount_Syn_Nonterminals :: (Int), additionalDep_Syn_Nonterminals :: (Seq Edge), aranges_Syn_Nonterminals :: (Seq (Int,Int,Int)), aroundDep_Syn_Nonterminals :: (Seq Edge), cNonterminals_Syn_Nonterminals :: (CNonterminals), directDep_Syn_Nonterminals :: (Seq Edge), errors_Syn_Nonterminals :: (Seq Error), inhMap'_Syn_Nonterminals :: (Map Identifier Attributes), instDep_Syn_Nonterminals :: (Seq Edge), mergeDep_Syn_Nonterminals :: (Seq Edge), mirages_Syn_Nonterminals :: ([Mirage.Nonterminal]), nAutoRules_Syn_Nonterminals :: (Int), nExplicitRules_Syn_Nonterminals :: (Int), nonts_Syn_Nonterminals :: ([(NontermIdent,[ConstructorIdent])]), ntattrs_Syn_Nonterminals :: (Seq (Vertex,NTAttr)), rules_Syn_Nonterminals :: (Seq (Vertex,CRule)), synMap'_Syn_Nonterminals :: (Map Identifier Attributes), vcount_Syn_Nonterminals :: (Int) }
 {-# INLINABLE wrap_Nonterminals #-}
 wrap_Nonterminals :: T_Nonterminals  -> Inh_Nonterminals  -> (Syn_Nonterminals )
 wrap_Nonterminals (T_Nonterminals act) (Inh_Nonterminals _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
         let arg16 = T_Nonterminals_vIn16 _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount
-        (T_Nonterminals_vOut16 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOjsons _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount) <- return (inv_Nonterminals_s17 sem arg16)
-        return (Syn_Nonterminals _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOjsons _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount)
+        (T_Nonterminals_vOut16 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOmirages _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount) <- return (inv_Nonterminals_s17 sem arg16)
+        return (Syn_Nonterminals _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOmirages _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount)
    )
 
 -- cata
@@ -1497,7 +1494,7 @@ newtype T_Nonterminals_s17  = C_Nonterminals_s17 {
 data T_Nonterminals_s18  = C_Nonterminals_s18
 type T_Nonterminals_v16  = (T_Nonterminals_vIn16 ) -> (T_Nonterminals_vOut16 )
 data T_Nonterminals_vIn16  = T_Nonterminals_vIn16 (Int) ([Identifier]) (Map NontermIdent (Map ConstructorIdent (Map Identifier [Expression]))) (CInterfaceMap) (CVisitsMap) (Map Identifier Attributes) (AttrOrderMap) (Map NontermIdent (Map ConstructorIdent (Map Identifier (Identifier,[Identifier])))) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Options) (String) (Map Identifier Attributes) (Int)
-data T_Nonterminals_vOut16  = T_Nonterminals_vOut16 (Int) (Seq Edge) (Seq (Int,Int,Int)) (Seq Edge) (CNonterminals) (Seq Edge) (Seq Error) (Map Identifier Attributes) (Seq Edge) ([JSON.Value]) (Seq Edge) (Int) (Int) ([(NontermIdent,[ConstructorIdent])]) (Seq (Vertex,NTAttr)) (Seq (Vertex,CRule)) (Map Identifier Attributes) (Int)
+data T_Nonterminals_vOut16  = T_Nonterminals_vOut16 (Int) (Seq Edge) (Seq (Int,Int,Int)) (Seq Edge) (CNonterminals) (Seq Edge) (Seq Error) (Map Identifier Attributes) (Seq Edge) (Seq Edge) ([Mirage.Nonterminal]) (Int) (Int) ([(NontermIdent,[ConstructorIdent])]) (Seq (Vertex,NTAttr)) (Seq (Vertex,CRule)) (Map Identifier Attributes) (Int)
 {-# NOINLINE sem_Nonterminals_Cons #-}
 sem_Nonterminals_Cons :: T_Nonterminal  -> T_Nonterminals  -> T_Nonterminals 
 sem_Nonterminals_Cons arg_hd_ arg_tl_ = T_Nonterminals (return st17) where
@@ -1507,12 +1504,12 @@ sem_Nonterminals_Cons arg_hd_ arg_tl_ = T_Nonterminals (return st17) where
       v16 = \ (T_Nonterminals_vIn16 _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount) -> ( let
          _hdX14 = Control.Monad.Identity.runIdentity (attach_T_Nonterminal (arg_hd_))
          _tlX17 = Control.Monad.Identity.runIdentity (attach_T_Nonterminals (arg_tl_))
-         (T_Nonterminal_vOut13 _hdIacount _hdIadditionalDep _hdIaranges _hdIaroundDep _hdIcNonterminal _hdIdirectDep _hdIerrors _hdIinhMap' _hdIinstDep _hdIjson _hdImergeDep _hdInAutoRules _hdInExplicitRules _hdInonts _hdIntattrs _hdIrules _hdIsynMap' _hdIvcount) = inv_Nonterminal_s14 _hdX14 (T_Nonterminal_vIn13 _hdOacount _hdOallnts _hdOaroundMap _hdOcInterfaceMap _hdOcVisitsMap _hdOinhMap _hdOmanualAttrDepMap _hdOmergeMap _hdOo_case _hdOo_cata _hdOo_data _hdOo_dovisit _hdOo_newtypes _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_unbox _hdOo_wantvisit _hdOoptions _hdOprefix _hdOsynMap _hdOvcount)
-         (T_Nonterminals_vOut16 _tlIacount _tlIadditionalDep _tlIaranges _tlIaroundDep _tlIcNonterminals _tlIdirectDep _tlIerrors _tlIinhMap' _tlIinstDep _tlIjsons _tlImergeDep _tlInAutoRules _tlInExplicitRules _tlInonts _tlIntattrs _tlIrules _tlIsynMap' _tlIvcount) = inv_Nonterminals_s17 _tlX17 (T_Nonterminals_vIn16 _tlOacount _tlOallnts _tlOaroundMap _tlOcInterfaceMap _tlOcVisitsMap _tlOinhMap _tlOmanualAttrDepMap _tlOmergeMap _tlOo_case _tlOo_cata _tlOo_data _tlOo_dovisit _tlOo_newtypes _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_unbox _tlOo_wantvisit _tlOoptions _tlOprefix _tlOsynMap _tlOvcount)
+         (T_Nonterminal_vOut13 _hdIacount _hdIadditionalDep _hdIaranges _hdIaroundDep _hdIcNonterminal _hdIdirectDep _hdIerrors _hdIinhMap' _hdIinstDep _hdImergeDep _hdImirage _hdInAutoRules _hdInExplicitRules _hdInonts _hdIntattrs _hdIrules _hdIsynMap' _hdIvcount) = inv_Nonterminal_s14 _hdX14 (T_Nonterminal_vIn13 _hdOacount _hdOallnts _hdOaroundMap _hdOcInterfaceMap _hdOcVisitsMap _hdOinhMap _hdOmanualAttrDepMap _hdOmergeMap _hdOo_case _hdOo_cata _hdOo_data _hdOo_dovisit _hdOo_newtypes _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_unbox _hdOo_wantvisit _hdOoptions _hdOprefix _hdOsynMap _hdOvcount)
+         (T_Nonterminals_vOut16 _tlIacount _tlIadditionalDep _tlIaranges _tlIaroundDep _tlIcNonterminals _tlIdirectDep _tlIerrors _tlIinhMap' _tlIinstDep _tlImergeDep _tlImirages _tlInAutoRules _tlInExplicitRules _tlInonts _tlIntattrs _tlIrules _tlIsynMap' _tlIvcount) = inv_Nonterminals_s17 _tlX17 (T_Nonterminals_vIn16 _tlOacount _tlOallnts _tlOaroundMap _tlOcInterfaceMap _tlOcVisitsMap _tlOinhMap _tlOmanualAttrDepMap _tlOmergeMap _tlOo_case _tlOo_cata _tlOo_data _tlOo_dovisit _tlOo_newtypes _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_unbox _tlOo_wantvisit _tlOoptions _tlOprefix _tlOsynMap _tlOvcount)
          _lhsOcNonterminals :: CNonterminals
          _lhsOcNonterminals = rule158 _hdIcNonterminal _tlIcNonterminals
-         _lhsOjsons :: [JSON.Value]
-         _lhsOjsons = rule159 _hdIjson _tlIjsons
+         _lhsOmirages :: [Mirage.Nonterminal]
+         _lhsOmirages = rule159 _hdImirage _tlImirages
          _lhsOadditionalDep :: Seq Edge
          _lhsOadditionalDep = rule160 _hdIadditionalDep _tlIadditionalDep
          _lhsOaranges :: Seq (Int,Int,Int)
@@ -1589,7 +1586,7 @@ sem_Nonterminals_Cons arg_hd_ arg_tl_ = T_Nonterminals (return st17) where
          _tlOprefix = rule217 _lhsIprefix
          _tlOsynMap = rule218 _lhsIsynMap
          _tlOvcount = rule219 _hdIvcount
-         __result_ = T_Nonterminals_vOut16 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOjsons _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount
+         __result_ = T_Nonterminals_vOut16 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOmirages _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount
          in __result_ )
      in C_Nonterminals_s17 v16
    {-# INLINE rule158 #-}
@@ -1597,13 +1594,13 @@ sem_Nonterminals_Cons arg_hd_ arg_tl_ = T_Nonterminals (return st17) where
    rule158 = \ ((_hdIcNonterminal) :: CNonterminal) ((_tlIcNonterminals) :: CNonterminals) ->
                                  {-# LINE 626 "src-ag/Order.ag" #-}
                                  _hdIcNonterminal : _tlIcNonterminals
-                                 {-# LINE 1601 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 1598 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule159 #-}
-   {-# LINE 31 "src-ag/TfmToMirage.ag" #-}
-   rule159 = \ ((_hdIjson) :: JSON.Value) ((_tlIjsons) :: [JSON.Value]) ->
-                       {-# LINE 31 "src-ag/TfmToMirage.ag" #-}
-                       _hdIjson : _tlIjsons
-                       {-# LINE 1607 "src-generated/TfmToMirage.hs" #-}
+   {-# LINE 25 "src-ag/TfmToMirage.ag" #-}
+   rule159 = \ ((_hdImirage) :: Mirage.Nonterminal) ((_tlImirages) :: [Mirage.Nonterminal]) ->
+                         {-# LINE 25 "src-ag/TfmToMirage.ag" #-}
+                         _hdImirage : _tlImirages
+                         {-# LINE 1604 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule160 #-}
    rule160 = \ ((_hdIadditionalDep) :: Seq Edge) ((_tlIadditionalDep) :: Seq Edge) ->
      _hdIadditionalDep Seq.>< _tlIadditionalDep
@@ -1793,8 +1790,8 @@ sem_Nonterminals_Nil  = T_Nonterminals (return st17) where
       v16 = \ (T_Nonterminals_vIn16 _lhsIacount _lhsIallnts _lhsIaroundMap _lhsIcInterfaceMap _lhsIcVisitsMap _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsIo_case _lhsIo_cata _lhsIo_data _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsynMap _lhsIvcount) -> ( let
          _lhsOcNonterminals :: CNonterminals
          _lhsOcNonterminals = rule220  ()
-         _lhsOjsons :: [JSON.Value]
-         _lhsOjsons = rule221  ()
+         _lhsOmirages :: [Mirage.Nonterminal]
+         _lhsOmirages = rule221  ()
          _lhsOadditionalDep :: Seq Edge
          _lhsOadditionalDep = rule222  ()
          _lhsOaranges :: Seq (Int,Int,Int)
@@ -1827,7 +1824,7 @@ sem_Nonterminals_Nil  = T_Nonterminals (return st17) where
          _lhsOacount = rule236 _lhsIacount
          _lhsOvcount :: Int
          _lhsOvcount = rule237 _lhsIvcount
-         __result_ = T_Nonterminals_vOut16 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOjsons _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount
+         __result_ = T_Nonterminals_vOut16 _lhsOacount _lhsOadditionalDep _lhsOaranges _lhsOaroundDep _lhsOcNonterminals _lhsOdirectDep _lhsOerrors _lhsOinhMap' _lhsOinstDep _lhsOmergeDep _lhsOmirages _lhsOnAutoRules _lhsOnExplicitRules _lhsOnonts _lhsOntattrs _lhsOrules _lhsOsynMap' _lhsOvcount
          in __result_ )
      in C_Nonterminals_s17 v16
    {-# INLINE rule220 #-}
@@ -1835,13 +1832,13 @@ sem_Nonterminals_Nil  = T_Nonterminals (return st17) where
    rule220 = \  (_ :: ()) ->
                                  {-# LINE 627 "src-ag/Order.ag" #-}
                                  []
-                                 {-# LINE 1839 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 1836 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule221 #-}
-   {-# LINE 32 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 26 "src-ag/TfmToMirage.ag" #-}
    rule221 = \  (_ :: ()) ->
-                       {-# LINE 32 "src-ag/TfmToMirage.ag" #-}
-                       []
-                       {-# LINE 1845 "src-generated/TfmToMirage.hs" #-}
+                         {-# LINE 26 "src-ag/TfmToMirage.ag" #-}
+                         []
+                         {-# LINE 1842 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule222 #-}
    rule222 = \  (_ :: ()) ->
      Seq.empty
@@ -1962,17 +1959,17 @@ sem_Pattern_Constr arg_name_ arg_pats_ = T_Pattern (return st20) where
          in __result_ )
      in C_Pattern_s20 v19
    {-# INLINE rule238 #-}
-   {-# LINE 83 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 80 "src-ag/TfmToMirage.ag" #-}
    rule238 = \ ((_patsIpps) :: [PP_Doc]) name_ ->
-                           {-# LINE 83 "src-ag/TfmToMirage.ag" #-}
+                           {-# LINE 80 "src-ag/TfmToMirage.ag" #-}
                            pp_parens $ name_ >#< hv_sp _patsIpps
-                           {-# LINE 1970 "src-generated/TfmToMirage.hs" #-}
+                           {-# LINE 1967 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule239 #-}
-   {-# LINE 94 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 91 "src-ag/TfmToMirage.ag" #-}
    rule239 = \  (_ :: ()) ->
-                                    {-# LINE 94 "src-ag/TfmToMirage.ag" #-}
+                                    {-# LINE 91 "src-ag/TfmToMirage.ag" #-}
                                     False
-                                    {-# LINE 1976 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 1973 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule240 #-}
    rule240 = \ ((_patsIerrors) :: Seq Error) ->
      _patsIerrors
@@ -2052,17 +2049,17 @@ sem_Pattern_Product arg_pos_ arg_pats_ = T_Pattern (return st20) where
          in __result_ )
      in C_Pattern_s20 v19
    {-# INLINE rule254 #-}
-   {-# LINE 84 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 81 "src-ag/TfmToMirage.ag" #-}
    rule254 = \ ((_patsIpps) :: [PP_Doc]) ->
-                           {-# LINE 84 "src-ag/TfmToMirage.ag" #-}
+                           {-# LINE 81 "src-ag/TfmToMirage.ag" #-}
                            pp_block "(" ")" "," _patsIpps
-                           {-# LINE 2060 "src-generated/TfmToMirage.hs" #-}
+                           {-# LINE 2057 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule255 #-}
-   {-# LINE 95 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 92 "src-ag/TfmToMirage.ag" #-}
    rule255 = \  (_ :: ()) ->
-                                    {-# LINE 95 "src-ag/TfmToMirage.ag" #-}
+                                    {-# LINE 92 "src-ag/TfmToMirage.ag" #-}
                                     False
-                                    {-# LINE 2066 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 2063 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule256 #-}
    rule256 = \ ((_patsIerrors) :: Seq Error) ->
      _patsIerrors
@@ -2148,13 +2145,13 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st20) where
    rule270 = \ attr_ field_ ->
                                 {-# LINE 187 "src-ag/Order.ag" #-}
                                 [AltAttr field_ attr_ (field_ == _LOC || field_ == _INST)]
-                                {-# LINE 2152 "src-generated/TfmToMirage.hs" #-}
+                                {-# LINE 2149 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule271 #-}
    {-# LINE 253 "src-ag/Order.ag" #-}
    rule271 = \ attr_ field_ ->
                                 {-# LINE 253 "src-ag/Order.ag" #-}
                                 [(field_,attr_,(field_ == _LOC || field_ == _INST))]
-                                {-# LINE 2158 "src-generated/TfmToMirage.hs" #-}
+                                {-# LINE 2155 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule272 #-}
    {-# LINE 685 "src-ag/Order.ag" #-}
    rule272 = \ attr_ field_ ->
@@ -2162,7 +2159,7 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st20) where
                                if field_ == _LOC
                                   then [attr_]
                                   else []
-                               {-# LINE 2166 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 2163 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule273 #-}
    {-# LINE 688 "src-ag/Order.ag" #-}
    rule273 = \ attr_ field_ ->
@@ -2170,33 +2167,33 @@ sem_Pattern_Alias arg_field_ arg_attr_ arg_pat_ = T_Pattern (return st20) where
                                if field_ == _INST
                                   then [attr_]
                                   else []
-                               {-# LINE 2174 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 2171 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule274 #-}
-   {-# LINE 85 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 82 "src-ag/TfmToMirage.ag" #-}
    rule274 = \ attr_ field_ ->
-                           {-# LINE 85 "src-ag/TfmToMirage.ag" #-}
+                           {-# LINE 82 "src-ag/TfmToMirage.ag" #-}
                            pp field_ >|< "." >|< pp attr_
-                           {-# LINE 2180 "src-generated/TfmToMirage.hs" #-}
+                           {-# LINE 2177 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule275 #-}
-   {-# LINE 86 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 83 "src-ag/TfmToMirage.ag" #-}
    rule275 = \ _ppVar ->
-                              {-# LINE 86 "src-ag/TfmToMirage.ag" #-}
+                              {-# LINE 83 "src-ag/TfmToMirage.ag" #-}
                               _ppVar
-                              {-# LINE 2186 "src-generated/TfmToMirage.hs" #-}
+                              {-# LINE 2183 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule276 #-}
-   {-# LINE 87 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 84 "src-ag/TfmToMirage.ag" #-}
    rule276 = \ ((_patIisUnderscore) :: Bool) ((_patIpp) :: PP_Doc) _ppVarBang ->
-                           {-# LINE 87 "src-ag/TfmToMirage.ag" #-}
+                           {-# LINE 84 "src-ag/TfmToMirage.ag" #-}
                            if _patIisUnderscore
                             then _ppVarBang
                             else _ppVarBang     >|< "@" >|< _patIpp
-                           {-# LINE 2194 "src-generated/TfmToMirage.hs" #-}
+                           {-# LINE 2191 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule277 #-}
-   {-# LINE 96 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 93 "src-ag/TfmToMirage.ag" #-}
    rule277 = \  (_ :: ()) ->
-                                    {-# LINE 96 "src-ag/TfmToMirage.ag" #-}
+                                    {-# LINE 93 "src-ag/TfmToMirage.ag" #-}
                                     False
-                                    {-# LINE 2200 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 2197 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule278 #-}
    rule278 = \ ((_patIerrors) :: Seq Error) ->
      _patIerrors
@@ -2264,17 +2261,17 @@ sem_Pattern_Irrefutable arg_pat_ = T_Pattern (return st20) where
          in __result_ )
      in C_Pattern_s20 v19
    {-# INLINE rule288 #-}
-   {-# LINE 90 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 87 "src-ag/TfmToMirage.ag" #-}
    rule288 = \ ((_patIpp) :: PP_Doc) ->
-                           {-# LINE 90 "src-ag/TfmToMirage.ag" #-}
+                           {-# LINE 87 "src-ag/TfmToMirage.ag" #-}
                            text "~" >|< pp_parens _patIpp
-                           {-# LINE 2272 "src-generated/TfmToMirage.hs" #-}
+                           {-# LINE 2269 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule289 #-}
-   {-# LINE 103 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 100 "src-ag/TfmToMirage.ag" #-}
    rule289 = \  (_ :: ()) ->
-                                         {-# LINE 103 "src-ag/TfmToMirage.ag" #-}
+                                         {-# LINE 100 "src-ag/TfmToMirage.ag" #-}
                                          True
-                                         {-# LINE 2278 "src-generated/TfmToMirage.hs" #-}
+                                         {-# LINE 2275 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule290 #-}
    rule290 = \ ((_patIerrors) :: Seq Error) ->
      _patIerrors
@@ -2345,17 +2342,17 @@ sem_Pattern_Underscore arg_pos_ = T_Pattern (return st20) where
          in __result_ )
      in C_Pattern_s20 v19
    {-# INLINE rule304 #-}
-   {-# LINE 91 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 88 "src-ag/TfmToMirage.ag" #-}
    rule304 = \  (_ :: ()) ->
-                           {-# LINE 91 "src-ag/TfmToMirage.ag" #-}
+                           {-# LINE 88 "src-ag/TfmToMirage.ag" #-}
                            text "_"
-                           {-# LINE 2353 "src-generated/TfmToMirage.hs" #-}
+                           {-# LINE 2350 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule305 #-}
-   {-# LINE 97 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 94 "src-ag/TfmToMirage.ag" #-}
    rule305 = \  (_ :: ()) ->
-                                    {-# LINE 97 "src-ag/TfmToMirage.ag" #-}
+                                    {-# LINE 94 "src-ag/TfmToMirage.ag" #-}
                                     True
-                                    {-# LINE 2359 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 2356 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule306 #-}
    rule306 = \  (_ :: ()) ->
      Seq.empty
@@ -2452,11 +2449,11 @@ sem_Patterns_Cons arg_hd_ arg_tl_ = T_Patterns (return st23) where
          in __result_ )
      in C_Patterns_s23 v22
    {-# INLINE rule313 #-}
-   {-# LINE 79 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 76 "src-ag/TfmToMirage.ag" #-}
    rule313 = \ ((_hdIpp) :: PP_Doc) ((_tlIpps) :: [PP_Doc]) ->
-                     {-# LINE 79 "src-ag/TfmToMirage.ag" #-}
+                     {-# LINE 76 "src-ag/TfmToMirage.ag" #-}
                      _hdIpp : _tlIpps
-                     {-# LINE 2460 "src-generated/TfmToMirage.hs" #-}
+                     {-# LINE 2457 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule314 #-}
    rule314 = \ ((_hdIerrors) :: Seq Error) ((_tlIerrors) :: Seq Error) ->
      _hdIerrors Seq.>< _tlIerrors
@@ -2546,11 +2543,11 @@ sem_Patterns_Nil  = T_Patterns (return st23) where
          in __result_ )
      in C_Patterns_s23 v22
    {-# INLINE rule335 #-}
-   {-# LINE 80 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 77 "src-ag/TfmToMirage.ag" #-}
    rule335 = \  (_ :: ()) ->
-                     {-# LINE 80 "src-ag/TfmToMirage.ag" #-}
+                     {-# LINE 77 "src-ag/TfmToMirage.ag" #-}
                      []
-                     {-# LINE 2554 "src-generated/TfmToMirage.hs" #-}
+                     {-# LINE 2551 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule336 #-}
    rule336 = \  (_ :: ()) ->
      Seq.empty
@@ -2576,15 +2573,15 @@ sem_Patterns_Nil  = T_Patterns (return st23) where
 -- Production --------------------------------------------------
 -- wrapper
 data Inh_Production  = Inh_Production { allnts_Inh_Production :: ([Identifier]), aroundMap_Inh_Production :: (Map ConstructorIdent (Map Identifier [Expression])), cVisitsMap_Inh_Production :: (CVisitsMap), inh_Inh_Production :: (Attributes), inhMap_Inh_Production :: (Map Identifier Attributes), manualAttrDepMap_Inh_Production :: (AttrOrderMap), mergeMap_Inh_Production :: (Map ConstructorIdent (Map Identifier (Identifier,[Identifier]))), nt_Inh_Production :: (Identifier), o_case_Inh_Production :: (Bool), o_cata_Inh_Production :: (Bool), o_dovisit_Inh_Production :: (Bool), o_newtypes_Inh_Production :: (Bool), o_rename_Inh_Production :: (Bool), o_sem_Inh_Production :: (Bool), o_sig_Inh_Production :: (Bool), o_unbox_Inh_Production :: (Bool), o_wantvisit_Inh_Production :: (Bool), options_Inh_Production :: (Options), prefix_Inh_Production :: (String), syn_Inh_Production :: (Attributes), synMap_Inh_Production :: (Map Identifier Attributes), vcount_Inh_Production :: (Int) }
-data Syn_Production  = Syn_Production { additionalDep_Syn_Production :: (Seq Edge), aroundDep_Syn_Production :: (Seq Edge), cProduction_Syn_Production :: (CProduction), cons_Syn_Production :: ([ConstructorIdent]), directDep_Syn_Production :: (Seq Edge), errors_Syn_Production :: (Seq Error), instDep_Syn_Production :: (Seq Edge), json_Syn_Production :: (JSON.Value), mergeDep_Syn_Production :: (Seq Edge), nAutoRules_Syn_Production :: (Int), nExplicitRules_Syn_Production :: (Int), rules_Syn_Production :: (Seq (Vertex,CRule)), vcount_Syn_Production :: (Int) }
+data Syn_Production  = Syn_Production { additionalDep_Syn_Production :: (Seq Edge), aroundDep_Syn_Production :: (Seq Edge), cProduction_Syn_Production :: (CProduction), cons_Syn_Production :: ([ConstructorIdent]), directDep_Syn_Production :: (Seq Edge), errors_Syn_Production :: (Seq Error), instDep_Syn_Production :: (Seq Edge), mergeDep_Syn_Production :: (Seq Edge), mirage_Syn_Production :: (Mirage.Production), nAutoRules_Syn_Production :: (Int), nExplicitRules_Syn_Production :: (Int), rules_Syn_Production :: (Seq (Vertex,CRule)), vcount_Syn_Production :: (Int) }
 {-# INLINABLE wrap_Production #-}
 wrap_Production :: T_Production  -> Inh_Production  -> (Syn_Production )
 wrap_Production (T_Production act) (Inh_Production _lhsIallnts _lhsIaroundMap _lhsIcVisitsMap _lhsIinh _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynMap _lhsIvcount) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
         let arg25 = T_Production_vIn25 _lhsIallnts _lhsIaroundMap _lhsIcVisitsMap _lhsIinh _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynMap _lhsIvcount
-        (T_Production_vOut25 _lhsOadditionalDep _lhsOaroundDep _lhsOcProduction _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOjson _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount) <- return (inv_Production_s26 sem arg25)
-        return (Syn_Production _lhsOadditionalDep _lhsOaroundDep _lhsOcProduction _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOjson _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount)
+        (T_Production_vOut25 _lhsOadditionalDep _lhsOaroundDep _lhsOcProduction _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOmirage _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount) <- return (inv_Production_s26 sem arg25)
+        return (Syn_Production _lhsOadditionalDep _lhsOaroundDep _lhsOcProduction _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOmirage _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount)
    )
 
 -- cata
@@ -2602,7 +2599,7 @@ newtype T_Production_s26  = C_Production_s26 {
 data T_Production_s27  = C_Production_s27
 type T_Production_v25  = (T_Production_vIn25 ) -> (T_Production_vOut25 )
 data T_Production_vIn25  = T_Production_vIn25 ([Identifier]) (Map ConstructorIdent (Map Identifier [Expression])) (CVisitsMap) (Attributes) (Map Identifier Attributes) (AttrOrderMap) (Map ConstructorIdent (Map Identifier (Identifier,[Identifier]))) (Identifier) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Options) (String) (Attributes) (Map Identifier Attributes) (Int)
-data T_Production_vOut25  = T_Production_vOut25 (Seq Edge) (Seq Edge) (CProduction) ([ConstructorIdent]) (Seq Edge) (Seq Error) (Seq Edge) (JSON.Value) (Seq Edge) (Int) (Int) (Seq (Vertex,CRule)) (Int)
+data T_Production_vOut25  = T_Production_vOut25 (Seq Edge) (Seq Edge) (CProduction) ([ConstructorIdent]) (Seq Edge) (Seq Error) (Seq Edge) (Seq Edge) (Mirage.Production) (Int) (Int) (Seq (Vertex,CRule)) (Int)
 {-# NOINLINE sem_Production_Production #-}
 sem_Production_Production :: (ConstructorIdent) -> ([Identifier]) -> ([Type]) -> T_Children  -> T_Rules  -> T_TypeSigs  -> (MaybeMacro) -> T_Production 
 sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ = T_Production (return st26) where
@@ -2613,8 +2610,8 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
          _childrenX5 = Control.Monad.Identity.runIdentity (attach_T_Children (arg_children_))
          _rulesX35 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_rules_))
          _typeSigsX41 = Control.Monad.Identity.runIdentity (attach_T_TypeSigs (arg_typeSigs_))
-         (T_Children_vOut4 _childrenIattributes _childrenIcollectChildrenInhs _childrenIcollectChildrenSyns _childrenIerrors _childrenIfields _childrenIgathAltAttrs _childrenIgathRules _childrenIinhs _childrenIjsons _childrenInts _childrenIsinglevisits _childrenIterminals) = inv_Children_s5 _childrenX5 (T_Children_vIn4 _childrenOallfields _childrenOallnts _childrenOattrs _childrenOcon _childrenOinh _childrenOinhMap _childrenOmergeMap _childrenOnt _childrenOo_unbox _childrenOsyn _childrenOsynMap)
-         (T_Rules_vOut34 _rulesIdirectDep _rulesIerrors _rulesIgathAltAttrs _rulesIgathRules _rulesIinstDep _rulesIinstVars _rulesIjsons _rulesIlocVars _rulesInAutoRules _rulesInExplicitRules) = inv_Rules_s35 _rulesX35 (T_Rules_vIn34 _rulesOallTypeSigs _rulesOallfields _rulesOallnts _rulesOaltAttrs _rulesOattrs _rulesOchildInhs _rulesOchildNts _rulesOcon _rulesOinh _rulesOinhsOfChildren _rulesOmergeMap _rulesOnt _rulesOo_case _rulesOo_cata _rulesOo_dovisit _rulesOo_newtypes _rulesOo_rename _rulesOo_sem _rulesOo_sig _rulesOo_wantvisit _rulesOoptions _rulesOprefix _rulesOsyn _rulesOsynsOfChildren)
+         (T_Children_vOut4 _childrenIattributes _childrenIcollectChildrenInhs _childrenIcollectChildrenSyns _childrenIerrors _childrenIfields _childrenIgathAltAttrs _childrenIgathRules _childrenIinhs _childrenImirages _childrenInts _childrenIsinglevisits _childrenIterminals) = inv_Children_s5 _childrenX5 (T_Children_vIn4 _childrenOallfields _childrenOallnts _childrenOattrs _childrenOcon _childrenOinh _childrenOinhMap _childrenOmergeMap _childrenOnt _childrenOo_unbox _childrenOsyn _childrenOsynMap)
+         (T_Rules_vOut34 _rulesIdirectDep _rulesIerrors _rulesIgathAltAttrs _rulesIgathRules _rulesIinstDep _rulesIinstVars _rulesIlocVars _rulesImirages _rulesInAutoRules _rulesInExplicitRules) = inv_Rules_s35 _rulesX35 (T_Rules_vIn34 _rulesOallTypeSigs _rulesOallfields _rulesOallnts _rulesOaltAttrs _rulesOattrs _rulesOchildInhs _rulesOchildNts _rulesOcon _rulesOinh _rulesOinhsOfChildren _rulesOmergeMap _rulesOnt _rulesOo_case _rulesOo_cata _rulesOo_dovisit _rulesOo_newtypes _rulesOo_rename _rulesOo_sem _rulesOo_sig _rulesOo_wantvisit _rulesOoptions _rulesOprefix _rulesOsyn _rulesOsynsOfChildren)
          (T_TypeSigs_vOut40 _typeSigsItypeSigs) = inv_TypeSigs_s41 _typeSigsX41 (T_TypeSigs_vIn40 _typeSigsOtypeSigs)
          _childrenOcon = rule343 arg_con_
          _rulesOcon = rule344 arg_con_
@@ -2654,8 +2651,8 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
          _attrs = rule371 _childrenIattributes _inhnames _rulesIinstVars _rulesIlocVars
          _inhnames = rule372 _lhsIinh
          _synnames = rule373 _lhsIsyn
-         _lhsOjson :: JSON.Value
-         _lhsOjson = rule374 _childrenIjsons _rulesIjsons arg_con_
+         _lhsOmirage :: Mirage.Production
+         _lhsOmirage = rule374 _childrenImirages _rulesImirages arg_con_
          _lhsOdirectDep :: Seq Edge
          _lhsOdirectDep = rule375 _rulesIdirectDep
          _lhsOerrors :: Seq Error
@@ -2694,7 +2691,7 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
          _rulesOoptions = rule405 _lhsIoptions
          _rulesOprefix = rule406 _lhsIprefix
          _rulesOsyn = rule407 _lhsIsyn
-         __result_ = T_Production_vOut25 _lhsOadditionalDep _lhsOaroundDep _lhsOcProduction _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOjson _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount
+         __result_ = T_Production_vOut25 _lhsOadditionalDep _lhsOaroundDep _lhsOcProduction _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOmirage _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount
          in __result_ )
      in C_Production_s26 v25
    {-# INLINE rule343 #-}
@@ -2702,13 +2699,13 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
    rule343 = \ con_ ->
                                   {-# LINE 93 "src-ag/Order.ag" #-}
                                   con_
-                                  {-# LINE 2706 "src-generated/TfmToMirage.hs" #-}
+                                  {-# LINE 2703 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule344 #-}
    {-# LINE 95 "src-ag/Order.ag" #-}
    rule344 = \ con_ ->
                                {-# LINE 95 "src-ag/Order.ag" #-}
                                con_
-                               {-# LINE 2712 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 2709 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule345 #-}
    {-# LINE 175 "src-ag/Order.ag" #-}
    rule345 = \ ((_childrenIgathAltAttrs) :: [AltAttr]) ((_lhsIinh) :: Attributes) ((_rulesIgathAltAttrs) :: [AltAttr]) ->
@@ -2716,55 +2713,55 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
                                        [ AltAttr _LHS inh True | inh <- Map.keys _lhsIinh ]
                                         ++ _childrenIgathAltAttrs
                                         ++ _rulesIgathAltAttrs
-                                       {-# LINE 2720 "src-generated/TfmToMirage.hs" #-}
+                                       {-# LINE 2717 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule346 #-}
    {-# LINE 191 "src-ag/Order.ag" #-}
    rule346 = \ _gathAltAttrs ((_lhsIvcount) :: Int) ->
                                  {-# LINE 191 "src-ag/Order.ag" #-}
                                  Map.fromList (zip _gathAltAttrs [_lhsIvcount..])
-                                 {-# LINE 2726 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 2723 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule347 #-}
    {-# LINE 204 "src-ag/Order.ag" #-}
    rule347 = \ ((_childrenInts) :: Seq (Identifier,NontermIdent)) ->
                                     {-# LINE 204 "src-ag/Order.ag" #-}
                                     Map.fromList (toList _childrenInts)
-                                    {-# LINE 2732 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 2729 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule348 #-}
    {-# LINE 205 "src-ag/Order.ag" #-}
    rule348 = \ ((_childrenIinhs) :: Seq (Identifier,Attributes)) ->
                                       {-# LINE 205 "src-ag/Order.ag" #-}
                                       Map.fromList (toList _childrenIinhs)
-                                      {-# LINE 2738 "src-generated/TfmToMirage.hs" #-}
+                                      {-# LINE 2735 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule349 #-}
    {-# LINE 211 "src-ag/Order.ag" #-}
    rule349 = \ ((_lhsIinh) :: Attributes) ((_lhsInt) :: Identifier) con_ ->
                                   {-# LINE 211 "src-ag/Order.ag" #-}
                                   [ cRuleLhsInh inh _lhsInt con_ tp | (inh,tp) <- Map.assocs _lhsIinh ]
-                                  {-# LINE 2744 "src-generated/TfmToMirage.hs" #-}
+                                  {-# LINE 2741 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule350 #-}
    {-# LINE 212 "src-ag/Order.ag" #-}
    rule350 = \ ((_childrenIgathRules) :: Seq CRule) _inhRules ((_rulesIgathRules) :: Seq CRule) ->
                                     {-# LINE 212 "src-ag/Order.ag" #-}
                                     _inhRules ++ toList (_childrenIgathRules Seq.>< _rulesIgathRules)
-                                    {-# LINE 2750 "src-generated/TfmToMirage.hs" #-}
+                                    {-# LINE 2747 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule351 #-}
    {-# LINE 264 "src-ag/Order.ag" #-}
    rule351 = \ _gathRules ((_lhsIvcount) :: Int) ->
                                {-# LINE 264 "src-ag/Order.ag" #-}
                                Seq.fromList (zip [_lhsIvcount..] _gathRules)
-                               {-# LINE 2756 "src-generated/TfmToMirage.hs" #-}
+                               {-# LINE 2753 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule352 #-}
    {-# LINE 265 "src-ag/Order.ag" #-}
    rule352 = \ _gathRules ((_lhsIvcount) :: Int) ->
                                  {-# LINE 265 "src-ag/Order.ag" #-}
                                  _lhsIvcount + length _gathRules
-                                 {-# LINE 2762 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 2759 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule353 #-}
    {-# LINE 293 "src-ag/Order.ag" #-}
    rule353 = \ ((_lhsImanualAttrDepMap) :: AttrOrderMap) ((_lhsInt) :: Identifier) con_ ->
             {-# LINE 293 "src-ag/Order.ag" #-}
             Set.toList $ Map.findWithDefault Set.empty con_ $ Map.findWithDefault Map.empty _lhsInt _lhsImanualAttrDepMap
-            {-# LINE 2768 "src-generated/TfmToMirage.hs" #-}
+            {-# LINE 2765 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule354 #-}
    {-# LINE 296 "src-ag/Order.ag" #-}
    rule354 = \ _altAttrs _manualDeps ->
@@ -2777,31 +2774,31 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
                                vertex _ (OccRule nm)
                                  = findWithErr2 (AltAttr _LOC (Ident ("_rule_" ++ show nm) (getPos nm)) True) _altAttrs
                          ]
-            {-# LINE 2781 "src-generated/TfmToMirage.hs" #-}
+            {-# LINE 2778 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule355 #-}
    {-# LINE 342 "src-ag/Order.ag" #-}
    rule355 = \ ((_childrenIcollectChildrenSyns) :: Map Identifier Attributes ) ->
                                          {-# LINE 342 "src-ag/Order.ag" #-}
                                          _childrenIcollectChildrenSyns
-                                         {-# LINE 2787 "src-generated/TfmToMirage.hs" #-}
+                                         {-# LINE 2784 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule356 #-}
    {-# LINE 343 "src-ag/Order.ag" #-}
    rule356 = \ ((_childrenIcollectChildrenInhs) :: Map Identifier Attributes ) ->
                                          {-# LINE 343 "src-ag/Order.ag" #-}
                                          _childrenIcollectChildrenInhs
-                                         {-# LINE 2793 "src-generated/TfmToMirage.hs" #-}
+                                         {-# LINE 2790 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule357 #-}
    {-# LINE 361 "src-ag/Order.ag" #-}
    rule357 = \ ((_lhsImergeMap) :: Map ConstructorIdent (Map Identifier (Identifier,[Identifier]))) con_ ->
                                                 {-# LINE 361 "src-ag/Order.ag" #-}
                                                 Map.findWithDefault Map.empty con_ _lhsImergeMap
-                                                {-# LINE 2799 "src-generated/TfmToMirage.hs" #-}
+                                                {-# LINE 2796 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule358 #-}
    {-# LINE 372 "src-ag/Order.ag" #-}
    rule358 = \ _mergeDep1 _mergeDep2 ->
                        {-# LINE 372 "src-ag/Order.ag" #-}
                        _mergeDep1     Seq.>< _mergeDep2
-                       {-# LINE 2805 "src-generated/TfmToMirage.hs" #-}
+                       {-# LINE 2802 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule359 #-}
    {-# LINE 374 "src-ag/Order.ag" #-}
    rule359 = \ _altAttrs ((_childrenIcollectChildrenSyns) :: Map Identifier Attributes ) _mergeMap ->
@@ -2816,7 +2813,7 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
                      childVert = findWithErr2 childAttr _altAttrs
                      synVert  = findWithErr2 synAttr _altAttrs
                ]
-            {-# LINE 2820 "src-generated/TfmToMirage.hs" #-}
+            {-# LINE 2817 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule360 #-}
    {-# LINE 385 "src-ag/Order.ag" #-}
    rule360 = \ _altAttrs ((_childrenIcollectChildrenSyns) :: Map Identifier Attributes ) _mergeMap ->
@@ -2831,13 +2828,13 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
                      sourceVert = findWithErr2 sourceAttr _altAttrs
                      mergedVert = findWithErr2 mergedAttr _altAttrs
                ]
-            {-# LINE 2835 "src-generated/TfmToMirage.hs" #-}
+            {-# LINE 2832 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule361 #-}
    {-# LINE 414 "src-ag/Order.ag" #-}
    rule361 = \ ((_lhsIaroundMap) :: Map ConstructorIdent (Map Identifier [Expression])) con_ ->
                                                  {-# LINE 414 "src-ag/Order.ag" #-}
                                                  Map.findWithDefault Map.empty con_ _lhsIaroundMap
-                                                 {-# LINE 2841 "src-generated/TfmToMirage.hs" #-}
+                                                 {-# LINE 2838 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule362 #-}
    {-# LINE 422 "src-ag/Order.ag" #-}
    rule362 = \ _altAttrs _aroundMap ((_childrenIcollectChildrenSyns) :: Map Identifier Attributes ) ->
@@ -2852,7 +2849,7 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
                    childVert = findWithErr2 childAttr _altAttrs
                    synVert  = findWithErr2 synAttr _altAttrs
              ]
-           {-# LINE 2856 "src-generated/TfmToMirage.hs" #-}
+           {-# LINE 2853 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule363 #-}
    {-# LINE 433 "src-ag/Order.ag" #-}
    rule363 = \ _altAttrs _aroundMap ((_childrenIcollectChildrenInhs) :: Map Identifier Attributes ) ->
@@ -2867,31 +2864,31 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
                     childVert = findWithErr2 childAttr _altAttrs
                     inhVert   = findWithErr2 inhAttr _altAttrs
               ]
-            {-# LINE 2871 "src-generated/TfmToMirage.hs" #-}
+            {-# LINE 2868 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule364 #-}
    {-# LINE 443 "src-ag/Order.ag" #-}
    rule364 = \ _aroundDep1 _aroundDep2 ->
                        {-# LINE 443 "src-ag/Order.ag" #-}
                        _aroundDep1     Seq.>< _aroundDep2
-                       {-# LINE 2877 "src-generated/TfmToMirage.hs" #-}
+                       {-# LINE 2874 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule365 #-}
    {-# LINE 527 "src-ag/Order.ag" #-}
    rule365 = \ con_ ->
                               {-# LINE 527 "src-ag/Order.ag" #-}
                               [con_]
-                              {-# LINE 2883 "src-generated/TfmToMirage.hs" #-}
+                              {-# LINE 2880 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule366 #-}
    {-# LINE 534 "src-ag/Order.ag" #-}
    rule366 = \  (_ :: ()) ->
                                      {-# LINE 534 "src-ag/Order.ag" #-}
                                      Map.empty
-                                     {-# LINE 2889 "src-generated/TfmToMirage.hs" #-}
+                                     {-# LINE 2886 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule367 #-}
    {-# LINE 540 "src-ag/Order.ag" #-}
    rule367 = \ ((_typeSigsItypeSigs) :: Map Identifier Type) ->
                                       {-# LINE 540 "src-ag/Order.ag" #-}
                                       _typeSigsItypeSigs
-                                      {-# LINE 2895 "src-generated/TfmToMirage.hs" #-}
+                                      {-# LINE 2892 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule368 #-}
    {-# LINE 608 "src-ag/Order.ag" #-}
    rule368 = \ ((_childrenIsinglevisits) :: [CRule]) _gathRules ((_lhsIcVisitsMap) :: CVisitsMap) ((_lhsIinh) :: Attributes) ((_lhsInt) :: Identifier) ((_lhsIo_dovisit) :: Bool) ((_lhsIsyn) :: Attributes) con_ ->
@@ -2902,19 +2899,19 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
                                            in visits
                                      else  let  vss = nubBy eqCRuleDefines _gathRules ++ _childrenIsinglevisits
                                            in  [CVisit _lhsIinh _lhsIsyn vss [] False]
-                                {-# LINE 2906 "src-generated/TfmToMirage.hs" #-}
+                                {-# LINE 2903 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule369 #-}
    {-# LINE 634 "src-ag/Order.ag" #-}
    rule369 = \ _cVisits ((_childrenIfields) :: [(Identifier,Type,ChildKind)]) ((_childrenIterminals) :: [Identifier]) con_ ->
                                      {-# LINE 634 "src-ag/Order.ag" #-}
                                      CProduction con_ _cVisits _childrenIfields _childrenIterminals
-                                     {-# LINE 2912 "src-generated/TfmToMirage.hs" #-}
+                                     {-# LINE 2909 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule370 #-}
    {-# LINE 662 "src-ag/Order.ag" #-}
    rule370 = \ ((_childrenIfields) :: [(Identifier,Type,ChildKind)]) ->
                                   {-# LINE 662 "src-ag/Order.ag" #-}
                                   _childrenIfields
-                                  {-# LINE 2918 "src-generated/TfmToMirage.hs" #-}
+                                  {-# LINE 2915 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule371 #-}
    {-# LINE 663 "src-ag/Order.ag" #-}
    rule371 = \ ((_childrenIattributes) :: [(Identifier,Attributes,Attributes)]) _inhnames ((_rulesIinstVars) :: [Identifier]) ((_rulesIlocVars) :: [Identifier]) ->
@@ -2923,25 +2920,25 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
                                    map ((,) _INST) _rulesIinstVars ++
                                    map ((,) _LHS)  _inhnames ++
                                    concat [map ((,) nm) (Map.keys as) | (nm,_,as) <- _childrenIattributes]
-                                   {-# LINE 2927 "src-generated/TfmToMirage.hs" #-}
+                                   {-# LINE 2924 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule372 #-}
    {-# LINE 667 "src-ag/Order.ag" #-}
    rule372 = \ ((_lhsIinh) :: Attributes) ->
                                    {-# LINE 667 "src-ag/Order.ag" #-}
                                    Map.keys _lhsIinh
-                                   {-# LINE 2933 "src-generated/TfmToMirage.hs" #-}
+                                   {-# LINE 2930 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule373 #-}
    {-# LINE 668 "src-ag/Order.ag" #-}
    rule373 = \ ((_lhsIsyn) :: Attributes) ->
                                    {-# LINE 668 "src-ag/Order.ag" #-}
                                    Map.keys _lhsIsyn
-                                   {-# LINE 2939 "src-generated/TfmToMirage.hs" #-}
+                                   {-# LINE 2936 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule374 #-}
-   {-# LINE 47 "src-ag/TfmToMirage.ag" #-}
-   rule374 = \ ((_childrenIjsons) :: [JSON.Value]) ((_rulesIjsons) :: [JSON.Value]) con_ ->
-                            {-# LINE 47 "src-ag/TfmToMirage.ag" #-}
-                            JSON.Array [idToJSON con_, JSON.Array _childrenIjsons, JSON.Array _rulesIjsons]
-                            {-# LINE 2945 "src-generated/TfmToMirage.hs" #-}
+   {-# LINE 43 "src-ag/TfmToMirage.ag" #-}
+   rule374 = \ ((_childrenImirages) :: [Mirage.Child]) ((_rulesImirages) :: [Mirage.Rule]) con_ ->
+          {-# LINE 43 "src-ag/TfmToMirage.ag" #-}
+          Mirage.Production (getName con_) _childrenImirages _rulesImirages
+          {-# LINE 2942 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule375 #-}
    rule375 = \ ((_rulesIdirectDep) :: Seq Edge) ->
      _rulesIdirectDep
@@ -3045,15 +3042,15 @@ sem_Production_Production arg_con_ _ _ arg_children_ arg_rules_ arg_typeSigs_ _ 
 -- Productions -------------------------------------------------
 -- wrapper
 data Inh_Productions  = Inh_Productions { allnts_Inh_Productions :: ([Identifier]), aroundMap_Inh_Productions :: (Map ConstructorIdent (Map Identifier [Expression])), cVisitsMap_Inh_Productions :: (CVisitsMap), inh_Inh_Productions :: (Attributes), inhMap_Inh_Productions :: (Map Identifier Attributes), manualAttrDepMap_Inh_Productions :: (AttrOrderMap), mergeMap_Inh_Productions :: (Map ConstructorIdent (Map Identifier (Identifier,[Identifier]))), nt_Inh_Productions :: (Identifier), o_case_Inh_Productions :: (Bool), o_cata_Inh_Productions :: (Bool), o_dovisit_Inh_Productions :: (Bool), o_newtypes_Inh_Productions :: (Bool), o_rename_Inh_Productions :: (Bool), o_sem_Inh_Productions :: (Bool), o_sig_Inh_Productions :: (Bool), o_unbox_Inh_Productions :: (Bool), o_wantvisit_Inh_Productions :: (Bool), options_Inh_Productions :: (Options), prefix_Inh_Productions :: (String), syn_Inh_Productions :: (Attributes), synMap_Inh_Productions :: (Map Identifier Attributes), vcount_Inh_Productions :: (Int) }
-data Syn_Productions  = Syn_Productions { additionalDep_Syn_Productions :: (Seq Edge), aroundDep_Syn_Productions :: (Seq Edge), cProductions_Syn_Productions :: (CProductions), cons_Syn_Productions :: ([ConstructorIdent]), directDep_Syn_Productions :: (Seq Edge), errors_Syn_Productions :: (Seq Error), instDep_Syn_Productions :: (Seq Edge), jsons_Syn_Productions :: ([JSON.Value]), mergeDep_Syn_Productions :: (Seq Edge), nAutoRules_Syn_Productions :: (Int), nExplicitRules_Syn_Productions :: (Int), rules_Syn_Productions :: (Seq (Vertex,CRule)), vcount_Syn_Productions :: (Int) }
+data Syn_Productions  = Syn_Productions { additionalDep_Syn_Productions :: (Seq Edge), aroundDep_Syn_Productions :: (Seq Edge), cProductions_Syn_Productions :: (CProductions), cons_Syn_Productions :: ([ConstructorIdent]), directDep_Syn_Productions :: (Seq Edge), errors_Syn_Productions :: (Seq Error), instDep_Syn_Productions :: (Seq Edge), mergeDep_Syn_Productions :: (Seq Edge), mirages_Syn_Productions :: ([Mirage.Production]), nAutoRules_Syn_Productions :: (Int), nExplicitRules_Syn_Productions :: (Int), rules_Syn_Productions :: (Seq (Vertex,CRule)), vcount_Syn_Productions :: (Int) }
 {-# INLINABLE wrap_Productions #-}
 wrap_Productions :: T_Productions  -> Inh_Productions  -> (Syn_Productions )
 wrap_Productions (T_Productions act) (Inh_Productions _lhsIallnts _lhsIaroundMap _lhsIcVisitsMap _lhsIinh _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynMap _lhsIvcount) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
         let arg28 = T_Productions_vIn28 _lhsIallnts _lhsIaroundMap _lhsIcVisitsMap _lhsIinh _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynMap _lhsIvcount
-        (T_Productions_vOut28 _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOjsons _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount) <- return (inv_Productions_s29 sem arg28)
-        return (Syn_Productions _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOjsons _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount)
+        (T_Productions_vOut28 _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOmirages _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount) <- return (inv_Productions_s29 sem arg28)
+        return (Syn_Productions _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOmirages _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount)
    )
 
 -- cata
@@ -3071,7 +3068,7 @@ newtype T_Productions_s29  = C_Productions_s29 {
 data T_Productions_s30  = C_Productions_s30
 type T_Productions_v28  = (T_Productions_vIn28 ) -> (T_Productions_vOut28 )
 data T_Productions_vIn28  = T_Productions_vIn28 ([Identifier]) (Map ConstructorIdent (Map Identifier [Expression])) (CVisitsMap) (Attributes) (Map Identifier Attributes) (AttrOrderMap) (Map ConstructorIdent (Map Identifier (Identifier,[Identifier]))) (Identifier) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Options) (String) (Attributes) (Map Identifier Attributes) (Int)
-data T_Productions_vOut28  = T_Productions_vOut28 (Seq Edge) (Seq Edge) (CProductions) ([ConstructorIdent]) (Seq Edge) (Seq Error) (Seq Edge) ([JSON.Value]) (Seq Edge) (Int) (Int) (Seq (Vertex,CRule)) (Int)
+data T_Productions_vOut28  = T_Productions_vOut28 (Seq Edge) (Seq Edge) (CProductions) ([ConstructorIdent]) (Seq Edge) (Seq Error) (Seq Edge) (Seq Edge) ([Mirage.Production]) (Int) (Int) (Seq (Vertex,CRule)) (Int)
 {-# NOINLINE sem_Productions_Cons #-}
 sem_Productions_Cons :: T_Production  -> T_Productions  -> T_Productions 
 sem_Productions_Cons arg_hd_ arg_tl_ = T_Productions (return st29) where
@@ -3081,12 +3078,12 @@ sem_Productions_Cons arg_hd_ arg_tl_ = T_Productions (return st29) where
       v28 = \ (T_Productions_vIn28 _lhsIallnts _lhsIaroundMap _lhsIcVisitsMap _lhsIinh _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynMap _lhsIvcount) -> ( let
          _hdX26 = Control.Monad.Identity.runIdentity (attach_T_Production (arg_hd_))
          _tlX29 = Control.Monad.Identity.runIdentity (attach_T_Productions (arg_tl_))
-         (T_Production_vOut25 _hdIadditionalDep _hdIaroundDep _hdIcProduction _hdIcons _hdIdirectDep _hdIerrors _hdIinstDep _hdIjson _hdImergeDep _hdInAutoRules _hdInExplicitRules _hdIrules _hdIvcount) = inv_Production_s26 _hdX26 (T_Production_vIn25 _hdOallnts _hdOaroundMap _hdOcVisitsMap _hdOinh _hdOinhMap _hdOmanualAttrDepMap _hdOmergeMap _hdOnt _hdOo_case _hdOo_cata _hdOo_dovisit _hdOo_newtypes _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_unbox _hdOo_wantvisit _hdOoptions _hdOprefix _hdOsyn _hdOsynMap _hdOvcount)
-         (T_Productions_vOut28 _tlIadditionalDep _tlIaroundDep _tlIcProductions _tlIcons _tlIdirectDep _tlIerrors _tlIinstDep _tlIjsons _tlImergeDep _tlInAutoRules _tlInExplicitRules _tlIrules _tlIvcount) = inv_Productions_s29 _tlX29 (T_Productions_vIn28 _tlOallnts _tlOaroundMap _tlOcVisitsMap _tlOinh _tlOinhMap _tlOmanualAttrDepMap _tlOmergeMap _tlOnt _tlOo_case _tlOo_cata _tlOo_dovisit _tlOo_newtypes _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_unbox _tlOo_wantvisit _tlOoptions _tlOprefix _tlOsyn _tlOsynMap _tlOvcount)
+         (T_Production_vOut25 _hdIadditionalDep _hdIaroundDep _hdIcProduction _hdIcons _hdIdirectDep _hdIerrors _hdIinstDep _hdImergeDep _hdImirage _hdInAutoRules _hdInExplicitRules _hdIrules _hdIvcount) = inv_Production_s26 _hdX26 (T_Production_vIn25 _hdOallnts _hdOaroundMap _hdOcVisitsMap _hdOinh _hdOinhMap _hdOmanualAttrDepMap _hdOmergeMap _hdOnt _hdOo_case _hdOo_cata _hdOo_dovisit _hdOo_newtypes _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_unbox _hdOo_wantvisit _hdOoptions _hdOprefix _hdOsyn _hdOsynMap _hdOvcount)
+         (T_Productions_vOut28 _tlIadditionalDep _tlIaroundDep _tlIcProductions _tlIcons _tlIdirectDep _tlIerrors _tlIinstDep _tlImergeDep _tlImirages _tlInAutoRules _tlInExplicitRules _tlIrules _tlIvcount) = inv_Productions_s29 _tlX29 (T_Productions_vIn28 _tlOallnts _tlOaroundMap _tlOcVisitsMap _tlOinh _tlOinhMap _tlOmanualAttrDepMap _tlOmergeMap _tlOnt _tlOo_case _tlOo_cata _tlOo_dovisit _tlOo_newtypes _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_unbox _tlOo_wantvisit _tlOoptions _tlOprefix _tlOsyn _tlOsynMap _tlOvcount)
          _lhsOcProductions :: CProductions
          _lhsOcProductions = rule408 _hdIcProduction _tlIcProductions
-         _lhsOjsons :: [JSON.Value]
-         _lhsOjsons = rule409 _hdIjson _tlIjsons
+         _lhsOmirages :: [Mirage.Production]
+         _lhsOmirages = rule409 _hdImirage _tlImirages
          _lhsOadditionalDep :: Seq Edge
          _lhsOadditionalDep = rule410 _hdIadditionalDep _tlIadditionalDep
          _lhsOaroundDep :: Seq Edge
@@ -3153,7 +3150,7 @@ sem_Productions_Cons arg_hd_ arg_tl_ = T_Productions (return st29) where
          _tlOsyn = rule462 _lhsIsyn
          _tlOsynMap = rule463 _lhsIsynMap
          _tlOvcount = rule464 _hdIvcount
-         __result_ = T_Productions_vOut28 _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOjsons _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount
+         __result_ = T_Productions_vOut28 _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOmirages _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount
          in __result_ )
      in C_Productions_s29 v28
    {-# INLINE rule408 #-}
@@ -3161,13 +3158,13 @@ sem_Productions_Cons arg_hd_ arg_tl_ = T_Productions (return st29) where
    rule408 = \ ((_hdIcProduction) :: CProduction) ((_tlIcProductions) :: CProductions) ->
                                 {-# LINE 631 "src-ag/Order.ag" #-}
                                 _hdIcProduction : _tlIcProductions
-                                {-# LINE 3165 "src-generated/TfmToMirage.hs" #-}
+                                {-# LINE 3162 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule409 #-}
-   {-# LINE 43 "src-ag/TfmToMirage.ag" #-}
-   rule409 = \ ((_hdIjson) :: JSON.Value) ((_tlIjsons) :: [JSON.Value]) ->
-                       {-# LINE 43 "src-ag/TfmToMirage.ag" #-}
-                       _hdIjson : _tlIjsons
-                       {-# LINE 3171 "src-generated/TfmToMirage.hs" #-}
+   {-# LINE 38 "src-ag/TfmToMirage.ag" #-}
+   rule409 = \ ((_hdImirage) :: Mirage.Production) ((_tlImirages) :: [Mirage.Production]) ->
+                         {-# LINE 38 "src-ag/TfmToMirage.ag" #-}
+                         _hdImirage : _tlImirages
+                         {-# LINE 3168 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule410 #-}
    rule410 = \ ((_hdIadditionalDep) :: Seq Edge) ((_tlIadditionalDep) :: Seq Edge) ->
      _hdIadditionalDep Seq.>< _tlIadditionalDep
@@ -3342,8 +3339,8 @@ sem_Productions_Nil  = T_Productions (return st29) where
       v28 = \ (T_Productions_vIn28 _lhsIallnts _lhsIaroundMap _lhsIcVisitsMap _lhsIinh _lhsIinhMap _lhsImanualAttrDepMap _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_unbox _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynMap _lhsIvcount) -> ( let
          _lhsOcProductions :: CProductions
          _lhsOcProductions = rule465  ()
-         _lhsOjsons :: [JSON.Value]
-         _lhsOjsons = rule466  ()
+         _lhsOmirages :: [Mirage.Production]
+         _lhsOmirages = rule466  ()
          _lhsOadditionalDep :: Seq Edge
          _lhsOadditionalDep = rule467  ()
          _lhsOaroundDep :: Seq Edge
@@ -3366,7 +3363,7 @@ sem_Productions_Nil  = T_Productions (return st29) where
          _lhsOrules = rule476  ()
          _lhsOvcount :: Int
          _lhsOvcount = rule477 _lhsIvcount
-         __result_ = T_Productions_vOut28 _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOjsons _lhsOmergeDep _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount
+         __result_ = T_Productions_vOut28 _lhsOadditionalDep _lhsOaroundDep _lhsOcProductions _lhsOcons _lhsOdirectDep _lhsOerrors _lhsOinstDep _lhsOmergeDep _lhsOmirages _lhsOnAutoRules _lhsOnExplicitRules _lhsOrules _lhsOvcount
          in __result_ )
      in C_Productions_s29 v28
    {-# INLINE rule465 #-}
@@ -3374,13 +3371,13 @@ sem_Productions_Nil  = T_Productions (return st29) where
    rule465 = \  (_ :: ()) ->
                                 {-# LINE 632 "src-ag/Order.ag" #-}
                                 []
-                                {-# LINE 3378 "src-generated/TfmToMirage.hs" #-}
+                                {-# LINE 3375 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule466 #-}
-   {-# LINE 44 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 39 "src-ag/TfmToMirage.ag" #-}
    rule466 = \  (_ :: ()) ->
-                       {-# LINE 44 "src-ag/TfmToMirage.ag" #-}
-                       []
-                       {-# LINE 3384 "src-generated/TfmToMirage.hs" #-}
+                         {-# LINE 39 "src-ag/TfmToMirage.ag" #-}
+                         []
+                         {-# LINE 3381 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule467 #-}
    rule467 = \  (_ :: ()) ->
      Seq.empty
@@ -3418,15 +3415,15 @@ sem_Productions_Nil  = T_Productions (return st29) where
 -- Rule --------------------------------------------------------
 -- wrapper
 data Inh_Rule  = Inh_Rule { allTypeSigs_Inh_Rule :: (Map Identifier Type), allfields_Inh_Rule :: ([(Identifier,Type,ChildKind)]), allnts_Inh_Rule :: ([Identifier]), altAttrs_Inh_Rule :: (Map AltAttr Vertex), attrs_Inh_Rule :: ([(Identifier,Identifier)]), childInhs_Inh_Rule :: (Map Identifier Attributes), childNts_Inh_Rule :: (Map Identifier NontermIdent), con_Inh_Rule :: (Identifier), inh_Inh_Rule :: (Attributes), inhsOfChildren_Inh_Rule :: (Map Identifier Attributes), mergeMap_Inh_Rule :: (Map Identifier (Identifier,[Identifier])), nt_Inh_Rule :: (Identifier), o_case_Inh_Rule :: (Bool), o_cata_Inh_Rule :: (Bool), o_dovisit_Inh_Rule :: (Bool), o_newtypes_Inh_Rule :: (Bool), o_rename_Inh_Rule :: (Bool), o_sem_Inh_Rule :: (Bool), o_sig_Inh_Rule :: (Bool), o_wantvisit_Inh_Rule :: (Bool), options_Inh_Rule :: (Options), prefix_Inh_Rule :: (String), syn_Inh_Rule :: (Attributes), synsOfChildren_Inh_Rule :: (Map Identifier Attributes) }
-data Syn_Rule  = Syn_Rule { directDep_Syn_Rule :: (Seq Edge), errors_Syn_Rule :: (Seq Error), gathAltAttrs_Syn_Rule :: ([AltAttr]), gathRules_Syn_Rule :: (Seq CRule), instDep_Syn_Rule :: (Seq Edge), instVars_Syn_Rule :: ([Identifier]), json_Syn_Rule :: (JSON.Value), locVars_Syn_Rule :: ([Identifier]), nAutoRules_Syn_Rule :: (Int), nExplicitRules_Syn_Rule :: (Int) }
+data Syn_Rule  = Syn_Rule { directDep_Syn_Rule :: (Seq Edge), errors_Syn_Rule :: (Seq Error), gathAltAttrs_Syn_Rule :: ([AltAttr]), gathRules_Syn_Rule :: (Seq CRule), instDep_Syn_Rule :: (Seq Edge), instVars_Syn_Rule :: ([Identifier]), locVars_Syn_Rule :: ([Identifier]), mirage_Syn_Rule :: (Mirage.Rule), nAutoRules_Syn_Rule :: (Int), nExplicitRules_Syn_Rule :: (Int) }
 {-# INLINABLE wrap_Rule #-}
 wrap_Rule :: T_Rule  -> Inh_Rule  -> (Syn_Rule )
 wrap_Rule (T_Rule act) (Inh_Rule _lhsIallTypeSigs _lhsIallfields _lhsIallnts _lhsIaltAttrs _lhsIattrs _lhsIchildInhs _lhsIchildNts _lhsIcon _lhsIinh _lhsIinhsOfChildren _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynsOfChildren) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
         let arg31 = T_Rule_vIn31 _lhsIallTypeSigs _lhsIallfields _lhsIallnts _lhsIaltAttrs _lhsIattrs _lhsIchildInhs _lhsIchildNts _lhsIcon _lhsIinh _lhsIinhsOfChildren _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynsOfChildren
-        (T_Rule_vOut31 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOjson _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules) <- return (inv_Rule_s32 sem arg31)
-        return (Syn_Rule _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOjson _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules)
+        (T_Rule_vOut31 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOmirage _lhsOnAutoRules _lhsOnExplicitRules) <- return (inv_Rule_s32 sem arg31)
+        return (Syn_Rule _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOmirage _lhsOnAutoRules _lhsOnExplicitRules)
    )
 
 -- cata
@@ -3444,7 +3441,7 @@ newtype T_Rule_s32  = C_Rule_s32 {
 data T_Rule_s33  = C_Rule_s33
 type T_Rule_v31  = (T_Rule_vIn31 ) -> (T_Rule_vOut31 )
 data T_Rule_vIn31  = T_Rule_vIn31 (Map Identifier Type) ([(Identifier,Type,ChildKind)]) ([Identifier]) (Map AltAttr Vertex) ([(Identifier,Identifier)]) (Map Identifier Attributes) (Map Identifier NontermIdent) (Identifier) (Attributes) (Map Identifier Attributes) (Map Identifier (Identifier,[Identifier])) (Identifier) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Options) (String) (Attributes) (Map Identifier Attributes)
-data T_Rule_vOut31  = T_Rule_vOut31 (Seq Edge) (Seq Error) ([AltAttr]) (Seq CRule) (Seq Edge) ([Identifier]) (JSON.Value) ([Identifier]) (Int) (Int)
+data T_Rule_vOut31  = T_Rule_vOut31 (Seq Edge) (Seq Error) ([AltAttr]) (Seq CRule) (Seq Edge) ([Identifier]) ([Identifier]) (Mirage.Rule) (Int) (Int)
 {-# NOINLINE sem_Rule_Rule #-}
 sem_Rule_Rule :: (Maybe Identifier) -> T_Pattern  -> T_Expression  -> (Bool) -> (String) -> (Bool) -> (Bool) -> (Bool) -> (Maybe Error) -> (Bool) -> T_Rule 
 sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explicit_ _ _ _ _ = T_Rule (return st32) where
@@ -3468,8 +3465,8 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
          _instDep2 = rule484 _defines _lhsIaltAttrs _lhsIinhsOfChildren
          _lhsOinstDep :: Seq Edge
          _lhsOinstDep = rule485 _instDep1 _instDep2
-         _lhsOjson :: JSON.Value
-         _lhsOjson = rule486 _patternIpatternAttrs _patternIpp _rhsIlns _rhsIusedAttrs _rhsIusedFields _rhsIusedLocals arg_explicit_ arg_origin_
+         _lhsOmirage :: Mirage.Rule
+         _lhsOmirage = rule486 _patternIpatternAttrs _patternIpp _rhsIlns _rhsIusedAttrs _rhsIusedFields _rhsIusedLocals arg_explicit_ arg_origin_
          _patternObelowIrrefutable = rule487  ()
          _lhsOerrors :: Seq Error
          _lhsOerrors = rule488 _patternIerrors _rhsIerrors
@@ -3494,7 +3491,7 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
          _rhsOmergeMap = rule503 _lhsImergeMap
          _rhsOnt = rule504 _lhsInt
          _rhsOoptions = rule505 _lhsIoptions
-         __result_ = T_Rule_vOut31 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOjson _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules
+         __result_ = T_Rule_vOut31 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOmirage _lhsOnAutoRules _lhsOnExplicitRules
          in __result_ )
      in C_Rule_s32 v31
    {-# INLINE rule478 #-}
@@ -3504,7 +3501,7 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
                                  if explicit_
                                  then 1
                                  else 0
-                                 {-# LINE 3508 "src-generated/TfmToMirage.hs" #-}
+                                 {-# LINE 3505 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule479 #-}
    {-# LINE 67 "src-ag/Order.ag" #-}
    rule479 = \ origin_ ->
@@ -3512,7 +3509,7 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
                              if startsWith "use rule" origin_ || startsWith "copy rule" origin_
                              then 1
                              else 0
-                             {-# LINE 3516 "src-generated/TfmToMirage.hs" #-}
+                             {-# LINE 3513 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule480 #-}
    {-# LINE 220 "src-ag/Order.ag" #-}
    rule480 = \ ((_lhsIallTypeSigs) :: Map Identifier Type) ((_lhsIaltAttrs) :: Map AltAttr Vertex) ((_lhsIchildInhs) :: Map Identifier Attributes) ((_lhsIsyn) :: Attributes) ((_patternIpatternAttrs) :: [(Identifier,Identifier,Bool)]) ->
@@ -3529,7 +3526,7 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
                                             | (field,attr,isLocalOrInst) <- _patternIpatternAttrs
                                             , let aa = AltAttr field attr isLocalOrInst
                                             ]
-                           {-# LINE 3533 "src-generated/TfmToMirage.hs" #-}
+                           {-# LINE 3530 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule481 #-}
    {-# LINE 234 "src-ag/Order.ag" #-}
    rule481 = \ _defines ((_lhsIchildNts) :: Map Identifier NontermIdent) ((_lhsIcon) :: Identifier) ((_lhsInt) :: Identifier) ((_patternIcopy) :: Pattern) ((_rhsIallRhsVars) :: Set (Identifier,Identifier)) ((_rhsItextLines) :: [String]) explicit_ mbName_ origin_ owrt_ ->
@@ -3538,7 +3535,7 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
                               in Seq.fromList [ CRule attr False True _lhsInt _lhsIcon field (childnt field) tp _patternIcopy _rhsItextLines _defines owrt_ origin_ _rhsIallRhsVars explicit_ mbName_
                                               | (field,attr,tp) <- Map.elems _defines
                                               ]
-                              {-# LINE 3542 "src-generated/TfmToMirage.hs" #-}
+                              {-# LINE 3539 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule482 #-}
    {-# LINE 273 "src-ag/Order.ag" #-}
    rule482 = \ _defines ((_lhsIaltAttrs) :: Map AltAttr Vertex) ((_rhsIusedAttrs) :: [(Identifier,Identifier)]) ((_rhsIusedFields) :: [Identifier]) ((_rhsIusedLocals) :: [Identifier]) ->
@@ -3547,7 +3544,7 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
                       used =  [ Map.lookup (AltAttr field attr True) _lhsIaltAttrs | (field,attr) <- _rhsIusedAttrs]
                               ++ [ Map.lookup (AltAttr _LOC attr True) _lhsIaltAttrs | attr <- _rhsIusedLocals ++ _rhsIusedFields ]
                  in Seq.fromList [ (x,y) | Just x <- used, y <- defined ]
-                 {-# LINE 3551 "src-generated/TfmToMirage.hs" #-}
+                 {-# LINE 3548 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule483 #-}
    {-# LINE 317 "src-ag/Order.ag" #-}
    rule483 = \ _defines ((_lhsIaltAttrs) :: Map AltAttr Vertex) ((_lhsIsynsOfChildren) :: Map Identifier Attributes) ->
@@ -3562,7 +3559,7 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
                     instVert = findWithErr2 instAttr _lhsIaltAttrs
                     synVert  = findWithErr2 synAttr _lhsIaltAttrs
               ]
-            {-# LINE 3566 "src-generated/TfmToMirage.hs" #-}
+            {-# LINE 3563 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule484 #-}
    {-# LINE 328 "src-ag/Order.ag" #-}
    rule484 = \ _defines ((_lhsIaltAttrs) :: Map AltAttr Vertex) ((_lhsIinhsOfChildren) :: Map Identifier Attributes) ->
@@ -3577,31 +3574,31 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
                     instVert = findWithErr2 instAttr _lhsIaltAttrs
                     inhVert  = findWithErr2 inhAttr _lhsIaltAttrs
               ]
-            {-# LINE 3581 "src-generated/TfmToMirage.hs" #-}
+            {-# LINE 3578 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule485 #-}
    {-# LINE 338 "src-ag/Order.ag" #-}
    rule485 = \ _instDep1 _instDep2 ->
                      {-# LINE 338 "src-ag/Order.ag" #-}
                      _instDep1     Seq.>< _instDep2
-                     {-# LINE 3587 "src-generated/TfmToMirage.hs" #-}
+                     {-# LINE 3584 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule486 #-}
-   {-# LINE 63 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 60 "src-ag/TfmToMirage.ag" #-}
    rule486 = \ ((_patternIpatternAttrs) :: [(Identifier,Identifier,Bool)]) ((_patternIpp) :: PP_Doc) ((_rhsIlns) :: [String]) ((_rhsIusedAttrs) :: [(Identifier,Identifier)]) ((_rhsIusedFields) :: [Identifier]) ((_rhsIusedLocals) :: [Identifier]) explicit_ origin_ ->
-                      {-# LINE 63 "src-ag/TfmToMirage.ag" #-}
-                      JSON.Array [ JSON.Array  [ JSON.Array [idToJSON field, idToJSON attr] | (field,attr,_) <- _patternIpatternAttrs ]
-                                 , JSON.Array ([ JSON.Array [idToJSON field, idToJSON attr] | (field,attr) <- _rhsIusedAttrs]
-                                   ++ [ JSON.Array [idToJSON _LOC, idToJSON attr] | attr <- _rhsIusedLocals ++ _rhsIusedFields ])
-                                 , JSON.Bool explicit_
-                                 , JSON.String origin_
-                                 , JSON.String (disp (_patternIpp >-< indent 1 (text "= " >|< vlist _rhsIlns)) 0 "")
-                                 ]
-                      {-# LINE 3599 "src-generated/TfmToMirage.hs" #-}
+          {-# LINE 60 "src-ag/TfmToMirage.ag" #-}
+          Mirage.Rule
+            [Mirage.Address (getName field) (getName attr) | (field,attr,_) <- _patternIpatternAttrs]
+            ([Mirage.Address (getName field) (getName attr) | (field,attr) <- _rhsIusedAttrs]
+              ++ [ Mirage.Address (getName _LOC) (getName attr) | attr <- _rhsIusedLocals ++ _rhsIusedFields])
+            explicit_
+            origin_
+            (disp (_patternIpp >-< indent 1 (text "= " >|< vlist _rhsIlns)) 0 "")
+          {-# LINE 3596 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule487 #-}
-   {-# LINE 101 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 98 "src-ag/TfmToMirage.ag" #-}
    rule487 = \  (_ :: ()) ->
-                                      {-# LINE 101 "src-ag/TfmToMirage.ag" #-}
+                                      {-# LINE 98 "src-ag/TfmToMirage.ag" #-}
                                       False
-                                      {-# LINE 3605 "src-generated/TfmToMirage.hs" #-}
+                                      {-# LINE 3602 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule488 #-}
    rule488 = \ ((_patternIerrors) :: Seq Error) ((_rhsIerrors) :: Seq Error) ->
      _patternIerrors Seq.>< _rhsIerrors
@@ -3660,15 +3657,15 @@ sem_Rule_Rule arg_mbName_ arg_pattern_ arg_rhs_ arg_owrt_ arg_origin_ arg_explic
 -- Rules -------------------------------------------------------
 -- wrapper
 data Inh_Rules  = Inh_Rules { allTypeSigs_Inh_Rules :: (Map Identifier Type), allfields_Inh_Rules :: ([(Identifier,Type,ChildKind)]), allnts_Inh_Rules :: ([Identifier]), altAttrs_Inh_Rules :: (Map AltAttr Vertex), attrs_Inh_Rules :: ([(Identifier,Identifier)]), childInhs_Inh_Rules :: (Map Identifier Attributes), childNts_Inh_Rules :: (Map Identifier NontermIdent), con_Inh_Rules :: (Identifier), inh_Inh_Rules :: (Attributes), inhsOfChildren_Inh_Rules :: (Map Identifier Attributes), mergeMap_Inh_Rules :: (Map Identifier (Identifier,[Identifier])), nt_Inh_Rules :: (Identifier), o_case_Inh_Rules :: (Bool), o_cata_Inh_Rules :: (Bool), o_dovisit_Inh_Rules :: (Bool), o_newtypes_Inh_Rules :: (Bool), o_rename_Inh_Rules :: (Bool), o_sem_Inh_Rules :: (Bool), o_sig_Inh_Rules :: (Bool), o_wantvisit_Inh_Rules :: (Bool), options_Inh_Rules :: (Options), prefix_Inh_Rules :: (String), syn_Inh_Rules :: (Attributes), synsOfChildren_Inh_Rules :: (Map Identifier Attributes) }
-data Syn_Rules  = Syn_Rules { directDep_Syn_Rules :: (Seq Edge), errors_Syn_Rules :: (Seq Error), gathAltAttrs_Syn_Rules :: ([AltAttr]), gathRules_Syn_Rules :: (Seq CRule), instDep_Syn_Rules :: (Seq Edge), instVars_Syn_Rules :: ([Identifier]), jsons_Syn_Rules :: ([JSON.Value]), locVars_Syn_Rules :: ([Identifier]), nAutoRules_Syn_Rules :: (Int), nExplicitRules_Syn_Rules :: (Int) }
+data Syn_Rules  = Syn_Rules { directDep_Syn_Rules :: (Seq Edge), errors_Syn_Rules :: (Seq Error), gathAltAttrs_Syn_Rules :: ([AltAttr]), gathRules_Syn_Rules :: (Seq CRule), instDep_Syn_Rules :: (Seq Edge), instVars_Syn_Rules :: ([Identifier]), locVars_Syn_Rules :: ([Identifier]), mirages_Syn_Rules :: ([Mirage.Rule]), nAutoRules_Syn_Rules :: (Int), nExplicitRules_Syn_Rules :: (Int) }
 {-# INLINABLE wrap_Rules #-}
 wrap_Rules :: T_Rules  -> Inh_Rules  -> (Syn_Rules )
 wrap_Rules (T_Rules act) (Inh_Rules _lhsIallTypeSigs _lhsIallfields _lhsIallnts _lhsIaltAttrs _lhsIattrs _lhsIchildInhs _lhsIchildNts _lhsIcon _lhsIinh _lhsIinhsOfChildren _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynsOfChildren) =
    Control.Monad.Identity.runIdentity (
      do sem <- act
         let arg34 = T_Rules_vIn34 _lhsIallTypeSigs _lhsIallfields _lhsIallnts _lhsIaltAttrs _lhsIattrs _lhsIchildInhs _lhsIchildNts _lhsIcon _lhsIinh _lhsIinhsOfChildren _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynsOfChildren
-        (T_Rules_vOut34 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOjsons _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules) <- return (inv_Rules_s35 sem arg34)
-        return (Syn_Rules _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOjsons _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules)
+        (T_Rules_vOut34 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOmirages _lhsOnAutoRules _lhsOnExplicitRules) <- return (inv_Rules_s35 sem arg34)
+        return (Syn_Rules _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOmirages _lhsOnAutoRules _lhsOnExplicitRules)
    )
 
 -- cata
@@ -3686,7 +3683,7 @@ newtype T_Rules_s35  = C_Rules_s35 {
 data T_Rules_s36  = C_Rules_s36
 type T_Rules_v34  = (T_Rules_vIn34 ) -> (T_Rules_vOut34 )
 data T_Rules_vIn34  = T_Rules_vIn34 (Map Identifier Type) ([(Identifier,Type,ChildKind)]) ([Identifier]) (Map AltAttr Vertex) ([(Identifier,Identifier)]) (Map Identifier Attributes) (Map Identifier NontermIdent) (Identifier) (Attributes) (Map Identifier Attributes) (Map Identifier (Identifier,[Identifier])) (Identifier) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Bool) (Options) (String) (Attributes) (Map Identifier Attributes)
-data T_Rules_vOut34  = T_Rules_vOut34 (Seq Edge) (Seq Error) ([AltAttr]) (Seq CRule) (Seq Edge) ([Identifier]) ([JSON.Value]) ([Identifier]) (Int) (Int)
+data T_Rules_vOut34  = T_Rules_vOut34 (Seq Edge) (Seq Error) ([AltAttr]) (Seq CRule) (Seq Edge) ([Identifier]) ([Identifier]) ([Mirage.Rule]) (Int) (Int)
 {-# NOINLINE sem_Rules_Cons #-}
 sem_Rules_Cons :: T_Rule  -> T_Rules  -> T_Rules 
 sem_Rules_Cons arg_hd_ arg_tl_ = T_Rules (return st35) where
@@ -3696,10 +3693,10 @@ sem_Rules_Cons arg_hd_ arg_tl_ = T_Rules (return st35) where
       v34 = \ (T_Rules_vIn34 _lhsIallTypeSigs _lhsIallfields _lhsIallnts _lhsIaltAttrs _lhsIattrs _lhsIchildInhs _lhsIchildNts _lhsIcon _lhsIinh _lhsIinhsOfChildren _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynsOfChildren) -> ( let
          _hdX32 = Control.Monad.Identity.runIdentity (attach_T_Rule (arg_hd_))
          _tlX35 = Control.Monad.Identity.runIdentity (attach_T_Rules (arg_tl_))
-         (T_Rule_vOut31 _hdIdirectDep _hdIerrors _hdIgathAltAttrs _hdIgathRules _hdIinstDep _hdIinstVars _hdIjson _hdIlocVars _hdInAutoRules _hdInExplicitRules) = inv_Rule_s32 _hdX32 (T_Rule_vIn31 _hdOallTypeSigs _hdOallfields _hdOallnts _hdOaltAttrs _hdOattrs _hdOchildInhs _hdOchildNts _hdOcon _hdOinh _hdOinhsOfChildren _hdOmergeMap _hdOnt _hdOo_case _hdOo_cata _hdOo_dovisit _hdOo_newtypes _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_wantvisit _hdOoptions _hdOprefix _hdOsyn _hdOsynsOfChildren)
-         (T_Rules_vOut34 _tlIdirectDep _tlIerrors _tlIgathAltAttrs _tlIgathRules _tlIinstDep _tlIinstVars _tlIjsons _tlIlocVars _tlInAutoRules _tlInExplicitRules) = inv_Rules_s35 _tlX35 (T_Rules_vIn34 _tlOallTypeSigs _tlOallfields _tlOallnts _tlOaltAttrs _tlOattrs _tlOchildInhs _tlOchildNts _tlOcon _tlOinh _tlOinhsOfChildren _tlOmergeMap _tlOnt _tlOo_case _tlOo_cata _tlOo_dovisit _tlOo_newtypes _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_wantvisit _tlOoptions _tlOprefix _tlOsyn _tlOsynsOfChildren)
-         _lhsOjsons :: [JSON.Value]
-         _lhsOjsons = rule506 _hdIjson _tlIjsons
+         (T_Rule_vOut31 _hdIdirectDep _hdIerrors _hdIgathAltAttrs _hdIgathRules _hdIinstDep _hdIinstVars _hdIlocVars _hdImirage _hdInAutoRules _hdInExplicitRules) = inv_Rule_s32 _hdX32 (T_Rule_vIn31 _hdOallTypeSigs _hdOallfields _hdOallnts _hdOaltAttrs _hdOattrs _hdOchildInhs _hdOchildNts _hdOcon _hdOinh _hdOinhsOfChildren _hdOmergeMap _hdOnt _hdOo_case _hdOo_cata _hdOo_dovisit _hdOo_newtypes _hdOo_rename _hdOo_sem _hdOo_sig _hdOo_wantvisit _hdOoptions _hdOprefix _hdOsyn _hdOsynsOfChildren)
+         (T_Rules_vOut34 _tlIdirectDep _tlIerrors _tlIgathAltAttrs _tlIgathRules _tlIinstDep _tlIinstVars _tlIlocVars _tlImirages _tlInAutoRules _tlInExplicitRules) = inv_Rules_s35 _tlX35 (T_Rules_vIn34 _tlOallTypeSigs _tlOallfields _tlOallnts _tlOaltAttrs _tlOattrs _tlOchildInhs _tlOchildNts _tlOcon _tlOinh _tlOinhsOfChildren _tlOmergeMap _tlOnt _tlOo_case _tlOo_cata _tlOo_dovisit _tlOo_newtypes _tlOo_rename _tlOo_sem _tlOo_sig _tlOo_wantvisit _tlOoptions _tlOprefix _tlOsyn _tlOsynsOfChildren)
+         _lhsOmirages :: [Mirage.Rule]
+         _lhsOmirages = rule506 _hdImirage _tlImirages
          _lhsOdirectDep :: Seq Edge
          _lhsOdirectDep = rule507 _hdIdirectDep _tlIdirectDep
          _lhsOerrors :: Seq Error
@@ -3766,15 +3763,15 @@ sem_Rules_Cons arg_hd_ arg_tl_ = T_Rules (return st35) where
          _tlOprefix = rule561 _lhsIprefix
          _tlOsyn = rule562 _lhsIsyn
          _tlOsynsOfChildren = rule563 _lhsIsynsOfChildren
-         __result_ = T_Rules_vOut34 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOjsons _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules
+         __result_ = T_Rules_vOut34 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOmirages _lhsOnAutoRules _lhsOnExplicitRules
          in __result_ )
      in C_Rules_s35 v34
    {-# INLINE rule506 #-}
-   {-# LINE 57 "src-ag/TfmToMirage.ag" #-}
-   rule506 = \ ((_hdIjson) :: JSON.Value) ((_tlIjsons) :: [JSON.Value]) ->
-                       {-# LINE 57 "src-ag/TfmToMirage.ag" #-}
-                       _hdIjson : _tlIjsons
-                       {-# LINE 3778 "src-generated/TfmToMirage.hs" #-}
+   {-# LINE 53 "src-ag/TfmToMirage.ag" #-}
+   rule506 = \ ((_hdImirage) :: Mirage.Rule) ((_tlImirages) :: [Mirage.Rule]) ->
+                         {-# LINE 53 "src-ag/TfmToMirage.ag" #-}
+                         _hdImirage : _tlImirages
+                         {-# LINE 3775 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule507 #-}
    rule507 = \ ((_hdIdirectDep) :: Seq Edge) ((_tlIdirectDep) :: Seq Edge) ->
      _hdIdirectDep Seq.>< _tlIdirectDep
@@ -3953,8 +3950,8 @@ sem_Rules_Nil  = T_Rules (return st35) where
    st35 = let
       v34 :: T_Rules_v34 
       v34 = \ (T_Rules_vIn34 _lhsIallTypeSigs _lhsIallfields _lhsIallnts _lhsIaltAttrs _lhsIattrs _lhsIchildInhs _lhsIchildNts _lhsIcon _lhsIinh _lhsIinhsOfChildren _lhsImergeMap _lhsInt _lhsIo_case _lhsIo_cata _lhsIo_dovisit _lhsIo_newtypes _lhsIo_rename _lhsIo_sem _lhsIo_sig _lhsIo_wantvisit _lhsIoptions _lhsIprefix _lhsIsyn _lhsIsynsOfChildren) -> ( let
-         _lhsOjsons :: [JSON.Value]
-         _lhsOjsons = rule564  ()
+         _lhsOmirages :: [Mirage.Rule]
+         _lhsOmirages = rule564  ()
          _lhsOdirectDep :: Seq Edge
          _lhsOdirectDep = rule565  ()
          _lhsOerrors :: Seq Error
@@ -3973,15 +3970,15 @@ sem_Rules_Nil  = T_Rules (return st35) where
          _lhsOnAutoRules = rule572  ()
          _lhsOnExplicitRules :: Int
          _lhsOnExplicitRules = rule573  ()
-         __result_ = T_Rules_vOut34 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOjsons _lhsOlocVars _lhsOnAutoRules _lhsOnExplicitRules
+         __result_ = T_Rules_vOut34 _lhsOdirectDep _lhsOerrors _lhsOgathAltAttrs _lhsOgathRules _lhsOinstDep _lhsOinstVars _lhsOlocVars _lhsOmirages _lhsOnAutoRules _lhsOnExplicitRules
          in __result_ )
      in C_Rules_s35 v34
    {-# INLINE rule564 #-}
-   {-# LINE 58 "src-ag/TfmToMirage.ag" #-}
+   {-# LINE 54 "src-ag/TfmToMirage.ag" #-}
    rule564 = \  (_ :: ()) ->
-                       {-# LINE 58 "src-ag/TfmToMirage.ag" #-}
-                       []
-                       {-# LINE 3985 "src-generated/TfmToMirage.hs" #-}
+                         {-# LINE 54 "src-ag/TfmToMirage.ag" #-}
+                         []
+                         {-# LINE 3982 "src-generated/TfmToMirage.hs" #-}
    {-# INLINE rule565 #-}
    rule565 = \  (_ :: ()) ->
      Seq.empty
@@ -4057,7 +4054,7 @@ sem_TypeSig_TypeSig arg_name_ arg_tp_ = T_TypeSig (return st38) where
    rule574 = \ ((_lhsItypeSigs) :: Map Identifier Type) name_ tp_ ->
                              {-# LINE 536 "src-ag/Order.ag" #-}
                              Map.insert name_ tp_ _lhsItypeSigs
-                             {-# LINE 4061 "src-generated/TfmToMirage.hs" #-}
+                             {-# LINE 4058 "src-generated/TfmToMirage.hs" #-}
 
 -- TypeSigs ----------------------------------------------------
 -- wrapper
