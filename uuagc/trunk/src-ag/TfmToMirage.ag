@@ -5,68 +5,65 @@ INCLUDE "Order.ag" -- for dependencies
 imports {
 import AbstractSyntax
 import qualified Data.Map as Map
-import qualified JSON as JSON
 import Pretty
 import TokenDef
+import qualified MirageSyntax as Mirage
 }
 
 {
-typeToJSON :: Type -> JSON.Value
-typeToJSON x = case x of
-  Haskell y -> JSON.tagged "Haskell" [JSON.String y]
-  NT y ys _ -> JSON.tagged "NT"      [JSON.String (getName y), JSON.Array (map JSON.String ys)]
-  Self      -> JSON.tagged "Self"    []
-
-idToJSON :: Identifier -> JSON.Value
-idToJSON x = JSON.String (getName x)
+typeToMirage :: Type -> Mirage.Type
+typeToMirage x = case x of
+  Haskell y -> Mirage.Haskell y
+  NT y ys _ -> Mirage.NT (getName y) ys
+  Self      -> Mirage.Self
 }
 
-ATTR Grammar Nonterminal Production Child Rule  [ || json:{JSON.Value} ]
-ATTR Nonterminals Productions Children Rules  [ || jsons:{[JSON.Value]} ]
+SEM Grammar [ || mirage:{Mirage.Grammar} ]
+  | Grammar lhs.mirage = Mirage.Grammar @nonts.mirages
 
-SEM Grammar
-  | Grammar lhs.json = JSON.Array @nonts.jsons
+SEM Nonterminals [ || mirages:{[Mirage.Nonterminal]} ]
+  | Cons lhs.mirages = @hd.mirage : @tl.mirages
+  | Nil  lhs.mirages = []
 
-SEM Nonterminals
-  | Cons lhs.jsons = @hd.json : @tl.jsons
-  | Nil  lhs.jsons = []
+SEM Nonterminal [ || mirage:{Mirage.Nonterminal} ]
+  | Nonterminal lhs.mirage
+      = Mirage.Nonterminal
+          (getName @nt)
+          (map getName @params)
+          (Map.foldrWithKey (\k x xs -> Mirage.Attribute (getName k) (typeToMirage x) : xs) [] @inh)
+          (Map.foldrWithKey (\k x xs -> Mirage.Attribute (getName k) (typeToMirage x) : xs) [] @syn)
+          @prods.mirages
 
-SEM Nonterminal
-  | Nonterminal lhs.json = JSON.Array [ idToJSON @nt
-                                      , JSON.Array (map idToJSON @params)
-                                      , JSON.Array (Map.foldrWithKey (\k x xs -> JSON.Array [idToJSON k, typeToJSON x] : xs) [] @inh)
-                                      , JSON.Array (Map.foldrWithKey (\k x xs -> JSON.Array [idToJSON k, typeToJSON x] : xs) [] @syn)
-                                      , JSON.Array @prods.jsons
-                                      ]
+SEM Productions [ || mirages:{[Mirage.Production]} ]
+  | Cons lhs.mirages = @hd.mirage : @tl.mirages
+  | Nil  lhs.mirages = []
 
-SEM Productions
-  | Cons lhs.jsons = @hd.json : @tl.jsons
-  | Nil  lhs.jsons = []
+SEM Production [ || mirage:{Mirage.Production} ]
+  | Production lhs.mirage
+      = Mirage.Production (getName @con) @children.mirages @rules.mirages
 
-SEM Production
-  | Production lhs.json = JSON.Array [idToJSON @con, JSON.Array @children.jsons, JSON.Array @rules.jsons]
+SEM Children [ || mirages:{[Mirage.Child]} ]
+  | Cons lhs.mirages = @hd.mirage : @tl.mirages
+  | Nil  lhs.mirages = []
 
-SEM Children
-  | Cons lhs.jsons = @hd.json : @tl.jsons
-  | Nil  lhs.jsons = []
+SEM Child [ || mirage:{Mirage.Child} ]
+  | Child lhs.mirage = Mirage.Child (getName @name) (typeToMirage @tp)
 
-SEM Child
-  | Child lhs.json = JSON.Array [idToJSON @name, typeToJSON @tp]
-
-SEM Rules
-  | Cons lhs.jsons = @hd.json : @tl.jsons
-  | Nil  lhs.jsons = []
+SEM Rules [ || mirages:{[Mirage.Rule]} ]
+  | Cons lhs.mirages = @hd.mirage : @tl.mirages
+  | Nil  lhs.mirages = []
 
 -- Partly from Order
 
-SEM Rule
-  | Rule lhs.json = JSON.Array [ JSON.Array  [ JSON.Array [idToJSON field, idToJSON attr] | (field,attr,_) <- @pattern.patternAttrs ]
-                               , JSON.Array ([ JSON.Array [idToJSON field, idToJSON attr] | (field,attr) <- @rhs.usedAttrs]
-                                 ++ [ JSON.Array [idToJSON _LOC, idToJSON attr] | attr <- @rhs.usedLocals ++ @rhs.usedFields ])
-                               , JSON.Bool @explicit
-                               , JSON.String @origin
-                               , JSON.String (disp (@pattern.pp >-< indent 1 (text "= " >|< vlist @rhs.lns)) 0 "")
-                               ]
+SEM Rule [ || mirage:{Mirage.Rule} ]
+  | Rule lhs.mirage
+      = Mirage.Rule
+          [Mirage.Address (getName field) (getName attr) | (field,attr,_) <- @pattern.patternAttrs]
+          ([Mirage.Address (getName field) (getName attr) | (field,attr) <- @rhs.usedAttrs]
+            ++ [ Mirage.Address (getName _LOC) (getName attr) | attr <- @rhs.usedLocals ++ @rhs.usedFields])
+          @explicit
+          @origin
+          (disp (@pattern.pp >-< indent 1 (text "= " >|< vlist @rhs.lns)) 0 "")
 
 -- Partly from Visage
 

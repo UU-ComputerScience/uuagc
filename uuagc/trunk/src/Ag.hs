@@ -50,7 +50,8 @@ import Parser        (parseAG, depsAG, parseAGI)
 import ErrorMessages (Error(ParserError))
 import CommonTypes
 import ATermWrite
-import qualified JSON
+import Data.Aeson (encode)
+import qualified Data.ByteString.Lazy as ByteString
 
 -- Library version
 import System.Exit (ExitCode(..), exitWith)
@@ -135,7 +136,7 @@ compile flags input output
           outputVisage = VisageDump.wrap_VisageGrammar (VisageDump.sem_VisageGrammar grammarV) VisageDump.Inh_VisageGrammar
           aterm        = VisageDump.aterm_Syn_VisageGrammar outputVisage
           
-          json = PassM.json_Syn_Grammar outputM
+          mirage = PassM.mirage_Syn_Grammar outputM
 
           parseErrorList   = map message2error (parseErrors)
           mainErrors       = toList ( Pass1.errors_Syn_AG       output1
@@ -250,7 +251,7 @@ compile flags input output
             else return ()
 
            if genmirage flags'
-            then writeFile (outputfile++".mirage") (JSON.encode json)
+            then ByteString.writeFile (outputfile++".mirage") (encode mirage)
             else return ()
 
            if genAttributeList flags'
