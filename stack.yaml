@@ -1,0 +1,9 @@
+packages:
+- uuagc/trunk
+- uuagc/trunk/cabal-plugin
+- uuagc/trunk/diagrams
+extra-deps:
+- uulib-0.9.24
+explicit-setup-deps:
+  ! '*': true
+resolver: lts-16.31
