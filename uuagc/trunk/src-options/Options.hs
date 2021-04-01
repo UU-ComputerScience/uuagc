@@ -109,6 +109,7 @@ allOptions =
   , MyOpt []        ["sepsemmods"]    (NoArg sepSemModsOpt)       (boolOpt sepSemMods)  "Generate separate modules for semantic functions (in generated code)"
   , MyOpt ['M']     ["genfiledeps"]   (NoArg genFileDepsOpt)      (boolOpt genFileDeps) "Generate a list of dependencies on the input AG files"
   , MyOpt []        ["genvisage"]     (NoArg genVisageOpt)        (boolOpt genvisage)   "Generate output for the AG visualizer Visage"
+  , MyOpt []        ["genmirage"]     (NoArg genMirageOpt)        (boolOpt genmirage)   "Generate output for the AG visualizer Mirage"
   , MyOpt []        ["aspectag"]      (NoArg genAspectAGOpt)      (boolOpt genAspectAG) "Generate AspectAG file"
   , MyOpt []        ["nogroup"]       (ReqArg noGroupOpt "attributes") noGroupOptGet    "specify the attributes that won't be grouped in AspectAG"
   , MyOpt []        ["extends"]       (ReqArg extendsOpt "module") (mbStringOpt extends)        "specify a module to be extended"
@@ -209,6 +210,7 @@ data Options = Options{ moduleName :: ModuleHeader
                       , genFileDeps :: Bool
                       , genLinePragmas :: Bool
                       , genvisage :: Bool
+                      , genmirage :: Bool
                       , genAspectAG :: Bool
                       , noGroup :: [String]
                       , extends :: Maybe String
@@ -308,6 +310,7 @@ noOptions = Options { moduleName    = NoName
                     , genFileDeps    = False
                     , genLinePragmas = False
                     , genvisage      = False
+                    , genmirage      = False
                     , genAspectAG    = False
                     , noGroup        = []
                     , extends        = Nothing
@@ -382,7 +385,7 @@ moduleOptGet opts nm = case moduleName opts of
   Name s -> [nm++"="++s]
   Default -> [nm]
 
-dataOpt, dataRecOpt, strictDataOpt, strictWrapOpt, cataOpt, semfunsOpt, signaturesOpt, prettyOpt,renameOpt, wrappersOpt, modcopyOpt, newtypesOpt, nestOpt, smacroOpt, verboseOpt, helpOpt, versionOpt, selfOpt, cycleOpt, visitOpt, seqOpt, unboxOpt, bangpatsOpt, casesOpt, strictCasesOpt, stricterCasesOpt, strictSemOpt, localCpsOpt, splitSemsOpt, werrorsOpt, wignoreOpt, dumpgrammarOpt, dumpcgrammarOpt, genTracesOpt, genUseTracesOpt, genCostCentresOpt, sepSemModsOpt, genFileDepsOpt, genLinePragmasOpt, genVisageOpt, genAspectAGOpt, dummyTokenVisitOpt, tupleAsDummyTokenOpt, stateAsDummyTokenOpt, strictDummyTokenOpt, noPerRuleTypeSigsOpt, noPerStateTypeSigsOpt, noEagerBlackholingOpt, noPerRuleCostCentresOpt, noPerVisitCostCentresOpt, helpInliningOpt, noInlinePragmasOpt, aggressiveInlinePragmasOpt, lateHigherOrderBindingOpt, monadicWrappersOpt, referenceOpt, genAttrListOpt, lcKeywordsOpt, doubleColonsOpt, haskellSyntaxOpt, monadicOpt, parallelOpt, ocamlOpt, cleanOpt, visitorsOutputOpt, breadthfirstOpt, breadthfirstStrictOpt, parseHsRhsOpt, parseHsTpOpt, parseHsBlockOpt, parseHsOpt, kennedyWarrenOpt, noOptimizeOpt, allOpt, optimizeOpt, noIncludesOpt, beQuietOpt, condDisableOptimizations :: Options -> Options
+dataOpt, dataRecOpt, strictDataOpt, strictWrapOpt, cataOpt, semfunsOpt, signaturesOpt, prettyOpt,renameOpt, wrappersOpt, modcopyOpt, newtypesOpt, nestOpt, smacroOpt, verboseOpt, helpOpt, versionOpt, selfOpt, cycleOpt, visitOpt, seqOpt, unboxOpt, bangpatsOpt, casesOpt, strictCasesOpt, stricterCasesOpt, strictSemOpt, localCpsOpt, splitSemsOpt, werrorsOpt, wignoreOpt, dumpgrammarOpt, dumpcgrammarOpt, genTracesOpt, genUseTracesOpt, genCostCentresOpt, sepSemModsOpt, genFileDepsOpt, genLinePragmasOpt, genVisageOpt, genMirageOpt, genAspectAGOpt, dummyTokenVisitOpt, tupleAsDummyTokenOpt, stateAsDummyTokenOpt, strictDummyTokenOpt, noPerRuleTypeSigsOpt, noPerStateTypeSigsOpt, noEagerBlackholingOpt, noPerRuleCostCentresOpt, noPerVisitCostCentresOpt, helpInliningOpt, noInlinePragmasOpt, aggressiveInlinePragmasOpt, lateHigherOrderBindingOpt, monadicWrappersOpt, referenceOpt, genAttrListOpt, lcKeywordsOpt, doubleColonsOpt, haskellSyntaxOpt, monadicOpt, parallelOpt, ocamlOpt, cleanOpt, visitorsOutputOpt, breadthfirstOpt, breadthfirstStrictOpt, parseHsRhsOpt, parseHsTpOpt, parseHsBlockOpt, parseHsOpt, kennedyWarrenOpt, noOptimizeOpt, allOpt, optimizeOpt, noIncludesOpt, beQuietOpt, condDisableOptimizations :: Options -> Options
 
 dataOpt         opts = opts{dataTypes    = True}
 dataRecOpt      opts = opts{dataRecords  = True}
@@ -432,6 +435,7 @@ sepSemModsOpt opts = opts{sepSemMods = allowSepSemMods opts}
 genFileDepsOpt opts = opts{genFileDeps = True}
 genLinePragmasOpt opts = opts{genLinePragmas = True}
 genVisageOpt opts = opts{genvisage = True }
+genMirageOpt opts = opts{genmirage = True }
 genAspectAGOpt opts = opts{genAspectAG = True}
 
 dummyTokenVisitOpt opts         = opts { dummyTokenVisit = True }

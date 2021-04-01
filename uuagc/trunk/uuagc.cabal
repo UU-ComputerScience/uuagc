@@ -53,6 +53,7 @@ library
    build-depends: uulib >= 0.9.14, mtl >= 1.1.1.1
    build-depends: haskell-src-exts >= 1.11.1
    build-depends: filepath >= 1.1.0.4
+   build-depends: aeson >= 1.4.7.1, bytestring >= 0.9.2.1
    hs-source-dirs: src, src-version, src-ag, src-options
    if !flag(bootstrap_external)
       hs-source-dirs: src-generated
@@ -103,6 +104,8 @@ library
     , Visage
     , VisageSyntax
     , VisagePatterns
+    , MirageSyntax
+    , TfmToMirage
     , AG2AspectAG
     , Macro
     , RhsCheck

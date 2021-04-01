@@ -101,6 +101,9 @@ options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genline
 file: "src-ag/TfmToVisage.ag"
 options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 
+file: "src-ag/TfmToMirage.ag"
+options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
+
 file: "src-ag/AG2AspectAG.ag"
 options: module, pretty, newtypes, wrappers, catas, semfuns, signatures, genlinepragmas, checkParseHaskell, kennedywarren
 

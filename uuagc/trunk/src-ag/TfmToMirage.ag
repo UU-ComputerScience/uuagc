@@ -1,0 +1,100 @@
+INCLUDE "AbstractSyntax.ag"
+INCLUDE "Expression.ag"
+INCLUDE "Order.ag" -- for dependencies
+
+imports {
+import AbstractSyntax
+import qualified Data.Map as Map
+import Pretty
+import TokenDef
+import qualified MirageSyntax as Mirage
+}
+
+{
+typeToMirage :: Type -> Mirage.Type
+typeToMirage x = case x of
+  Haskell y -> Mirage.Haskell y
+  NT y ys _ -> Mirage.NT (getName y) ys
+  Self      -> Mirage.Self
+}
+
+SEM Grammar [ || mirage:{Mirage.Grammar} ]
+  | Grammar lhs.mirage = Mirage.Grammar @nonts.mirages
+
+SEM Nonterminals [ || mirages:{[Mirage.Nonterminal]} ]
+  | Cons lhs.mirages = @hd.mirage : @tl.mirages
+  | Nil  lhs.mirages = []
+
+SEM Nonterminal [ || mirage:{Mirage.Nonterminal} ]
+  | Nonterminal lhs.mirage
+      = Mirage.Nonterminal
+          (getName @nt)
+          (map getName @params)
+          (Map.foldrWithKey (\k x xs -> Mirage.Attribute (getName k) (typeToMirage x) : xs) [] @inh)
+          (Map.foldrWithKey (\k x xs -> Mirage.Attribute (getName k) (typeToMirage x) : xs) [] @syn)
+          @prods.mirages
+
+SEM Productions [ || mirages:{[Mirage.Production]} ]
+  | Cons lhs.mirages = @hd.mirage : @tl.mirages
+  | Nil  lhs.mirages = []
+
+SEM Production [ || mirage:{Mirage.Production} ]
+  | Production lhs.mirage
+      = Mirage.Production (getName @con) @children.mirages @rules.mirages
+
+SEM Children [ || mirages:{[Mirage.Child]} ]
+  | Cons lhs.mirages = @hd.mirage : @tl.mirages
+  | Nil  lhs.mirages = []
+
+SEM Child [ || mirage:{Mirage.Child} ]
+  | Child lhs.mirage = Mirage.Child (getName @name) (typeToMirage @tp)
+
+SEM Rules [ || mirages:{[Mirage.Rule]} ]
+  | Cons lhs.mirages = @hd.mirage : @tl.mirages
+  | Nil  lhs.mirages = []
+
+-- Partly from Order
+
+SEM Rule [ || mirage:{Mirage.Rule} ]
+  | Rule lhs.mirage
+      = Mirage.Rule
+          [Mirage.Address (getName field) (getName attr) | (field,attr,_) <- @pattern.patternAttrs]
+          ([Mirage.Address (getName field) (getName attr) | (field,attr) <- @rhs.usedAttrs]
+            ++ [ Mirage.Address (getName _LOC) (getName attr) | attr <- @rhs.usedLocals ++ @rhs.usedFields])
+          @explicit
+          @origin
+          (disp (@pattern.pp >-< indent 1 (text "= " >|< vlist @rhs.lns)) 0 "")
+
+-- Partly from Visage
+
+SEM Expression [ | | lns : {[String]} ]
+  | Expression  lhs.lns = showTokens . tokensToStrings $ @tks
+
+-- From PrintCode
+
+SEM Patterns [ | | pps : {[PP_Doc]} ]
+  | Cons lhs.pps = @hd.pp : @tl.pps
+  | Nil  lhs.pps = []
+
+SEM Pattern [ | | pp:PP_Doc ]
+  | Constr  lhs.pp     = pp_parens $ @name >#< hv_sp @pats.pps
+  | Product lhs.pp     = pp_block "(" ")" "," @pats.pps
+  | Alias   loc.ppVar  = pp @field >|< "." >|< pp @attr
+            loc.ppVarBang = @loc.ppVar
+            lhs.pp     = if @pat.isUnderscore
+                          then @loc.ppVarBang
+                          else @loc.ppVarBang >|< "@" >|< @pat.pp
+  | Irrefutable lhs.pp = text "~" >|< pp_parens @pat.pp
+  | Underscore lhs.pp  = text "_"
+
+SEM Pattern [ | | isUnderscore:{Bool}]
+ | Constr      lhs.isUnderscore = False
+ | Product     lhs.isUnderscore = False
+ | Alias       lhs.isUnderscore = False
+ | Underscore  lhs.isUnderscore = True
+
+ATTR Pattern Patterns [ belowIrrefutable : Bool | | ]
+SEM Rule
+  | Rule pattern.belowIrrefutable = False
+SEM Pattern
+  | Irrefutable pat.belowIrrefutable = True

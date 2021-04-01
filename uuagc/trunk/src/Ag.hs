@@ -37,6 +37,7 @@ import qualified PrintOcamlCode      as Pass5a (sem_Program,  wrap_Program,  Syn
 import qualified PrintCleanCode      as Pass5b (sem_Program,  wrap_Program,  Syn_Program (..), Inh_Program (..))
 import qualified PrintErrorMessages  as PrErr  (sem_Errors ,  wrap_Errors ,  Syn_Errors  (..), Inh_Errors  (..), isError)
 import qualified TfmToVisage         as PassV  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
+import qualified TfmToMirage         as PassM  (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 
 import qualified AbstractSyntaxDump as GrammarDump (sem_Grammar,  wrap_Grammar,  Syn_Grammar (..), Inh_Grammar (..))
 import qualified CodeSyntaxDump as CGrammarDump (sem_CGrammar,  wrap_CGrammar,  Syn_CGrammar (..), Inh_CGrammar (..))
@@ -49,6 +50,8 @@ import Parser        (parseAG, depsAG, parseAGI)
 import ErrorMessages (Error(ParserError))
 import CommonTypes
 import ATermWrite
+import Data.Aeson (encode)
+import qualified Data.ByteString.Lazy as ByteString
 
 -- Library version
 import System.Exit (ExitCode(..), exitWith)
@@ -106,6 +109,7 @@ compile flags input output
           grammar2  = Pass2.output_Syn_Grammar   output2
           outputV   = PassV.wrap_Grammar         (PassV.sem_Grammar grammar2                           ) PassV.Inh_Grammar  {}
           grammarV  = PassV.visage_Syn_Grammar   outputV
+          outputM   = PassM.wrap_Grammar         (PassM.sem_Grammar grammar2                           ) PassM.Inh_Grammar  {PassM.options_Inh_Grammar = flags'}
           output2a  = Pass2a.wrap_Grammar        (Pass2a.sem_Grammar grammar2                          ) Pass2a.Inh_Grammar {Pass2a.options_Inh_Grammar = flags'}
           grammar2a = Pass2a.output_Syn_Grammar  output2a
           output3   = Pass3.wrap_Grammar         (Pass3.sem_Grammar grammar2a                          ) Pass3.Inh_Grammar  {Pass3.options_Inh_Grammar  = flags'}
@@ -131,6 +135,8 @@ compile flags input output
 
           outputVisage = VisageDump.wrap_VisageGrammar (VisageDump.sem_VisageGrammar grammarV) VisageDump.Inh_VisageGrammar
           aterm        = VisageDump.aterm_Syn_VisageGrammar outputVisage
+          
+          mirage = PassM.mirage_Syn_Grammar outputM
 
           parseErrorList   = map message2error (parseErrors)
           mainErrors       = toList ( Pass1.errors_Syn_AG       output1
@@ -242,6 +248,10 @@ compile flags input output
         do
            if genvisage flags'
             then writeFile (outputfile++".visage") (writeATerm aterm)
+            else return ()
+
+           if genmirage flags'
+            then ByteString.writeFile (outputfile++".mirage") (encode mirage)
             else return ()
 
            if genAttributeList flags'
