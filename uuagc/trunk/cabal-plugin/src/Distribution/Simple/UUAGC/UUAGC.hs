@@ -134,7 +134,7 @@ updateAGFile uuagc newOptions (file,(opts,Just (gen,sp))) = do
     (ec, files) <- uuagc (optionsToString $ opts { genFileDeps = True, searchPath = sp }) file
     case ec of
       ExitSuccess -> do
-        let newOpts :: Options 
+        let newOpts :: Options
             newOpts = maybe noOptions fst $ Map.lookup file newOptions
             optRebuild = optionsToString newOpts /= optionsToString opts
         modRebuild <-
