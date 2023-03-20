@@ -56,6 +56,10 @@ import Data.List (nub,intersperse)
 import Data.Map (Map)
 import qualified Data.Map as Map
 
+#if MIN_VERSION_Cabal(3,6,0)
+import Distribution.Utils.Path (getSymbolicPath, PackageDir, SourceDir, SymbolicPath)
+#endif
+
 {-# DEPRECATED uuagcUserHook, uuagcUserHook', uuagc "Use uuagcLibUserHook instead" #-}
 
 -- | 'uuagc' returns the name of the uuagc compiler
@@ -272,13 +276,23 @@ uuagc' uuagc build lbi _ =
                                                             return noOptions
                                        Just (opt,gen) -> return opt
                           let search  = dropFileName inFile
-                              options = opts { searchPath = search : hsSourceDirs build ++ searchPath opts
+                              options = opts { searchPath = search : hsSourceDirsFilePaths (hsSourceDirs build) ++ searchPath opts
                                              , outputFiles = outFile : (outputFiles opts) }
                           (eCode,_) <- uuagc (optionsToString options) inFile
                           case eCode of
                             ExitSuccess   -> writeFileOptions classesPath (Map.insert inFile (opts, Just (outFile, searchPath options)) fileOpts)
                             ex@(ExitFailure _) -> throwIO ex
                 }
+
+-- | In Cabal 3.6.0.0 (GHC 9.2) and up, 'BuildInfo' member 'hsSourceDirs' has type
+-- '[SymbolicPath PackageDir SourceDir]', but in versions before that, it is [FilePath].
+#if MIN_VERSION_Cabal(3,6,0)
+hsSourceDirsFilePaths :: [SymbolicPath PackageDir SourceDir] -> [FilePath]
+hsSourceDirsFilePaths = map getSymbolicPath
+#else
+hsSourceDirsFilePaths :: [FilePath] -> [FilePath]
+hsSourceDirsFilePaths = id
+#endif
 
 nouuagc :: BuildInfo -> LocalBuildInfo -> ComponentLocalBuildInfo -> PreProcessor
 nouuagc build lbi _ =
