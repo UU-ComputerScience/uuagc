@@ -281,7 +281,8 @@ type VG s a = ErrorT String (StateT (VGState s) (ST s)) a
 ------------------------------------------------------------
 -- | Run the VG monad in the ST monad
 runVG :: VG s a -> ST s a
-runVG vg = do (Right a,_) <- runStateT (runErrorT vg) vgEmptyState
+runVG vg = do result <- runStateT (runErrorT vg) vgEmptyState
+              let (Right a,_) = result
               return a
 
 -- | Insert an initial node for this nonterminal into the visit graph
