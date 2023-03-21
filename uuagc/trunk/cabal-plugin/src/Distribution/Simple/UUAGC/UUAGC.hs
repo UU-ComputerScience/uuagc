@@ -265,6 +265,10 @@ uuagc' :: ([String] -> FilePath -> IO (ExitCode, [FilePath]))
         -> PreProcessor
 uuagc' uuagc build lbi _ =
    PreProcessor {
+#if MIN_VERSION_Cabal(3,8,1)
+     --  The ppOrdering field was added in Cabal 3.8.1 (GHC 9.4)
+     ppOrdering = \_verbosity _files modules -> pure modules,
+#endif
      platformIndependent = True,
      runPreProcessor = mkSimplePreProcessor $ \ inFile outFile verbosity ->
                        do notice verbosity $ "[UUAGC] processing: " ++ inFile ++ " generating: " ++ outFile
@@ -297,6 +301,10 @@ hsSourceDirsFilePaths = id
 nouuagc :: BuildInfo -> LocalBuildInfo -> ComponentLocalBuildInfo -> PreProcessor
 nouuagc build lbi _ =
   PreProcessor {
+#if MIN_VERSION_Cabal(3,8,1)
+     --  The ppOrdering field was added in Cabal 3.8.1 (GHC 9.4)
+     ppOrdering = \_verbosity _files modules -> pure modules,
+#endif
     platformIndependent = True,
     runPreProcessor = mkSimplePreProcessor $ \inFile outFile verbosity -> do
       info verbosity ("skipping: " ++ outFile)
