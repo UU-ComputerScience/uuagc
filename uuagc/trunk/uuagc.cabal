@@ -1,7 +1,7 @@
 cabal-version: >= 1.10
 build-type: Custom
 name: uuagc
-version: 0.9.53.1
+version: 0.9.54
 license: BSD3
 license-file: LICENSE
 maintainer: Jeroen Bransen <J.Bransen@uu.nl>
@@ -35,7 +35,7 @@ custom-setup
   setup-depends: base, Cabal, uuagc-cabal
 
 executable uuagc
-   build-depends: uuagc-cabal >= 1.0.2.0
+   build-depends: uuagc-cabal >= 1.0.3.0
    build-depends: base >= 4, base < 5
    -- Self dependency, depend on library below
    build-depends: uuagc
@@ -44,7 +44,7 @@ executable uuagc
    hs-source-dirs: src-main
 
 library
-   build-depends: uuagc-cabal >= 1.0.2.0
+   build-depends: uuagc-cabal >= 1.0.3.0
    build-depends: base >= 4, base < 5, ghc-prim >= 0.2.0.0
    if flag(with-loag)
       build-depends: minisat
