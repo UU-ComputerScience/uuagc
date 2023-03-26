@@ -32,7 +32,7 @@ flag with-loag
    manual: True
 
 custom-setup
-  setup-depends: base, Cabal, uuagc-cabal
+  setup-depends: base >= 4 && < 5, Cabal >= 1.24 && < 3.11, uuagc-cabal >= 1.0
 
 executable uuagc
    build-depends: uuagc-cabal >= 1.0.3.0
