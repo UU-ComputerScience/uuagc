@@ -56,6 +56,10 @@ import Data.List (nub,intersperse)
 import Data.Map (Map)
 import qualified Data.Map as Map
 
+#if MIN_VERSION_Cabal(3,6,0)
+import Distribution.Utils.Path (getSymbolicPath, PackageDir, SourceDir, SymbolicPath)
+#endif
+
 {-# DEPRECATED uuagcUserHook, uuagcUserHook', uuagc "Use uuagcLibUserHook instead" #-}
 
 -- | 'uuagc' returns the name of the uuagc compiler
@@ -130,7 +134,7 @@ updateAGFile uuagc newOptions (file,(opts,Just (gen,sp))) = do
     (ec, files) <- uuagc (optionsToString $ opts { genFileDeps = True, searchPath = sp }) file
     case ec of
       ExitSuccess -> do
-        let newOpts :: Options 
+        let newOpts :: Options
             newOpts = maybe noOptions fst $ Map.lookup file newOptions
             optRebuild = optionsToString newOpts /= optionsToString opts
         modRebuild <-
@@ -261,6 +265,10 @@ uuagc' :: ([String] -> FilePath -> IO (ExitCode, [FilePath]))
         -> PreProcessor
 uuagc' uuagc build lbi _ =
    PreProcessor {
+#if MIN_VERSION_Cabal(3,8,1)
+     --  The ppOrdering field was added in Cabal 3.8.1 (GHC 9.4)
+     ppOrdering = \_verbosity _files modules -> pure modules,
+#endif
      platformIndependent = True,
      runPreProcessor = mkSimplePreProcessor $ \ inFile outFile verbosity ->
                        do notice verbosity $ "[UUAGC] processing: " ++ inFile ++ " generating: " ++ outFile
@@ -272,7 +280,7 @@ uuagc' uuagc build lbi _ =
                                                             return noOptions
                                        Just (opt,gen) -> return opt
                           let search  = dropFileName inFile
-                              options = opts { searchPath = search : hsSourceDirs build ++ searchPath opts
+                              options = opts { searchPath = search : hsSourceDirsFilePaths (hsSourceDirs build) ++ searchPath opts
                                              , outputFiles = outFile : (outputFiles opts) }
                           (eCode,_) <- uuagc (optionsToString options) inFile
                           case eCode of
@@ -280,9 +288,23 @@ uuagc' uuagc build lbi _ =
                             ex@(ExitFailure _) -> throwIO ex
                 }
 
+-- | In Cabal 3.6.0.0 (GHC 9.2) and up, 'BuildInfo' member 'hsSourceDirs' has type
+-- '[SymbolicPath PackageDir SourceDir]', but in versions before that, it is [FilePath].
+#if MIN_VERSION_Cabal(3,6,0)
+hsSourceDirsFilePaths :: [SymbolicPath PackageDir SourceDir] -> [FilePath]
+hsSourceDirsFilePaths = map getSymbolicPath
+#else
+hsSourceDirsFilePaths :: [FilePath] -> [FilePath]
+hsSourceDirsFilePaths = id
+#endif
+
 nouuagc :: BuildInfo -> LocalBuildInfo -> ComponentLocalBuildInfo -> PreProcessor
 nouuagc build lbi _ =
   PreProcessor {
+#if MIN_VERSION_Cabal(3,8,1)
+     --  The ppOrdering field was added in Cabal 3.8.1 (GHC 9.4)
+     ppOrdering = \_verbosity _files modules -> pure modules,
+#endif
     platformIndependent = True,
     runPreProcessor = mkSimplePreProcessor $ \inFile outFile verbosity -> do
       info verbosity ("skipping: " ++ outFile)
