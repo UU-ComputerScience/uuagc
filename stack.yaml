@@ -6,4 +6,4 @@ extra-deps:
 - uulib-0.9.24
 explicit-setup-deps:
   ! '*': true
-resolver: lts-16.31
+resolver: lts-20.15
