@@ -31,7 +31,8 @@ module UU.UUAGC.Diagrams
         AGDiagram, AGBackend, Child) where
 
 import Diagrams.Prelude
-import Graphics.SVGFonts (textSVG_, Spacing (..), TextOpts (..), lin2, Mode (..))
+import Graphics.SVGFonts (svgText, Spacing (..), TextOpts (..), lin2
+                         ,fit_height, set_envelope)
 import Data.List (isPrefixOf)
 import System.IO.Unsafe (unsafePerformIO)
 
@@ -136,7 +137,7 @@ lin2' = unsafePerformIO lin2
 
 text' :: AGBackend b =>
          Double -> String -> AGDiagram b
-text' d s = (textSVG_ (TextOpts lin2' INSIDE_H KERN False d d) s) # lw none # fc black # centerX
+text' d s = s # svgText def { textFont = lin2' } # fit_height d # set_envelope # lw none # fc black # centerX
 
 line :: (IsName n1, IsName n2, AGBackend b) =>
         n1 -> n2 -> AGDiagram b -> AGDiagram b
