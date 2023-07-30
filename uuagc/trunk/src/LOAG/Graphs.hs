@@ -1,6 +1,6 @@
 module LOAG.Graphs where
 
-import Control.Monad (forM, forM_)
+import Control.Monad (forM, forM_, when)
 import Control.Monad.ST
 import Control.Monad.State
 import CommonTypes

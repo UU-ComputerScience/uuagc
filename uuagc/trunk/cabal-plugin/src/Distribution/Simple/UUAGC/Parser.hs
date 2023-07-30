@@ -13,13 +13,9 @@ import Options
 import System.Console.GetOpt
 import System.IO.Unsafe(unsafeInterleaveIO)
 import System.IO(hPutStr,stderr)
-import Control.Monad.Error.Class
 
 data ParserError = DefParserError String
                  deriving (Show, Eq, Read)
-
-instance Error ParserError where
-    strMsg x = DefParserError x
 
 uFlags :: [String]
 uFlags = concat [ filter (not . null) x | Option _ x _ _ <- options]

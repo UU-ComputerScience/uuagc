@@ -8,7 +8,7 @@ import ExecutionPlan
 import Debug.Trace
 import Control.Monad.ST
 import Control.Monad.State
-import Control.Monad.Error
+import Control.Monad.Except (ExceptT, runExceptT, MonadError(..))
 import Data.STRef
 import Data.Maybe
 import Data.List (intersperse, groupBy, partition, sortBy)
@@ -79,7 +79,7 @@ kennedyWarrenLazy _ wr ndis typesyns derivings = plan where
 
 -- ordered version (may return errors)
 kennedyWarrenOrder :: Options -> Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> Either Err.Error (ExecutionPlan, PP_Doc, PP_Doc)
-kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runErrorT $ do
+kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runExceptT $ do
   indi <- lift $ mapM mkNontDependencyInformationM ndis
   lift $ knuth1 indi
   -- Check all graphs for cyclicity, transitive closure and consistency
@@ -274,14 +274,14 @@ data VGState s = VGState { vgNodeNum       :: Int
                          , vgProdVisits    :: Map (Identifier,Identifier,VGEdge) (STRef s [VisitStep])
                          }
 
-type VG s a = ErrorT String (StateT (VGState s) (ST s)) a
+type VG s a = ExceptT String (StateT (VGState s) (ST s)) a
 
 ------------------------------------------------------------
 ---              Public functions                        ---
 ------------------------------------------------------------
 -- | Run the VG monad in the ST monad
 runVG :: VG s a -> ST s a
-runVG vg = do result <- runStateT (runErrorT vg) vgEmptyState
+runVG vg = do result <- runStateT (runExceptT vg) vgEmptyState
               let (Right a,_) = result
               return a
 
