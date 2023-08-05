@@ -9,6 +9,7 @@ import Debug.Trace
 import Control.Monad.ST
 import Control.Monad.State
 import Control.Monad.Except (ExceptT, runExceptT, MonadError(..))
+import Control.Monad (guard, liftM, when, forM_, foldM, forM)
 import Data.STRef
 import Data.Maybe
 import Data.List (intersperse, groupBy, partition, sortBy)
