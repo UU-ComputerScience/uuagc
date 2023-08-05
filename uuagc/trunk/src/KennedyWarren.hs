@@ -100,12 +100,12 @@ kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runExceptT $ do
     trc <- lift $ graphIsTRC g
     when (not trc) $ do
       let msg = "Nonterminal graph " ++ show nont ++ " is not transitively closed!"
-      fail msg
+      errorWithoutStackTrace msg
     -- Consistency check
     cons <- lift $ graphCheckConsistency g
     when (not cons) $ do
       let msg = "Nonterminal graph " ++ show nont ++ " is not consistent!"
-      fail msg
+      errorWithoutStackTrace msg
 
     -- Loop trough all productions
     forM_ (ndimProds ndi) $ \prod -> do
@@ -125,13 +125,13 @@ kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runExceptT $ do
       when (not trc') $ do
         lift $ traceST $ "Production graph " ++ show pr ++ " of nonterminal "
                                              ++ show nont ++ " is not transitively closed!"
-        fail "Production graph is not transitively closed."
+        errorWithoutStackTrace "Production graph is not transitively closed."
       -- Check consistency
       consistent <- lift $ graphCheckConsistency g'
       when (not consistent) $ do
         let msg =  "Production graph " ++ show pr ++ " of nonterminal "
                                        ++ show nont ++ " is not consistent!"
-        fail msg
+        errorWithoutStackTrace msg
   -- reachable when everything is ok
   lift $ do
         -- Create non-transitive closed graph for efficiency
