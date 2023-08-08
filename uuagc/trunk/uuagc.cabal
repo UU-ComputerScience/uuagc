@@ -4,15 +4,15 @@ name: uuagc
 version: 0.9.55
 license: BSD3
 license-file: LICENSE
-maintainer: Jeroen Bransen <J.Bransen@uu.nl>
-homepage: http://www.cs.uu.nl/wiki/HUT/WebHome
+maintainer: Jeroen Bransen
+homepage: https://github.com/UU-ComputerScience/uuagc
 description: Generates Haskell files from an attribute grammar specification
 synopsis: Attribute Grammar System of Universiteit Utrecht
 category: Development
 stability: Stable
 copyright: Universiteit Utrecht
 author: Software Technology at Universiteit Utrecht
-bug-reports: hut-developers@cs.uu.nl
+bug-reports: https://github.com/UU-ComputerScience/uuagc/issues
 tested-with: GHC >= 6.12
 extra-source-files: README
 extra-source-files: uuagc_options
