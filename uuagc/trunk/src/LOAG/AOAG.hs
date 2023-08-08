@@ -11,7 +11,6 @@ import CommonTypes
 import Control.Arrow ((&&&), (***))
 import Control.Monad (forM, forM_, MonadPlus(..), when, unless)
 import Control.Monad.ST
-import Control.Monad.Error (ErrorT(..))
 import Control.Monad.State (MonadState(..))
 import Data.Maybe (fromMaybe, catMaybes, fromJust, isNothing)
 import Data.List (elemIndex, foldl', delete, (\\), insert, nub)
@@ -279,4 +278,3 @@ schedule sem gram@(Grammar _ _ _ _ dats _ _ _ _ _ _ _ _ _)
                      in mapM_ (swap_ivd ids sr) rest
                         
                         
-

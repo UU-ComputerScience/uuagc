@@ -8,7 +8,8 @@ import ExecutionPlan
 import Debug.Trace
 import Control.Monad.ST
 import Control.Monad.State
-import Control.Monad.Error
+import Control.Monad.Except (ExceptT, runExceptT, MonadError(..))
+import Control.Monad (guard, liftM, when, forM_, foldM, forM)
 import Data.STRef
 import Data.Maybe
 import Data.List (intersperse, groupBy, partition, sortBy)
@@ -79,7 +80,7 @@ kennedyWarrenLazy _ wr ndis typesyns derivings = plan where
 
 -- ordered version (may return errors)
 kennedyWarrenOrder :: Options -> Set NontermIdent -> [NontDependencyInformation] -> TypeSyns -> Derivings -> Either Err.Error (ExecutionPlan, PP_Doc, PP_Doc)
-kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runErrorT $ do
+kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runExceptT $ do
   indi <- lift $ mapM mkNontDependencyInformationM ndis
   lift $ knuth1 indi
   -- Check all graphs for cyclicity, transitive closure and consistency
@@ -99,12 +100,12 @@ kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runErrorT $ do
     trc <- lift $ graphIsTRC g
     when (not trc) $ do
       let msg = "Nonterminal graph " ++ show nont ++ " is not transitively closed!"
-      fail msg
+      errorWithoutStackTrace msg
     -- Consistency check
     cons <- lift $ graphCheckConsistency g
     when (not cons) $ do
       let msg = "Nonterminal graph " ++ show nont ++ " is not consistent!"
-      fail msg
+      errorWithoutStackTrace msg
 
     -- Loop trough all productions
     forM_ (ndimProds ndi) $ \prod -> do
@@ -124,13 +125,13 @@ kennedyWarrenOrder opts wr ndis typesyns derivings = runST $ runErrorT $ do
       when (not trc') $ do
         lift $ traceST $ "Production graph " ++ show pr ++ " of nonterminal "
                                              ++ show nont ++ " is not transitively closed!"
-        fail "Production graph is not transitively closed."
+        errorWithoutStackTrace "Production graph is not transitively closed."
       -- Check consistency
       consistent <- lift $ graphCheckConsistency g'
       when (not consistent) $ do
         let msg =  "Production graph " ++ show pr ++ " of nonterminal "
                                        ++ show nont ++ " is not consistent!"
-        fail msg
+        errorWithoutStackTrace msg
   -- reachable when everything is ok
   lift $ do
         -- Create non-transitive closed graph for efficiency
@@ -274,14 +275,14 @@ data VGState s = VGState { vgNodeNum       :: Int
                          , vgProdVisits    :: Map (Identifier,Identifier,VGEdge) (STRef s [VisitStep])
                          }
 
-type VG s a = ErrorT String (StateT (VGState s) (ST s)) a
+type VG s a = ExceptT String (StateT (VGState s) (ST s)) a
 
 ------------------------------------------------------------
 ---              Public functions                        ---
 ------------------------------------------------------------
 -- | Run the VG monad in the ST monad
 runVG :: VG s a -> ST s a
-runVG vg = do result <- runStateT (runErrorT vg) vgEmptyState
+runVG vg = do result <- runStateT (runExceptT vg) vgEmptyState
               let (Right a,_) = result
               return a
 

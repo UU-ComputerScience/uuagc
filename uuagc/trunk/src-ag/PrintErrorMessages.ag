@@ -6,16 +6,7 @@ import UU.Scanner.Position(Pos(..), noPos)
 import ErrorMessages
 import Data.List(mapAccumL)
 import GrammarInfo
-import qualified Control.Monad.Error.Class as Err
 }
-
-
-{
-instance Err.Error Error where
-  noMsg  = Err.strMsg "error"
-  strMsg = CustomError False noPos . pp
-}
-
 
 {
 isError :: Options -> Error -> Bool
@@ -653,4 +644,3 @@ ppInterface :: Show a => a -> PP_Doc
 ppInterface inter = wfill ["interface:", show inter]
 
 }
-
