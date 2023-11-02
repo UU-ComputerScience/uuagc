@@ -260,7 +260,7 @@ sem_Error_ParserError arg_pos_ arg_problem_ arg_action_ = T_Error (return st2) w
                                    help = text ""
                                    act  = text action_
                                 in ppError (isError _lhsIoptions _me) pos_ mesg pat help act _lhsIverbose
-                               {-# LINE 264 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 264 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule1 #-}
    rule1 = \ action_ pos_ problem_ ->
      ParserError pos_ problem_ action_
@@ -287,7 +287,7 @@ sem_Error_HsParseError arg_pos_ arg_msg_ = T_Error (return st2) where
    rule3 = \ ((_lhsIverbose) :: Bool) msg_ pos_ ->
                                {-# LINE 84 "src-ag/PrintErrorMessages.ag" #-}
                                ppError True pos_ (text msg_) (text "") (text "") (text "Correct the syntax of the Haskell code.") _lhsIverbose
-                               {-# LINE 291 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 291 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule4 #-}
    rule4 = \ msg_ pos_ ->
      HsParseError pos_ msg_
@@ -331,7 +331,7 @@ sem_Error_DupAlt arg_nt_ arg_con_ arg_occ1_ = T_Error (return st2) where
                                                 ,"is considered valid. All other alternatives have been discarded."
                                                 ]
                                in ppError (isError _lhsIoptions _me) (getPos con_) mesg pat help act _lhsIverbose
-                               {-# LINE 335 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 335 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule7 #-}
    rule7 = \ con_ nt_ occ1_ ->
      DupAlt nt_ con_ occ1_
@@ -373,7 +373,7 @@ sem_Error_DupSynonym arg_nt_ arg_occ1_ = T_Error (return st2) where
                                    act  = wfill [ "The clashing type synonym will be ignored."
                                                 ]
                                in ppError (isError _lhsIoptions _me)  (getPos nt_) mesg pat help act _lhsIverbose
-                               {-# LINE 377 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 377 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule10 #-}
    rule10 = \ nt_ occ1_ ->
      DupSynonym nt_ occ1_
@@ -414,7 +414,7 @@ sem_Error_DupSet arg_name_ arg_occ1_ = T_Error (return st2) where
                                    act  = wfill [ "The clashing nonterminal set will be ignored."
                                                 ]
                                in ppError (isError _lhsIoptions _me)  (getPos name_) mesg pat help act _lhsIverbose
-                               {-# LINE 418 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 418 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule13 #-}
    rule13 = \ name_ occ1_ ->
      DupSet name_ occ1_
@@ -456,7 +456,7 @@ sem_Error_DupInhAttr arg_nt_ arg_attr_ arg_occ1_ = T_Error (return st2) where
                                                 ,"All others have been discarded. The generated program will probably not run."
                                                 ]
                                in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                               {-# LINE 460 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 460 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule16 #-}
    rule16 = \ attr_ nt_ occ1_ ->
      DupInhAttr nt_ attr_ occ1_
@@ -498,7 +498,7 @@ sem_Error_DupSynAttr arg_nt_ arg_attr_ arg_occ1_ = T_Error (return st2) where
                                                 ,"All others have been discarded. The generated program will probably not run."
                                                 ]
                                in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                               {-# LINE 502 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 502 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule19 #-}
    rule19 = \ attr_ nt_ occ1_ ->
      DupSynAttr nt_ attr_ occ1_
@@ -541,7 +541,7 @@ sem_Error_DupChild arg_nt_ arg_con_ arg_name_ arg_occ1_ = T_Error (return st2) w
                                                 ,"All others have been discarded."
                                                 ]
                                in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
-                               {-# LINE 545 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 545 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule22 #-}
    rule22 = \ con_ name_ nt_ occ1_ ->
      DupChild nt_ con_ name_ occ1_
@@ -582,7 +582,7 @@ sem_Error_DupRule arg_nt_ arg_con_ arg_field_ arg_attr_ arg_occ1_ = T_Error (ret
                                                          ]
                                    act  = wfill ["The last rule given is considered valid. All others have been discarded."]
                                in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                               {-# LINE 586 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 586 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule25 #-}
    rule25 = \ attr_ con_ field_ nt_ occ1_ ->
      DupRule nt_ con_ field_ attr_ occ1_
@@ -620,7 +620,7 @@ sem_Error_DupRuleName arg_nt_ arg_con_ arg_nm_ = T_Error (return st2) where
                                                          ]
                                    act  = wfill ["Compilation cannot continue."]
                                in ppError (isError _lhsIoptions _me) (getPos nm_) mesg pat help act _lhsIverbose
-                               {-# LINE 624 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 624 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule28 #-}
    rule28 = \ con_ nm_ nt_ ->
      DupRuleName nt_ con_ nm_
@@ -660,7 +660,7 @@ sem_Error_DupSig arg_nt_ arg_con_ arg_attr_ = T_Error (return st2) where
                                                          ]
                                    act  = wfill ["The last typesignature given is considered valid. All others have been discarded."]
                                in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                               {-# LINE 664 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 664 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule31 #-}
    rule31 = \ attr_ con_ nt_ ->
      DupSig nt_ con_ attr_
@@ -694,7 +694,7 @@ sem_Error_UndefNont arg_nt_ = T_Error (return st2) where
                                                          ]
                                    act  = wfill ["Everything regarding the unknown nonterminal has been ignored."]
                                in ppError (isError _lhsIoptions _me) (getPos nt_) mesg pat help act _lhsIverbose
-                               {-# LINE 698 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 698 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule34 #-}
    rule34 = \ nt_ ->
      UndefNont nt_
@@ -730,7 +730,7 @@ sem_Error_UndefAlt arg_nt_ arg_con_ = T_Error (return st2) where
                                                          ]
                                    act  = wfill ["All rules for the unknown alternative have been ignored."]
                                in ppError (isError _lhsIoptions _me) (getPos con_) mesg pat help act _lhsIverbose
-                               {-# LINE 734 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 734 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule37 #-}
    rule37 = \ con_ nt_ ->
      UndefAlt nt_ con_
@@ -769,7 +769,7 @@ sem_Error_UndefChild arg_nt_ arg_con_ arg_name_ = T_Error (return st2) where
                                                          ]
                                    act  = wfill ["All rules for the unknown field have been ignored."]
                                in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
-                               {-# LINE 773 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 773 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule40 #-}
    rule40 = \ con_ name_ nt_ ->
      UndefChild nt_ con_ name_
@@ -806,7 +806,7 @@ sem_Error_MissingRule arg_nt_ arg_con_ arg_field_ arg_attr_ = T_Error (return st
                                                  ]
                                    act  = wfill ["The value of the attribute has been set to undefined."]
                                in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                               {-# LINE 810 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 810 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule43 #-}
    rule43 = \ attr_ con_ field_ nt_ ->
      MissingRule nt_ con_ field_ attr_
@@ -842,7 +842,7 @@ sem_Error_MissingNamedRule arg_nt_ arg_con_ arg_name_ = T_Error (return st2) whe
                                                     ]
                                       act  = wfill ["Compilation cannot continue."]
                                   in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
-                                  {-# LINE 846 "src-generated/PrintErrorMessages.hs"#-}
+                                  {-# LINE 846 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule46 #-}
    rule46 = \ con_ name_ nt_ ->
      MissingNamedRule nt_ con_ name_
@@ -879,7 +879,7 @@ sem_Error_SuperfluousRule arg_nt_ arg_con_ arg_field_ arg_attr_ = T_Error (retur
                                                  ]
                                    act  = wfill ["The rule has been ignored."]
                                in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                               {-# LINE 883 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 883 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule49 #-}
    rule49 = \ attr_ con_ field_ nt_ ->
      SuperfluousRule nt_ con_ field_ attr_
@@ -918,7 +918,7 @@ sem_Error_UndefLocal arg_nt_ arg_con_ arg_var_ = T_Error (return st2) where
                                                  ]
                                    act  = wfill ["The generated program will not run."]
                                in ppError (isError _lhsIoptions _me) (getPos var_) mesg pat help act _lhsIverbose
-                               {-# LINE 922 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 922 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule52 #-}
    rule52 = \ con_ nt_ var_ ->
      UndefLocal nt_ con_ var_
@@ -956,7 +956,7 @@ sem_Error_ChildAsLocal arg_nt_ arg_con_ arg_var_ = T_Error (return st2) where
                                                  ]
                                    act  = wfill ["The generated program probably contains a type error or has undefined variables."]
                                in ppError (isError _lhsIoptions _me) (getPos var_) mesg pat help act _lhsIverbose
-                               {-# LINE 960 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 960 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule55 #-}
    rule55 = \ con_ nt_ var_ ->
      ChildAsLocal nt_ con_ var_
@@ -999,7 +999,7 @@ sem_Error_UndefAttr arg_nt_ arg_con_ arg_field_ arg_attr_ arg_isOut_ = T_Error (
                                                  ]
                                    act  = wfill ["The generated program will not run."]
                                in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                               {-# LINE 1003 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 1003 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule58 #-}
    rule58 = \ attr_ con_ field_ isOut_ nt_ ->
      UndefAttr nt_ con_ field_ attr_ isOut_
@@ -1039,7 +1039,7 @@ sem_Error_Cyclic arg_nt_ arg_mbCon_ arg_verts_ = T_Error (return st2) where
                                    help = hlist (text "The following attributes are all cyclic: " : map text verts_)
                                    act  = wfill ["code cannot be generated until the cycle is removed."]
                                in ppError (isError _lhsIoptions _me) pos mesg pat help act False
-                               {-# LINE 1043 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 1043 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule61 #-}
    rule61 = \ mbCon_ nt_ verts_ ->
      Cyclic nt_ mbCon_ verts_
@@ -1073,7 +1073,7 @@ sem_Error_CyclicSet arg_name_ = T_Error (return st2) where
                                                  ]
                                    act  = wfill ["The nonterminal set", getName name_, "is considered to be empty."]
                                in ppError (isError _lhsIoptions _me) (getPos name_) mesg pat help act _lhsIverbose
-                               {-# LINE 1077 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 1077 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule64 #-}
    rule64 = \ name_ ->
      CyclicSet name_
@@ -1103,7 +1103,7 @@ sem_Error_CustomError arg_isWarning_ arg_pos_ arg_mesg_ = T_Error (return st2) w
                                    help = wfill ["not available."]
                                    act  = wfill ["unknown"]
                                in ppError (isError _lhsIoptions _me) pos_ mesg_ pat help act False
-                               {-# LINE 1107 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 1107 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule67 #-}
    rule67 = \ isWarning_ mesg_ pos_ ->
      CustomError isWarning_ pos_ mesg_
@@ -1140,7 +1140,7 @@ sem_Error_LocalCirc arg_nt_ arg_con_ arg_attr_ arg_o_visit_ arg_path_ = T_Error 
                                    act   | o_visit_ = text "An unoptimized version was generated. It might hang when run."
                                          | otherwise = text "The generated program might hang when run."
                                in ppError (isError _lhsIoptions _me) (getPos (attr_)) mesg pat help act _lhsIverbose
-                               {-# LINE 1144 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 1144 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule70 #-}
    rule70 = \ attr_ con_ nt_ o_visit_ path_ ->
      LocalCirc nt_ con_ attr_ o_visit_ path_
@@ -1177,7 +1177,7 @@ sem_Error_InstCirc arg_nt_ arg_con_ arg_attr_ arg_o_visit_ arg_path_ = T_Error (
                                    act   | o_visit_ = text "An unoptimized version was generated. It might hang when run."
                                          | otherwise = text "The generated program might hang when run."
                                in ppError (isError _lhsIoptions _me) (getPos (attr_)) mesg pat help act _lhsIverbose
-                               {-# LINE 1181 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 1181 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule73 #-}
    rule73 = \ attr_ con_ nt_ o_visit_ path_ ->
      InstCirc nt_ con_ attr_ o_visit_ path_
@@ -1210,7 +1210,7 @@ sem_Error_DirectCirc arg_nt_ arg_o_visit_ arg_cyclic_ = T_Error (return st2) whe
                                    act   | o_visit_ = text "An unoptimized version was generated. It might hang when run."
                                          | otherwise = text "The generated program might hang when run."
                                in ppError (isError _lhsIoptions _me) noPos mesg pat help act _lhsIverbose
-                               {-# LINE 1214 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 1214 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule76 #-}
    rule76 = \ cyclic_ nt_ o_visit_ ->
      DirectCirc nt_ o_visit_ cyclic_
@@ -1244,7 +1244,7 @@ sem_Error_InducedCirc arg_nt_ arg_cinter_ arg_cyclic_ = T_Error (return st2) whe
                                            >-< vlist (map showEdgeLong cyclic_)
                                    act   = text "An unoptimized version was generated. It might hang when run."
                                in ppError (isError _lhsIoptions _me) noPos mesg pat help act _lhsIverbose
-                               {-# LINE 1248 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 1248 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule79 #-}
    rule79 = \ cinter_ cyclic_ nt_ ->
      InducedCirc nt_ cinter_ cyclic_
@@ -1283,7 +1283,7 @@ sem_Error_MissingTypeSig arg_nt_ arg_con_ arg_attr_ = T_Error (return st2) where
                                                  ]
                                    act  = wfill ["The type signatures of semantic functions are not generated."]
                                in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                               {-# LINE 1287 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 1287 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule82 #-}
    rule82 = \ attr_ con_ nt_ ->
      MissingTypeSig nt_ con_ attr_
@@ -1322,7 +1322,7 @@ sem_Error_MissingInstSig arg_nt_ arg_con_ arg_attr_ = T_Error (return st2) where
                                                  ]
                                    act  = wfill ["It is not possible to proceed without this signature."]
                                in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                               {-# LINE 1326 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 1326 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule85 #-}
    rule85 = \ attr_ con_ nt_ ->
      MissingInstSig nt_ con_ attr_
@@ -1362,7 +1362,7 @@ sem_Error_DupUnique arg_nt_ arg_con_ arg_attr_ = T_Error (return st2) where
                                                          ]
                                    act  = wfill ["Unpredicatable sharing of unique numbers may occur."]
                                in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                               {-# LINE 1366 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 1366 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule88 #-}
    rule88 = \ attr_ con_ nt_ ->
      DupUnique nt_ con_ attr_
@@ -1402,7 +1402,7 @@ sem_Error_MissingUnique arg_nt_ arg_attr_ = T_Error (return st2) where
                                                  ]
                                    act  = wfill ["It is not possible to proceed without this declaration."]
                                in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                               {-# LINE 1406 "src-generated/PrintErrorMessages.hs"#-}
+                               {-# LINE 1406 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule91 #-}
    rule91 = \ attr_ nt_ ->
      MissingUnique nt_ attr_
@@ -1442,7 +1442,7 @@ sem_Error_MissingSyn arg_nt_ arg_attr_ = T_Error (return st2) where
                                                 ]
                                   act  = wfill ["It is not possible to proceed without this declaration."]
                               in ppError (isError _lhsIoptions _me) (getPos attr_) mesg pat help act _lhsIverbose
-                              {-# LINE 1446 "src-generated/PrintErrorMessages.hs"#-}
+                              {-# LINE 1446 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule94 #-}
    rule94 = \ attr_ nt_ ->
      MissingSyn nt_ attr_
@@ -1473,7 +1473,7 @@ sem_Error_IncompatibleVisitKind arg_child_ arg_vis_ arg_from_ arg_to_ = T_Error 
                                   help  = empty
                                   act   = text "It is not possible to proceed without fixing this kind error."
                               in ppError (isError _lhsIoptions _me) (getPos child_) mesg pat help act _lhsIverbose
-                              {-# LINE 1477 "src-generated/PrintErrorMessages.hs"#-}
+                              {-# LINE 1477 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule97 #-}
    rule97 = \ child_ from_ to_ vis_ ->
      IncompatibleVisitKind child_ vis_ from_ to_
@@ -1504,7 +1504,7 @@ sem_Error_IncompatibleRuleKind arg_rule_ arg_kind_ = T_Error (return st2) where
                                   help  = empty
                                   act   = text "It is not possible to proceed without fixing this kind error."
                               in ppError (isError _lhsIoptions _me) (getPos rule_) mesg pat help act _lhsIverbose
-                              {-# LINE 1508 "src-generated/PrintErrorMessages.hs"#-}
+                              {-# LINE 1508 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule100 #-}
    rule100 = \ kind_ rule_ ->
      IncompatibleRuleKind rule_ kind_
@@ -1535,7 +1535,7 @@ sem_Error_IncompatibleAttachKind arg_child_ arg_kind_ = T_Error (return st2) whe
                                   help  = empty
                                   act   = text "It is not possible to proceed without fixing this kind error."
                               in ppError (isError _lhsIoptions _me) (getPos child_) mesg pat help act _lhsIverbose
-                              {-# LINE 1539 "src-generated/PrintErrorMessages.hs"#-}
+                              {-# LINE 1539 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule103 #-}
    rule103 = \ child_ kind_ ->
      IncompatibleAttachKind child_ kind_
@@ -1600,13 +1600,13 @@ sem_Errors_Cons arg_hd_ arg_tl_ = T_Errors (return st5) where
    rule105 = \ ((_lhsIoptions) :: Options) ->
                        {-# LINE 67 "src-ag/PrintErrorMessages.ag" #-}
                        verbose _lhsIoptions
-                       {-# LINE 1604 "src-generated/PrintErrorMessages.hs"#-}
+                       {-# LINE 1604 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule106 #-}
    {-# LINE 68 "src-ag/PrintErrorMessages.ag" #-}
    rule106 = \ ((_hdIpp) :: PP_Doc) ->
                       {-# LINE 68 "src-ag/PrintErrorMessages.ag" #-}
                       disp _hdIpp 5000 ""
-                      {-# LINE 1610 "src-generated/PrintErrorMessages.hs"#-}
+                      {-# LINE 1610 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule107 #-}
    {-# LINE 70 "src-ag/PrintErrorMessages.ag" #-}
    rule107 = \ ((_hdIpp) :: PP_Doc) ((_lhsIdups) :: [String]) _str ((_tlIpp) :: PP_Doc) ->
@@ -1614,13 +1614,13 @@ sem_Errors_Cons arg_hd_ arg_tl_ = T_Errors (return st5) where
                      if _str     `elem` _lhsIdups
                      then _tlIpp
                      else _hdIpp >-< _tlIpp
-                     {-# LINE 1618 "src-generated/PrintErrorMessages.hs"#-}
+                     {-# LINE 1618 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule108 #-}
    {-# LINE 73 "src-ag/PrintErrorMessages.ag" #-}
    rule108 = \ ((_lhsIdups) :: [String]) _str ->
                       {-# LINE 73 "src-ag/PrintErrorMessages.ag" #-}
                       _str     : _lhsIdups
-                      {-# LINE 1624 "src-generated/PrintErrorMessages.hs"#-}
+                      {-# LINE 1624 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule109 #-}
    rule109 = \ ((_lhsIoptions) :: Options) ->
      _lhsIoptions
@@ -1648,10 +1648,10 @@ sem_Errors_Nil  = T_Errors (return st5) where
    rule112 = \ ((_lhsIoptions) :: Options) ->
                        {-# LINE 67 "src-ag/PrintErrorMessages.ag" #-}
                        verbose _lhsIoptions
-                       {-# LINE 1652 "src-generated/PrintErrorMessages.hs"#-}
+                       {-# LINE 1652 "src-generated/PrintErrorMessages.hs" #-}
    {-# INLINE rule113 #-}
    {-# LINE 74 "src-ag/PrintErrorMessages.ag" #-}
    rule113 = \  (_ :: ()) ->
                      {-# LINE 74 "src-ag/PrintErrorMessages.ag" #-}
                      text ""
-                     {-# LINE 1658 "src-generated/PrintErrorMessages.hs"#-}
+                     {-# LINE 1658 "src-generated/PrintErrorMessages.hs" #-}

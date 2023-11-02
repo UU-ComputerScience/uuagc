@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.53 (src-ag/VisagePatterns.ag)
+-- UUAGC 0.9.56 (src-ag/VisagePatterns.ag)
 module VisagePatterns where
 {-# LINE 2 "src-ag/VisagePatterns.ag" #-}
 

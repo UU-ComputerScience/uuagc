@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.53 (src-ag/DeclBlocks.ag)
+-- UUAGC 0.9.56 (src-ag/DeclBlocks.ag)
 module DeclBlocks where
 {-# LINE 2 "src-ag/DeclBlocks.ag" #-}
 

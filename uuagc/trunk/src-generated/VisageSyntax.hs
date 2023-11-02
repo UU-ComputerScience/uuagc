@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.53 (src-ag/VisageSyntax.ag)
+-- UUAGC 0.9.56 (src-ag/VisageSyntax.ag)
 module VisageSyntax where
 {-# LINE 2 "src-ag/VisageSyntax.ag" #-}
 

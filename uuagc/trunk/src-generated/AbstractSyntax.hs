@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.53 (src-ag/AbstractSyntax.ag)
+-- UUAGC 0.9.56 (src-ag/AbstractSyntax.ag)
 module AbstractSyntax where
 {-# LINE 2 "src-ag/AbstractSyntax.ag" #-}
 

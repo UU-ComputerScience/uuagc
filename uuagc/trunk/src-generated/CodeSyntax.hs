@@ -1,6 +1,6 @@
 
 
--- UUAGC 0.9.53 (src-ag/CodeSyntax.ag)
+-- UUAGC 0.9.56 (src-ag/CodeSyntax.ag)
 module CodeSyntax where
 {-# LINE 2 "src-ag/CodeSyntax.ag" #-}
 
