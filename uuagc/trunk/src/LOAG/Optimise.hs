@@ -210,8 +210,8 @@ newSchedule sat varMap nbounds tp@(Nt nt _ _ inhs outs _ ) sched = do
           -> (IOArray Vertex Vertices, IOArray Vertex Vertices)
           -> IO ()
         addEdges (f,t) (idsf,idst) = do
-            modifyArray idsf f (t `IS.insert`)
-            modifyArray idst t (f `IS.insert`)
+            LOAG.Common.modifyArray idsf f (t `IS.insert`)
+            LOAG.Common.modifyArray idst t (f `IS.insert`)
  
 -- | count the (max, avg, total) number of visits
 getVisCount :: [Nt] -> InterfaceRes -> VisCount
