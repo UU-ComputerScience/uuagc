@@ -20,8 +20,6 @@ extra-source-files: src-ag/*.ag
 extra-source-files: src-ag/*.lag
 extra-source-files: src-ag/LOAG/*.ag
 
--- This flag will be set by Setup.hs, use
--- cabal configure --ghc-options="-DEXTERNAL_UUAGC"
 flag bootstrap_external
    description: Use an external uuagc executable for bootstrapping
    default: False
@@ -55,8 +53,12 @@ library
    build-depends: haskell-src-exts >= 1.11.1
    build-depends: filepath >= 1.1.0.4
    build-depends: aeson >= 1.4.7.1, bytestring >= 0.9.2.1
-   hs-source-dirs: src, src-version, src-ag, src-options
-   if !flag(bootstrap_external)
+   hs-source-dirs: src, src-version, src-options
+   if flag(bootstrap_external)
+      -- we need to avoid any *.ag files if we're not bootstrapping,
+      -- because we now always use the ag preprocessor.
+      hs-source-dirs: src-ag
+   else
       hs-source-dirs: src-generated
    exposed-modules: UU.UUAGC, UU.UUAGC.Version
    default-extensions: TypeSynonymInstances, MultiParamTypeClasses

@@ -1137,6 +1137,7 @@ SEM Pattern
                 lhs.sem_lhs   = @loc.addbang1 @loc.patExpr
   | Product     lhs.sem_lhs   = @loc.addbang1 $ pp_block "(" ")" "," @pats.sem_lhs
   | Constr      lhs.sem_lhs   = @loc.addbang1 $ pp_parens $ @name >#< hv_sp @pats.sem_lhs
+  | InfixConstr lhs.sem_lhs   = @loc.addbang1 $ pp_parens $ @patl.sem_lhs >#< @name >#< @patr.sem_lhs
   | Underscore  lhs.sem_lhs   = text "_"
   | Irrefutable lhs.sem_lhs   = text "~" >|< pp_parens @pat.sem_lhs
 
@@ -1144,6 +1145,7 @@ SEM Pattern
 ATTR Pattern [ | | isUnderscore:{Bool}]
 SEM Pattern
  | Constr      lhs.isUnderscore = False
+ | InfixConstr lhs.isUnderscore = False
  | Product     lhs.isUnderscore = False
  | Alias       lhs.isUnderscore = False
  | Underscore  lhs.isUnderscore = True
@@ -1553,12 +1555,12 @@ SEM EProduction | EProduction       loc.addbang = \x -> if bangpats @lhs.options
 SEM EChild | EChild                 loc.addbang = \x -> if bangpats @lhs.options then "!" >|< x else x
 SEM EChild | ETerm                  loc.addbang = \x -> if bangpats @lhs.options then "!" >|< x else x
 SEM VisitStep | ChildVisit          loc.addbang = \x -> if bangpats @lhs.options then "!" >|< x else x
-SEM Pattern | Alias Constr Product  loc.addbang  = \x -> if bangpats @lhs.options then "!" >|< x else x
+SEM Pattern | Alias Constr InfixConstr Product  loc.addbang  = \x -> if bangpats @lhs.options then "!" >|< x else x
 
 SEM Visit | Visit                   loc.addbang1 = if isLazyKind @kind then id else @loc.addbang
 SEM ENonterminal | ENonterminal     loc.addbangWrap = id --if strictWrap @lhs.options then @loc.addbang else id
 SEM ERule | ERule                   loc.addbang1 = if @loc.anyLazyKind then id else @loc.addbang
-SEM Pattern | Alias Constr Product  loc.addbang1 = if @lhs.anyLazyKind then id else @loc.addbang
+SEM Pattern | Alias Constr InfixConstr Product  loc.addbang1 = if @lhs.anyLazyKind then id else @loc.addbang
 
 --
 -- Distribute single-visit-next map downward
