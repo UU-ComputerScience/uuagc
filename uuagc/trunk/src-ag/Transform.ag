@@ -1188,6 +1188,7 @@ SEM Pattern
           lhs.definedInsts = (if @field == _INST then [@attr] else []) ++ @pat.definedInsts
   | Underscore lhs.patunder = \_ -> @copy
   | Constr lhs.patunder    = \us -> Constr @name (@pats.patunder us)
+  | InfixConstr lhs.patunder = \us -> InfixConstr @name (@patl.patunder us) (@patr.patunder us)
   | Product lhs.patunder    = \us -> Product @pos (@pats.patunder us)
   | Irrefutable lhs.patunder = \us -> Irrefutable (@pat.patunder us)
 
@@ -1199,6 +1200,7 @@ ATTR Pattern [ | | stpos : Pos ]
 
 SEM Pattern
   | Constr     lhs.stpos = getPos @name
+  | InfixConstr lhs.stpos = @patl.stpos
   | Product    lhs.stpos = @pos
   | Alias      lhs.stpos = getPos @field
   | Underscore lhs.stpos = @pos

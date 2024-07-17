@@ -508,12 +508,14 @@ addAugments (syn, exprs) rules
     modify r = r
 
     containsSyn (Constr _ pats)   = any containsSyn pats
+    containsSyn (InfixConstr _ patl patr) = containsSyn patl || containsSyn patr
     containsSyn (Product _ pats)  = any containsSyn pats
     containsSyn (Irrefutable pat) = containsSyn pat
     containsSyn (Alias field attr pat) = (field == _LHS && attr == syn) || containsSyn pat
     containsSyn _ = False
 
     modifyPat (Constr name pats) = Constr name (map modifyPat pats)
+    modifyPat (InfixConstr name patl patr) = InfixConstr name (modifyPat patl) (modifyPat patr)
     modifyPat (Product pos pats) = Product pos (map modifyPat pats)
     modifyPat (Irrefutable pat)  = Irrefutable (modifyPat pat)
     modifyPat (Alias field attr pat)
