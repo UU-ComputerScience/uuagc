@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP #-}
+{-# LANGUAGE CPP, OverloadedStrings, DataKinds #-}
 module Distribution.Simple.UUAGC.UUAGC(uuagcUserHook,
                                        uuagcUserHook',
                                        uuagc,
@@ -56,7 +56,9 @@ import Data.List (nub,intersperse)
 import Data.Map (Map)
 import qualified Data.Map as Map
 
-#if MIN_VERSION_Cabal(3,6,0)
+#if MIN_VERSION_Cabal(3,14,0)
+import Distribution.Utils.Path (getSymbolicPath, Pkg, Source, SymbolicPath, FileOrDir (Dir), interpretSymbolicPathCWD)
+#elif MIN_VERSION_Cabal(3,6,0)
 import Distribution.Utils.Path (getSymbolicPath, PackageDir, SourceDir, SymbolicPath)
 #endif
 
@@ -192,6 +194,13 @@ getOptionsFromClass classes fOpt =
                                                    ++ show fClass
                                                    ++ " is not defined."
 
+#if MIN_VERSION_Cabal(3,14,0)
+buildDir' :: LocalBuildInfo -> FilePath
+buildDir' = interpretSymbolicPathCWD . buildDir
+#else
+buildDir' = buildDir
+#endif
+
 -- uuagcSDistHook :: ([String] -> FilePath -> IO (ExitCode, [FilePath]))
 --      -> PackageDescription
 --      -> Maybe LocalBuildInfo
@@ -202,7 +211,7 @@ getOptionsFromClass classes fOpt =
 --   {-
 --   case mbLbi of
 --     Nothing -> warn normal "sdist: the local buildinfo was not present. Skipping AG initialization. Dist may fail."
---     Just lbi -> let classesPath = buildDir lbi </> agClassesFile
+--     Just lbi -> let classesPath = buildDir' lbi </> agClassesFile
 --                 in commonHook uuagc classesPath pd lbi (sDistVerbosity df)
 --   originalSDistHook pd mbLbi uh df
 --   -}
@@ -216,7 +225,7 @@ uuagcBuildHook
      -> BuildFlags
      -> IO ()
 uuagcBuildHook uuagc pd lbi uh bf = do
-  let classesPath = buildDir lbi </> agClassesFile
+  let classesPath = buildDir' lbi </> agClassesFile
   commonHook uuagc classesPath pd lbi (buildVerbosity bf)
   originalBuildHook pd lbi uh bf
 
@@ -229,7 +238,7 @@ commonHook :: ([String] -> FilePath -> IO (ExitCode, [FilePath]))
 commonHook uuagc classesPath pd lbi fl = do
   let verbosity = fromFlagOrDefault normal fl
   info verbosity $ "commonHook: Assuming AG classesPath: " ++ classesPath
-  createDirectoryIfMissingVerbose verbosity True (buildDir lbi)
+  createDirectoryIfMissingVerbose verbosity True (buildDir' lbi)
   -- Read already existing options
   -- Map FilePath (Options, Maybe (FilePath,[String]))
   oldOptions <- readFileOptions classesPath
@@ -272,7 +281,7 @@ uuagc' uuagc build lbi _ =
      platformIndependent = True,
      runPreProcessor = mkSimplePreProcessor $ \ inFile outFile verbosity ->
                        do notice verbosity $ "[UUAGC] processing: " ++ inFile ++ " generating: " ++ outFile
-                          let classesPath = buildDir lbi </> agClassesFile
+                          let classesPath = buildDir' lbi </> agClassesFile
                           info verbosity $ "uuagc-preprocessor: Assuming AG classesPath: " ++ classesPath
                           fileOpts <- readFileOptions classesPath
                           opts <- case Map.lookup inFile fileOpts of
@@ -290,7 +299,10 @@ uuagc' uuagc build lbi _ =
 
 -- | In Cabal 3.6.0.0 (GHC 9.2) and up, 'BuildInfo' member 'hsSourceDirs' has type
 -- '[SymbolicPath PackageDir SourceDir]', but in versions before that, it is [FilePath].
-#if MIN_VERSION_Cabal(3,6,0)
+#if MIN_VERSION_Cabal(3,14,0)
+hsSourceDirsFilePaths :: [SymbolicPath Pkg (Dir Source)] -> [FilePath]
+hsSourceDirsFilePaths = map getSymbolicPath
+#elif MIN_VERSION_Cabal(3,6,0)
 hsSourceDirsFilePaths :: [SymbolicPath PackageDir SourceDir] -> [FilePath]
 hsSourceDirsFilePaths = map getSymbolicPath
 #else
