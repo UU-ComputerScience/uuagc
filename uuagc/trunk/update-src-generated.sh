@@ -1,6 +1,6 @@
 rm -rf dist-newstyle
-cabal v2-configure --ghc-options="-DEXTERNAL_UUAGC" -fwith-loag
-cabal v2-build --ghc-options="-DEXTERNAL_UUAGC"
+set -e
+cabal v2-build -fbootstrap_external -fwith-loag
 cp dist-newstyle/build/x86_64-linux/ghc-*/uuagc-*/build/*.hs src-generated/
 cp dist-newstyle/build/x86_64-linux/ghc-*/uuagc-*/build/LOAG/*.hs src-generated/LOAG/
 # Patch the line pragma's a bit

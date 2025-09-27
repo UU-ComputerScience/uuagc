@@ -133,7 +133,7 @@ scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn opts = do
                     , let pred = varMap M.! (i,s)
                     ]
             forM dps $ \(f,t) -> do
-                modifyArray edp t (f `IS.insert`)
+                LOAG.Common.modifyArray edp t (f `IS.insert`)
             f_idsf <- freeze idsf
             f_idst <- freeze idst
             f_edp  <- freeze edp
@@ -145,10 +145,10 @@ scheduleLOAG ag@(Ag nbounds pbounds dps nts) putStrLn opts = do
                   -> IOArray Vertex Vertices
                   -> IO [()]
                 addEdges (f,t) es (idsf,idst) edp = do
-                    modifyArray idsf f (t `IS.insert`)
-                    modifyArray idst t (f `IS.insert`)
+                    LOAG.Common.modifyArray idsf f (t `IS.insert`)
+                    LOAG.Common.modifyArray idst t (f `IS.insert`)
                     forM es $ \(f,t) -> do --edp does not reflect flow
-                        modifyArray edp t (f `IS.insert`)                
+                        LOAG.Common.modifyArray edp t (f `IS.insert`)
 
 noCyclesNt :: Sat -> NtGraph -> IO ()
 noCyclesNt sat g  | IM.null g  = return ()
