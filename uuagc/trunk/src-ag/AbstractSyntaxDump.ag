@@ -42,6 +42,7 @@ SEM TypeSig
 
 SEM Pattern
   | Constr          lhs     .   pp      =   ppNestInfo ["Pattern","Constr"] [pp @name] [ppF "pats" $ ppVList @pats.ppL] []
+  | InfixConstr     lhs     .   pp      =   ppNestInfo ["Pattern","InfixConstr"] [pp @name] [ppF "patl" @patl.pp, ppF "patr" @patr.pp] []
   | Product         lhs     .   pp      =   ppNestInfo ["Pattern","Product"] [ppShow @pos] [ppF "pats" $ ppVList @pats.ppL] []
   | Alias           lhs     .   pp      =   ppNestInfo ["Pattern","Alias"] [pp @field, pp @attr] [ppF "pat" $ @pat.pp] []
   | Underscore      lhs     .   pp      =   ppNestInfo ["Pattern","Underscore"] [ppShow @pos] [] []

@@ -353,13 +353,14 @@ SEM Patterns [ | | pps : {[PP_Doc]} ]
   | Nil  lhs.pps = []
 
 SEM Pattern
-  | Constr Product Alias
+  | Constr InfixConstr Product Alias
       loc.addBang = if bangpats @lhs.options && not @lhs.isDeclOfLet && not @lhs.belowIrrefutable
                     then \p -> "!" >|< p
                     else id
 
 SEM Pattern [ | | pp:PP_Doc ]
-  | Constr  lhs.pp     = @loc.addBang $ pp_parens $ @name >#< hv_sp @pats.pps
+  | Constr  lhs.pp     = @loc.addBang $ pp_parens $ @pats.pps >#< @name >#< @pats.pps
+  | InfixConstr lhs.pp = @loc.addBang $ pp_parens $ @patl.pp >#< @name >#< @patr.pp
   | Product lhs.pp     = @loc.addBang $ pp_block "(" ")" "," @pats.pps
   | Alias   loc.ppVar  = pp (attrname @lhs.options False @field @attr)
             loc.ppVarBang = @loc.addBang $ @loc.ppVar
@@ -371,6 +372,7 @@ SEM Pattern [ | | pp:PP_Doc ]
 
 SEM Pattern [ | | isUnderscore:{Bool}]
  | Constr      lhs.isUnderscore = False
+ | InfixConstr lhs.isUnderscore = False
  | Product     lhs.isUnderscore = False
  | Alias       lhs.isUnderscore = False
  | Underscore  lhs.isUnderscore = True
@@ -394,6 +396,7 @@ SEM Patterns [ | | pps' : {[PP_Doc]} ]
 
 SEM Pattern [ | | pp':PP_Doc ]
   | Constr  lhs.pp'     = pp_parens $ @name >#< hv_sp (map pp_parens @pats.pps')
+  | InfixConstr lhs.pp' = pp_parens $ pp_parens @patl.pp' >#< @name >#< pp_parens @patr.pp'
   | Product lhs.pp'     = pp_block "(" ")" "," @pats.pps'
   | Alias   lhs.pp'     = let attribute | @field == _LOC || @field == nullIdent = locname' @attr
                                         | otherwise                             = attrname @lhs.options False @field @attr

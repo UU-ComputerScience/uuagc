@@ -530,7 +530,8 @@ pPattern :: AGParser (a -> (Identifier,Identifier)) -> AGParser (a -> Pattern)
 pPattern pvar = pPattern2 where
   pPattern0 =  (\i pats a -> Constr i (map ($ a) pats))
                <$> pIdentifierU <*> pList  pPattern1
-               <|> pPattern1 <?> "a pattern"
+           <|> (pPattern1 <?> "a pattern")
+           <|> pChainr ((\(x,p) l r a -> InfixConstr (Ident x p) (l a) (r a)) <$> (pConsymPos <|> ((\x -> (":",x)) <$> pReserved ":"))) pPattern1
   pPattern1 =  pvariable
            <|> pPattern2
   pvariable = (\ir var pat a -> case var a of (fld,att) -> ir $ Alias fld att (pat a))

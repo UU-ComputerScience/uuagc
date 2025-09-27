@@ -9,6 +9,9 @@ TYPE Patterns   = [Pattern]
 
 DATA Pattern    | Constr      name  : {ConstructorIdent}
                               pats  : Patterns
+                | InfixConstr name  : {ConstructorIdent}
+                              patl  : Pattern
+                              patr  : Pattern
                 | Product     pos   : {Pos}
                               pats  : Patterns
                 | Alias       field : {Identifier}

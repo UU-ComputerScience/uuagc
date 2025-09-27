@@ -118,6 +118,9 @@ scan opts p0
                                            tok | str `elem` keywords' = reserved (mkKeyword str)
                                                | otherwise            = valueToken TkConid str
                                        in (tok p, advc (length var+1) p,rest)
+                         -- FIXME: this does not work because : is reserved...
+                         | x == ':' = let (var,rest) = span (`elem` "!#$%&⋆+./<=>?@\\^|-~:") rs
+                                       in (valueToken TkConOp (':' : var) p, advc (length var+1) p,rest)
                          | otherwise = (errToken ("unexpected character " ++ show x) p, advc 1 p, rs)
 
     scanBeginOfLine :: Lexer Token

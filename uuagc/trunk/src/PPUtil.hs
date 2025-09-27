@@ -43,6 +43,9 @@ ppNestInfo {- opts -} nms attrs ps infos
         )
     >-< indent 2 (vlist ps)
 
+-- >>> ppNestInfo ["foo"] [text "bar"] [] []
+-- Data constructor not in scope: Str :: String -> PP_Doc
+
 ppNm :: String -> PP_Doc
 ppNm = text . show
 
